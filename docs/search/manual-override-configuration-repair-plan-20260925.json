@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "clean_baseline_request": {
+    "execution_request_id": "9ebd0414-3547-4d21-8d71-82d1f2173e81",
+    "request_code": "EXE-20260925-154756-AA5DE6",
+    "action_code": "ADOPT_SOURCE_PRICE_BASELINE",
+    "request_status": "APPROVAL_REQUIRED",
+    "requested_by_type": "agent",
+    "requested_by_user_id": null,
+    "request_hash": "3959d0c8289c67e7724abc35633580cd19e8a32f29e3a5a5a034e13ac1ebe923",
+    "approval_hash": null,
+    "receipt_rows": 0,
+    "clean_products": 205,
+    "clean_price_rows": 850,
+    "price_governance_mutation_performed": false
+  },
+  "manual_lane": {
+    "status": "STRUCTURAL_REPAIR_PROPOSED_NOT_APPLIED",
+    "current_price_rows": 6,
+    "current_sellable_configurations": 3,
+    "current_evidence_sha256": "19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae",
+    "commercial_values_change": false,
+    "price_review_status_change": false,
+    "proposed_new_sellable_configurations": 3,
+    "products": [
+      {
+        "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
+        "issue": "Male and female source options are currently collapsed onto one sellable_configuration_id.",
+        "desired_bindings": [
+          {
+            "configuration_price_id": "aefa2c61-c430-4675-9964-9cd1e3f1658e",
+            "source_option_value": "Мужская одежда",
+            "source_amount": 183.44,
+            "public_price_amount": 183.44,
+            "manual_override_amount": null,
+            "sellable_configuration_id": "7f0afd2b-8dbd-41a8-a1de-424404d80b95",
+            "config_operation": "reuse_and_relabel",
+            "configuration_name": "Male Outfit",
+            "normalized_key": "male_outfit",
+            "option_mapping_id": "df5c0538-4de2-48a2-9df8-76ffac6bc509",
+            "sort_order": 1,
+            "desired_review_status": "not_reviewed"
+          },
+          {
+            "configuration_price_id": "5074ad3c-af6a-4cf7-9624-ce351ee9cafc",
+            "source_option_value": "Женский наряд",
+            "source_amount": 327,
+            "public_price_amount": 327,
+            "manual_override_amount": null,
+            "sellable_configuration_id": "16832d7d-3d43-4384-a09a-ebe847f46f33",
+            "config_operation": "create_and_rebind",
+            "configuration_name": "Female Outfit",
+            "normalized_key": "female_outfit",
+            "option_mapping_id": "e2792946-b1d4-45e8-8026-cfca80be7778",
+            "sort_order": 2,
+            "desired_review_status": "not_reviewed"
+          },
+          {
+            "configuration_price_id": "26274d0c-81c9-44e6-9ce7-c3056c62040c",
+            "source_option_value": "Owner Full Set",
+            "source_amount": null,
+            "public_price_amount": 460.44,
+            "manual_override_amount": 460.44,
+            "sellable_configuration_id": "fcc1bf40-861a-4c6f-aa3c-bc2c7bd8e13e",
+            "config_operation": "preserve",
+            "configuration_name": "Full Set",
+            "normalized_key": "full_set_couple_owner_20260917",
+            "option_mapping_id": null,
+            "sort_order": 3,
+            "desired_review_status": "approved"
+          }
+        ]
+      },
+      {
+        "canonical_product_id": "5602d557-9d98-454b-bc98-9b9ea84b442f",
+        "issue": "Skirt, Top + Shoulders and Full Set source options are currently collapsed onto one sellable_configuration_id.",
+        "desired_bindings": [
+          {
+            "configuration_price_id": "25d14147-338b-4ce9-9254-aa41f6333c00",
+            "source_option_value": "Юбка",
+            "source_amount": 135.1,
+            "public_price_amount": 135.1,
+            "manual_override_amount": null,
+            "sellable_configuration_id": "017451ec-bb37-4ad9-a307-9a59de3412c0",
+            "config_operation": "create_and_rebind",
+            "configuration_name": "Skirt",
+            "normalized_key": "skirt",
+            "option_mapping_id": "5c8ad41e-e5a6-4ded-ab1e-ef376ae59226",
+            "sort_order": 1,
+            "desired_review_status": "not_reviewed"
+          },
+          {
+            "configuration_price_id": "613d93e8-5499-471e-a0e2-e4977d5e2b60",
+            "source_option_value": "Верх и плечи",
+            "source_amount": 154.41,
+            "public_price_amount": 154.41,
+            "manual_override_amount": null,
+            "sellable_configuration_id": "06f7f6ac-b9a2-477a-b0cb-836017cf7e13",
+            "config_operation": "reuse_and_relabel",
+            "configuration_name": "Top + Shoulders",
+            "normalized_key": "top_shoulders",
+            "option_mapping_id": "1aa8d040-1155-493b-ab71-71b4e49a5e61",
+            "sort_order": 2,
+            "desired_review_status": "not_reviewed"
+          },
+          {
+            "configuration_price_id": "48f92e5d-bff1-47ec-89f8-b026b77e3cb9",
+            "source_option_value": "Полный комплект",
+            "source_amount": 164.06,
+            "public_price_amount": 260,
+            "manual_override_amount": 260,
+            "sellable_configuration_id": "9b90382e-cacc-4f29-b2e3-8c7d71ce1dea",
+            "config_operation": "create_and_rebind",
+            "configuration_name": "Full Set",
+            "normalized_key": "full_set",
+            "option_mapping_id": "41149ec4-0681-47af-9030-cc6d529321ba",
+            "sort_order": 3,
+            "desired_review_status": "not_reviewed",
+            "preserve_manual_price_status": "owner_reviewed"
+          }
+        ]
+      }
+    ]
+  }
+}

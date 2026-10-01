@@ -1,0 +1,23 @@
+import type {MetadataRoute} from 'next';
+import {connection} from 'next/server';
+import {closedReviewRequested} from '@/lib/searchReviewPresentation';
+import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
+import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
+
+export default async function sitemap():Promise<MetadataRoute.Sitemap>{
+  // ACTIVE Search Release is mutable governance state; keep the sitemap request-time
+  // until the release-activation invalidation path is explicitly cache-bound later.
+  await connection();
+  if(closedReviewRequested(process.env)||!isSearchIndexingEnabled())return[];
+
+  const {release,items}=await readActiveSearchReleaseIndexItems();
+  if(!release||!items.length)return[];
+
+  const origin=getSiteUrl().origin;
+  const seen=new Set<string>();
+  return items.map((item)=>{
+    if(seen.has(item.path))throw new Error('Duplicate path in active search release');
+    seen.add(item.path);
+    return{url:new URL(item.path,origin).toString()};
+  });
+}

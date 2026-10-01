@@ -1,0 +1,25 @@
+{
+  "scope": "read-only literal public function-body scan; excludes dynamic SQL and other schemas",
+  "callers": [
+    {
+      "identity": "feya_commerce_apply_seo_keyword_metric_import_v1(text,text)",
+      "prosecdef": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true,
+      "literal_views": [
+        "feya_commerce_v_seo_keyword_metric_import_ready_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_record_keyword_cleanup_review_recommendation_v1(bigint,text,text,text,text,text,jsonb,text,text,text,uuid,jsonb)",
+      "prosecdef": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true,
+      "literal_views": [
+        "feya_commerce_v_keyword_cleanup_review_risk_v1"
+      ]
+    }
+  ]
+}

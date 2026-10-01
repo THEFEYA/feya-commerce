@@ -1,0 +1,595 @@
+{
+  "observed_at": "2026-09-23T22:52:14.714435+00:00",
+  "source": "read_only_supabase_select",
+  "snapshots": [
+    {
+      "snapshot_id": "151",
+      "keyword_norm": "cyberpunk festival outfit",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 20,
+      "competition": "HIGH",
+      "competition_index": "87",
+      "low_top_of_page_bid": "15.06",
+      "high_top_of_page_bid": "98.76",
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"100%\", \"change_yoy\": \"0%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"input_seed\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 10,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "152",
+      "keyword_norm": "cyberpunk rave clothing",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 30,
+      "competition": "HIGH",
+      "competition_index": "100",
+      "low_top_of_page_bid": "18.92",
+      "high_top_of_page_bid": "65.31",
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"33%\", \"change_yoy\": \"300%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"google_ads_related_idea\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 5,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "153",
+      "keyword_norm": "cyberpunk rave outfit",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 320,
+      "competition": "HIGH",
+      "competition_index": "100",
+      "low_top_of_page_bid": "17.77",
+      "high_top_of_page_bid": "70.62",
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"-18%\", \"change_yoy\": \"-33%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"input_seed\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 2,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "154",
+      "keyword_norm": "cyberpunk shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 20,
+      "competition": "MEDIUM",
+      "competition_index": "36",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"-50%\", \"change_yoy\": \"0%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"input_seed\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 1,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "155",
+      "keyword_norm": "futuristic armor costume",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "MEDIUM",
+      "competition_index": "43",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"0%\", \"change_yoy\": \"0%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"input_seed\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 4,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "156",
+      "keyword_norm": "futuristic cosplay armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 40,
+      "competition": "HIGH",
+      "competition_index": "73",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"75%\", \"change_yoy\": \"40%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"google_ads_related_idea\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 6,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "157",
+      "keyword_norm": "futuristic rave clothing",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "LOW",
+      "competition_index": "8",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"0%\", \"change_yoy\": \"-50%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"google_ads_related_idea\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 7,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "158",
+      "keyword_norm": "futuristic shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 50,
+      "competition": "MEDIUM",
+      "competition_index": "64",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"currency\": \"UAH\", \"change_3mo\": \"25%\", \"change_yoy\": \"0%\", \"date_range\": \"Jun 2025 - May 2026\", \"country_code\": \"US\", \"source_batch\": \"P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08\", \"language_code\": \"en\", \"metric_source\": \"google_ads_keyword_planner\", \"source_row_type\": \"input_seed\"}"
+      },
+      "fetched_at": "2026-07-08 13:10:00.401459+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T13:09:52.982354+00:00",
+        "import_row_id": 3,
+        "source_file_name": "P1_CRITICAL_BATCH_01_GOOGLE_ADS_2026_07_08.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "159",
+      "keyword_norm": "frozen phase",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "LOW",
+      "competition_index": "0",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"google_ads_related_idea\",\"currency\":\"UAH\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:18:05.362113+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_02_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:14:20.342423+00:00",
+        "import_row_id": 14,
+        "source_file_name": "Keyword Stats 2026-07-08 at 15_58_05.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "160",
+      "keyword_norm": "post apocalyptic shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 20,
+      "competition": "HIGH",
+      "competition_index": "70",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"input_seed\",\"currency\":\"UAH\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:18:05.362113+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_02_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:17:11.756213+00:00",
+        "import_row_id": 20,
+        "source_file_name": "Keyword Stats 2026-07-08 at 15_58_05.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "161",
+      "keyword_norm": "warrior shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "HIGH",
+      "competition_index": "84",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"input_seed\",\"currency\":\"UAH\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:18:05.362113+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_02_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:16:34.6368+00:00",
+        "import_row_id": 18,
+        "source_file_name": "Keyword Stats 2026-07-08 at 15_58_05.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "162",
+      "keyword_norm": "warrior shoulders",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "LOW",
+      "competition_index": "0",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"input_seed\",\"currency\":\"UAH\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:18:05.362113+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_02_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:14:28.402798+00:00",
+        "import_row_id": 15,
+        "source_file_name": "Keyword Stats 2026-07-08 at 15_58_05.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "163",
+      "keyword_norm": "gold shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 210,
+      "competition": "HIGH",
+      "competition_index": "90",
+      "low_top_of_page_bid": "6.36",
+      "high_top_of_page_bid": "19.93",
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"input_seed\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"0%\",\"change_yoy\":\"0%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 27,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "164",
+      "keyword_norm": "gold shoulder body chain",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 10,
+      "competition": "HIGH",
+      "competition_index": "79",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"google_ads_related_idea\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"0%\",\"change_yoy\":\"0%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 30,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "165",
+      "keyword_norm": "gold shoulder chain",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 110,
+      "competition": "HIGH",
+      "competition_index": "99",
+      "low_top_of_page_bid": "9.68",
+      "high_top_of_page_bid": "30.12",
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"google_ads_related_idea\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"0%\",\"change_yoy\":\"22%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 29,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "166",
+      "keyword_norm": "gold shoulders",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 110,
+      "competition": "LOW",
+      "competition_index": "1",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"input_seed\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"27%\",\"change_yoy\":\"27%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 28,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "167",
+      "keyword_norm": "lego gold shoulder armor",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 90,
+      "competition": "LOW",
+      "competition_index": "18",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"google_ads_related_idea\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"27%\",\"change_yoy\":\"180%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 31,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "168",
+      "keyword_norm": "lego gold shoulder pads",
+      "source_api": "google_ads_csv",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": 140,
+      "competition": "LOW",
+      "competition_index": "7",
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": {
+        "raw": "{\"source_row_type\":\"google_ads_related_idea\",\"currency\":\"UAH\",\"date_range\":\"Jun 2025 - May 2026\",\"change_3mo\":\"24%\",\"change_yoy\":\"133%\",\"metric_source\":\"google_ads_keyword_planner\"}"
+      },
+      "fetched_at": "2026-07-08 14:30:41.956483+00",
+      "raw_payload_json": {
+        "batch_code": "P1_CRITICAL_BATCH_03_GOOGLE_ADS_2026_07_08",
+        "imported_at": "2026-07-08T14:30:14.837406+00:00",
+        "import_row_id": 32,
+        "source_file_name": "Keyword Stats 2026-07-08 at 16_29_09.csv"
+      },
+      "data_freshness_status": "fresh_manual_import",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    },
+    {
+      "snapshot_id": "1",
+      "keyword_norm": "festival outfit",
+      "source_api": "google_ads_keyword_planner",
+      "geo": "US",
+      "language": "en",
+      "avg_monthly_searches": null,
+      "competition": null,
+      "competition_index": null,
+      "low_top_of_page_bid": null,
+      "high_top_of_page_bid": null,
+      "monthly_search_volumes_json": null,
+      "fetched_at": null,
+      "raw_payload_json": {
+        "note": "No Google Ads API call was made; this is a controlled pilot placeholder snapshot only.",
+        "reason": "google_ads_api_tool_not_available_in_current_session",
+        "status": "not_fetched",
+        "pilot_run": "us_en_tier1_controlled_150",
+        "prepared_at": "2026-06-17T16:34:30.518832+00:00"
+      },
+      "data_freshness_status": "api_not_connected",
+      "metric_batch_keyword_id": null,
+      "keyword_id": null,
+      "targeting_context_hash": null,
+      "bid_currency_code": null
+    }
+  ],
+  "bank_samples": [
+    {
+      "id": "e650e071-4ca7-434d-8a01-37210e5cb30e",
+      "keyword": "burning man outfits",
+      "keyword_norm": "burning man outfits",
+      "region": "US",
+      "language": "en",
+      "metric_source": "google_keyword_planner",
+      "last_checked": "2026-06-29",
+      "notes": null,
+      "source_files": "thefeya_keyword_bank_v1_draft.xlsx",
+      "avg_monthly_searches": 3600,
+      "competition": "HIGH",
+      "low_bid": "34.41",
+      "high_bid": "117.48"
+    }
+  ],
+  "counts": {
+    "bank": [
+      {
+        "rows": 102,
+        "newest": "2026-06-29",
+        "oldest": "2026-06-29",
+        "zero_volume": 0,
+        "metric_source": "commercial_v1_a_google_ads_stats_2026_07_05",
+        "missing_volume": 0
+      },
+      {
+        "rows": 9511,
+        "newest": "2026-07-08",
+        "oldest": "2026-06-29",
+        "zero_volume": 204,
+        "metric_source": "google_keyword_planner",
+        "missing_volume": 0
+      }
+    ],
+    "staging": [
+      {
+        "rows": 18,
+        "import_status": "promoted_to_snapshots"
+      },
+      {
+        "rows": 14,
+        "import_status": "error"
+      }
+    ],
+    "snapshots": [
+      {
+        "rows": 150,
+        "newest": null,
+        "oldest": null,
+        "source_api": "google_ads_keyword_planner",
+        "with_currency": 0,
+        "with_target_hash": 0,
+        "data_freshness_status": "api_not_connected"
+      },
+      {
+        "rows": 18,
+        "newest": "2026-07-08T14:30:41.956483+00:00",
+        "oldest": "2026-07-08T13:10:00.401459+00:00",
+        "source_api": "google_ads_csv",
+        "with_currency": 0,
+        "with_target_hash": 0,
+        "data_freshness_status": "fresh_manual_import"
+      }
+    ],
+    "observed_at": "2026-09-23T22:52:14.714435+00:00",
+    "obsolete_import_tables": {
+      "batch": null,
+      "metrics": null
+    },
+    "bank_review_status": {
+      "approved_draft": 4834,
+      "hold": 3474,
+      "reject": 1305
+    }
+  }
+}

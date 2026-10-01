@@ -1,0 +1,26 @@
+{
+  "contract_version": "editorial_cqa_v1",
+  "reviewed_at": "2026-09-26",
+  "reviewer_role": "CQA",
+  "page": "/guides/what-to-wear-to-burning-man",
+  "status": "PASS",
+  "release_status": "HOLD",
+  "checks": {
+    "distinct_informational_job": "PASS",
+    "commercial_collection_cannibalization": "PASS_SEPARATE_INTENT",
+    "official_source_grounding": "PASS",
+    "affiliation_claims": "PASS_NONE",
+    "safety_boundary": "PASS",
+    "moop_guidance_scope": "PASS_OFFICIAL_ATTRIBUTED",
+    "product_truth_scope": "PASS",
+    "keyword_stuffing": "PASS_NONE",
+    "generic_event_history": "PASS_NONE",
+    "internal_link_contract": "PASS"
+  },
+  "release_blockers": [
+    "Editorial page is not part of Organic Wave A v1",
+    "No Human Owner indexing approval exists for this guide",
+    "Exact release version containing this guide has not been prepared"
+  ],
+  "decision": "Content may remain live as a noindex guide draft. It is not authorized for indexing."
+}

@@ -1,189 +1,182 @@
+// @ts-nocheck
+export const instant = true;
+
+import type { Metadata } from 'next';
+import { cache, Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ProductCard } from '@/components/ProductCard';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { Header } from '@/components/Header';
+import { ProductDetailClient } from '@/components/ProductDetailClient';
+import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
+import { getMedia, productTitle } from '@/lib/storefront';
+import { readCachedStorefrontProductPresentation } from '@/lib/storefrontProductPresentationServer';
+import type { StorefrontProduct } from '@/lib/types';
+import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
+import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
+import { absoluteSiteUrl } from '@/lib/siteConfig';
+import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 
-type PageProps = {
-  params: Promise<{ slug: string }>;
-};
+type PageProps = { params: Promise<{ slug: string }> };
+function canonicalProductUrl(slug: string) {
+  return absoluteSiteUrl(`/shop/${slug}`);
+}
 
-async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
+function textValue(product: StorefrontProduct, keys: string[]) {
+  const record = product as StorefrontProduct & Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
 
-  if (!supabase) {
-    return { product: null, error: getMissingSupabaseEnvMessage() };
+function productDescription(product: StorefrontProduct) {
+  return textValue(product, ['meta_description', 'seo_description', 'description_meta', 'description']) || `${productTitle(product)} by TheFEYA, an original handmade design for stage, festival, desert and editorial styling.`;
+}
+
+function productImages(product: StorefrontProduct) {
+  const mediaUrls = getMedia(product).map((item) => item.url).filter(Boolean);
+  const fallbackUrls = [product.primary_image_url, product.secondary_image_url, product.hover_image_url].filter(Boolean);
+  return Array.from(new Set([...mediaUrls, ...fallbackUrls]));
+}
+
+function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
+  // Phase 11 stays truthful to the current commerce boundary:
+  // active internal offer revisions exist, but public order creation/payment are not enabled.
+  // Merchant Offer/ProductGroup markup is added only when the page can actually preselect
+  // and purchase the represented variant through a crawlable public URL.
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: approvedCopy?.draft.h1 || productTitle(product),
+    description: approvedCopy?.metadata.description || productDescription(product),
+    image: productImages(product),
+    sku: product.canonical_product_id || slug,
+    url: canonicalProductUrl(slug),
+    brand: {
+      '@type': 'Brand',
+      name: 'TheFEYA',
+    },
+  };
+}
+
+function productBreadcrumbJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://thefeya.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://thefeya.com/shop' },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: approvedCopy?.draft.h1 || productTitle(product),
+        item: canonicalProductUrl(slug),
+      },
+    ],
+  };
+}
+
+// One request-scoped source for head, JSON-LD and existing PDP props.
+// Only the public Product Truth/detail payload is persistent-cache backed.
+// Review/auth overlays stay request-scoped and never enter the shared cache.
+const getPresentation = cache(async (slug: string) => {
+  const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
+  const review = hybridVisualPreview ? { status: 'disabled' as const, release: null } : await readClosedReviewPresentation();
+  if (review.status === 'blocked') return { product: null, related: [], productCollections: null, approvedCopy: null, approvedOfferSnapshot: null, copyBlocked: true, error: null };
+  if (review.status === 'review') {
+    const entry = review.release.entries.find(e => e.product.product_slug === slug);
+    return { product: entry?.product ?? null, related: [], productCollections: null, approvedCopy: entry?.copy ?? null, approvedOfferSnapshot: null, copyBlocked: !entry, error: null };
   }
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
-    .eq('product_slug', slug)
-    .maybeSingle();
-
-  if (error) {
-    return { product: null, error: error.message };
+  try {
+    const result = await readCachedStorefrontProductPresentation(slug);
+    const approved = result.product ? await readApprovedStorefrontCopy(result.product) : null;
+    const projectedProduct = hybridVisualPreview && result.product && approved?.status === 'review'
+      ? projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)
+      : result.product;
+    return {
+      ...result,
+      product: projectedProduct,
+      approvedCopy: approved?.copy ?? null,
+      approvedOfferSnapshot: approved?.status === 'review' ? approved.offerSnapshot : null,
+      copyBlocked: approved?.status === 'blocked',
+    };
+  } catch {
+    return { product: null, related: [], productCollections: null, approvedCopy: null, approvedOfferSnapshot: null, copyBlocked: false, error: 'Product data is temporarily unavailable.' };
   }
-
-  return { product: data as StorefrontProduct | null };
-}
-
-function formatMoney(amount: number | null | undefined, currency = 'USD') {
-  if (amount == null) return null;
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatPrice(product: StorefrontProduct) {
-  const currency = product.currency || 'USD';
-  const min = product.min_price;
-  const max = product.max_price;
-
-  if (min == null && max == null) return 'Price under review';
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  return formatMoney(min ?? max ?? 0, currency);
-}
-
-function getConfigurations(product: StorefrontProduct): StorefrontConfiguration[] {
-  if (!Array.isArray(product.configurations)) return [];
-  return product.configurations as StorefrontConfiguration[];
-}
-
-function getConfigurationLabel(configuration: StorefrontConfiguration, index: number) {
-  return String(
-    configuration.configuration_label ||
-      configuration.configuration_name ||
-      configuration.option_value ||
-      configuration.raw_option_value ||
-      configuration.title ||
-      configuration.label ||
-      `Configuration ${index + 1}`,
-  );
-}
-
-function getConfigurationPrice(configuration: StorefrontConfiguration, fallbackCurrency: string | null) {
-  const currency = configuration.currency || fallbackCurrency || 'USD';
-  const single = configuration.price_amount ?? configuration.price ?? configuration.amount;
-
-  if (single != null) return formatMoney(single, currency);
-
-  const min = configuration.min_price;
-  const max = configuration.max_price;
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  if (min != null || max != null) return formatMoney(min ?? max, currency);
-
-  return 'Price under review';
-}
-
-export default async function ProductPreviewPage({ params }: PageProps) {
+});
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { product, error } = await getProduct(slug);
-  const configurations = product ? getConfigurations(product).slice(0, 8) : [];
+  const { product, approvedCopy, copyBlocked } = await getPresentation(slug);
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/shop">Shop</Link>
-            <Link href="/admin">Admin</Link>
-          </div>
-        </nav>
+  if (!product || copyBlocked) {
+    return {
+      title: 'Product not found | TheFEYA',
+      robots: { index: false, follow: true },
+    };
+  }
 
-        {error ? <div className="notice">{error}</div> : null}
+  const title = approvedCopy?.metadata.title || productTitle(product);
+  const description = approvedCopy?.metadata.description || productDescription(product);
+  const images = productImages(product);
 
-        {!error && !product ? <div className="notice">Product not found.</div> : null}
-
-        {product ? (
-          <>
-            <section className="grid pdp-grid">
-              <ProductCard product={product} />
-              <div className="card pdp-panel">
-                <p className="badge">Read-only PDP preview</p>
-                <h1>{product.h1 || product.card_title || 'Untitled product'}</h1>
-                <p className="muted">{product.meta_description || 'Description draft is not approved yet.'}</p>
-                <div className="pdp-price">{formatPrice(product)}</div>
-                <div className="badge-row">
-                  {product.material ? <span className="badge">{product.material}</span> : null}
-                  {product.color ? <span className="badge">{product.color}</span> : null}
-                  {product.size_mode ? <span className="badge">{product.size_mode}</span> : null}
-                  {product.public_configuration_count ? <span className="badge">{product.public_configuration_count} configurations</span> : null}
-                  {product.has_fallback_price ? <span className="badge">Fallback price review</span> : null}
-                  {product.handmade_flag ? <span className="badge">Handmade</span> : null}
-                </div>
-                <div className="notice" style={{ marginTop: '24px' }}>
-                  Product options are read-only in Phase B. Configuration selector and Add to Bag will be added only after review flows are stable.
-                </div>
-              </div>
-            </section>
-
-            <section className="section-head">
-              <div>
-                <h2>Configurations</h2>
-                <p className="muted">Read-only view of available set/option logic from Supabase.</p>
-              </div>
-            </section>
-
-            {configurations.length > 0 ? (
-              <div className="configuration-list">
-                {configurations.map((configuration, index) => (
-                  <div className="configuration-card" key={`${getConfigurationLabel(configuration, index)}-${index}`}>
-                    <div className="section-head" style={{ margin: 0 }}>
-                      <h3>{getConfigurationLabel(configuration, index)}</h3>
-                      <span className="status-pill warning">{getConfigurationPrice(configuration, product.currency)}</span>
-                    </div>
-                    <p>
-                      Future selector row. Components, size/color/material options and exact buy-box behavior will be reviewed in Product Builder before checkout is added.
-                    </p>
-                    {configuration.has_fallback_price ? <div className="badge-row"><span className="badge">Fallback price review</span></div> : null}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="notice">No configuration payload available yet. Treat this as a whole-product draft until Product Builder review.</div>
-            )}
-
-            <section className="grid pdp-section-grid">
-              <div className="card pdp-info-block">
-                <h3>What’s included</h3>
-                <p>Will be generated from component/configuration data. Must clearly state what is included and what is not included.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Materials & care</h3>
-                <p>Will use canonical material data and TheFEYA snippet rules. Avoid wrong material claims.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Sizing & fit</h3>
-                <p>Will explain adjustable/custom sizing, measurements and fit notes before launch.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Production time</h3>
-                <p>Default handmade production logic will be shown here after content approval.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Shipping & returns</h3>
-                <p>Short commercial summary with detailed policy links later. No tax/customs promises without policy review.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Handmade / styled imagery note</h3>
-                <p>Will explain handmade variation and styled/AI-assisted imagery flags where relevant.</p>
-              </div>
-            </section>
-          </>
-        ) : null}
-      </div>
-    </main>
-  );
+  return {
+    ...(approvedCopy ? { robots: { index: false, follow: false } } : {}),
+    title,
+    description,
+    alternates: { canonical: `/shop/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/shop/${slug}`,
+      type: 'website',
+      images: images.slice(0, 4),
+    },
+  };
 }
+
+export default function ProductPage(props: PageProps) {
+  return <Suspense fallback={<ProductRouteFallback />}>
+    <ResolvedProductPage {...props} />
+  </Suspense>;
+}
+
+function ProductRouteFallback() {
+  return <main className="relative min-h-screen">
+    <Suspense fallback={null}><Header /></Suspense>
+  </main>;
+}
+
+async function ResolvedProductPage({ params }: PageProps) {
+  const { slug } = await params;
+  const { product, related, error, approvedCopy, copyBlocked, productCollections: cachedProductCollections } = await getPresentation(slug);
+  if (copyBlocked) notFound();
+  if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
+  if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
+
+  const jsonLd = productJsonLd(product, slug, approvedCopy);
+  const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
+  const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
+  // This exact Vercel branch is an owner-protected visual storefront review.
+  // Keep the immutable approved SEO copy projected, but do not replace the
+  // existing cart controls with the generic content-review "Preview only" CTA.
+  // Checkout/payment/indexing remain independently disabled by their own gates.
+  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
+
+  return <main className="relative min-h-screen">
+    <Header />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
+    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce} />
+    {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
+      <div className="eyebrow-gold mb-4">Explore related collections</div>
+      <div className="flex flex-wrap gap-2">
+        {productCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip">{collection.title}</Link>)}
+      </div>
+    </section> : null}
+  </main>;
+}
+

@@ -1,83 +1,104 @@
-import Link from 'next/link';
-import { ProductCard } from '@/components/ProductCard';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontProduct } from '@/lib/types';
+// @ts-nocheck
+export const instant = true;
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
+import { closedReviewRequested } from '@/lib/searchReviewPresentation';
+import {
+  filterShopProducts,
+  parseShopNavigation,
+  shopHrefWithTracking,
+  shopNavigationHasFilterState,
+  shopNavigationHasUtilityState,
+  shopNavigationNeedsNormalization,
+  shopPageHref,
+  SHOP_PAGE_SIZE,
+} from '@/lib/shopCatalogNavigation';
+import { Header } from '@/components/Header';
+import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
+import { ShopClient } from '@/components/ShopClient';
 
-const PHASE_A_STOREFRONT_LIMIT = 250;
-
-async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
-
-  if (!supabase) {
-    return { products: [], error: getMissingSupabaseEnvMessage() };
+async function getProducts() {
+  const reviewGate = await readClosedReviewPresentation();
+  if (reviewGate.status === 'blocked') notFound();
+  const review = reviewGate.status === 'review';
+  try {
+    return {
+      products: await readCachedApprovedStorefrontCatalogV1(),
+      review,
+    };
+  } catch (error) {
+    const code = error instanceof Error ? error.message.split(':')[0] : 'unavailable';
+    console.warn('storefront_card_read_model_failed', code);
+    if (review) notFound();
+    return {
+      products: [],
+      error: 'Storefront catalog is temporarily unavailable.',
+      review: false,
+    };
   }
-
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
-    .limit(PHASE_A_STOREFRONT_LIMIT);
-
-  if (error) {
-    return { products: [], error: error.message };
-  }
-
-  return { products: (data || []) as StorefrontProduct[] };
 }
 
-export default async function ShopPage() {
-  const { products, error } = await getProducts();
+type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/admin">Admin</Link>
-          </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Phase B skeleton</div>
-          <p>
-            Live storefront preview connected to safe Supabase views. The next design pass will improve the visual system without replacing real data.
-          </p>
-        </section>
-
-        <section className="section-head">
-          <div>
-            <h2>Shop preview</h2>
-            <p className="muted">Read-only storefront candidates from the safe Supabase API view.</p>
-          </div>
-          <p className="muted">{products.length} loaded</p>
-        </section>
-
-        <div className="toolbar" aria-label="Planned storefront filters">
-          <span className="filter-chip">All pieces</span>
-          <span className="filter-chip">Festival</span>
-          <span className="filter-chip">Stage</span>
-          <span className="filter-chip">Armor</span>
-          <span className="filter-chip">Acrylic</span>
-          <span className="filter-chip">Needs final UX</span>
-        </div>
-
-        {error ? <div className="notice">{error}</div> : null}
-
-        {!error && products.length === 0 ? (
-          <div className="notice">
-            No products returned from Supabase yet. Check that the safe storefront view has rows and that anon read access is enabled for this view.
-          </div>
-        ) : null}
-
-        <section className="grid product-grid">
-          {products.map((product) => (
-            <ProductCard key={product.canonical_product_id} product={product} />
-          ))}
-        </section>
-      </div>
-    </main>
-  );
+export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
+  const query = parseShopNavigation(await searchParams);
+  const filterState=Boolean(query&&shopNavigationHasFilterState(query));
+  return {
+    title: 'Shop',
+    alternates: { canonical: query ? shopPageHref(query.page, query.filters) : '/shop' },
+    ...(closedReviewRequested(process.env)
+      ? { robots: { index: false, follow: false } }
+      : filterState
+        ? { robots: { index: false, follow: true } }
+        : {}),
+  };
 }
+
+export default function ShopPage(props: ShopPageProps) {
+  return <Suspense fallback={<ShopRouteFallback />}>
+    <ResolvedShopPage {...props} />
+  </Suspense>;
+}
+
+function ShopRouteFallback() {
+  return <main className="relative min-h-screen">
+    <Suspense fallback={null}><Header /></Suspense>
+  </main>;
+}
+
+async function ResolvedShopPage({ searchParams }: ShopPageProps) {
+  // URL state is request-time; the 207-product slim catalog remains one shared cache.
+  const params = await searchParams;
+  const navigation = parseShopNavigation(params);
+  if (!navigation) notFound();
+
+  const { products, error, review } = await getProducts();
+  const filteredCount = filterShopProducts(products, navigation.filters).length;
+  const utilityState = shopNavigationHasUtilityState(navigation);
+
+  if (products.length && utilityState && filteredCount===0) notFound();
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
+
+  const normalizedHref=shopPageHref(navigation.page,navigation.filters);
+  if (shopNavigationNeedsNormalization(params,navigation)) {
+    redirect(shopHrefWithTracking(normalizedHref,params));
+  }
+
+  // Closed review and explicit page>1 keep crawlable real-anchor pagination.
+  // Normal page-1 browsing keeps the approved zero-network load-more UX while
+  // receiving normalized server filters for direct-load SSR.
+  const strictNavigation = review || navigation.page>1 ? navigation : undefined;
+  const initialNavigation = strictNavigation ? undefined : navigation;
+
+  return <main className="relative min-h-screen"><Header /><ShopClient
+    key={normalizedHref}
+    products={products}
+    error={error}
+    navigation={strictNavigation}
+    initialNavigation={initialNavigation}
+  /></main>;
+}
+

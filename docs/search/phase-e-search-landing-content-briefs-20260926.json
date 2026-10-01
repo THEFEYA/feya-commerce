@@ -1,0 +1,499 @@
+{
+  "contract_version": "search_landing_content_brief_v1",
+  "status": "PHASE_E_BRIEFS_PROPOSED_NO_COPY_NO_INDEX",
+  "market": "US",
+  "locale": "en-US",
+  "membership_source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+  "policy_refs": [
+    "Product DNA Search Architecture Decision Framework v1",
+    "FEYA Page Portfolio Schema v1",
+    "FEYA editorial SEO system",
+    "FEYA competitor architecture research",
+    "FEYA Technical SEO Launch Specification 2026"
+  ],
+  "global_rules": {
+    "before_grid": [
+      "one H1",
+      "40–100 useful words only when they help selection",
+      "visual intent/subcategory chips"
+    ],
+    "commerce_layer": [
+      "server-rendered product grid from immutable membership",
+      "controlled non-indexable filters",
+      "1–3 useful merchandising modules"
+    ],
+    "after_grid": [
+      "300–800 words only if the intent needs explanation",
+      "no fixed word target",
+      "FAQ only from real buyer questions/evidence"
+    ],
+    "writing": [
+      "Product Truth before prose",
+      "semantic relevance over keyword density",
+      "no generic fashion filler",
+      "no unsupported fit/safety/custom claims",
+      "no cloned keyword-swap copy"
+    ],
+    "technical": [
+      "server HTML",
+      "self canonical only after release approval",
+      "visible breadcrumbs",
+      "crawlable links",
+      "noindex until selective release",
+      "same release truth for content/membership/sitemap/schema"
+    ]
+  },
+  "pages": [
+    {
+      "path": "/collections/shoulder-armor",
+      "family": "type_hub",
+      "user_job": "Choose decorative sculptural shoulder pieces for a costume, stage, cosplay or festival look.",
+      "primary_cluster": "QC_US_EN_SHOULDER_ARMOR",
+      "supporting_terms": [
+        "shoulder armor costume",
+        "cosplay shoulder armor",
+        "fantasy shoulder armor",
+        "pauldrons only when factually appropriate"
+      ],
+      "excluded_queries": [
+        "tactical shoulder armor",
+        "ballistic shoulder armor",
+        "protective shoulder armor",
+        "motorcycle shoulder armor",
+        "football shoulder pads"
+      ],
+      "eligible_products": 80,
+      "nearest_overlap": {
+        "path": "/collections/festival-outfits",
+        "jaccard": 0.469
+      },
+      "unique_modules": [
+        "Shop by use context: performance / festival / cosplay using approved DNA only",
+        "Shop by confirmed material or visual effect such as mirror acrylic / mirror-coated vegan leather when represented in the membership",
+        "Related body pieces: arm pieces, harnesses, headpieces or complete looks through actual membership links"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/stage-outfits",
+        "/collections/festival-outfits",
+        "/collections/burning-man-looks"
+      ],
+      "factual_guardrails": [
+        "Decorative costume/fashion positioning only",
+        "Never describe as protective, ballistic, safety or historical armor unless Product Truth explicitly says so"
+      ],
+      "faq_topics": [
+        "How decorative shoulder pieces are worn/adjusted only when source facts support it",
+        "How to choose one-shoulder vs full-shoulder options where configuration truth exists",
+        "Care for mirror/acrylic or vegan-leather finishes from canonical care facts"
+      ]
+    },
+    {
+      "path": "/collections/festival-outfits",
+      "family": "event_hub",
+      "user_job": "Choose a TheFEYA look for festival styling across multiple product types.",
+      "primary_cluster": "QC_US_EN_FESTIVAL_OUTFITS",
+      "supporting_terms": [
+        "festival clothes",
+        "festival wear",
+        "festival outfits women"
+      ],
+      "excluded_queries": [
+        "renaissance festival costumes",
+        "oktoberfest outfits",
+        "festival costumes as a separate unproven owner"
+      ],
+      "eligible_products": 111,
+      "nearest_overlap": {
+        "path": "/collections/festival-skirts",
+        "jaccard": 0.505
+      },
+      "unique_modules": [
+        "Shop by product type from the approved membership: armor, bodysuits, skirts, masks/headpieces, belts and other represented components",
+        "Shop by confirmed visual effect/material rather than generic color pages",
+        "Complete-the-look links to festival skirts and relevant product-type owners",
+        "Companion practical festival styling guide only after editorial eligibility passes"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 4,
+        "planned_X": 75,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/festival-skirts",
+        "/collections/rave-outfits",
+        "/collections/burning-man-looks",
+        "/collections/shoulder-armor",
+        "/collections/bodysuits"
+      ],
+      "factual_guardrails": [
+        "No blanket comfort/weather/durability promises",
+        "Do not merge Renaissance/Oktoberfest/carnival intent into this owner"
+      ],
+      "faq_topics": [
+        "How to choose between full look and individual pieces",
+        "Which materials/finishes are represented in the current collection",
+        "Production and shipping facts only from canonical policy snippets"
+      ]
+    },
+    {
+      "path": "/collections/rave-outfits",
+      "family": "event_hub",
+      "user_job": "Choose a TheFEYA rave/EDM outfit with a distinct shopping path from general festival discovery.",
+      "primary_cluster": "QC_US_EN_RAVE_OUTFITS",
+      "additional_owned_cluster_candidate": "QC_US_EN_RAVE_COSTUMES",
+      "supporting_terms": [
+        "rave clothes",
+        "rave wear",
+        "rave attire",
+        "rave outfits women"
+      ],
+      "excluded_queries": [],
+      "eligible_products": 40,
+      "nearest_overlap": {
+        "path": "/collections/festival-skirts",
+        "jaccard": 0.28
+      },
+      "unique_modules": [
+        "Shop by product type represented in the rave membership",
+        "Shop by confirmed reflective/mirror/futuristic visual effects without creating automatic effect URLs",
+        "Rave-specific complete-look merchandising distinct from the broader Festival hub"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/festival-outfits",
+        "/collections/bodysuits",
+        "/collections/shoulder-armor",
+        "/collections/festival-skirts"
+      ],
+      "factual_guardrails": [
+        "Do not infer movement/comfort claims from the word rave",
+        "Avoid adult/fetish terminology unless the specific product truth and policy explicitly allow it"
+      ],
+      "faq_topics": [
+        "Choosing complete looks vs accessories",
+        "Sizing/measurement link to canonical guide",
+        "Care for metallic/mirror finishes"
+      ]
+    },
+    {
+      "path": "/collections/burning-man-looks",
+      "family": "event_hub",
+      "user_job": "Choose a TheFEYA Burning Man/desert-event look from products already tagged for that context.",
+      "primary_cluster": "QC_US_EN_BURNING_MAN_OUTFITS",
+      "additional_owned_cluster_candidate": "QC_US_EN_BURNING_MAN_COSTUMES",
+      "supporting_terms": [
+        "burning man outfits",
+        "burning man costumes"
+      ],
+      "excluded_queries": [
+        "what to wear to burning man as an informational guide owner"
+      ],
+      "eligible_products": 45,
+      "nearest_overlap": {
+        "path": "/collections/festival-outfits",
+        "jaccard": 0.357
+      },
+      "unique_modules": [
+        "Shop by product type within the Burning Man membership",
+        "Shop by approved desert/futuristic/warrior visual themes when represented by DNA",
+        "Commercial collection separated from a future practical What to Wear guide",
+        "Related links to shoulder armor and festival/rave owners for broader browsing"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 4,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/festival-outfits",
+        "/collections/shoulder-armor",
+        "/collections/costume-headpieces",
+        "/collections/festival-skirts"
+      ],
+      "factual_guardrails": [
+        "No Burning Man affiliation claim",
+        "No weather/dust/safety guarantee",
+        "Event-date delivery is not guaranteed unless expressly accepted for the order"
+      ],
+      "faq_topics": [
+        "How to choose parts vs a full look",
+        "Made-to-order timing from canonical policy",
+        "Care/storage only from verified material facts"
+      ]
+    },
+    {
+      "path": "/collections/stage-outfits",
+      "family": "subhub",
+      "user_job": "Choose visual performance costumes for stage use without pretending to cover the entire dance-recital market.",
+      "primary_cluster": "QC_US_EN_PERFORMANCE_COSTUMES",
+      "supporting_terms": [
+        "stage wear as semantic support only where natural",
+        "performance clothing as semantic support only where natural"
+      ],
+      "excluded_queries": [
+        "stage costumes as a separate mixed SERP cluster",
+        "stage outfits as a separate mixed cluster",
+        "performance outfits",
+        "dance costumes",
+        "dance recital costumes",
+        "competition dance costumes",
+        "showgirl costumes until its own evidence batch"
+      ],
+      "eligible_products": 96,
+      "nearest_overlap": {
+        "path": "/collections/costume-headpieces",
+        "jaccard": 0.226
+      },
+      "unique_modules": [
+        "Shop by performer role/persona from approved DNA: dancer, DJ, drag performer, show performer where present",
+        "Shop by product type: armor, bodysuits, skirts/sets, masks/headpieces and accessories represented in membership",
+        "Shop by camera/stage visual effect from confirmed materials/finishes",
+        "Performance-team/custom-service CTA only if Business Truth later confirms that service"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 4,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/shoulder-armor",
+        "/collections/bodysuits",
+        "/collections/costume-headpieces",
+        "/collections/festival-outfits"
+      ],
+      "factual_guardrails": [
+        "Do not target broad recital/dance-costume intent without product-fit evidence",
+        "Do not invent movement, quick-change or durability claims"
+      ],
+      "faq_topics": [
+        "How to measure for stage pieces",
+        "How to coordinate multiple pieces into one look",
+        "Production timing and team-ordering only when service truth is confirmed"
+      ]
+    },
+    {
+      "path": "/collections/bodysuits",
+      "family": "type_hub",
+      "user_job": "Choose a complete TheFEYA costume bodysuit.",
+      "primary_cluster": "QC_US_EN_COSTUME_BODYSUIT",
+      "supporting_terms": [
+        "costume bodysuits"
+      ],
+      "excluded_queries": [
+        "festival bodysuit as a separate hold cluster",
+        "licensed character bodysuit",
+        "superhero bodysuit"
+      ],
+      "eligible_products": 30,
+      "nearest_overlap": {
+        "path": "/collections/costume-headpieces",
+        "jaccard": 0.28
+      },
+      "unique_modules": [
+        "Shop by confirmed material/finish",
+        "Shop by approved event/context without creating automatic event×bodysuit pages",
+        "Related headpieces/armor/accessories for products that actually support a coordinated look"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/stage-outfits",
+        "/collections/rave-outfits",
+        "/collections/festival-outfits"
+      ],
+      "factual_guardrails": [
+        "Do not apply hygiene/final-sale claims mechanically to all bodysuits",
+        "Fit/coverage claims must come from Product Truth"
+      ],
+      "faq_topics": [
+        "How sizing works from the canonical size guide",
+        "Made-to-order/custom exceptions only when true for the selected product",
+        "Care by actual material"
+      ]
+    },
+    {
+      "path": "/collections/costume-masks",
+      "family": "type_hub",
+      "user_job": "Choose a decorative TheFEYA costume mask.",
+      "primary_cluster": "QC_US_EN_COSTUME_MASKS",
+      "supporting_terms": [
+        "costume mask"
+      ],
+      "excluded_queries": [
+        "respirator mask",
+        "gas mask safety",
+        "medical mask",
+        "licensed character masks"
+      ],
+      "eligible_products": 11,
+      "nearest_overlap": {
+        "path": "/collections/costume-headpieces",
+        "jaccard": 0.286
+      },
+      "unique_modules": [
+        "Shop by approved visual persona/theme without licensed-character substitution",
+        "Pair masks with matching costume/headpiece collections where the actual product membership supports it",
+        "Material/finish care guidance only for represented materials"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/costume-headpieces",
+        "/collections/festival-outfits",
+        "/collections/burning-man-looks"
+      ],
+      "factual_guardrails": [
+        "Decorative fashion/costume masks only",
+        "Never imply respiratory or protective function"
+      ],
+      "faq_topics": [
+        "How decorative masks are worn only from source facts",
+        "Care/cleaning by material",
+        "Returns/hygiene wording only from approved policy and actual product packaging"
+      ]
+    },
+    {
+      "path": "/collections/costume-headpieces",
+      "family": "type_hub",
+      "user_job": "Choose a sculptural TheFEYA costume headpiece or headdress.",
+      "primary_cluster": "QC_US_EN_COSTUME_HEADPIECE",
+      "supporting_terms": [
+        "costume headpieces"
+      ],
+      "excluded_queries": [
+        "how to make a headpiece",
+        "headpiece tutorial"
+      ],
+      "eligible_products": 34,
+      "nearest_overlap": {
+        "path": "/collections/costume-masks",
+        "jaccard": 0.286
+      },
+      "unique_modules": [
+        "Shop by approved persona/theme",
+        "Shop by confirmed mirror/metallic/holographic effect where represented",
+        "Pair with masks, armor and performance looks through actual related memberships"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/costume-masks",
+        "/collections/stage-outfits",
+        "/collections/festival-outfits"
+      ],
+      "factual_guardrails": [
+        "No DIY/tutorial intent on the commercial page",
+        "Do not invent attachment/weight/comfort claims"
+      ],
+      "faq_topics": [
+        "How headpieces attach only where verified",
+        "Sizing/adjustability only where verified",
+        "Care/storage by actual construction"
+      ]
+    },
+    {
+      "path": "/collections/festival-skirts",
+      "family": "subhub",
+      "user_job": "Choose a skirt for festival styling from products that both contain a sellable skirt and carry festival context.",
+      "primary_cluster": "QC_US_EN_FESTIVAL_SKIRT",
+      "supporting_terms": [
+        "festival skirts"
+      ],
+      "excluded_queries": [
+        "costume skirt"
+      ],
+      "eligible_products": 56,
+      "nearest_overlap": {
+        "path": "/collections/festival-outfits",
+        "jaccard": 0.505
+      },
+      "unique_modules": [
+        "Skirt-only vs coordinated/full-set purchase paths driven by actual configuration truth",
+        "Pair with tops/harnesses/accessories represented in the same approved product configuration ecosystem",
+        "Festival-specific finish/material chips distinct from the broad Festival Outfits hub"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 75,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/festival-outfits",
+        "/collections/rave-outfits",
+        "/collections/burning-man-looks"
+      ],
+      "factual_guardrails": [
+        "Generic costume-skirt intent is not owned here",
+        "Configuration availability must come from the exact offer model"
+      ],
+      "faq_topics": [
+        "Can the skirt be bought separately only when configuration truth says yes",
+        "How full-set options differ where present",
+        "Sizing/care from canonical facts"
+      ]
+    },
+    {
+      "path": "/collections/costume-belts",
+      "family": "type_hub",
+      "user_job": "Choose a decorative TheFEYA costume/waist belt.",
+      "primary_cluster": "QC_US_EN_COSTUME_BELT",
+      "supporting_terms": [
+        "costume belts"
+      ],
+      "excluded_queries": [
+        "utility belt",
+        "gun belt",
+        "tool belt",
+        "everyday leather belt"
+      ],
+      "eligible_products": 13,
+      "nearest_overlap": {
+        "path": "/collections/shoulder-armor",
+        "jaccard": 0.094
+      },
+      "unique_modules": [
+        "Shop by approved event/style context",
+        "Pair belts with coordinated tops/skirts/armor where actual product configurations support it",
+        "Material/finish selection based on confirmed Product Truth"
+      ],
+      "differentiation": {
+        "planned_unique_modules": 3,
+        "planned_X": 100,
+        "status": "planned_not_release_authority"
+      },
+      "link_targets": [
+        "/collections/festival-outfits",
+        "/collections/rave-outfits",
+        "/collections/stage-outfits"
+      ],
+      "factual_guardrails": [
+        "Decorative costume/fashion belt only",
+        "Do not imply utility/safety/weapon carrying"
+      ],
+      "faq_topics": [
+        "Standalone vs set availability from offer truth",
+        "Adjustability only where product facts support it",
+        "Care by actual material"
+      ]
+    }
+  ],
+  "release_gate": "No brief authorizes publication or indexation. Final design-family evidence, CQA, live internal links and technical release manifest are still required."
+}

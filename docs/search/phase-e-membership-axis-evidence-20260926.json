@@ -1,0 +1,777 @@
+{
+  "contract_version": "phase_e_membership_axis_evidence_v1",
+  "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+  "note": "Counts come from the immutable Phase D membership joined to the latest approved SEO pack manual_focus_snapshot. They support content modules; they do not create new SEO owners.",
+  "pages": {
+    "/collections/shoulder-armor": {
+      "products": 80,
+      "top_styles": [
+        [
+          "glam",
+          46
+        ],
+        [
+          "futuristic",
+          43
+        ],
+        [
+          "post apocalyptic",
+          21
+        ],
+        [
+          "cosmic",
+          18
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          49
+        ],
+        [
+          "warrior",
+          26
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          73
+        ],
+        [
+          "gold",
+          36
+        ],
+        [
+          "silver",
+          23
+        ],
+        [
+          "metallic",
+          13
+        ],
+        [
+          "mirror",
+          7
+        ]
+      ],
+      "top_components": [
+        [
+          "shoulders",
+          80
+        ],
+        [
+          "arms",
+          43
+        ],
+        [
+          "skirt",
+          41
+        ],
+        [
+          "top",
+          35
+        ]
+      ]
+    },
+    "/collections/festival-outfits": {
+      "products": 111,
+      "top_styles": [
+        [
+          "futuristic",
+          64
+        ],
+        [
+          "glam",
+          55
+        ],
+        [
+          "post apocalyptic",
+          29
+        ],
+        [
+          "cosmic",
+          21
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          62
+        ],
+        [
+          "warrior",
+          39
+        ],
+        [
+          "showgirl",
+          14
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          94
+        ],
+        [
+          "gold",
+          49
+        ],
+        [
+          "silver",
+          38
+        ],
+        [
+          "metallic",
+          18
+        ],
+        [
+          "mirror",
+          12
+        ],
+        [
+          "holographic",
+          11
+        ]
+      ],
+      "top_components": [
+        [
+          "shoulders",
+          61
+        ],
+        [
+          "skirt",
+          56
+        ],
+        [
+          "arms",
+          53
+        ],
+        [
+          "top",
+          50
+        ]
+      ]
+    },
+    "/collections/rave-outfits": {
+      "products": 40,
+      "top_styles": [
+        [
+          "glam",
+          23
+        ],
+        [
+          "futuristic",
+          19
+        ],
+        [
+          "cyberpunk",
+          9
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          15
+        ],
+        [
+          "showgirl",
+          8
+        ],
+        [
+          "warrior",
+          7
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          33
+        ],
+        [
+          "silver",
+          13
+        ],
+        [
+          "gold",
+          11
+        ],
+        [
+          "holographic",
+          10
+        ],
+        [
+          "mirror",
+          10
+        ],
+        [
+          "metallic",
+          9
+        ]
+      ],
+      "top_components": [
+        [
+          "skirt",
+          26
+        ],
+        [
+          "shoulders",
+          23
+        ],
+        [
+          "top",
+          20
+        ],
+        [
+          "arms",
+          15
+        ]
+      ]
+    },
+    "/collections/burning-man-looks": {
+      "products": 45,
+      "top_styles": [
+        [
+          "futuristic",
+          31
+        ],
+        [
+          "post apocalyptic",
+          25
+        ],
+        [
+          "glam",
+          17
+        ],
+        [
+          "desert",
+          10
+        ]
+      ],
+      "top_personas": [
+        [
+          "warrior",
+          22
+        ],
+        [
+          "performer",
+          20
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          35
+        ],
+        [
+          "gold",
+          28
+        ],
+        [
+          "silver",
+          12
+        ],
+        [
+          "metallic",
+          6
+        ],
+        [
+          "mirror",
+          6
+        ]
+      ],
+      "top_components": [
+        [
+          "shoulders",
+          30
+        ],
+        [
+          "arms",
+          24
+        ],
+        [
+          "skirt",
+          21
+        ],
+        [
+          "top",
+          15
+        ]
+      ]
+    },
+    "/collections/stage-outfits": {
+      "products": 96,
+      "top_styles": [
+        [
+          "glam",
+          70
+        ],
+        [
+          "futuristic",
+          44
+        ],
+        [
+          "fantasy",
+          17
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          83
+        ],
+        [
+          "showgirl",
+          42
+        ],
+        [
+          "go go dancer",
+          23
+        ],
+        [
+          "dancer",
+          22
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          89
+        ],
+        [
+          "gold",
+          40
+        ],
+        [
+          "silver",
+          29
+        ],
+        [
+          "metallic",
+          14
+        ],
+        [
+          "holographic",
+          13
+        ],
+        [
+          "mirror",
+          10
+        ]
+      ],
+      "top_components": [
+        [
+          "top",
+          51
+        ],
+        [
+          "skirt",
+          42
+        ],
+        [
+          "legs",
+          34
+        ],
+        [
+          "arms",
+          26
+        ],
+        [
+          "headpiece",
+          24
+        ],
+        [
+          "shoulders",
+          24
+        ],
+        [
+          "bodysuit",
+          20
+        ]
+      ]
+    },
+    "/collections/bodysuits": {
+      "products": 30,
+      "top_styles": [
+        [
+          "glam",
+          22
+        ],
+        [
+          "fantasy",
+          14
+        ],
+        [
+          "futuristic",
+          13
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          26
+        ],
+        [
+          "showgirl",
+          13
+        ],
+        [
+          "go go dancer",
+          9
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          27
+        ],
+        [
+          "gold",
+          13
+        ],
+        [
+          "black",
+          13
+        ],
+        [
+          "fabric",
+          6
+        ],
+        [
+          "holographic",
+          6
+        ]
+      ],
+      "top_components": [
+        [
+          "bodysuit",
+          30
+        ],
+        [
+          "legs",
+          20
+        ],
+        [
+          "headpiece",
+          14
+        ],
+        [
+          "arms",
+          12
+        ]
+      ]
+    },
+    "/collections/costume-masks": {
+      "products": 11,
+      "top_styles": [
+        [
+          "glam",
+          6
+        ],
+        [
+          "futuristic",
+          5
+        ],
+        [
+          "post apocalyptic",
+          3
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          9
+        ],
+        [
+          "showgirl",
+          6
+        ],
+        [
+          "go go dancer",
+          5
+        ]
+      ],
+      "top_materials": [
+        [
+          "silver",
+          7
+        ],
+        [
+          "vegan leather",
+          6
+        ],
+        [
+          "acrylic",
+          4
+        ],
+        [
+          "fabric",
+          4
+        ],
+        [
+          "gold",
+          4
+        ],
+        [
+          "mirror",
+          4
+        ]
+      ],
+      "top_components": [
+        [
+          "mask",
+          11
+        ],
+        [
+          "headpiece",
+          10
+        ],
+        [
+          "top",
+          9
+        ],
+        [
+          "arms",
+          6
+        ]
+      ]
+    },
+    "/collections/costume-headpieces": {
+      "products": 34,
+      "top_styles": [
+        [
+          "glam",
+          25
+        ],
+        [
+          "fantasy",
+          16
+        ],
+        [
+          "futuristic",
+          10
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          27
+        ],
+        [
+          "showgirl",
+          14
+        ],
+        [
+          "go go dancer",
+          9
+        ],
+        [
+          "queen",
+          7
+        ],
+        [
+          "witch",
+          7
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          29
+        ],
+        [
+          "gold",
+          19
+        ],
+        [
+          "black",
+          11
+        ],
+        [
+          "silver",
+          8
+        ],
+        [
+          "acrylic",
+          4
+        ],
+        [
+          "mirror",
+          4
+        ]
+      ],
+      "top_components": [
+        [
+          "headpiece",
+          34
+        ],
+        [
+          "legs",
+          17
+        ],
+        [
+          "top",
+          17
+        ],
+        [
+          "bodysuit",
+          14
+        ]
+      ]
+    },
+    "/collections/festival-skirts": {
+      "products": 56,
+      "top_styles": [
+        [
+          "glam",
+          37
+        ],
+        [
+          "futuristic",
+          30
+        ],
+        [
+          "cosmic",
+          12
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          31
+        ],
+        [
+          "warrior",
+          10
+        ],
+        [
+          "showgirl",
+          9
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          48
+        ],
+        [
+          "gold",
+          24
+        ],
+        [
+          "silver",
+          17
+        ],
+        [
+          "holographic",
+          8
+        ],
+        [
+          "metallic",
+          8
+        ],
+        [
+          "mirror",
+          8
+        ]
+      ],
+      "top_components": [
+        [
+          "skirt",
+          56
+        ],
+        [
+          "top",
+          38
+        ],
+        [
+          "shoulders",
+          36
+        ],
+        [
+          "arms",
+          21
+        ]
+      ]
+    },
+    "/collections/costume-belts": {
+      "products": 13,
+      "top_styles": [
+        [
+          "futuristic",
+          7
+        ],
+        [
+          "glam",
+          7
+        ],
+        [
+          "cosmic",
+          6
+        ]
+      ],
+      "top_personas": [
+        [
+          "performer",
+          10
+        ],
+        [
+          "warrior",
+          3
+        ],
+        [
+          "pole dancer",
+          2
+        ],
+        [
+          "robot",
+          2
+        ],
+        [
+          "showgirl",
+          2
+        ]
+      ],
+      "top_materials": [
+        [
+          "vegan leather",
+          13
+        ],
+        [
+          "silver",
+          8
+        ],
+        [
+          "gold",
+          4
+        ],
+        [
+          "metallic",
+          4
+        ]
+      ],
+      "top_components": [
+        [
+          "belt",
+          13
+        ],
+        [
+          "legs",
+          8
+        ],
+        [
+          "shoulders",
+          8
+        ],
+        [
+          "top",
+          8
+        ],
+        [
+          "choker",
+          7
+        ]
+      ]
+    }
+  }
+}

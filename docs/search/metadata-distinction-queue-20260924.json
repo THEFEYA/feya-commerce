@@ -1,0 +1,2024 @@
+{
+  "contract_version": "metadata_distinction_review_queue_v1",
+  "target_catalog_products": 208,
+  "review_products": 64,
+  "proposed_field_diffs": 4,
+  "policy": "Resolve exact title/H1 ambiguity using confirmed scope and specific design features. Existing selected keywords and main copy remain. No arbitrary IDs, synonyms or punctuation-only differences as uniqueness fixes. Review same-design candidates before inventing distinctions.",
+  "rows": [
+    {
+      "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "seo_page_id": "d304acc3-a063-4c9b-89d0-e4f1260c3b7a",
+      "draft_id": "7faba4bd-2089-423b-bb29-2e2546fb48e1",
+      "source_content_sha256": "bcaf25d81a75254a8774647780569ce9176dcf57ceca2e4d6a3166f1ef7ee25f",
+      "source_record_md5": "dd75fa6e0f440e1b07f6f6b6398a7f80",
+      "url_path": "/shop/gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+      "current": {
+        "seo_title": "Gold Futuristic Armor Costume for Men",
+        "h1": "Gold Futuristic Armor Costume for Men"
+      },
+      "status": "proposed_field_diff",
+      "proposed": {
+        "seo_title": "Men's Gold Futuristic Shoulder Armor with Choker",
+        "h1": "Men's Gold Futuristic Shoulder Armor with Choker"
+      },
+      "confirmed_components_used": [
+        "choker",
+        "shoulders",
+        "bicep_armor",
+        "forearm_bracers"
+      ],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+      "seo_page_id": "35aa78e4-572f-489e-8d16-390984f14517",
+      "draft_id": "e00d0cdf-cd68-46d1-8b72-3b02a915cd76",
+      "source_content_sha256": "afaab677670d8cb765ef12e8aa4a3d5d4d39a5676e81c67ae361edef88a9671f",
+      "source_record_md5": "b89667491e637970ed539e4388df0cbb",
+      "url_path": "/shop/cosmic-festival-outfit-with-top-skirt-metallic-costume-set-party-rave-wear-unique-futuristic-outfit-cyber-punk-clothing-accessories-4367470907",
+      "current": {
+        "seo_title": "Silver Metallic Top And Skirt Set for Festivals",
+        "h1": "Silver Metallic Top And Skirt Set for Festivals"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "043406cd-0a96-45c5-8796-57c5cc4b276e",
+      "seo_page_id": "c598b8aa-1f8e-4745-bc41-383fc69e89df",
+      "draft_id": "97041b3c-86f9-46ab-9d12-4993f136361c",
+      "source_content_sha256": "46e126dc37dffe5d6213be1d8d47da04a66cbe9e46312db09bc539bed99476d4",
+      "source_record_md5": "f759aae872e0b9ae9b750635852ea8a2",
+      "url_path": "/shop/golden-amazon-armor-costume-set-metallic-shoulder-armour-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-costume-set-1890268726",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume for Festival Photoshoots",
+        "h1": "Gold Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "098044e5-c452-4c52-a0a4-2b29120196e8",
+      "seo_page_id": "942df4a1-037a-46f9-9f27-e226409fa18c",
+      "draft_id": "8e2b6f97-b498-45f1-b397-209ee3aebc10",
+      "source_content_sha256": "06843ad12fd0fa0c3de35d8bf081f5e594c7131f95719160bc9778f0a50600c5",
+      "source_record_md5": "45771b93251ea850a1bb34fd42f767b0",
+      "url_path": "/shop/red-martian-costume-set-shoulders-top-leg-covers-skirt-red-latex-outfit-futuristic-women-s-alian-cosplay-space-armor-wear-1764774832",
+      "current": {
+        "seo_title": "Red Futuristic Armor Costume for Photoshoot",
+        "h1": "Red Futuristic Armor Costume for Photoshoot"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+      "seo_page_id": "279a6fa7-539c-4105-b3b3-0d740416037d",
+      "draft_id": "7cba16de-9753-450f-91f3-01509fab770d",
+      "source_content_sha256": "8a574680a15b6bf469ea606a0bd618ffbf660d80267e45c1dca880759e11a772",
+      "source_record_md5": "e18b171e4f5fea3ada20b263fff79c15",
+      "url_path": "/shop/warrior-princess-outfit-golden-armor-costume-set-cyberpunk-rave-outfit-4482426736",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume for Women",
+        "h1": "Gold Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+      "seo_page_id": "df860e2e-a790-4588-ae27-a3b33efa19f8",
+      "draft_id": "aef8ada3-deca-4451-a50e-82f91abee8e7",
+      "source_content_sha256": "61a6d7d0702a509fb2b9d5a84bcc1bff4489a23f9a1cd04d23f1a97ce1aa1c08",
+      "source_record_md5": "327b0d9a22ea79686c5c60838f31fbcc",
+      "url_path": "/shop/best-festival-outfit-with-top-shoulders-skirt-metallic-harness-set-rave-wear-unique-festival-harness-rave-outfit-festival-accessories-1900339755",
+      "current": {
+        "seo_title": "Silver Rave Outfit With Skirt for Festivals",
+        "h1": "Silver Rave Outfit With Skirt for Festivals"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+      "seo_page_id": "dfb0a6df-4c1b-454e-8a93-c2d95c62e34a",
+      "draft_id": "9d06a6bb-79ae-46b5-a587-8ad0cc9b5018",
+      "source_content_sha256": "37f3cde08880fffcf7957ac5382f64a1d06869791822b7f0a5af0d6b57fb1a77",
+      "source_record_md5": "74c7c01a12eed3f4c7422f154816b4d7",
+      "url_path": "/shop/showgirl-outfit-top-with-shoulders-skirt-party-stage-wear-unique-futuristic-outfit-performance-dance-clothing-4390447995",
+      "current": {
+        "seo_title": "Silver Metallic Top and Skirt Set for Stage",
+        "h1": "Silver Metallic Top and Skirt Set"
+      },
+      "status": "proposed_field_diff",
+      "proposed": {
+        "seo_title": "Silver Metallic Top and Skirt Set with Shoulders",
+        "h1": "Silver Metallic Top and Skirt Set with Shoulders"
+      },
+      "confirmed_components_used": [
+        "top",
+        "shoulders",
+        "skirt"
+      ],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
+      "seo_page_id": "179346ac-7471-4cd9-b4fa-67cc437197bc",
+      "draft_id": "67245e16-9c2a-49f4-9f65-3d08d058cc36",
+      "source_content_sha256": "18d0793f534f62311564646c8b7f3b21f7f6323e3d4af7ad7c1f57855b16e6dd",
+      "source_record_md5": "e4eeb8f3f66a33c554c0c1e73e6d5f49",
+      "url_path": "/shop/men-s-silver-robot-armor-futuristic-cyborg-outfit-4506732837",
+      "current": {
+        "seo_title": "Silver Robot Armor Costume for Men",
+        "h1": "Silver Robot Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "158e7824-4876-4991-b506-e3f6f4aa8371",
+      "seo_page_id": "a921bebd-3caa-4fe1-a3e5-dbf5976dc277",
+      "draft_id": "1c1c1459-d6c6-4f58-9f85-47a0225cbc03",
+      "source_content_sha256": "0bdb619d8a6aa49314c439e8e6bf87fa7e3cbdee3e082a83dbbabbdcf893896e",
+      "source_record_md5": "a2e1599beaa7e9f7c27412a9cab495b7",
+      "url_path": "/shop/metallic-futuristic-clothing-set-top-skirt-chrome-festival-dress-showgirl-wear-4507727106",
+      "current": {
+        "seo_title": "Metallic Top and Skirt Set for Rave and Stage",
+        "h1": "Metallic Top and Skirt Set for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "17de9c7b-53d0-4a7d-90d0-3e79f26e3489",
+      "seo_page_id": "9ca6273c-1be1-4f2d-8c75-6ae82f7ef8d9",
+      "draft_id": "d41d8d61-05e6-4342-b0b7-35df5132824b",
+      "source_content_sha256": "50f6f127c1f4397e0453b0dc271367077bf3b628690054f2ff1f2933babac0a8",
+      "source_record_md5": "13ff58521dd89b22fa0eb731250b0db9",
+      "url_path": "/shop/futuristic-stripper-outfit-silver-pole-wear-exotic-dance-costume-women-s-performance-clothing-1893491509",
+      "current": {
+        "seo_title": "Metallic Top and Skirt Set for Futuristic Photoshoots",
+        "h1": "Metallic Top and Skirt Set for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+      "seo_page_id": "dec4e714-0f93-4a43-8e80-a547770f87e9",
+      "draft_id": "54f3ea43-fe54-4b18-a49b-bac66129cc15",
+      "source_content_sha256": "98757c2ed05dfb9afaa2a6f4870e12d3f7d8f1503df4a1298205b13b2748249c",
+      "source_record_md5": "1c542e032ff0150e5fe9671beabb4aef",
+      "url_path": "/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4326178885",
+      "current": {
+        "seo_title": "Men's Gold Warrior Armor Costume for Burning Man",
+        "h1": "Men's Gold Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "256c75b4-f378-4b21-8321-9d5766bd209c",
+      "seo_page_id": "7ce0ba40-9b5a-4457-bd27-d098db663689",
+      "draft_id": "c42aa8c4-9b85-4488-a686-64871859f946",
+      "source_content_sha256": "8e3a0449b59e4012f91321782953b18ce8188a16f19e724a2212eb271dabf98a",
+      "source_record_md5": "083b62085c6e99b62f4db43cc580f79d",
+      "url_path": "/shop/holographic-costume-set-with-top-skirt-sparkling-rave-outfit-iridescent-stage-costume-leather-party-wear-showgirl-clothing-4333358949",
+      "current": {
+        "seo_title": "Holographic Rave Skirt and Top Set for Women",
+        "h1": "Holographic Rave Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+      "seo_page_id": "5dd00092-438a-4ae6-820e-001e05d29318",
+      "draft_id": "f064038f-313a-4904-a22b-4446c752df6e",
+      "source_content_sha256": "e5d43a5fabb5e1e12b7ae5a5cc2066cefac4e33cf8d9e7b99ade585faaef3a60",
+      "source_record_md5": "71cce062d5c787905d4b4085707f98c1",
+      "url_path": "/shop/golden-festival-outfit-leather-harness-top-with-shoulders-open-skirt-fashion-rave-wear-burning-man-clothing-for-women-metallic-costume-4342129698",
+      "current": {
+        "seo_title": "Gold Burning Man Outfit with Skirt and Shoulders",
+        "h1": "Gold Burning Man Outfit for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+      "seo_page_id": "dd58dcd3-2f13-4158-b23b-6c516b7696e5",
+      "draft_id": "00080dec-47d5-4205-a344-5646483f66d5",
+      "source_content_sha256": "70b2237c8c10d5cdf18f5cdca4fe81ac7705b42e98554b3560491f7896c53b4c",
+      "source_record_md5": "8a9c37e1de785b43a6997c6955b91ecb",
+      "url_path": "/shop/futuristic-metallic-top-and-belt-cyber-stage-costume-set-4374165306",
+      "current": {
+        "seo_title": "Silver Futuristic Top and Belt Set for Women",
+        "h1": "Silver Futuristic Top and Belt Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
+      "seo_page_id": "db68e99b-08cc-4dde-bf94-d739118de002",
+      "draft_id": "429f5fad-6bbf-46bc-9ded-750c95fbfe25",
+      "source_content_sha256": "70fce3963722f8076687299f573e8b3adca4f47ae45b2198d04c6f5b610ff0fb",
+      "source_record_md5": "60d5527793dba18bbf02c15f176db724",
+      "url_path": "/shop/gold-festival-costume-with-top-skirt-dance-performance-wear-futuristic-apocalypse-festival-harness-1831762819",
+      "current": {
+        "seo_title": "Gold Festival Skirt and Top Set for Women",
+        "h1": "Gold Festival Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "340b160f-93e3-4389-866f-df79cc14dea8",
+      "seo_page_id": "21098ee7-fb6e-4e6e-96db-bfcd219ab652",
+      "draft_id": "073dd41e-77b0-40d4-acdc-533f9b4d0904",
+      "source_content_sha256": "e0f42601489e2a8f2b0064aa6ae5675371023c05390b3617706ff187bd083429",
+      "source_record_md5": "52c16c2a787354a73ea9e0628e1ecc69",
+      "url_path": "/shop/dark-witch-cosplay-costume-set-leather-horns-corset-spine-women-s-latex-halloween-outfit-festival-headpiece-carnivals-clothing-black-1865813989",
+      "current": {
+        "seo_title": "Dark Witch Costume with Horns, Corset and Spine",
+        "h1": "Dark Witch Costume with Horns and Spine"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "4033e707-98e2-45ad-9fd6-b7d615673fa3",
+      "seo_page_id": "fd84973f-2c9e-494d-9d7d-8a17ccdd608e",
+      "draft_id": "3e540f07-42b2-4145-8055-4f881b720d6c",
+      "source_content_sha256": "e880a1ecf999ee397cfcf6f2473f1137dff466a3d28e0d610db106d9e90ea83e",
+      "source_record_md5": "9022711f425a5ddee96e06aac65b20c9",
+      "url_path": "/shop/holographic-showgirl-outfit-iridescent-top-neon-open-skirt-vegan-leather-rave-dress-performance-dancewear-1784463593",
+      "current": {
+        "seo_title": "Holographic Rave Skirt And Top Set",
+        "h1": "Holographic Rave Skirt And Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "4311bc31-ee98-458e-8290-b663ee525a4c",
+      "seo_page_id": "3816f26c-ac6f-413e-9627-8e73d44a025e",
+      "draft_id": "d8fb42d1-8126-4e60-bd3a-351d4814dabd",
+      "source_content_sha256": "e6d60c8207034afa2cd8dd8ecb6f796629ca5fe5996319c973449ef17c1435f0",
+      "source_record_md5": "433ed0db3765c1f47787ae529a22fb7b",
+      "url_path": "/shop/fashion-warrior-female-armor-costume-set-metallic-shoulder-top-panties-arms-covers-silver-futuristic-outfit-festival-burning-man-wear-4329393838",
+      "current": {
+        "seo_title": "Silver Warrior Armor Costume for Women",
+        "h1": "Silver Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "seo_page_id": "d49da8d6-16e1-4667-908d-5a5014456d19",
+      "draft_id": "43377c00-4721-45ca-963c-6d4c428d5b4d",
+      "source_content_sha256": "8ea2d2e50a64d01556873ef783fb527a0424d0be7ad823473a9923757e168798",
+      "source_record_md5": "19d1cdc2f78986ef794a288eb0c8e1d6",
+      "url_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324575912",
+      "current": {
+        "seo_title": "Gold Rave Outfit with Skirt and Shoulder Armor",
+        "h1": "Gold Rave Outfit with Skirt and Shoulder Armor"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+      "seo_page_id": "10d98b15-ec68-4496-aaca-e3449fca8563",
+      "draft_id": "c815d5ad-d47b-4c37-87b2-4ae50ef4b850",
+      "source_content_sha256": "64eb036c09800085d2bc8a39762656b44e5c3abe5fa7322aa85c7f129c21029e",
+      "source_record_md5": "74c40eb9e4da636db7ccce9f32c046d7",
+      "url_path": "/shop/festival-outfit-with-top-shoulders-skirt-gold-metallic-harness-rave-armor-wear-burning-man-clothing-unique-festival-accessories-4321539799",
+      "current": {
+        "seo_title": "Gold Burning Man Outfit for Women",
+        "h1": "Gold Burning Man Outfit for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "4da73818-2f50-43de-b326-8b2c63b17983",
+      "seo_page_id": "2d9d14b5-c40c-4a5a-af4d-200b4cbd0009",
+      "draft_id": "f33b59e7-1266-4d6a-afdd-0a6e91174037",
+      "source_content_sha256": "b2e56c43e3a3fa285bde44eac71a2b005b9700679695f1d37d8fae9dfb945c60",
+      "source_record_md5": "8c24b58c7e0d2bc34b2e63258cd827b6",
+      "url_path": "/shop/gold-cyberpunk-costume-festival-armor-outfit-futuristic-burning-man-wear-4460639798",
+      "current": {
+        "seo_title": "Gold Futuristic Armor Costume for Men",
+        "h1": "Gold Futuristic Armor Costume for Men"
+      },
+      "status": "proposed_field_diff",
+      "proposed": {
+        "seo_title": "Men's Gold Futuristic Armor with Top and Leg Covers",
+        "h1": "Men's Gold Futuristic Armor with Top and Leg Covers"
+      },
+      "confirmed_components_used": [
+        "top",
+        "shoulders",
+        "arms",
+        "legs",
+        "panties"
+      ],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+      "seo_page_id": "6948a11c-cfb9-44a6-a473-2961e2e9c730",
+      "draft_id": "6d3245e5-42a7-4c95-adfa-5a460ebf7599",
+      "source_content_sha256": "da365e7af50a32391c17cbdcfea0c18936b7e93753df826ea41e036f2aedb2c6",
+      "source_record_md5": "1f6c22c4b96a907017a1a7fcf235ed63",
+      "url_path": "/shop/goddess-golden-rave-outfit-futuristic-festival-armor-alien-costume-set-metallic-lingerie-wear-for-cosmic-burning-man-style-1868945709",
+      "current": {
+        "seo_title": "Gold Performance Costume for Women",
+        "h1": "Gold Performance Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "5f0df65c-4b04-4905-80c5-53bd7e807063",
+      "seo_page_id": "c21cf29c-47ab-4ab5-ad53-f6f8533e328f",
+      "draft_id": "53bd6f0b-fa12-4eb1-9413-4fb3052b4e5d",
+      "source_content_sha256": "1b7f7a3404b42258486734382d2434cd8e983340500ff0e95e29a60308c0a7ae",
+      "source_record_md5": "e3d6ecd2d0f1b1a8b1d60686bfb86685",
+      "url_path": "/shop/female-warrior-armor-costume-set-metallic-shoulder-armour-arms-covers-chrome-futuristic-outfit-festival-accessories-burning-man-wear-4324250573",
+      "current": {
+        "seo_title": "Silver Warrior Armor Costume with Shoulders and Arm Guards",
+        "h1": "Silver Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "657bd6d8-fbe1-4441-abad-f574e3380897",
+      "seo_page_id": "25983942-17bc-4d6b-93dd-953902db60d9",
+      "draft_id": "cd2ea1a8-2244-4a64-a915-d17782c2b7ef",
+      "source_content_sha256": "3c0575242101e89823c13dd42b1745c4640e6ab650c68373af5fb258f54c5ded",
+      "source_record_md5": "1242bd7eedf29f303df96561cf0040d2",
+      "url_path": "/shop/cosmic-festival-outfit-with-top-skirt-metallic-harness-set-rave-wear-unique-futuristic-harness-party-outfit-festival-accessories-4303866388",
+      "current": {
+        "seo_title": "Silver Metallic Top And Skirt Set for Festivals",
+        "h1": "Silver Metallic Top And Skirt Set for Festivals"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "679c975c-b309-49dc-9207-f89fc96b84d1",
+      "seo_page_id": "ceee0143-a49a-4eaa-bae8-116b7736a407",
+      "draft_id": "006f9776-24e0-4890-aa93-6daecfc7013c",
+      "source_content_sha256": "effac5b43eef1ff4a1e2b8178af5a89ad7dd03f89647bd113e5fb27ee4ef48e6",
+      "source_record_md5": "e0a8d5755ce96292d437750bd37c85e3",
+      "url_path": "/shop/warrior-princess-outfit-gold-armor-costume-set-cyberpunk-rave-wear-4496855101",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume for Women",
+        "h1": "Gold Warrior Armor Costume for a Warrior Princess Look"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+      "seo_page_id": "d08a64ab-31be-46f7-a4f7-9bd2c2e22d87",
+      "draft_id": "15362257-26db-436f-9ef6-e8dce748dd06",
+      "source_content_sha256": "3318abcf2a390611cdb5afbbf9f3fefe1cf168de3571ec6529611ee902851e17",
+      "source_record_md5": "8de29b59827cbcfe7489c2dfc04cd021",
+      "url_path": "/shop/broken-mirror-costume-set-reflective-outfit-with-bunny-mask-mirror-corset-over-the-knee-boots-stage-performance-dance-show-wear-1785354749",
+      "current": {
+        "seo_title": "Silver Mirror Bunny Costume for Women",
+        "h1": "Silver Mirror Bunny Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
+      "seo_page_id": "5c793109-ac58-47f3-a284-6cef9eeb5fa2",
+      "draft_id": "fc7b08bc-db15-468a-9835-7e2e7130410e",
+      "source_content_sha256": "86531fc28091cdd38e7d1b2ae76961018c7578a8504f14bd9787fb9d3d13e307",
+      "source_record_md5": "0b4ae4395674328be9528b42c9c76fd2",
+      "url_path": "/shop/futuristic-silver-reflective-armor-set-metallic-festival-costume-sci-fi-cyberpunk-chest-plate-cosmic-fashion-for-drag-queen-stage-wear-1883724741",
+      "current": {
+        "seo_title": "Silver Robot Armor Costume for Women",
+        "h1": "Silver Robot Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+      "seo_page_id": "3f56fccc-2f1f-4d39-8e42-623783f4980d",
+      "draft_id": "2e285671-5edc-4737-bf3f-58fcdaa50e32",
+      "source_content_sha256": "b7036d7301ddcaeaf01be60baab14f2d60653ff0c74a4bd1516fa38b0748a483",
+      "source_record_md5": "e2c0ec7b853226a7d4e86ed2dbbea381",
+      "url_path": "/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009",
+      "current": {
+        "seo_title": "Brown Leather Chest Harness Suspenders for Men",
+        "h1": "Brown Leather Chest Harness for Men"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "818a1991-46e2-4628-ac61-6db77314c9af",
+      "seo_page_id": "31e46479-5e0d-4637-a6cc-47a6250310c0",
+      "draft_id": "fdfd9051-3ab4-4b6c-9584-a44187d3ebff",
+      "source_content_sha256": "57fd10432bbc8f04849ceef55133f1a3a49deaca5b6365e40e823b920738afb9",
+      "source_record_md5": "a8966099b40dbe5819fc636cfdc526a5",
+      "url_path": "/shop/metallic-festival-armor-outfit-silver-metallic-harness-rave-armor-wear-burning-man-clothing-chrome-female-warrior-cosplay-accessories-4322579452",
+      "current": {
+        "seo_title": "Silver Robot Armor Costume for Women",
+        "h1": "Silver Robot Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "83ea907b-a523-47cf-834f-5a1b16b80339",
+      "seo_page_id": "60839d8b-ffcc-444e-aadf-2dac7e791867",
+      "draft_id": "ade67a96-f701-4b43-87b7-bd17337790a6",
+      "source_content_sha256": "0ed00f397666e4dcbfb4125c1dac277d4b6c84f5f64c5d32982e37a9a17a08a3",
+      "source_record_md5": "a5219fa230f311aea18748c07beb30cc",
+      "url_path": "/shop/leather-horns-headpiece-for-cosplay-dark-witch-costume-set-black-latex-outfit-halloween-costume-festival-headdress-carnival-wear-1899634207",
+      "current": {
+        "seo_title": "Dark Witch Costume with Horns, Corset and Spine",
+        "h1": "Dark Witch Costume with Horns and Spine"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
+      "seo_page_id": "2ad3f3b8-c64d-450a-aeb4-e22df927abf4",
+      "draft_id": "771ceacc-085c-4e64-a58c-372bbbdfe413",
+      "source_content_sha256": "770eb3f86c6549213bb1a2cd0c18650a7f7843d88ba921ec550a8b2b6af42e75",
+      "source_record_md5": "9de4ed225b788c9d1e9f764d1737f217",
+      "url_path": "/shop/fashion-spine-armor-cosplay-set-black-leather-outfit-with-bodysuit-tail-and-leg-covers-for-halloween-and-themed-parties-latex-clothing-1780316635",
+      "current": {
+        "seo_title": "Halloween Costume With Black Bodysuit",
+        "h1": "Halloween Costume With Black Bodysuit"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "85752f94-b2d7-465e-ace2-40bb77977461",
+      "seo_page_id": "ef84d30e-e376-45a1-ae45-97f1a0931ead",
+      "draft_id": "9ef0aec0-85ed-468a-b99f-2ddf660677cb",
+      "source_content_sha256": "fda3ae78f1d91cb818db417e0e2c56a2d8f35c0f8f3ab16a19b34913ef562d31",
+      "source_record_md5": "8e79a4d1f2becdf890804457dd4a93c0",
+      "url_path": "/shop/silver-futuristic-armor-set-shoulder-pauldrons-arm-bracers-chain-belt-festival-stage-costume-4508715749",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume for Men",
+        "h1": "Silver Futuristic Armor Costume for Men"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+      "seo_page_id": "cdbdda70-b716-4996-9285-02c447a39e9e",
+      "draft_id": "87dd6f05-8917-48fb-a011-78b8e67ada64",
+      "source_content_sha256": "19c3d50f975547f3561117204e55127ab07055c1da4324ba95b7070f29a5d1a0",
+      "source_record_md5": "3098aca63ef523e63eb3e1d9360eebcc",
+      "url_path": "/shop/desert-warrior-gold-armor-dune-festival-costume-4476440494",
+      "current": {
+        "seo_title": "Men's Gold Warrior Armor Costume for Burning Man",
+        "h1": "Men's Gold Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "882793f6-15ca-4617-a579-5cd47290ce72",
+      "seo_page_id": "52101c34-3759-4740-9199-cc9b27c529c6",
+      "draft_id": "f8f93a1f-cb74-4502-8c5e-91a4afb846fc",
+      "source_content_sha256": "dbd9c5f50ff5cac685f3f6bd5ab4329d1c921911e356240549df7e8fec91a284",
+      "source_record_md5": "e91ee5351b5922910f497d9fe02553e0",
+      "url_path": "/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162",
+      "current": {
+        "seo_title": "Brown Leather Chest Harness Suspenders for Men",
+        "h1": "Brown Leather Chest Harness for Men"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "9400d8af-b6b9-4b4a-b878-b97eba761e10",
+      "seo_page_id": "35edb479-0bef-41db-bfa1-e751f000d791",
+      "draft_id": "e5f3762b-c23e-4633-8e51-d0959b8159e9",
+      "source_content_sha256": "1f9c0bfb6dadf3aff8b33e57b3b8b475175df3ffdf373196ea366192a536fa8d",
+      "source_record_md5": "ec925f980a918712edf4afe4ca477d97",
+      "url_path": "/shop/martian-queen-wear-with-choker-shoulders-top-skirt-futuristic-dress-costume-cosmic-party-outfit-fashion-clothing-for-alien-theme-costume-1785451272",
+      "current": {
+        "seo_title": "Red Futuristic Armor Costume for Photoshoot",
+        "h1": "Red Futuristic Armor Costume for Photoshoot"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+      "seo_page_id": "f0a06e5e-7129-4e34-89f8-e8f0ff9c8855",
+      "draft_id": "a4bf259f-9c50-4ad3-b43b-cbf09e444915",
+      "source_content_sha256": "0a905c1b2b4b6bc7e1e0a9778e77a57b4a757523d73c2f2c5952ba7670ca8700",
+      "source_record_md5": "5c45320d3deb75b4e48a8652a9388fb0",
+      "url_path": "/shop/cool-festival-outfit-with-shoulders-skirt-metallic-harness-set-rave-wear-unique-festival-harness-rave-outfit-festival-accessories-1895831443",
+      "current": {
+        "seo_title": "Silver Rave Outfit With Skirt for Festivals",
+        "h1": "Silver Rave Outfit With Skirt for Festivals"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+      "seo_page_id": "e4300f7f-4df4-4781-9501-7c53309bd103",
+      "draft_id": "56529257-3f8d-4072-8471-d811e845ee87",
+      "source_content_sha256": "6cf976f306f3ddd2b29b559bd66b2ac7f7d8a0d3aa2a4330d3f6dae82a144d44",
+      "source_record_md5": "37ca013f794ce9a4db99948c6b0b54c0",
+      "url_path": "/shop/metallic-gold-costume-set-armor-top-open-skirt-choker-bracers-4455606322",
+      "current": {
+        "seo_title": "Gold Festival Skirt and Top Set for Women",
+        "h1": "Gold Festival Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+      "seo_page_id": "433db880-3e3f-46e8-8e22-bc5b0e285da5",
+      "draft_id": "f8fd816f-97b2-48e3-a4ba-5a8a704793d2",
+      "source_content_sha256": "cb11f8551e5a419f9f485b89c72034b0ee7a99a139cb0db4b9c4f12077f4012b",
+      "source_record_md5": "c0563f732f0f22803e0d9a71c016289e",
+      "url_path": "/shop/silver-costume-with-bra-skirt-chrome-harness-set-futuristic-pole-dance-wear-unique-stage-harnesses-burlesque-dance-basque-silver-4332144176",
+      "current": {
+        "seo_title": "Silver Festival Skirt and Top Set for Women",
+        "h1": "Silver Festival Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+      "seo_page_id": "cb834ca4-d4bd-4e9c-a707-afe99eef1569",
+      "draft_id": "94327c88-e8d3-443f-8057-7408c31df847",
+      "source_content_sha256": "5dd8e6ffff3fba13f0b9adfd09ca8584078b86a8924ad9e14e4335f94120c91c",
+      "source_record_md5": "5f010b7a10ed13917a8261bfa144db9a",
+      "url_path": "/shop/gold-warrior-leather-armor-set-festival-amazon-costume-set-4484819335",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume with Headpiece",
+        "h1": "Gold Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+      "seo_page_id": "4a78fda0-4421-4196-b2c0-bb0ade7e9521",
+      "draft_id": "6455b451-9554-4823-8792-2bac428470be",
+      "source_content_sha256": "527ad9ee665605355de25a0d2c29d56661334b2f81d06b4512cdecebc46f32fc",
+      "source_record_md5": "b61fdb44dbf4e33873a4954fb6de31d9",
+      "url_path": "/shop/punk-bodysuit-with-black-leather-gothic-costume-set-latex-body-suit-shoulders-headpiece-women-s-fetish-body-women-1866836527",
+      "current": {
+        "seo_title": "Halloween Costume with Black Bodysuit for Women",
+        "h1": "Halloween Costume with Black Bodysuit"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+      "seo_page_id": "7409b22a-e92a-4f46-8bb0-3d071f83d084",
+      "draft_id": "550d57e0-8b3e-4486-8a6b-26808b340534",
+      "source_content_sha256": "3283dbf98b8ac618738c9f7869006d381cd56b79567e8be3196e8da51d33eae4",
+      "source_record_md5": "871a0300cb826cdbe804276aa0994dbb",
+      "url_path": "/shop/fashion-armor-costume-set-with-metallic-corset-garters-leg-bracelet-drag-queen-futuristic-outfit-silver-cosplay-wear-1805788422",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume with Corset",
+        "h1": "Silver Futuristic Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+      "seo_page_id": "47d903f1-2850-4b69-b9e6-ab1a2714a16a",
+      "draft_id": "d54641ec-612e-40fb-b07c-dd2e0ae5be24",
+      "source_content_sha256": "c8e1e8faabd6447909bdaf10b4cf59fe4f12a266e0009d4c3a07a8abeb319bc3",
+      "source_record_md5": "99600f96f8228aa61a042db61cb0d7c9",
+      "url_path": "/shop/metallic-angel-armour-costume-set-golden-shoulders-armor-arm-covers-cyber-punk-accessories-burning-man-costume-1904440029",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume with Shoulder & Arm Covers",
+        "h1": "Gold Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
+      "seo_page_id": "cb0352ac-4753-441b-800b-237f01e26e70",
+      "draft_id": "c1203762-3fb8-4000-9e58-8b259d5b0322",
+      "source_content_sha256": "cf6b3eed34997f41fdda6e46af83e59b1f322dae5f2858a9972e19ee94166f53",
+      "source_record_md5": "3d420e534ad50ba7628ac6d5f29c7338",
+      "url_path": "/shop/cyberpunk-armor-set-arm-leg-covers-for-futuristic-cosplay-apocalyptic-robot-wear-metallic-cyborg-costume-for-festival-burning-man-1810806419",
+      "current": {
+        "seo_title": "Silver Warrior Armor Costume for Burning Man",
+        "h1": "Silver Warrior Armor Costume for Burning Man"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "a875757c-140d-4fea-83f9-93098406c3b1",
+      "seo_page_id": "bef183c4-4771-4f51-8312-35de8e310b5d",
+      "draft_id": "d4d244b5-3a62-4f35-a6e6-9c707e7b16df",
+      "source_content_sha256": "29f32847c7f346ba6f67f7ca4392d84d1a4d2d4bd54a62a1d3cc2ab8d3cba47b",
+      "source_record_md5": "2daf38bfc2c6c10cfcd3886aa567b46c",
+      "url_path": "/shop/silver-amazon-armor-costume-set-metallic-shoulder-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-wear-sci-fi-look-4331275101",
+      "current": {
+        "seo_title": "Silver Warrior Armor Costume for Burning Man",
+        "h1": "Silver Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+      "seo_page_id": "05d3abb9-347f-4f84-ab43-4030238c6a06",
+      "draft_id": "193b9918-3415-41fc-be09-e39ef3751730",
+      "source_content_sha256": "0c9749fd33549af1b4db8c8f6c72ca0f8bf895c537c51ab45ba693ce3a82f937",
+      "source_record_md5": "9a34333f75f5b8a36cc8fc90d007905a",
+      "url_path": "/shop/gold-amazon-armor-set-female-warrior-costume-fantasy-festival-outfit-cosplay-armored-body-plates-4369438053",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume for Women",
+        "h1": "Gold Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "b7003343-6537-437d-9dab-cdf902d37b7e",
+      "seo_page_id": "c535d741-ade2-4e4c-8201-7982f655b304",
+      "draft_id": "8a53f147-14a6-40e2-85e5-500aabc523c5",
+      "source_content_sha256": "7f6a0c65a0a272063ad416f8a479eab65f871f9ce0decbf4ea7cb1e2f1c62715",
+      "source_record_md5": "015b9028f37fa7364476bf0826f05365",
+      "url_path": "/shop/cyber-punk-festival-outfit-metallic-top-skirt-bracelet-silver-armor-set-for-rave-futuristic-wear-fashion-apocalyptic-clothes-for-women-1811780825",
+      "current": {
+        "seo_title": "Silver Festival Skirt And Top Set",
+        "h1": "Silver Festival Skirt And Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "b9a476c7-b902-4fea-bead-ec5b2275e835",
+      "seo_page_id": "67e745be-5282-4d75-9947-24f6b0610032",
+      "draft_id": "85b8e5da-1c7c-4bc2-b6c2-93efb1e7c616",
+      "source_content_sha256": "e0567ab2eea7c4579d77a7a6277646b72c51d224eeb4cbffd0d91678f7d32b67",
+      "source_record_md5": "17b5d4595bd3078fef411bc37bdbba9a",
+      "url_path": "/shop/mirror-bunny-mask-adult-reflective-outfit-with-rabbit-mask-mirror-corset-over-knee-boots-stage-costume-performance-dance-show-girl-outfit-1899491479",
+      "current": {
+        "seo_title": "Silver Mirror Bunny Costume for Women",
+        "h1": "Silver Mirror Bunny Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
+      "seo_page_id": "b24a82de-420e-48d8-bb12-f56e50c39157",
+      "draft_id": "99b7d826-a8a6-41e3-9f2f-4f59a68cd1ab",
+      "source_content_sha256": "1febf79a26486561412809d2d76782959ec08433941fcd0f7a78ebb519cc4839",
+      "source_record_md5": "4281aa6f2095cdfa937d934278904042",
+      "url_path": "/shop/futuristic-silver-dance-set-festival-wear-for-rave-edc-burning-man-outfit-exotic-stripper-robot-showgirl-costume-metallic-party-wear-1899282209",
+      "current": {
+        "seo_title": "Silver Metallic Top and Skirt Set for Stage",
+        "h1": "Silver Metallic Top and Skirt Set"
+      },
+      "status": "proposed_field_diff",
+      "proposed": {
+        "seo_title": "Silver Metallic Top and Skirt Set: Panties Option",
+        "h1": "Silver Metallic Top and Skirt Set: Panties Option"
+      },
+      "confirmed_components_used": [
+        "top",
+        "skirt",
+        "panties"
+      ],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "c35b5b75-7e6e-492b-9528-6a126384086e",
+      "seo_page_id": "ac8ea374-5106-4027-b627-51657f2368f3",
+      "draft_id": "88d36656-650e-49c2-931f-e1cefc39395d",
+      "source_content_sha256": "307cf44655b12ca6c8b22d7c4459e694b1a8769617ccabdb841461ea5ef5ddb3",
+      "source_record_md5": "6bb8ef42ee1b2e0f9e2f38b2852322cc",
+      "url_path": "/shop/holographic-festival-feather-top-skirt-burning-man-clotging-sparkling-rave-outfit-iridescent-costume-party-bodysuit-with-petals-1887390026",
+      "current": {
+        "seo_title": "Holographic Rave Skirt and Top Set for Women",
+        "h1": "Holographic Rave Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+      "seo_page_id": "c0a0f236-5eb7-4bf6-aaa4-78d2e1b033d0",
+      "draft_id": "2e98f82d-9e61-4a84-ab41-02583a93ce4a",
+      "source_content_sha256": "c385d5c432196d136419303136982bda466a78f77b6a1b2207363fecaba4b932",
+      "source_record_md5": "7c89366cffe8502bf149482c71c83f84",
+      "url_path": "/shop/holographic-festival-outfit-with-top-shoulders-skirt-iridescent-costume-set-rave-wear-unique-festival-harness-party-clothing-women-4321610013",
+      "current": {
+        "seo_title": "Holographic Rave Skirt and Top Set for Women",
+        "h1": "Holographic Rave Skirt and Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+      "seo_page_id": "a545f5ee-2369-4077-932e-bdac8330c7ea",
+      "draft_id": "40cc611a-3d5a-4967-95a4-8f1422c9c1b4",
+      "source_content_sha256": "a3ec4580cd89b315533d55dc9a6eb84caaa9a7a14f4533a82cda82f74d368c7d",
+      "source_record_md5": "3562f13eadae04aef291fdbd19636e78",
+      "url_path": "/shop/space-themed-metallic-clothing-set-golden-top-skirt-choker-and-bracers-for-cosmic-cosplay-futuristic-costume-gold-robot-outfit-1786396925",
+      "current": {
+        "seo_title": "Gold Festival Skirt And Top Set",
+        "h1": "Gold Festival Skirt And Top Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+      "seo_page_id": "d93693de-94d2-4e41-9eb1-0032d05664c7",
+      "draft_id": "0e0be164-5ef5-4051-a57f-19b421a9509a",
+      "source_content_sha256": "c4f905f534780a997a8fcc5ed6c8a4e019c24097bb538e4b484481f05c5f3486",
+      "source_record_md5": "a092871453f2c7d32fc73ac027c36c16",
+      "url_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324592783",
+      "current": {
+        "seo_title": "Gold Rave Outfit with Skirt and Shoulder Armor",
+        "h1": "Gold Rave Outfit with Skirt"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+      "seo_page_id": "f121f5ed-54fc-4dda-9281-68a0a15c0ce8",
+      "draft_id": "2056da93-fa99-424c-a3d1-14539d0c7535",
+      "source_content_sha256": "50f45f7badfa9be081d46f3d6f3446c6c71f0fa56ab45feafbd3ccab40b73d5f",
+      "source_record_md5": "76d962d5cd7a67b6b5f2a866ac1d05d3",
+      "url_path": "/shop/festival-outfit-for-women-rave-top-with-shoulders-and-belt-robot-costume-burning-man-clothes-set-4373111053",
+      "current": {
+        "seo_title": "Silver Futuristic Top and Belt Set for Women",
+        "h1": "Silver Futuristic Top and Belt Set"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "dcd0d24a-473b-4592-b56f-466fda984b1e",
+      "seo_page_id": "ff9f35a5-4046-4c82-bd20-eca46b967a8d",
+      "draft_id": "d5b783a8-ede9-4d19-b2f4-191e521f67fd",
+      "source_content_sha256": "427947880add2a1095776193f75d16ebc3957f298ece3cc0553ecb00b6c01fe0",
+      "source_record_md5": "08d689248f2eeb00df4654842d62a950",
+      "url_path": "/shop/gold-performance-costume-set-exclusive-event-party-stagewear-with-top-belt-cuffs-luxury-showgirl-outfit-4373496299",
+      "current": {
+        "seo_title": "Gold Performance Costume for Futuristic Stage Shows",
+        "h1": "Gold Performance Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+      "seo_page_id": "4ee43798-5796-4e69-aa17-134b3940536b",
+      "draft_id": "7cab5a56-71cf-469b-b1d7-852fc4d09db4",
+      "source_content_sha256": "e622844a77faa5d122b29c320b60fbc187ad1460714bfd3ad9c4294355f17a9c",
+      "source_record_md5": "deafdfad0dc83742b719b90438f55e44",
+      "url_path": "/shop/chrome-futuristic-costume-set-festival-outfit-showgirl-wear-silver-cosmic-outfit-dance-carnival-clothing-1879309908",
+      "current": {
+        "seo_title": "Silver Metallic Top And Skirt Set for Festivals",
+        "h1": "Silver Metallic Top And Skirt Set for Festivals"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
+      "seo_page_id": "15632a6c-602a-49f8-b252-92df09e8217f",
+      "draft_id": "04917371-7ae7-491e-929f-0f2313b8097f",
+      "source_content_sha256": "1063b5b36db3e2e16aba0edc88eda0fbbdd8a3f33f15fe565f38ebb556bc9670",
+      "source_record_md5": "34bb2ef27e0f40eb95420b22aab61e2b",
+      "url_path": "/shop/men-s-cyberpunk-captain-armor-chrome-leather-costume-set-cosmic-warrior-cosplay-burning-man-armour-outfit-futuristic-apocaliptyc-wear-4364292059",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume for Men",
+        "h1": "Silver Futuristic Armor Costume for Men"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "ea365de7-a807-40a1-abb4-374d9df7f156",
+      "seo_page_id": "c9d2aa1e-d26b-4309-9c02-67e0c2c38c47",
+      "draft_id": "72301ba3-2129-4a25-8d7a-40c860bff6d5",
+      "source_content_sha256": "00750b2ad324cac120b54a17bf751f8028dcd0498f6111bd2dfea2483158a492",
+      "source_record_md5": "5c7499bdd33408300ee7e310ab889b04",
+      "url_path": "/shop/golden-armor-costume-set-with-shoulder-and-leg-covers-metallic-leather-skirt-bracelets-shows-costume-for-carnivals-wear-performances-4328144233",
+      "current": {
+        "seo_title": "Gold Warrior Armor Costume for Festival Performers",
+        "h1": "Gold Warrior Armor Costume for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "ec204df6-13b6-4deb-b493-04391501d72d",
+      "seo_page_id": "f404a809-8432-487c-97a5-4318a3963ee8",
+      "draft_id": "621608a3-ebd1-464f-8c71-76d38441a829",
+      "source_content_sha256": "763a7839dc727c9e2af51e20d1cb5d26077e0011a5dea6d8be4bad8f495b1d49",
+      "source_record_md5": "02175b63df22dfffa926e32d4dfe02ed",
+      "url_path": "/shop/futuristic-female-warrior-costume-set-metallic-shoulder-top-bra-belt-garters-arms-covers-silver-armor-outfit-festival-burning-man-wear-4331115124",
+      "current": {
+        "seo_title": "Silver Warrior Armor Costume for Women",
+        "h1": "Silver Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "edc709f1-3a74-43d6-bd00-6c0569392f1b",
+      "seo_page_id": "587f3aad-802f-4bc7-a357-ab37e3490a8d",
+      "draft_id": "b05b5155-a39d-4dc8-bb98-63c9a464fa95",
+      "source_content_sha256": "fa2941d7fb58f69a973f9fdcd49f7852cca46720b14e78aee478081674635586",
+      "source_record_md5": "e7700b106321bd9c9c40457d266f7b6e",
+      "url_path": "/shop/silver-futuristic-dress-women-s-cosmic-costume-sci-fi-clothes-accessories-4507119072",
+      "current": {
+        "seo_title": "Metallic Top and Skirt Set for Futuristic Stagewear",
+        "h1": "Metallic Top and Skirt Set for Women"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
+      "seo_page_id": "80d2a7fa-5dcf-4e3c-993b-62c4bc0290e8",
+      "draft_id": "89cea5bd-e278-4062-be1d-8387fd9bc45a",
+      "source_content_sha256": "e9eb58f1b7a1e92363cca65245ad4d036f02c01827c1002ddb1c6b5d1e6788eb",
+      "source_record_md5": "58e51bec575f8f1e202885c82b44509b",
+      "url_path": "/shop/silver-futuristic-costume-set-festival-armored-outfit-metallic-rave-wear-cosmic-fashion-clothing-cyber-armor-chrome-party-wear-4395263984",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume for Women",
+        "h1": "Silver Futuristic Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "f36acd08-1591-4e15-8ad2-96bc22ec4b77",
+      "seo_page_id": "ca777819-1c30-4416-ad77-9bdfadc426fb",
+      "draft_id": "9303de31-91db-48a5-91e5-8c0cbdc44e76",
+      "source_content_sha256": "b92d2cc891375df624302b982eb15de90884b6180091080d4d00c747489170d0",
+      "source_record_md5": "df2d47cc721f4271ff1d89dc44e030d8",
+      "url_path": "/shop/futuristic-metallic-corset-chrome-chest-armor-for-women-festival-outfit-cyper-punk-breastplate-cosmic-overbust-corset-silver-bodysuit-1870629554",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume for Women",
+        "h1": "Silver Futuristic Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "f746beae-43c9-4f4f-8307-301d136eda58",
+      "seo_page_id": "5cafe8b7-f527-4f7f-836a-61ab8957cffa",
+      "draft_id": "dbeda12b-b343-4685-bd69-b8c0d975c88b",
+      "source_content_sha256": "d18b61ec53de37955655cb2a4c0d9a50aead658070ae84f523e4eac58ce94d58",
+      "source_record_md5": "bf123254af6b5af0befd1872b2dcd312",
+      "url_path": "/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-steampunk-leather-shoulders-arm-futuristic-dune-wear-4489659396",
+      "current": {
+        "seo_title": "Men's Gold Warrior Armor Costume for Burning Man",
+        "h1": "Men's Gold Warrior Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "f972aed2-6061-4973-8b20-8e1d2c362d77",
+      "seo_page_id": "2fc11721-dfe3-49bd-b2ff-13449f347a43",
+      "draft_id": "6edda51b-8629-4bb6-a510-3276061392d4",
+      "source_content_sha256": "746728e184d71649de9c190ad66eb11fac2f765d33c703c0f8b4770a9ce99278",
+      "source_record_md5": "846897c5b6d1d7a70fb2e6ef4b28f85c",
+      "url_path": "/shop/dance-costume-set-gold-leather-top-with-shoulders-and-skirt-futuristic-party-clothes-fashion-showgirl-outfit-gogo-pj-stage-perfotmance-4366965769",
+      "current": {
+        "seo_title": "Gold Rave Outfit with Skirt for Women",
+        "h1": "Gold Rave Outfit with Skirt"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    },
+    {
+      "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
+      "seo_page_id": "158a8908-5fd0-40de-948f-c29862273394",
+      "draft_id": "e3497818-ab14-4a33-9320-bf1fb32a19e6",
+      "source_content_sha256": "19a350537ef314b8269cddc12307e56443d037b5aead8c6e9ce66c921cbbcc76",
+      "source_record_md5": "27b36708f2631c3dd506e11f6200d46e",
+      "url_path": "/shop/unique-silver-futuristic-bra-panty-set-female-armor-festival-outfit-metallic-rave-costume-exotic-dancewear-clubwear-stripper-clothes-1899259529",
+      "current": {
+        "seo_title": "Silver Futuristic Armor Costume for Women",
+        "h1": "Silver Futuristic Armor Costume"
+      },
+      "status": "needs_product_distinction_review",
+      "proposed": null,
+      "confirmed_components_used": [],
+      "evidence_refs": [
+        "approved-catalog-storefront-capture-20260924.json",
+        "approved-catalog-content-capture-20260924.json"
+      ],
+      "preserve": [
+        "meta_description",
+        "intro",
+        "pdp_blocks",
+        "keyword_roles",
+        "URL",
+        "canonical_product_id",
+        "seo_page_id",
+        "prices"
+      ],
+      "can_apply": false,
+      "can_publish": false
+    }
+  ]
+}

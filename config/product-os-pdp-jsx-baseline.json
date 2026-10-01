@@ -1,0 +1,6 @@
+{
+  "source_commit": "c916280f3ec6fa987b686ba6b2ad8f8e06a4b6ad",
+  "source_route_git_blob": "5bf4a8ad43fc72eefafcb54e550e21097fcf6f5e",
+  "authorized_scope": "User-approved connection of existing approved copy to the unchanged ProductDetailClient. Normalize only its draft/previewMode data props; preserve all JSX nodes, attributes, styling and order.",
+  "normalized_jsx_sha256": "48c6bd124448fe052f0c87631c89851242ff66a282b0ea5ed6abd3d9b47da814"
+}

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "status": "STRUCTURAL_DEFECT_CONFIRMED_REPAIR_REQUIRED",
+  "audited_at": "2026-09-25",
+  "release_ref": "feya-review-207-20260924",
+  "release_products": 207,
+  "release_price_rows": 856,
+  "configuration_axis_rows": 846,
+  "configuration_axis_aligned_rows": 215,
+  "configuration_axis_mismatched_rows": 631,
+  "configuration_axis_products_requiring_repair": 203,
+  "new_sellable_configurations_required": 631,
+  "color_price_axis_products": 3,
+  "color_price_axis_rows": 9,
+  "direct_owner_price_rows_without_option_mapping": 1,
+  "clean_configuration_baseline_products_after_repair": 202,
+  "clean_configuration_baseline_price_rows_after_repair": 841,
+  "color_price_axis_product_ids": [
+    "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+    "882793f6-15ca-4617-a579-5cd47290ce72",
+    "de38a842-37c4-40a7-86b4-393341c4c9aa"
+  ],
+  "manual_override_product_ids": [
+    "057fbd51-52f5-4404-b126-e5d75b8599f4",
+    "5602d557-9d98-454b-bc98-9b9ea84b442f"
+  ],
+  "finding": "The previous two-product structural repair was not catalog-wide. 206/207 release products had at least one price-row to sellable-configuration identity mismatch; 631 configuration-axis price rows require deterministic rebinding. Three separate products price by color and are held out of the configuration baseline until their explicit color-price lane is governed.",
+  "safety": {
+    "commercial_amount_mutation_allowed": false,
+    "currency_mutation_allowed": false,
+    "manual_override_mutation_allowed": false,
+    "payment_enabled": false,
+    "indexing_enabled": false
+  }
+}

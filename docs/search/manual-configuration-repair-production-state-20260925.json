@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "release_ref": "feya-review-207-20260924",
+  "exact_head_used_for_schema_apply": "b4d6119001b0c955368cd0ac0339d28f259377db",
+  "exact_head_ci": {
+    "run_id": 36160404427,
+    "conclusion": "success",
+    "vercel": "success"
+  },
+  "remote_migration": {
+    "version": "20260925162857",
+    "name": "manual_configuration_binding_repair_v1",
+    "apply_success": true
+  },
+  "postflight": {
+    "evidence_function_present": true,
+    "executor_present": true,
+    "service_can_read_evidence": true,
+    "service_can_execute": true,
+    "anon_can_execute": false,
+    "authenticated_can_execute": false,
+    "price_rows": 6,
+    "configuration_rows": 3,
+    "evidence_sha256": "19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae",
+    "commercial_values_change": false,
+    "price_review_status_change": false,
+    "security_advisor_findings_for_new_functions": 0,
+    "performance_advisor_findings_for_new_functions": 0
+  },
+  "prepared_execution_request": {
+    "execution_request_id": "3181a279-3f98-4faf-874f-788d20d8731a",
+    "request_code": "EXE-20260925-162953-DE63C1",
+    "request_status": "APPROVAL_REQUIRED",
+    "requested_by_type": "agent",
+    "requested_by_user_id": null,
+    "request_hash": "f5a54a543e518215ada01a71319d92dfbaa1d3ac7b8f5585152601feecb2f98e",
+    "approval_hash": null,
+    "receipt_rows": 0
+  },
+  "business_mutation": {
+    "configuration_repair_executed": false,
+    "price_amount_changed": false,
+    "price_review_status_changed": false,
+    "payment": false,
+    "indexing": false
+  },
+  "current_blocker": "AUTHENTICATED_ALLOWLISTED_HUMAN_APPROVAL_REQUIRED"
+}

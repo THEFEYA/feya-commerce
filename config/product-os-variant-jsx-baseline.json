@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "source_commit": "c96e88e49b51a1fd9b99a885e0c518aa5929b143",
+  "scope": "Prior JSX excluding the optional variant mount/enable prop and two observed interaction repairs: fixed modal portal to the existing OwnerShell root outside the animated table, table header top:0. All baseline hashes, visible labels, class lists, children and order retained.",
+  "files": {
+    "components/AdminProductDetailView.tsx": {
+      "sha256": "82364f71a922e14b61490de3e0b73ec93a5a83e1d5865bae27a5671b3cffcce2"
+    },
+    "app/admin/products/[slug]/page.tsx": {
+      "sha256": "c39f130199f9c5a7cf535dbee62b4c3ae7dd17b8b3b52d62a6656bb903820360"
+    },
+    "components/admin/OwnerProductFactDrawerClient.tsx": {
+      "sha256": "0062915cf47ae776dafca029343bd9179c9eef9b1b023a3c323b51b79c149bdf"
+    },
+    "app/admin/product-facts-review/page.tsx": {
+      "sha256": "dc17e35e0aa7ee4beec948e1fc77e152c7519cb9397567fe3a5b5dbaae3e346b"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "release_ref": "feya-review-207-20260924",
+  "exact_head": "633c2bedcb0a44254fdbe76fca5416447ad0b0a3",
+  "exact_head_ci": {
+    "workflow_run": 36151129057,
+    "conclusion": "success",
+    "jobs_total": 14,
+    "vercel": "success"
+  },
+  "production_database": {
+    "project_ref": "ysnizcgzhdwdfdkjkhud",
+    "target_migration_version": "20260925170000",
+    "target_migration_present": false,
+    "variant_schema_present": false,
+    "quote_schema_present": false,
+    "offer_schema_present": false,
+    "baseline_adoption_schema_present": false,
+    "clean_source_products": 205,
+    "clean_source_price_rows": 850,
+    "hold_products": 0,
+    "already_ready_clean_products": 0,
+    "pre_cutover_evidence_sha256": "500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f"
+  },
+  "vercel_application": {
+    "project_id": "prj_ePIymo4sUG33wrRjHBxWrSlaxPID",
+    "live": false,
+    "production_target_detected": false,
+    "latest_deployment_target": null,
+    "relevant_owner_action_env_values_visible": false
+  },
+  "decision": {
+    "schema_only": "GO_PENDING_EXPLICIT_APPLY",
+    "owner_batch_prepare": "STOP",
+    "owner_batch_approval": "STOP",
+    "owner_batch_execute": "STOP",
+    "variant_quote_offer_cutover": "STOP",
+    "payment": "STOP",
+    "indexing": "STOP"
+  },
+  "allowed_schema_scope": [
+    "supabase/migrations/20260925170000_price_baseline_adoption_v1.sql"
+  ],
+  "forbidden_in_same_change": [
+    "supabase/migrations/20260924173914_product_variant_draft_atomic_v1.sql",
+    "supabase/migrations/20260925123000_commerce_quote_receipt_v1.sql",
+    "supabase/migrations/20260925143000_commerce_offer_promotion_v1.sql"
+  ],
+  "rationale": [
+    "Exact-head CI and launch-scale isolated rehearsal are green.",
+    "Production clean-source evidence still matches 205 products / 850 rows / 0 hold.",
+    "Target schema is not present, so no migration drift or duplicate apply exists.",
+    "Vercel project is not live and no production-target deployment is detected, so no production application path can currently trigger the new route.",
+    "Owner-action environment values are not visible through the current connector and must be verified before any batch prepare/approval/execution."
+  ],
+  "production_mutation_performed": false
+}

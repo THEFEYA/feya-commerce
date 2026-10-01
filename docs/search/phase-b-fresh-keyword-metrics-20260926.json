@@ -1,0 +1,269 @@
+{
+  "snapshot_version": "phase_b_fresh_keyword_metrics_20260926",
+  "market": "United States",
+  "language": "English",
+  "network": "Google Search",
+  "source": "HYPD research_get_search_volume",
+  "fetched_at": "2026-09-26",
+  "exact_seed_rows": [
+    {
+      "keyword": "shoulder armor",
+      "search_volume": 2900,
+      "demand_score": 100,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "shoulder armor costume",
+      "search_volume": 170,
+      "demand_score": 70,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "body harness",
+      "search_volume": 2400,
+      "demand_score": 100,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "fashion harness",
+      "search_volume": 590,
+      "demand_score": 100,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "festival harness",
+      "search_volume": 40,
+      "demand_score": 40,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "costume harness",
+      "search_volume": 90,
+      "demand_score": 40,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "vegan leather harness",
+      "search_volume": 30,
+      "demand_score": 40,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "burning man outfits",
+      "search_volume": 2900,
+      "demand_score": 100,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "burning man costumes",
+      "search_volume": 880,
+      "demand_score": 100,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "festival outfits",
+      "search_volume": 18100,
+      "demand_score": 100,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "festival costumes",
+      "search_volume": 320,
+      "demand_score": 70,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "rave outfits",
+      "search_volume": 60500,
+      "demand_score": 100,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "rave costumes",
+      "search_volume": 1600,
+      "demand_score": 100,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "stage costumes",
+      "search_volume": 170,
+      "demand_score": 70,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "performance costumes",
+      "search_volume": 140,
+      "demand_score": 70,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "handmade festival outfits",
+      "search_volume": 20,
+      "demand_score": 20,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "costume sets",
+      "search_volume": 140,
+      "demand_score": 70,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "festival masks",
+      "search_volume": 390,
+      "demand_score": 70,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "costume masks",
+      "search_volume": 2900,
+      "demand_score": 100,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "festival headpiece",
+      "search_volume": 50,
+      "demand_score": 40,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "costume headpiece",
+      "search_volume": 70,
+      "demand_score": 40,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "festival bodysuit",
+      "search_volume": 320,
+      "demand_score": 70,
+      "seasonality": "evergreen"
+    },
+    {
+      "keyword": "costume bodysuit",
+      "search_volume": 720,
+      "demand_score": 100,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "festival skirt",
+      "search_volume": 720,
+      "demand_score": 100,
+      "seasonality": "seasonal"
+    },
+    {
+      "keyword": "costume skirt",
+      "search_volume": 260,
+      "demand_score": 70,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "costume belt",
+      "search_volume": 210,
+      "demand_score": 70,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "costume wings",
+      "search_volume": 1600,
+      "demand_score": 100,
+      "seasonality": "event_spike"
+    },
+    {
+      "keyword": "festival shoulder armor",
+      "search_volume": null,
+      "demand_score": null,
+      "seasonality": null
+    }
+  ],
+  "omitted_or_grouped_seeds": [
+    "shoulder armour",
+    "costume shoulder armor"
+  ],
+  "supplemental_rows": [
+    {
+      "keyword": "stage outfits",
+      "search_volume": 390,
+      "demand_score": 70
+    },
+    {
+      "keyword": "stage wear",
+      "search_volume": 90,
+      "demand_score": 40
+    },
+    {
+      "keyword": "performance outfits",
+      "search_volume": 260,
+      "demand_score": 70
+    },
+    {
+      "keyword": "performance wear",
+      "search_volume": 210,
+      "demand_score": 70
+    },
+    {
+      "keyword": "performance clothing",
+      "search_volume": 390,
+      "demand_score": 70
+    },
+    {
+      "keyword": "dance costumes",
+      "search_volume": 27100,
+      "demand_score": 100
+    },
+    {
+      "keyword": "dance outfits",
+      "search_volume": 5400,
+      "demand_score": 100
+    },
+    {
+      "keyword": "show costumes",
+      "search_volume": 90,
+      "demand_score": 40
+    },
+    {
+      "keyword": "showgirl costumes",
+      "search_volume": 9900,
+      "demand_score": 100
+    },
+    {
+      "keyword": "cosplay shoulder armor",
+      "search_volume": 140,
+      "demand_score": 70
+    },
+    {
+      "keyword": "fantasy shoulder armor",
+      "search_volume": 110,
+      "demand_score": 70
+    },
+    {
+      "keyword": "rave shoulder armor",
+      "search_volume": null,
+      "demand_score": null
+    },
+    {
+      "keyword": "body harness fashion",
+      "search_volume": 390,
+      "demand_score": 70
+    },
+    {
+      "keyword": "clothing harness",
+      "search_volume": 210,
+      "demand_score": 70
+    },
+    {
+      "keyword": "women's body harness",
+      "search_volume": 1300,
+      "demand_score": 100
+    },
+    {
+      "keyword": "leather harness fashion",
+      "search_volume": 260,
+      "demand_score": 70
+    }
+  ],
+  "cautions": [
+    "Google Ads competition/bids are not used as organic SEO difficulty.",
+    "Null is not interpreted as zero.",
+    "Close variants are not summed into one artificial demand number."
+  ]
+}

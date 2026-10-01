@@ -1,0 +1,31 @@
+batch,priority,seed,decision_to_change,existing_exact_snapshot_status,required_targeting
+Q02,next,shoulder armor,Distinct shoulder-armor owner vs aliases,missing,US/en Google Search
+Q02,next,shoulder armour,Alias/cluster merge vs separate owner,missing,US/en Google Search
+Q02,next,shoulder armor costume,Shoulder-armor collection eligibility,missing,US/en Google Search
+Q02,next,costume shoulder armor,Close-variant cluster membership,missing,US/en Google Search
+Q02,next,festival shoulder armor,Two-axis event×part landing vs parent owner,missing,US/en Google Search
+Q02,next,body harness,Harness commercial cluster definition,missing,US/en Google Search
+Q02,next,fashion harness,Harness commercial cluster definition,missing,US/en Google Search
+Q02,next,festival harness,Event×harness landing vs filter,missing,US/en Google Search
+Q02,next,costume harness,Harness commercial cluster definition,missing,US/en Google Search
+Q02,next,vegan leather harness,Material×type landing vs PDP/filter,missing,US/en Google Search
+Q01,next,burning man outfits,Burning Man commercial owner,missing,US/en Google Search
+Q01,next,burning man costumes,Burning Man synonym/intent split,missing,US/en Google Search
+Q01,next,festival outfits,Festival commercial owner,missing,US/en Google Search
+Q01,next,festival costumes,Festival synonym/intent split,missing,US/en Google Search
+Q01,next,rave outfits,Rave commercial owner vs Festival,missing,US/en Google Search
+Q01,next,rave costumes,Rave synonym/intent split,missing,US/en Google Search
+Q01,next,stage costumes,Stage/Performance owner,missing,US/en Google Search
+Q01,next,performance costumes,Stage/Performance cluster split/merge,missing,US/en Google Search
+Q01,next,handmade festival outfits,Handmade modifier role,missing,US/en Google Search
+Q01,next,costume sets,Generic product-family owner vs Shop,missing,US/en Google Search
+Q04,next_after_inventory,festival masks,Event×mask landing vs filter,missing,US/en Google Search
+Q04,next_after_inventory,costume masks,Mask type hub demand,missing,US/en Google Search
+Q04,next_after_inventory,festival headpiece,Event×headpiece landing vs filter,missing,US/en Google Search
+Q04,next_after_inventory,costume headpiece,Headpiece type hub demand,missing,US/en Google Search
+Q04,next_after_inventory,festival bodysuit,Event×bodysuit landing vs parent,missing,US/en Google Search
+Q04,next_after_inventory,costume bodysuit,Bodysuit type hub demand,missing,US/en Google Search
+Q04,next_after_inventory,festival skirt,Event×skirt landing vs parent,missing,US/en Google Search
+Q04,next_after_inventory,costume skirt,Skirt type hub demand,missing,US/en Google Search
+Q04,next_after_inventory,costume belt,Belt type hub vs PDP/filter,missing,US/en Google Search
+Q04,next_after_inventory,costume wings,Wings hub vs PDP/filter,missing,US/en Google Search

@@ -1,0 +1,750 @@
+{
+  "captured_on": "2026-09-24",
+  "library_file_id": "libfile_78128c4986688191975b807d8c6cec0f",
+  "original_filename": "feya_etsy_price_collection_master_v0_18_final(1).json",
+  "original_sha256": "5c4fc34fa7258a7230bf810898952fa65027e7bae52e25e4d23cf980bd5c0cbb",
+  "original_size_bytes": 1987165,
+  "original_price_row_count": 1193,
+  "original_listing_index_count": 330,
+  "original_scope_note": "Stopped after final 6 useful TheFEYA products. Remaining Etsy shop items are shipping/custom-client/special listings and intentionally excluded.",
+  "scoped_price_row_count": 142,
+  "database_source_row_count": 142,
+  "all_scoped_payloads_identical": true,
+  "matches": [
+    {
+      "source_price_row_id": "1cde36d4-2576-5c77-aa36-1b5eeca7137e",
+      "original_price_row_index": 696,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4c78a4f9-bb40-5265-a43d-021fc52dfb64",
+      "original_price_row_index": 698,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "599c1611-8d9f-59c8-86f6-c1034a76d5e2",
+      "original_price_row_index": 693,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5f42d1ce-c250-50a4-a7b4-e7d57b632680",
+      "original_price_row_index": 694,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "662060a8-c953-5d3a-b7a0-b4b522721e10",
+      "original_price_row_index": 692,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "79c9dcef-c734-51c7-81b8-de0078fd9b56",
+      "original_price_row_index": 695,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d9664352-bd13-5d43-a14b-e02d39f73cba",
+      "original_price_row_index": 697,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "08c54327-3857-5d90-9b29-6cee7bb7e5b1",
+      "original_price_row_index": 690,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "45add186-953e-518a-bd32-998bde2ae28c",
+      "original_price_row_index": 688,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4f4f7638-ae4a-586f-a426-e4985d94e085",
+      "original_price_row_index": 686,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "75c635b3-75d1-596a-840b-81afb54eec53",
+      "original_price_row_index": 687,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a1edaed4-7288-5b83-af0a-2ec6fe6a06c2",
+      "original_price_row_index": 685,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ac62af11-07ea-5810-88a0-5461350d3d3b",
+      "original_price_row_index": 691,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e4d86ac4-2e67-538c-872b-d73f68d8d529",
+      "original_price_row_index": 689,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "1c28b82c-7363-5478-a9b9-803d603d5212",
+      "original_price_row_index": 588,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "448f61f3-2678-5b34-abf1-542614e50ec8",
+      "original_price_row_index": 590,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "84199d9d-f924-53ba-a3d2-f911c6035129",
+      "original_price_row_index": 589,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "319e172d-d5bc-50ee-a733-db18a9218253",
+      "original_price_row_index": 744,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "55e6a0f0-3ced-5a3a-9350-74a678b0bc42",
+      "original_price_row_index": 740,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "607d1373-ac61-5c41-8711-87ec4fcfb9dd",
+      "original_price_row_index": 742,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "87837ba1-85e3-5c82-b38e-30699fb50c5c",
+      "original_price_row_index": 745,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "917b4041-d792-5d21-9fff-9a72f8f431df",
+      "original_price_row_index": 746,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "9f61f115-39ca-50a7-ac64-c0142318037b",
+      "original_price_row_index": 741,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "efd08aed-760e-5602-8ef1-1cbac0dcd669",
+      "original_price_row_index": 743,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "53497a01-30e8-52de-8f78-2a1ab960dfab",
+      "original_price_row_index": 410,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5dd184cc-2967-5187-b0bc-b32dadf40fe2",
+      "original_price_row_index": 411,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "687777cb-7173-5124-8817-f4dde01e5481",
+      "original_price_row_index": 408,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "82841565-c138-596a-ade3-a298b630e92a",
+      "original_price_row_index": 409,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d0f0e9f5-9041-5953-98a1-2777dd98fdd2",
+      "original_price_row_index": 412,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e57fde99-4ec6-5713-9f06-5a00018cfc18",
+      "original_price_row_index": 407,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "1144d243-1e40-5baf-8043-00beaa8c05f8",
+      "original_price_row_index": 292,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "32a2bd3d-e705-5926-bac7-a02c5ab1b6b9",
+      "original_price_row_index": 293,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4acae1a2-2c40-559d-90b6-ffd62efbe2e0",
+      "original_price_row_index": 294,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "7c9b8b71-2763-58ec-8f2e-ac1e8d72f1cf",
+      "original_price_row_index": 295,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "7cb5482a-97c2-5310-8d3c-b9dd3ce55451",
+      "original_price_row_index": 296,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "8462acf6-2d69-5701-aaf8-433bf79801db",
+      "original_price_row_index": 297,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "07283bf6-7ac9-5a03-bd0d-274c613bde8f",
+      "original_price_row_index": 249,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "0ac5f464-ecad-503e-b990-7f9ccc327ed2",
+      "original_price_row_index": 258,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "18db043f-60e7-569a-818d-0853e0cb4656",
+      "original_price_row_index": 250,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "1ebaf5bb-5f6c-508a-92a9-f67a1bc5a304",
+      "original_price_row_index": 261,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "290b08be-eb9b-5182-97f4-2be1fb40233f",
+      "original_price_row_index": 251,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "76c69d10-da92-5078-a387-bf6ff1cea62a",
+      "original_price_row_index": 255,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "805ee9a6-86da-5b87-9f6c-c6044948dbb8",
+      "original_price_row_index": 259,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "9aee9b98-6d05-5766-99c4-c66743662b87",
+      "original_price_row_index": 253,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "9b0823b0-6c0c-55c2-a33c-145279315d3d",
+      "original_price_row_index": 256,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "aa1b3fc5-161c-52d3-86e9-cc0cd198dd02",
+      "original_price_row_index": 252,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "c7929f14-a032-5c0c-8fd3-41f4d928f653",
+      "original_price_row_index": 254,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ed5cead4-10aa-55e5-903c-0579dfda7ec1",
+      "original_price_row_index": 257,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "f2c7b93a-2972-5cd3-b9d1-659a254e0da2",
+      "original_price_row_index": 260,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "0928293c-1bec-5870-95aa-1ecfabfdf4b8",
+      "original_price_row_index": 713,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "3c8fea27-277e-58b2-b47c-f04a4717ebea",
+      "original_price_row_index": 710,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "407fa9aa-290e-5f7f-bf65-d6bcff7c378e",
+      "original_price_row_index": 708,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "51951ec0-951f-5433-abc1-36ba1b35b3ea",
+      "original_price_row_index": 711,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "946dce1d-3738-5e6b-91c0-9900ac911bef",
+      "original_price_row_index": 707,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a3a19604-25b4-5a23-9165-7dfd077e493b",
+      "original_price_row_index": 709,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "aa21ee97-d8df-5212-bd32-912fef3a7d26",
+      "original_price_row_index": 712,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "18c72720-11e1-58a2-bfb6-dfc809ee9a3e",
+      "original_price_row_index": 894,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "3e436b53-423e-5a77-8ee7-d8a8dedf9fc3",
+      "original_price_row_index": 896,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4ee12900-ed43-5889-8b4d-d651ea83a2d4",
+      "original_price_row_index": 898,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "6905b86b-8454-582d-aacd-182ca4673544",
+      "original_price_row_index": 892,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "8f36ab9b-6ad7-501e-9102-0caab7c65382",
+      "original_price_row_index": 895,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ba8df259-7f99-547b-96fc-1e6d7e9fcdf2",
+      "original_price_row_index": 897,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "c6453272-2fee-5dc1-9c2e-b180a4221c8d",
+      "original_price_row_index": 893,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5fbd8692-280a-5065-ae69-0c1d7be62cc5",
+      "original_price_row_index": 703,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "6f6d7f7d-d71a-5ddf-b559-c88fd03f11dd",
+      "original_price_row_index": 704,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "725d287c-6d98-579f-b1b0-f33b1612db15",
+      "original_price_row_index": 702,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "8a64498e-5a6c-59b1-aa4f-03188d071ba5",
+      "original_price_row_index": 706,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e0ddd736-c6cf-5a04-af77-c53b42a5d0bc",
+      "original_price_row_index": 700,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e2a8ae78-d82a-5e32-b1c2-39716a59e8a5",
+      "original_price_row_index": 701,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "fe656208-2977-50be-9805-defc5361bdc4",
+      "original_price_row_index": 705,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "43961726-0b73-5057-92ae-da38e7730e4b",
+      "original_price_row_index": 525,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "523ada60-b97b-51aa-aed0-95f27d973084",
+      "original_price_row_index": 527,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "6bbfbd7a-d2ea-5cd9-8b79-093fb76e64dc",
+      "original_price_row_index": 529,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "97d66d0f-7b08-5316-87db-4b6d2a659cc2",
+      "original_price_row_index": 526,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "c40f914f-1966-536b-ab8f-e9c7f73abcf9",
+      "original_price_row_index": 524,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d475f20d-5114-584a-8372-b174a6fdc058",
+      "original_price_row_index": 528,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "15cd4cb5-b569-59e0-8442-34a5804e79fd",
+      "original_price_row_index": 931,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "30922bce-8efa-5409-89bf-6da6b74ee772",
+      "original_price_row_index": 927,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "523d11cd-ebac-5441-9a0c-dd9f00c99435",
+      "original_price_row_index": 930,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "86025871-8c4c-56c2-93ae-1c9a68b7f189",
+      "original_price_row_index": 929,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a4fb9e86-cf73-5fd4-b718-c6073616d52f",
+      "original_price_row_index": 926,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ab4f046e-7d98-5ba6-ac3e-d97b468bc0c0",
+      "original_price_row_index": 925,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e3906e3c-baf4-52ee-a1ad-b22a0bd0a439",
+      "original_price_row_index": 928,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "2c9f4730-b89a-5177-82bc-9b16a5ce4acf",
+      "original_price_row_index": 728,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "3e556ec1-36ca-54f1-8429-d95c61fcf741",
+      "original_price_row_index": 729,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "49eb0fa4-c9b8-50ca-93ea-c21ace9311d5",
+      "original_price_row_index": 725,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "803d917a-3cce-5d43-b1ec-2d758cfc4e5e",
+      "original_price_row_index": 726,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "b674e8eb-d61c-5540-b9ea-65f4797eb421",
+      "original_price_row_index": 723,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d667fbfb-bad3-5bf3-80d6-3491a2650e83",
+      "original_price_row_index": 727,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "fa9434eb-1a4d-57a2-830a-5c0638ca9f85",
+      "original_price_row_index": 724,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "48e370b4-3afc-5947-925c-bbda8079ba74",
+      "original_price_row_index": 201,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5bf86f82-94e3-5305-8e5e-56fbe80c90a6",
+      "original_price_row_index": 203,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d67a92a9-afdd-5e09-a1ed-3d924998e0df",
+      "original_price_row_index": 202,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "2b2c06aa-fc95-5f19-bfbb-48833772260d",
+      "original_price_row_index": 658,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "30e61863-0167-535d-aed6-239c8b202267",
+      "original_price_row_index": 662,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "6a58528f-213f-555a-8450-76bca02d27b4",
+      "original_price_row_index": 659,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "746bc8e1-d15e-5ecf-982e-13c69c208be1",
+      "original_price_row_index": 661,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "769db475-7ef0-5ea2-9b32-e3b436da5dcd",
+      "original_price_row_index": 660,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "92de3329-f7fd-5296-ad7d-737da8cd4fd4",
+      "original_price_row_index": 664,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e74e486b-bc99-5c61-8153-eb9416a4b9ac",
+      "original_price_row_index": 663,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "62d5bc15-59e7-5d13-9b66-ba22f5fa246a",
+      "original_price_row_index": 613,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "8293842e-c437-5636-936c-35f862054267",
+      "original_price_row_index": 610,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a5d81eeb-6dbf-5962-b3ef-9a80191fa484",
+      "original_price_row_index": 611,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "cdd7df67-8d7d-5578-b4cd-194a28a41c2d",
+      "original_price_row_index": 609,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "cfb0fc6a-c663-56bf-94d0-e15ad92c1df2",
+      "original_price_row_index": 614,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d3c09d28-0ca9-53a1-aeb2-d29e330a7a5f",
+      "original_price_row_index": 615,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "da5c592c-cd16-5389-9b03-54054831dcc7",
+      "original_price_row_index": 612,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "19e24a62-1cc6-572e-9951-c2600ac31040",
+      "original_price_row_index": 377,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "209123bf-2dce-5475-9d11-1e3cf63e4a89",
+      "original_price_row_index": 375,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "2cfbd996-f11c-560d-9f98-46201f0a1cb9",
+      "original_price_row_index": 379,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4f7ef1b1-24de-539a-a60d-e1033b1fb75a",
+      "original_price_row_index": 382,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "8290785f-bedb-5d1c-a50f-18ceaeffd4be",
+      "original_price_row_index": 378,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d4a762fd-dfc2-5f8a-9177-a7a796875ce8",
+      "original_price_row_index": 380,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ef130f4e-b3c4-5e14-8b59-1b11179379ae",
+      "original_price_row_index": 381,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "fa8f9316-0b96-54f8-b3ab-076ffe958cee",
+      "original_price_row_index": 376,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "0c374835-531c-52af-8690-ba24a8396e2b",
+      "original_price_row_index": 624,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "2b9a78f1-2d15-5fe0-beaa-430b8d22d300",
+      "original_price_row_index": 626,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "3f1a01fa-6ab9-5df4-8364-1faa0497a0ac",
+      "original_price_row_index": 625,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "4e821df3-5b6f-536d-8b0e-9692e0b8ef0a",
+      "original_price_row_index": 628,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "58307f2d-1e79-5f75-a3b4-ae041ddf8cdf",
+      "original_price_row_index": 623,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "cb9a7f08-9abf-5333-9c9e-09b4706276ae",
+      "original_price_row_index": 622,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d87a6d0d-1270-5ccb-b3ab-eb9ccd26bf13",
+      "original_price_row_index": 627,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "93af38fd-a076-5362-871a-11c7ff72ba26",
+      "original_price_row_index": 535,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "aa1dfc5e-11fb-5792-a9a4-f18eda2ea62e",
+      "original_price_row_index": 531,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ad8f5e69-7cdc-5ef4-9885-85a0e2dbdf6d",
+      "original_price_row_index": 533,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "cf50c55d-36b4-5ada-8dba-7c154dee7022",
+      "original_price_row_index": 530,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "d8eaee7b-c640-5d01-9be6-078827c5b79f",
+      "original_price_row_index": 532,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "e074d155-1618-51e4-976a-2cf3e85d5ab0",
+      "original_price_row_index": 534,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5c7ba183-9b2c-5158-84b8-f3b7ade51524",
+      "original_price_row_index": 521,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "7724c3b8-3d78-5d71-b38d-2e5a88406edc",
+      "original_price_row_index": 519,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "9e0e2944-f908-5954-8c57-6cfed5ae5275",
+      "original_price_row_index": 522,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a090f5a8-1da4-5487-b7ba-6b51aff6f532",
+      "original_price_row_index": 517,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "a6d1f568-570c-50cb-9a9a-31fbbbb4b371",
+      "original_price_row_index": 518,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "c257a720-98a4-5f53-aea8-2533c608c96c",
+      "original_price_row_index": 520,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "cd722129-f8ad-57e6-9309-a7302cd791e7",
+      "original_price_row_index": 523,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "19c7e242-7959-557f-9819-a33a01d0f679",
+      "original_price_row_index": 717,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "390a5ce4-b6a3-51a4-9e24-c50074c46fd8",
+      "original_price_row_index": 716,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "5f66941a-1915-5f1b-a18c-095d2ed7602e",
+      "original_price_row_index": 719,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "6035189d-7d1a-525b-b0de-21ab53c3de9b",
+      "original_price_row_index": 721,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "7b7e1a79-964d-5e28-8bfd-1b7db8536b71",
+      "original_price_row_index": 722,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "bbf8bb8c-022d-5fa3-a5a4-4ea4fd7526f5",
+      "original_price_row_index": 720,
+      "raw_payload_identical": true
+    },
+    {
+      "source_price_row_id": "ed41f211-364e-5122-8e50-d77c5ab42774",
+      "original_price_row_index": 718,
+      "raw_payload_identical": true
+    }
+  ],
+  "mismatches": [],
+  "original_row_field_names": [
+    "canonical_url",
+    "collected_at",
+    "extraction_confidence",
+    "image",
+    "listing_id",
+    "option_axis",
+    "option_name",
+    "platform_shop",
+    "price_amount",
+    "price_currency",
+    "raw_option",
+    "row_kind",
+    "shop_label",
+    "source_batch",
+    "source_file",
+    "title",
+    "url",
+    "variant_price_source",
+    "variant_price_text"
+  ],
+  "complete_variant_matrix_present": false,
+  "conclusion": "Original master contains the same single-axis option observations; no additional complete configuration-size-color price tuples were found. Range information exists in raw_option and must not be reduced to price_amount.",
+  "source_capture_sha256": "aeea73c6c208c072491fe030c6758a075cdbc8eef9de95283a7390fcd0f465d7"
+}

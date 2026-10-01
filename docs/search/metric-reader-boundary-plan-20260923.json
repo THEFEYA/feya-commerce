@@ -1,0 +1,132 @@
+{
+  "policy": "metric_reader_boundary_v1",
+  "strategy": "exclude_atomic_observations_before_legacy_selection",
+  "direct_readers": [
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_query_cluster_proposal_candidates_v1",
+      "filtered_relation_scans": 1,
+      "columns": 20,
+      "options_preserved": [
+        "security_barrier=true"
+      ]
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_query_cluster_review_queue_v1",
+      "filtered_relation_scans": 1,
+      "columns": 31,
+      "options_preserved": [
+        "security_barrier=true"
+      ]
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_api_validation_pilot_report_v1",
+      "filtered_relation_scans": 1,
+      "columns": 5,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_candidate_promotion_dry_run_v2",
+      "filtered_relation_scans": 2,
+      "columns": 33,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_master_to_bank_insert_dry_run_v1",
+      "filtered_relation_scans": 1,
+      "columns": 30,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_metric_import_ready_v1",
+      "filtered_relation_scans": 1,
+      "columns": 16,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_metric_import_validation_report_v1",
+      "filtered_relation_scans": 1,
+      "columns": 8,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_metric_validation_queue_v1",
+      "filtered_relation_scans": 1,
+      "columns": 32,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_keyword_p1_guarded_promotion_dry_run_v1",
+      "filtered_relation_scans": 2,
+      "columns": 26,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_commerce_v_seo_metric_system_status_v1",
+      "filtered_relation_scans": 1,
+      "columns": 3,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_v_kw_product_fact_expansion_candidates_v1",
+      "filtered_relation_scans": 1,
+      "columns": 33,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_v_kw_product_fit_candidates_v1",
+      "filtered_relation_scans": 1,
+      "columns": 37,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_v_manual_keyword_metric_match_v1",
+      "filtered_relation_scans": 1,
+      "columns": 21,
+      "options_preserved": null
+    },
+    {
+      "kind": "view",
+      "name": "feya_v_metric_import_center_status_v1",
+      "filtered_relation_scans": 1,
+      "columns": 3,
+      "options_preserved": null
+    },
+    {
+      "kind": "function",
+      "name": "feya_commerce_apply_seo_keyword_metric_import_v1",
+      "filtered_relation_scans": 0,
+      "legacy_input_ready_view": true,
+      "security_definer_unchanged": true
+    },
+    {
+      "kind": "function",
+      "name": "feya_commerce_fn_promote_keyword_metric_import_v1",
+      "filtered_relation_scans": 5,
+      "legacy_input_ready_view": false,
+      "security_definer_unchanged": true
+    },
+    {
+      "kind": "function",
+      "name": "feya_fn_apply_manual_keyword_metrics_v1",
+      "filtered_relation_scans": 2,
+      "legacy_input_ready_view": false,
+      "security_definer_unchanged": true
+    }
+  ],
+  "catalog_downstream_views": 48,
+  "new_metric_approval": false,
+  "production_applied": false
+}

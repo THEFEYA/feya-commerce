@@ -1,0 +1,364 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  ArrowUpRight,
+  BarChart3,
+  Bot,
+  BriefcaseBusiness,
+  CalendarDays,
+  PackageSearch,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
+  Settings2,
+  SlidersHorizontal,
+  Store,
+  TrendingUp,
+} from 'lucide-react';
+import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
+
+const NAV_ITEMS = [
+  { key: 'today', href: '/admin/company', label: 'Сегодня', icon: CalendarDays },
+  { key: 'work', href: '/admin/company/work', label: 'Работа', icon: BriefcaseBusiness },
+  { key: 'growth', href: '/admin/company/growth', label: 'Рост', icon: TrendingUp },
+  { key: 'products', href: '/admin/products', label: 'Товары', icon: PackageSearch },
+  { key: 'results', href: '/admin/company/results', label: 'Результаты', icon: BarChart3 },
+  { key: 'system', href: '/admin/company/system', label: 'Система', icon: Settings2 },
+] as const;
+
+function ownerArea(pathname: string) {
+  if (pathname.startsWith('/admin/company/search')) return 'search';
+  if (pathname === '/admin/company') return 'today';
+  if (
+    pathname.startsWith('/admin/company/work') ||
+    pathname.startsWith('/admin/roles') ||
+    pathname.startsWith('/admin/company/owner-attention') ||
+    pathname.startsWith('/admin/owner-attention') ||
+    pathname.startsWith('/admin/content-qa') ||
+    pathname.startsWith('/admin/product-facts-review') ||
+    pathname.startsWith('/admin/seo-keyword-review')
+  ) return 'work';
+  if (
+    pathname.startsWith('/admin/company/growth') ||
+    pathname.startsWith('/admin/company/signals') ||
+    pathname.startsWith('/admin/signals') ||
+    pathname.startsWith('/admin/seo-keywords') ||
+    pathname.startsWith('/admin/seo-clusters') ||
+    pathname.startsWith('/admin/seo-cluster-proposals') ||
+    pathname.startsWith('/admin/seo-portfolio') ||
+    pathname.startsWith('/admin/seo-ownership-proposals') ||
+    pathname.startsWith('/admin/seo-indexability') ||
+    pathname.startsWith('/admin/opportunities') ||
+    pathname.startsWith('/admin/strategy') ||
+    pathname.startsWith('/admin/collections') ||
+    pathname.startsWith('/admin/graph') ||
+    pathname.startsWith('/admin/seo-lab') ||
+    pathname.startsWith('/admin/content-briefs') ||
+    pathname.startsWith('/admin/seo-apply') ||
+    pathname.startsWith('/admin/seo-change-sets') ||
+    pathname.startsWith('/admin/seo-gate') ||
+    pathname.startsWith('/admin/seo-engine') ||
+    pathname.startsWith('/admin/seo-approval') ||
+    pathname.startsWith('/admin/seo-export') ||
+    pathname.startsWith('/admin/seo-storefront-preview') ||
+    pathname.startsWith('/admin/media-seo') ||
+    pathname.startsWith('/admin/indexation') ||
+    pathname === '/admin/seo'
+  ) return 'growth';
+  if (
+    pathname.startsWith('/admin/company/results') ||
+    pathname.startsWith('/admin/results') ||
+    pathname.startsWith('/admin/experiments') ||
+    pathname.startsWith('/admin/learning') ||
+    pathname.startsWith('/admin/seo-applied-values')
+  ) return 'results';
+  if (
+    pathname.startsWith('/admin/company/system') ||
+    pathname.startsWith('/admin/company/advanced') ||
+    pathname.startsWith('/admin/advanced') ||
+    pathname.startsWith('/admin/system') ||
+    pathname.startsWith('/admin/system-readiness') ||
+    pathname.startsWith('/admin/data-health') ||
+    pathname.startsWith('/admin/data-authority') ||
+    pathname.startsWith('/admin/execution-map') ||
+    pathname.startsWith('/admin/executions') ||
+    pathname.startsWith('/admin/incidents') ||
+    pathname.startsWith('/admin/scenario-tests') ||
+    pathname.startsWith('/admin/metrics') ||
+    pathname.startsWith('/admin/business-truth') ||
+    pathname.startsWith('/admin/launch-readiness') ||
+    pathname.startsWith('/admin/launch')
+  ) return 'system';
+  return 'products';
+}
+
+function currentContext(pathname: string) {
+  const detailed: Array<[string, string]> = [
+    ['/admin/company/owner-attention', 'Решения владельца'],
+    ['/admin/company/signals', 'Сигналы'],
+    ['/admin/company/results/changes', 'Изменения'],
+    ['/admin/roles', 'ИИ-команда'],
+    ['/admin/system-readiness', 'Готовность системы'],
+    ['/admin/data-health', 'Состояние данных'],
+    ['/admin/data-authority', 'Источники истины'],
+    ['/admin/execution-map', 'Права действий'],
+    ['/admin/executions', 'История выполнения'],
+    ['/admin/incidents', 'Инциденты'],
+    ['/admin/scenario-tests', 'Проверки надёжности'],
+    ['/admin/metrics', 'Метрики'],
+    ['/admin/business-truth', 'Правила бизнеса'],
+    ['/admin/opportunities', 'Возможности'],
+    ['/admin/strategy', 'Стратегия'],
+    ['/admin/experiments', 'Эксперименты'],
+    ['/admin/learning', 'Выводы'],
+    ['/admin/content-qa', 'Контроль качества'],
+    ['/admin/content-briefs', 'Контентные задания'],
+    ['/admin/product-facts-review', 'Факты товара'],
+    ['/admin/seo-keyword-review', 'Проверка ключей'],
+    ['/admin/seo-clusters', 'Группы запросов'],
+    ['/admin/seo-cluster-proposals', 'Предложения групп'],
+    ['/admin/seo-portfolio', 'SEO-страницы'],
+    ['/admin/seo-ownership-proposals', 'Ответственность страниц'],
+    ['/admin/seo-indexability', 'Индексация'],
+    ['/admin/signals', 'Сигналы'],
+  ];
+
+  const match = detailed.find(([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  if (match) return match[1];
+
+  const key = ownerArea(pathname);
+  if (key === 'search') return 'Поиск';
+  return NAV_ITEMS.find((item) => item.key === key)?.label || 'FEYA';
+}
+
+export default function OwnerShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname() || '/admin';
+  const router = useRouter();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [compactDensity, setCompactDensity] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const mobileMoreDialogRef = useRef<HTMLDivElement | null>(null);
+  const mobileMoreTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const mobileMoreCloseRef = useRef<HTMLButtonElement | null>(null);
+  const closeMobileMore = useCallback(() => setMobileMoreOpen(false), []);
+  const activeArea = ownerArea(pathname);
+
+  useOwnerDrawerA11y({
+    open: mobileMoreOpen,
+    dialogRef: mobileMoreDialogRef,
+    triggerRef: mobileMoreTriggerRef,
+    initialFocusRef: mobileMoreCloseRef,
+    close: closeMobileMore,
+  });
+
+  useEffect(() => {
+    try {
+      setSidebarCollapsed(window.localStorage.getItem('feya-owner-sidebar') === 'collapsed');
+      setCompactDensity(window.localStorage.getItem('feya-owner-density') === 'compact');
+    } catch {
+      // Local storage is optional; the navigation still works without it.
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        router.push('/admin/company/search');
+      }
+
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [router]);
+
+  if (pathname.startsWith('/admin/login')) return <>{children}</>;
+
+  const toggleDensity = () => {
+    setCompactDensity((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem('feya-owner-density', next ? 'compact' : 'comfortable');
+      } catch {
+        // View preference is optional.
+      }
+      return next;
+    });
+  };
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem('feya-owner-sidebar', next ? 'collapsed' : 'expanded');
+      } catch {
+        // Preference persistence is best-effort only.
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div className={`owner-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}${compactDensity ? ' is-density-compact' : ''}`} lang="ru">
+      <aside className="owner-sidebar" aria-label="Основная навигация">
+        <Link href="/admin/company" className="owner-brand" title="Центр управления FEYA">
+          <span className="owner-brand-name">FEYA</span>
+          <span className="owner-brand-title">Командный центр</span>
+          <span className="owner-brand-subtitle">Growth OS · сотрудники и решения</span>
+        </Link>
+
+        <button
+          type="button"
+          className="owner-sidebar-toggle"
+          onClick={toggleSidebar}
+          aria-label={sidebarCollapsed ? 'Развернуть боковую панель' : 'Свернуть боковую панель'}
+          title={sidebarCollapsed ? 'Развернуть панель' : 'Свернуть панель'}
+        >
+          {sidebarCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
+          <span>{sidebarCollapsed ? 'Развернуть' : 'Свернуть'}</span>
+        </button>
+
+        <nav className="owner-nav" aria-label="Разделы владельца">
+          {NAV_ITEMS.map((item) => {
+            const active = activeArea === item.key;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`owner-nav-item${active ? ' is-active' : ''}`}
+                aria-current={active ? 'page' : undefined}
+                title={item.label}
+              >
+                <span className="owner-nav-mark" aria-hidden="true"><Icon size={14} strokeWidth={1.8} /></span>
+                <span className="owner-nav-copy">
+                  <span>{item.label}</span>
+                  {item.key === 'products' ? <small>Product OS</small> : null}
+                </span>
+                {item.key === 'products' ? <ArrowUpRight className="owner-nav-bridge" size={12} strokeWidth={1.7} aria-hidden="true" /> : null}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="owner-sidebar-footer">
+          <Link
+            href="/admin/company/search"
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/search') ? ' is-active' : ''}`} title="Поиск"
+          >
+            <span className="owner-nav-mark" aria-hidden="true"><Search size={14} strokeWidth={1.8} /></span>
+            <span>Поиск</span>
+          </Link>
+          <Link
+            href="/admin/company/advanced"
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/advanced') ? ' is-active' : ''}`} title="Технические детали"
+          >
+            <span className="owner-nav-mark" aria-hidden="true"><Settings2 size={14} strokeWidth={1.8} /></span>
+            <span>Технические детали</span>
+          </Link>
+          <Link href="/shop" className="owner-nav-item owner-nav-secondary" title="Магазин">
+            <span className="owner-nav-mark" aria-hidden="true"><Store size={14} strokeWidth={1.8} /></span>
+            <span>Магазин</span>
+          </Link>
+        </div>
+      </aside>
+
+      <div className="owner-stage">
+        <header className="owner-topbar">
+          <div className="owner-topbar-mobile-brand">FEYA</div>
+          <Link href="/admin/company/search" className="owner-search-trigger" aria-label="Открыть поиск">
+            <Search size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span>Найти задачу, сигнал, страницу или товар</span>
+            <kbd>⌘ K</kbd>
+          </Link>
+          <div className="owner-topbar-context" title="Текущий раздел">
+            {currentContext(pathname)}
+          </div>
+          <button
+            type="button"
+            className={`owner-density-toggle${compactDensity ? ' is-active' : ''}`}
+            onClick={toggleDensity}
+            aria-pressed={compactDensity}
+            title={compactDensity ? 'Вернуть обычную плотность' : 'Сделать таблицы и карточки компактнее'}
+          >
+            <SlidersHorizontal size={13} strokeWidth={1.8} aria-hidden="true" />
+            <span>{compactDensity ? 'Обычный вид' : 'Компактно'}</span>
+          </button>
+          <Link href="/admin/company/system" className="owner-topbar-status" title="Открыть состояние системы">
+            <span className="owner-status-dot" aria-hidden="true" />
+            <span>Состояние системы</span>
+          </Link>
+        </header>
+
+        <div className="owner-main">{children}</div>
+      </div>
+
+      <nav className="owner-mobile-nav" aria-label="Мобильная навигация">
+        <Link href="/admin/company" className={activeArea === 'today' ? 'is-active' : ''} aria-current={activeArea === 'today' ? 'page' : undefined}>
+          <span aria-hidden="true"><CalendarDays size={16} strokeWidth={1.8} /></span>
+          <small>Сегодня</small>
+        </Link>
+        <Link href="/admin/company/work" className={activeArea === 'work' ? 'is-active' : ''} aria-current={activeArea === 'work' ? 'page' : undefined}>
+          <span aria-hidden="true"><BriefcaseBusiness size={16} strokeWidth={1.8} /></span>
+          <small>Работа</small>
+        </Link>
+        <Link href="/admin/company/search" className={activeArea === 'search' ? 'is-active' : ''} aria-current={activeArea === 'search' ? 'page' : undefined}>
+          <span aria-hidden="true"><Search size={16} strokeWidth={1.8} /></span>
+          <small>Найти</small>
+        </Link>
+        <Link href="/admin/products" className={activeArea === 'products' ? 'is-active' : ''} aria-current={activeArea === 'products' ? 'page' : undefined}>
+          <span aria-hidden="true"><PackageSearch size={16} strokeWidth={1.8} /></span>
+          <small>Товары</small>
+        </Link>
+        <button
+          ref={mobileMoreTriggerRef}
+          type="button"
+          onClick={() => setMobileMoreOpen(true)}
+          className={['growth','results','system'].includes(activeArea) ? 'is-active' : ''}
+          aria-haspopup="dialog"
+          aria-expanded={mobileMoreOpen}
+        >
+          <span aria-hidden="true">•••</span>
+          <small>Ещё</small>
+        </button>
+      </nav>
+
+      {mobileMoreOpen ? (
+        <div className="owner-mobile-more" role="presentation">
+          <button type="button" className="owner-mobile-more-backdrop" aria-label="Закрыть меню" onClick={closeMobileMore} />
+          <div ref={mobileMoreDialogRef} className="owner-mobile-more-sheet" role="dialog" aria-modal="true" aria-label="Дополнительные разделы" tabIndex={-1}>
+            <div className="owner-mobile-more-head">
+              <div>
+                <div className="owner-eyebrow">Дополнительно</div>
+                <strong>Разделы FEYA</strong>
+              </div>
+              <button ref={mobileMoreCloseRef} type="button" className="owner-button" onClick={closeMobileMore}>Закрыть</button>
+            </div>
+            <div className="owner-mobile-more-grid">
+              <Link href="/admin/company/growth" onClick={closeMobileMore}>
+                <TrendingUp size={17} /><span><strong>Рост</strong><small>сигналы, спрос, страницы</small></span>
+              </Link>
+              <Link href="/admin/company/results" onClick={closeMobileMore}>
+                <BarChart3 size={17} /><span><strong>Результаты</strong><small>эксперименты и выводы</small></span>
+              </Link>
+              <Link href="/admin/company/system" onClick={closeMobileMore}>
+                <Settings2 size={17} /><span><strong>Система</strong><small>данные, права, готовность</small></span>
+              </Link>
+              <Link href="/admin/roles" onClick={closeMobileMore}>
+                <Bot size={17} /><span><strong>Команда FEYA</strong><small>роли, активность, ограничения</small></span>
+              </Link>
+              <Link href="/admin/company/advanced" onClick={closeMobileMore}>
+                <SlidersHorizontal size={17} /><span><strong>Технические детали</strong><small>глубокая диагностика</small></span>
+              </Link>
+              <Link href="/shop" onClick={closeMobileMore}>
+                <Store size={17} /><span><strong>Магазин</strong><small>публичная витрина</small></span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}

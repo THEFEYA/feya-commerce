@@ -1,0 +1,3678 @@
+{
+  "policy_version": "demand_evidence_review_v1",
+  "observed_at": "2026-09-23T22:52:14.714435+00:00",
+  "scope": {
+    "snapshots": 168,
+    "keyword_bank_total": 9613,
+    "keyword_bank_exact_seed_matches": 15,
+    "seed_count": 80
+  },
+  "counts": {
+    "bank": [
+      {
+        "rows": 102,
+        "newest": "2026-06-29",
+        "oldest": "2026-06-29",
+        "zero_volume": 0,
+        "metric_source": "commercial_v1_a_google_ads_stats_2026_07_05",
+        "missing_volume": 0
+      },
+      {
+        "rows": 9511,
+        "newest": "2026-07-08",
+        "oldest": "2026-06-29",
+        "zero_volume": 204,
+        "metric_source": "google_keyword_planner",
+        "missing_volume": 0
+      }
+    ],
+    "staging": [
+      {
+        "rows": 18,
+        "import_status": "promoted_to_snapshots"
+      },
+      {
+        "rows": 14,
+        "import_status": "error"
+      }
+    ],
+    "snapshots": [
+      {
+        "rows": 150,
+        "newest": null,
+        "oldest": null,
+        "source_api": "google_ads_keyword_planner",
+        "with_currency": 0,
+        "with_target_hash": 0,
+        "data_freshness_status": "api_not_connected"
+      },
+      {
+        "rows": 18,
+        "newest": "2026-07-08T14:30:41.956483+00:00",
+        "oldest": "2026-07-08T13:10:00.401459+00:00",
+        "source_api": "google_ads_csv",
+        "with_currency": 0,
+        "with_target_hash": 0,
+        "data_freshness_status": "fresh_manual_import"
+      }
+    ],
+    "observed_at": "2026-09-23T22:52:14.714435+00:00",
+    "obsolete_import_tables": {
+      "batch": null,
+      "metrics": null
+    },
+    "bank_review_status": {
+      "approved_draft": 4834,
+      "hold": 3474,
+      "reject": 1305
+    }
+  },
+  "usable_current_observations": 0,
+  "reason_counts": {
+    "targeting_context_mismatch": 183,
+    "capture_date_invalid": 150,
+    "metric_period_invalid": 169,
+    "api_placeholder_not_observation": 150,
+    "volume_unavailable": 150,
+    "source_capture_time_unverified": 33,
+    "snapshot_stale": 33,
+    "metric_period_stale": 14,
+    "bid_currency_missing_or_invalid": 12
+  },
+  "recovered_currency_rows": 18,
+  "recovered_period_rows": 14,
+  "total_demand_volume": null,
+  "legacy_approvals_unchanged": true,
+  "can_publish": false,
+  "can_index": false,
+  "writes_performed": 0,
+  "observations": [
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:1",
+      "keyword": "festival outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:10",
+      "keyword": "performance outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:100",
+      "keyword": "reflective skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:101",
+      "keyword": "silicone belt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:102",
+      "keyword": "silicone panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:103",
+      "keyword": "silver belt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:104",
+      "keyword": "silver bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:105",
+      "keyword": "silver corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:106",
+      "keyword": "silver leg straps / garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:107",
+      "keyword": "vegan leather arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:108",
+      "keyword": "vegan leather corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:109",
+      "keyword": "vegan leather leg straps / garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:11",
+      "keyword": "silver shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:110",
+      "keyword": "vegan leather panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:111",
+      "keyword": "white garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:112",
+      "keyword": "white open skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:113",
+      "keyword": "acrylic leg armor",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:114",
+      "keyword": "black bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:115",
+      "keyword": "black headpiece",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:116",
+      "keyword": "black leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:117",
+      "keyword": "black skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:118",
+      "keyword": "black tail",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:119",
+      "keyword": "costumes for performer",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:12",
+      "keyword": "metallic top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:120",
+      "keyword": "glossy arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:121",
+      "keyword": "glossy bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:122",
+      "keyword": "glossy shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:123",
+      "keyword": "glossy skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:124",
+      "keyword": "glossy top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:125",
+      "keyword": "gold arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:126",
+      "keyword": "gold gloves",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:127",
+      "keyword": "gold horns",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:128",
+      "keyword": "holographic leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:129",
+      "keyword": "metallic open skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:13",
+      "keyword": "silver skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:130",
+      "keyword": "metallic spine",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:131",
+      "keyword": "mirror garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:132",
+      "keyword": "mirror panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:133",
+      "keyword": "red arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:134",
+      "keyword": "red bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:135",
+      "keyword": "red tail",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:136",
+      "keyword": "reflective bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:137",
+      "keyword": "reflective choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:138",
+      "keyword": "reflective shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:139",
+      "keyword": "reflective top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:14",
+      "keyword": "vegan leather skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:140",
+      "keyword": "silicone bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:141",
+      "keyword": "silicone choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:142",
+      "keyword": "silicone garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:143",
+      "keyword": "vegan leather crown",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:144",
+      "keyword": "vegan leather gloves",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:145",
+      "keyword": "vegan leather headpiece",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:146",
+      "keyword": "vegan leather leg armor",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:147",
+      "keyword": "vegan leather open skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:148",
+      "keyword": "vegan leather spine",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:149",
+      "keyword": "white choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:15",
+      "keyword": "costumes for drag queen",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:150",
+      "keyword": "white leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:151",
+      "keyword": "cyberpunk festival outfit",
+      "volume": 20,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:152",
+      "keyword": "cyberpunk rave clothing",
+      "volume": 30,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:153",
+      "keyword": "cyberpunk rave outfit",
+      "volume": 320,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:154",
+      "keyword": "cyberpunk shoulder armor",
+      "volume": 20,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:155",
+      "keyword": "futuristic armor costume",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:156",
+      "keyword": "futuristic cosplay armor",
+      "volume": 40,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:157",
+      "keyword": "futuristic rave clothing",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:158",
+      "keyword": "futuristic shoulder armor",
+      "volume": 50,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:159",
+      "keyword": "frozen phase",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:16",
+      "keyword": "metallic bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:160",
+      "keyword": "post apocalyptic shoulder armor",
+      "volume": 20,
+      "currency": "UAH",
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:161",
+      "keyword": "warrior shoulder armor",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:162",
+      "keyword": "warrior shoulders",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:163",
+      "keyword": "gold shoulder armor",
+      "volume": 210,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:164",
+      "keyword": "gold shoulder body chain",
+      "volume": 10,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:165",
+      "keyword": "gold shoulder chain",
+      "volume": 110,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:166",
+      "keyword": "gold shoulders",
+      "volume": 110,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:167",
+      "keyword": "lego gold shoulder armor",
+      "volume": 90,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:168",
+      "keyword": "lego gold shoulder pads",
+      "volume": 140,
+      "currency": "UAH",
+      "period_start": "2025-06-01",
+      "period_end": "2026-05-31",
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "source_capture_time_unverified",
+        "snapshot_stale",
+        "metric_period_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:17",
+      "keyword": "metallic choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:18",
+      "keyword": "metallic panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:19",
+      "keyword": "gold top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:2",
+      "keyword": "rave outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:20",
+      "keyword": "silver bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:21",
+      "keyword": "vegan leather shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:22",
+      "keyword": "metallic bra top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:23",
+      "keyword": "holographic skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:24",
+      "keyword": "silver bra top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:25",
+      "keyword": "silver choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:26",
+      "keyword": "silver panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:27",
+      "keyword": "silver top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:28",
+      "keyword": "gold bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:29",
+      "keyword": "holographic top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:3",
+      "keyword": "burning man outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:30",
+      "keyword": "vegan leather bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:31",
+      "keyword": "metallic leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:32",
+      "keyword": "red skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:33",
+      "keyword": "vegan leather top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:34",
+      "keyword": "gold bra top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:35",
+      "keyword": "gold choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:36",
+      "keyword": "metallic arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:37",
+      "keyword": "metallic garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:38",
+      "keyword": "red shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:39",
+      "keyword": "white bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:4",
+      "keyword": "metallic shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:40",
+      "keyword": "gold leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:41",
+      "keyword": "metallic bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:42",
+      "keyword": "mirror leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:43",
+      "keyword": "mirror skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:44",
+      "keyword": "silicone leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:45",
+      "keyword": "silicone shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:46",
+      "keyword": "vegan leather garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:47",
+      "keyword": "white shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:48",
+      "keyword": "gold headpiece",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:49",
+      "keyword": "holographic bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:5",
+      "keyword": "metallic skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:50",
+      "keyword": "holographic shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:51",
+      "keyword": "red bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:52",
+      "keyword": "silicone skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:53",
+      "keyword": "white skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:54",
+      "keyword": "acrylic corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:55",
+      "keyword": "acrylic leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:56",
+      "keyword": "gold panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:57",
+      "keyword": "holographic bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:58",
+      "keyword": "holographic headpiece",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:59",
+      "keyword": "metallic headpiece",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:6",
+      "keyword": "dance outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:60",
+      "keyword": "metallic horns",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:61",
+      "keyword": "metallic leg armor",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:62",
+      "keyword": "mirror bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:63",
+      "keyword": "mirror corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:64",
+      "keyword": "mirror top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:65",
+      "keyword": "red leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:66",
+      "keyword": "red top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:67",
+      "keyword": "reflective corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:68",
+      "keyword": "reflective leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:69",
+      "keyword": "silicone bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:7",
+      "keyword": "stage outfit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:70",
+      "keyword": "silicone top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:71",
+      "keyword": "silver arm cuff",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:72",
+      "keyword": "silver garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:73",
+      "keyword": "silver leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:74",
+      "keyword": "silver spine",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:75",
+      "keyword": "vegan leather bra top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:76",
+      "keyword": "vegan leather bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:77",
+      "keyword": "vegan leather choker",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:78",
+      "keyword": "vegan leather leg covers",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:79",
+      "keyword": "acrylic bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:8",
+      "keyword": "gold skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:80",
+      "keyword": "acrylic skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:81",
+      "keyword": "acrylic top",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:82",
+      "keyword": "black bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:83",
+      "keyword": "black corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:84",
+      "keyword": "black crown",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:85",
+      "keyword": "black horns",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:86",
+      "keyword": "black open skirt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:87",
+      "keyword": "black panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:88",
+      "keyword": "black shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:89",
+      "keyword": "black spine",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:9",
+      "keyword": "gold shoulders",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:90",
+      "keyword": "costumes for dancer",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:91",
+      "keyword": "gold bodysuit",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:92",
+      "keyword": "gold garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:93",
+      "keyword": "holographic panties",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:94",
+      "keyword": "metallic belt",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:95",
+      "keyword": "metallic corset",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:96",
+      "keyword": "metallic gloves",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:97",
+      "keyword": "metallic leg straps / garters",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:98",
+      "keyword": "mirror bracelet",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:99",
+      "keyword": "red gloves",
+      "volume": null,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "capture_date_invalid",
+        "metric_period_invalid",
+        "api_placeholder_not_observation",
+        "volume_unavailable"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:98a1b5e5-232f-4978-b8c2-a0024e3a7fc2",
+      "keyword": "body harness",
+      "volume": 2400,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:2275862d-9d40-4db4-82db-e54eb6e9035c",
+      "keyword": "burning man costumes",
+      "volume": 1000,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:5be77f8f-b5cc-49f7-8071-a4cbfa1416f0",
+      "keyword": "burning man outfit ideas",
+      "volume": 170,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:e650e071-4ca7-434d-8a01-37210e5cb30e",
+      "keyword": "burning man outfits",
+      "volume": 3600,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:8d82f589-3c7b-4d0f-b7f3-44f9ce15b5e5",
+      "keyword": "costume bodysuit",
+      "volume": 720,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:9dd254a3-2ec4-4276-8a2a-445f2f2f90d9",
+      "keyword": "custom festival outfit",
+      "volume": 0,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:c8c66af2-f8d4-463b-9ae8-3cad3a77cecd",
+      "keyword": "festival bodysuit",
+      "volume": 390,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:405f5477-891b-43b5-bc81-0b008ef1cf89",
+      "keyword": "festival harness",
+      "volume": 40,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:85a4bc49-8d1d-4ef6-ab1c-fc56092ca012",
+      "keyword": "gold body harness",
+      "volume": 50,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:cac5fd9d-e21e-49bd-a884-c0e65b7602e4",
+      "keyword": "gold shoulder armor",
+      "volume": 210,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:1a45358b-12fd-46ca-88e6-91a910585121",
+      "keyword": "handmade festival outfits",
+      "volume": 10,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:a9da097a-c565-4095-83e5-e8d3e063cf19",
+      "keyword": "performance costumes",
+      "volume": 140,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:6625c337-278e-4af2-b40c-a961dd2bcb54",
+      "keyword": "rave costumes",
+      "volume": 1900,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:fb3f6293-c518-4c2d-b273-050c6da9b407",
+      "keyword": "silver body harness",
+      "volume": 20,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    },
+    {
+      "source_ref": "supabase:seo_keyword_bank_v1:96fd3f93-0a8d-46e1-8dfa-9a80714cc6f4",
+      "keyword": "stage costumes",
+      "volume": 170,
+      "currency": null,
+      "period_start": null,
+      "period_end": null,
+      "reason_codes": [
+        "targeting_context_mismatch",
+        "metric_period_invalid",
+        "bid_currency_missing_or_invalid",
+        "source_capture_time_unverified",
+        "snapshot_stale"
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "id": "Q01",
+      "priority": "next",
+      "decision_to_change": "Separate broad festival/rave/Burning Man/stage owners; do not create them from seeds.",
+      "seeds": [
+        {
+          "keyword": "burning man outfits",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:e650e071-4ca7-434d-8a01-37210e5cb30e"
+          ],
+          "keyword_bank_ids": [
+            "e650e071-4ca7-434d-8a01-37210e5cb30e"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "burning man costumes",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:2275862d-9d40-4db4-82db-e54eb6e9035c"
+          ],
+          "keyword_bank_ids": [
+            "2275862d-9d40-4db4-82db-e54eb6e9035c"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "festival outfits",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival costumes",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "rave outfits",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "rave costumes",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:6625c337-278e-4af2-b40c-a961dd2bcb54"
+          ],
+          "keyword_bank_ids": [
+            "6625c337-278e-4af2-b40c-a961dd2bcb54"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "stage costumes",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:96fd3f93-0a8d-46e1-8dfa-9a80714cc6f4"
+          ],
+          "keyword_bank_ids": [
+            "96fd3f93-0a8d-46e1-8dfa-9a80714cc6f4"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "performance costumes",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:a9da097a-c565-4095-83e5-e8d3e063cf19"
+          ],
+          "keyword_bank_ids": [
+            "a9da097a-c565-4095-83e5-e8d3e063cf19"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "handmade festival outfits",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:1a45358b-12fd-46ca-88e6-91a910585121"
+          ],
+          "keyword_bank_ids": [
+            "1a45358b-12fd-46ca-88e6-91a910585121"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "costume sets",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "priority": "next",
+      "decision_to_change": "Decide distinct type hubs and spelling aliases.",
+      "seeds": [
+        {
+          "keyword": "shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "shoulder armour",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "shoulder armor costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "body harness",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:98a1b5e5-232f-4978-b8c2-a0024e3a7fc2"
+          ],
+          "keyword_bank_ids": [
+            "98a1b5e5-232f-4978-b8c2-a0024e3a7fc2"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "fashion harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival harness",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:405f5477-891b-43b5-bc81-0b008ef1cf89"
+          ],
+          "keyword_bank_ids": [
+            "405f5477-891b-43b5-bc81-0b008ef1cf89"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "costume harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "vegan leather harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "priority": "next_conditional",
+      "decision_to_change": "Decide whether mirror warrants a subhub or secondary query on a type hub.",
+      "seeds": [
+        {
+          "keyword": "mirror acrylic shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror acrylic bodysuit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror bodysuit",
+          "source_refs": [
+            "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:62"
+          ],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "capture_date_invalid",
+            "metric_period_invalid",
+            "api_placeholder_not_observation",
+            "volume_unavailable"
+          ]
+        },
+        {
+          "keyword": "mirror acrylic mask",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror mask",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror acrylic skirt",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror skirt",
+          "source_refs": [
+            "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:43"
+          ],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "capture_date_invalid",
+            "metric_period_invalid",
+            "api_placeholder_not_observation",
+            "volume_unavailable"
+          ]
+        },
+        {
+          "keyword": "mirror acrylic leg covers",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume leg covers",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "priority": "conditional",
+      "decision_to_change": "Select which existing shop tabs merit indexable hubs.",
+      "seeds": [
+        {
+          "keyword": "festival corset",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume corset",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival bodysuit",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:c8c66af2-f8d4-463b-9ae8-3cad3a77cecd"
+          ],
+          "keyword_bank_ids": [
+            "c8c66af2-f8d4-463b-9ae8-3cad3a77cecd"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "costume bodysuit",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:8d82f589-3c7b-4d0f-b7f3-44f9ce15b5e5"
+          ],
+          "keyword_bank_ids": [
+            "8d82f589-3c7b-4d0f-b7f3-44f9ce15b5e5"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "festival skirt",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume skirt",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume accessories",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival accessories",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume belt",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume tail",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "priority": "conditional",
+      "decision_to_change": "Choose one versus several style owners.",
+      "seeds": [
+        {
+          "keyword": "futuristic outfits",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "futuristic costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "cyberpunk outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "cyberpunk costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "warrior costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "warrior outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "goddess costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "goddess outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "sci fi costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "space costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "priority": "conditional",
+      "decision_to_change": "Separate made-to-order, custom size and bespoke-design intents.",
+      "seeds": [
+        {
+          "keyword": "made to order costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "made to order festival outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "custom size costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "custom sized bodysuit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "custom festival outfit",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:9dd254a3-2ec4-4276-8a2a-445f2f2f90d9"
+          ],
+          "keyword_bank_ids": [
+            "9dd254a3-2ec4-4276-8a2a-445f2f2f90d9"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "custom burning man outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "bespoke costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "handmade costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "handmade body harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "handmade shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "priority": "conditional",
+      "decision_to_change": "Prioritize a distinct useful guide rather than duplicating a commercial page.",
+      "seeds": [
+        {
+          "keyword": "what to wear to burning man",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "how to choose a burning man outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "burning man outfit ideas",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:5be77f8f-b5cc-49f7-8071-a4cbfa1416f0"
+          ],
+          "keyword_bank_ids": [
+            "5be77f8f-b5cc-49f7-8071-a4cbfa1416f0"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "how to style a body harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "how to wear shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "festival outfit ideas",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "how to choose a festival outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "costume set vs separates",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "how to measure for a bodysuit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "how to measure for a corset",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "priority": "conditional",
+      "decision_to_change": "Promote only modifiers that change the user's choice; otherwise keep as facets.",
+      "seeds": [
+        {
+          "keyword": "vegan leather belt",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "vegan leather costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "vegan leather body harness",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror acrylic costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror costume",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "mirror festival outfit",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "gold shoulder armor",
+          "source_refs": [
+            "supabase:feya_commerce_seo_keyword_metric_snapshots_v1:163",
+            "supabase:seo_keyword_bank_v1:cac5fd9d-e21e-49bd-a884-c0e65b7602e4"
+          ],
+          "keyword_bank_ids": [
+            "cac5fd9d-e21e-49bd-a884-c0e65b7602e4"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "source_capture_time_unverified",
+            "snapshot_stale",
+            "metric_period_stale",
+            "metric_period_invalid",
+            "bid_currency_missing_or_invalid"
+          ]
+        },
+        {
+          "keyword": "silver shoulder armor",
+          "source_refs": [],
+          "keyword_bank_ids": [],
+          "current_usable_observations": 0,
+          "next_action": "request_targeted_historical_metrics",
+          "reason_codes": []
+        },
+        {
+          "keyword": "gold body harness",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:85a4bc49-8d1d-4ef6-ab1c-fc56092ca012"
+          ],
+          "keyword_bank_ids": [
+            "85a4bc49-8d1d-4ef6-ab1c-fc56092ca012"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        },
+        {
+          "keyword": "silver body harness",
+          "source_refs": [
+            "supabase:seo_keyword_bank_v1:fb3f6293-c518-4c2d-b273-050c6da9b407"
+          ],
+          "keyword_bank_ids": [
+            "fb3f6293-c518-4c2d-b273-050c6da9b407"
+          ],
+          "current_usable_observations": 0,
+          "next_action": "verify_original_targeting_period_capture_or_refresh",
+          "reason_codes": [
+            "targeting_context_mismatch",
+            "metric_period_invalid",
+            "source_capture_time_unverified",
+            "snapshot_stale"
+          ]
+        }
+      ]
+    }
+  ]
+}

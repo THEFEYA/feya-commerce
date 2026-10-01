@@ -1,0 +1,326 @@
+{
+  "scope": "catalog-only; no function execution or business rows",
+  "functions": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_apply_content_prechecks_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_apply_content_prechecks_v1(uuid,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_apply_content_prechecks_v1(p_draft_id uuid, p_actor text DEFAULT 'system:content_prechecks_v1'::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_draft public.feya_commerce_seo_pack_drafts_v1%rowtype;\n  v_result jsonb;\n  v_similarity jsonb;\n  v_alt jsonb;\n  v_component jsonb;\n  v_similarity_qa text;\n  v_alt_qa text;\n  v_component_qa text;\nbegin\n  select *\n    into v_draft\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.id=p_draft_id\n    and d.archived_at is null\n  for update;\n\n  if not found then\n    raise exception 'Active SEO pack draft not found: %',p_draft_id;\n  end if;\n\n  v_result := public.feya_fn_preview_content_prechecks_v1(p_draft_id);\n  v_similarity := v_result -> 'similarity';\n  v_alt := v_result -> 'image_alt';\n  v_component := v_result -> 'component_claim';\n\n  v_similarity_qa := case\n    when v_similarity ->> 'status' = 'pass' then 'pass'\n    else 'warning'\n  end;\n\n  v_alt_qa := case\n    when v_alt ->> 'status' = 'pass' then 'pass'\n    else 'warning'\n  end;\n\n  v_component_qa := case\n    when v_component ->> 'status' = 'pass' then 'pass'\n    else 'warning'\n  end;\n\n  update public.feya_commerce_seo_pack_drafts_v1 d\n  set similarity_check_snapshot=v_similarity,\n      qa_self_report=\n        jsonb_set(\n          jsonb_set(\n            jsonb_set(\n              jsonb_set(\n                coalesce(d.qa_self_report,'{}'::jsonb),\n                '{similarity_cannibalization}',\n                to_jsonb(v_similarity_qa),\n                true\n              ),\n              '{textual_similarity_precheck}',\n              v_similarity,\n              true\n            ),\n            '{image_alt_truth}',\n            to_jsonb(v_alt_qa),\n            true\n          ),\n          '{component_claim_truth}',\n          to_jsonb(v_component_qa),\n          true\n        )\n        || jsonb_build_object(\n          'image_alt_precheck',v_alt,\n          'component_claim_precheck',v_component\n        ),\n      updated_at=now()\n  where d.id=p_draft_id;\n\n  insert into public.feya_commerce_seo_pack_draft_events_v1 (\n    draft_id,canonical_product_id,event_type,from_status,to_status,\n    actor,note,payload\n  )\n  values (\n    v_draft.id,v_draft.canonical_product_id,'similarity_checked',\n    v_draft.status,v_draft.status,p_actor,\n    'Deterministic textual similarity precheck completed',\n    v_similarity\n  );\n\n  insert into public.feya_commerce_seo_pack_draft_events_v1 (\n    draft_id,canonical_product_id,event_type,from_status,to_status,\n    actor,note,payload\n  )\n  values (\n    v_draft.id,v_draft.canonical_product_id,'image_alt_checked',\n    v_draft.status,v_draft.status,p_actor,\n    'Deterministic image ALT truth precheck completed',\n    v_alt\n  );\n\n  insert into public.feya_commerce_seo_pack_draft_events_v1 (\n    draft_id,canonical_product_id,event_type,from_status,to_status,\n    actor,note,payload\n  )\n  values (\n    v_draft.id,v_draft.canonical_product_id,'validation_checked',\n    v_draft.status,v_draft.status,p_actor,\n    'Deterministic component-inclusion claim precheck completed',\n    v_component\n  );\n\n  return v_result;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_create_sco_shadow_draft_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_create_sco_shadow_draft_v1(uuid,uuid,uuid,text,text,text,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_create_sco_shadow_draft_v1(p_canonical_product_id uuid, p_brief_queue_id uuid, p_generation_run_id uuid, p_proposal_hash text, p_generation_model text, p_compiler_version text, p_product_truth_snapshot jsonb, p_manual_focus_snapshot jsonb, p_keyword_roles_snapshot jsonb, p_metrics_status_snapshot jsonb, p_agent_input_snapshot jsonb, p_agent_output_snapshot jsonb, p_validation_result_snapshot jsonb)\n RETURNS TABLE(draft_id uuid, created_new boolean, draft_status text, review_status text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_existing public.feya_commerce_seo_pack_drafts_v1%rowtype;\n  v_product public.feya_commerce_product_drafts%rowtype;\n  v_draft public.feya_commerce_seo_pack_drafts_v1%rowtype;\n  v_seo_title text;\n  v_h1 text;\n  v_meta text;\n  v_intro text;\n  v_bullets jsonb;\n  v_faq jsonb;\n  v_alts jsonb;\n  v_links jsonb;\nbegin\n  if p_generation_run_id is null then\n    raise exception 'generation_run_id is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_proposal_hash,'')),'') is null then\n    raise exception 'proposal_hash is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_generation_model,'')),'') is null then\n    raise exception 'generation_model is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_compiler_version,'')),'') is null then\n    raise exception 'compiler_version is required';\n  end if;\n\n  if p_agent_output_snapshot is null\n     or jsonb_typeof(p_agent_output_snapshot) <> 'object' then\n    raise exception 'agent_output_snapshot must be a JSON object';\n  end if;\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.generation_run_id=p_generation_run_id\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.id,false,v_existing.status,v_existing.review_status;\n    return;\n  end if;\n\n  select *\n    into v_product\n  from public.feya_commerce_product_drafts p\n  where p.canonical_product_id=p_canonical_product_id\n  for update;\n\n  if not found then\n    raise exception 'Product draft not found: %',p_canonical_product_id;\n  end if;\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.canonical_product_id=p_canonical_product_id\n    and d.archived_at is null\n  order by d.created_at desc\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.id,false,v_existing.status,v_existing.review_status;\n    return;\n  end if;\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.canonical_product_id=p_canonical_product_id\n    and d.proposal_hash=p_proposal_hash\n  order by d.created_at desc\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.id,false,v_existing.status,v_existing.review_status;\n    return;\n  end if;\n\n  v_seo_title := nullif(btrim(p_agent_output_snapshot ->> 'seo_title'),'');\n  v_h1 := nullif(btrim(p_agent_output_snapshot ->> 'h1'),'');\n  v_meta := nullif(btrim(p_agent_output_snapshot ->> 'meta_description'),'');\n  v_intro := nullif(btrim(p_agent_output_snapshot ->> 'intro'),'');\n  v_bullets := coalesce(p_agent_output_snapshot -> 'bullet_highlights','[]'::jsonb);\n  v_faq := coalesce(p_agent_output_snapshot -> 'faq','[]'::jsonb);\n  v_alts := coalesce(p_agent_output_snapshot -> 'image_alt_candidates','[]'::jsonb);\n  v_links := coalesce(p_agent_output_snapshot -> 'internal_linking_hints','[]'::jsonb);\n\n  if v_seo_title is null or v_h1 is null or v_meta is null or v_intro is null then\n    raise exception 'SCO shadow proposal is missing a required core content field';\n  end if;\n\n  if jsonb_typeof(v_bullets) <> 'array'\n     or jsonb_typeof(v_faq) <> 'array'\n     or jsonb_typeof(v_alts) <> 'array'\n     or jsonb_typeof(v_links) <> 'array' then\n    raise exception 'SCO shadow proposal array fields have invalid JSON types';\n  end if;\n\n  insert into public.feya_commerce_seo_pack_drafts_v1 (\n    canonical_product_id,\n    matched_etsy_listing_id,\n    product_slug,\n    pack_version,\n    source_brief_version,\n    output_contract_version,\n    status,\n    review_status,\n    source_mode,\n    source_decision_id,\n    seo_title,\n    h1,\n    meta_description,\n    intro,\n    bullet_highlights,\n    faq,\n    image_alt_candidates,\n    internal_linking_hints,\n    product_truth_snapshot,\n    manual_focus_snapshot,\n    keyword_roles_snapshot,\n    metrics_status_snapshot,\n    qa_self_report,\n    similarity_check_snapshot,\n    agent_input_snapshot,\n    agent_output_snapshot,\n    validation_result_snapshot,\n    human_review_notes,\n    reviewer,\n    reviewed_at,\n    created_by,\n    generation_run_id,\n    proposal_hash,\n    compiler_version,\n    source_brief_queue_id\n  )\n  values (\n    p_canonical_product_id,\n    coalesce(\n      p_product_truth_snapshot ->> 'matched_etsy_listing_id',\n      v_product.matched_etsy_listing_id\n    ),\n    coalesce(\n      p_product_truth_snapshot ->> 'product_slug',\n      p_product_truth_snapshot ->> 'slug'\n    ),\n    'growth_os_sco_shadow_v1',\n    'seo_content_brief_v1-shadow',\n    'sco_content_proposal_v1',\n    'draft_generated',\n    'not_reviewed',\n    'growth_os_sco_shadow',\n    null,\n    v_seo_title,\n    v_h1,\n    v_meta,\n    v_intro,\n    v_bullets,\n    v_faq,\n    v_alts,\n    v_links,\n    coalesce(p_product_truth_snapshot,'{}'::jsonb),\n    coalesce(p_manual_focus_snapshot,'{}'::jsonb),\n    coalesce(p_keyword_roles_snapshot,'{}'::jsonb),\n    coalesce(p_metrics_status_snapshot,'{}'::jsonb),\n    jsonb_build_object(\n      'notes',jsonb_build_array(\n        'Growth OS SCO shadow draft. Independent CQA and human review are required before publish.'\n      ),\n      'similarity_cannibalization','not_checked',\n      'image_alt_truth','not_checked',\n      'component_claim_truth','not_checked',\n      'keyword_stuffing','not_checked',\n      'validated_metrics','not_checked',\n      'forbidden_mismatch','not_checked',\n      'product_specificity','not_checked',\n      'commercial_placement','not_checked',\n      'cliche_phrase','not_checked',\n      'long_dash','not_checked'\n    ),\n    null,\n    coalesce(p_agent_input_snapshot,'{}'::jsonb),\n    p_agent_output_snapshot,\n    coalesce(p_validation_result_snapshot,'{}'::jsonb),\n    null,\n    null,\n    null,\n    'openai:' || p_generation_model,\n    p_generation_run_id,\n    p_proposal_hash,\n    p_compiler_version,\n    p_brief_queue_id\n  )\n  returning * into v_draft;\n\n  insert into public.feya_commerce_seo_pack_draft_events_v1 (\n    draft_id,\n    canonical_product_id,\n    event_type,\n    from_status,\n    to_status,\n    actor,\n    note,\n    payload\n  )\n  values (\n    v_draft.id,\n    v_draft.canonical_product_id,\n    'draft_created',\n    null,\n    v_draft.status,\n    'openai:' || p_generation_model,\n    'Growth OS SCO shadow draft created from deterministic Content Brief Compiler',\n    jsonb_build_object(\n      'generation_run_id',p_generation_run_id,\n      'proposal_hash',p_proposal_hash,\n      'compiler_version',p_compiler_version,\n      'source_brief_queue_id',p_brief_queue_id,\n      'source_mode','growth_os_sco_shadow'\n    )\n  );\n\n  return query\n  select v_draft.id,true,v_draft.status,v_draft.review_status;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_preview_content_prechecks_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_preview_content_prechecks_v1(uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_preview_content_prechecks_v1(p_draft_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_draft public.feya_commerce_seo_pack_drafts_v1%rowtype;\n  v_text text;\n  v_tokens text[];\n  v_nearest_draft_id uuid;\n  v_nearest_product_id uuid;\n  v_max_score numeric := 0;\n  v_similarity_status text;\n  v_similarity_snapshot jsonb;\n  v_alts jsonb;\n  v_primary_alt text;\n  v_alt_invalid_count integer := 0;\n  v_alt_status text;\n  v_alt_snapshot jsonb;\n  v_component_snapshot jsonb;\n  v_component_status text;\nbegin\n  select *\n    into v_draft\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.id=p_draft_id\n    and d.archived_at is null;\n\n  if not found then\n    raise exception 'Active SEO pack draft not found: %',p_draft_id;\n  end if;\n\n  v_text := coalesce(v_draft.seo_title,'') || ' ' ||\n            coalesce(v_draft.h1,'') || ' ' ||\n            coalesce(v_draft.intro,'');\n  v_tokens := public.feya_fn_content_token_set_v1(v_text);\n\n  with latest_other as (\n    select distinct on (d.canonical_product_id)\n      d.id,\n      d.canonical_product_id,\n      public.feya_fn_content_token_set_v1(\n        coalesce(d.seo_title,'') || ' ' ||\n        coalesce(d.h1,'') || ' ' ||\n        coalesce(d.intro,'')\n      ) as tokens\n    from public.feya_commerce_seo_pack_drafts_v1 d\n    where d.archived_at is null\n      and d.canonical_product_id <> v_draft.canonical_product_id\n    order by d.canonical_product_id,d.created_at desc\n  ),\n  scored as (\n    select\n      l.id,\n      l.canonical_product_id,\n      public.feya_fn_content_jaccard_v1(v_tokens,l.tokens) as score\n    from latest_other l\n  )\n  select id,canonical_product_id,score\n    into v_nearest_draft_id,v_nearest_product_id,v_max_score\n  from scored\n  order by score desc nulls last,id\n  limit 1;\n\n  v_max_score := coalesce(v_max_score,0);\n\n  v_similarity_status := case\n    when v_max_score >= 0.60 then 'needs_review'\n    when v_max_score >= 0.50 then 'warning'\n    else 'pass'\n  end;\n\n  v_similarity_snapshot := jsonb_build_object(\n    'status',v_similarity_status,\n    'scope','content_textual_similarity',\n    'method','token_jaccard_v1',\n    'score',round(v_max_score,4),\n    'pass_threshold_lt',0.50,\n    'warning_threshold_gte',0.50,\n    'review_threshold_gte',0.60,\n    'nearest_draft_id',v_nearest_draft_id,\n    'nearest_product_id',v_nearest_product_id,\n    'not_query_cannibalization',true,\n    'query_page_conflict_owner','OSPM'\n  );\n\n  v_alts := coalesce(v_draft.image_alt_candidates,'[]'::jsonb);\n  v_primary_alt := nullif(btrim(v_draft.product_truth_snapshot ->> 'primary_image_alt'),'');\n\n  if jsonb_typeof(v_alts) <> 'array' then\n    v_alt_invalid_count := 1;\n  elsif jsonb_array_length(v_alts)=0 then\n    v_alt_invalid_count := 0;\n  else\n    select count(*)::integer\n      into v_alt_invalid_count\n    from jsonb_array_elements(v_alts) e\n    where\n      coalesce(e ->> 'image_role','') <> 'primary'\n      or nullif(btrim(e ->> 'alt_text'),'') is null\n      or v_primary_alt is null\n      or btrim(e ->> 'alt_text') <> v_primary_alt;\n  end if;\n\n  v_alt_status := case\n    when jsonb_typeof(v_alts) <> 'array' then 'needs_review'\n    when jsonb_array_length(v_alts)=0 then 'pass'\n    when v_alt_invalid_count=0 then 'pass'\n    else 'needs_review'\n  end;\n\n  v_alt_snapshot := jsonb_build_object(\n    'status',v_alt_status,\n    'method','product_truth_primary_alt_exact_v1',\n    'candidate_count',\n      case when jsonb_typeof(v_alts)='array' then jsonb_array_length(v_alts) else null end,\n    'invalid_candidate_count',v_alt_invalid_count,\n    'primary_image_alt_available',v_primary_alt is not null,\n    'empty_candidate_policy','pass_no_sco_alt_claims_media_alt_is_separate'\n  );\n\n  v_component_snapshot := public.feya_fn_component_claim_precheck_v1(p_draft_id);\n  v_component_status := coalesce(v_component_snapshot ->> 'status','needs_review');\n\n  return jsonb_build_object(\n    'draft_id',v_draft.id,\n    'canonical_product_id',v_draft.canonical_product_id,\n    'similarity',v_similarity_snapshot,\n    'image_alt',v_alt_snapshot,\n    'component_claim',v_component_snapshot,\n    'overall_status',case\n      when v_similarity_status='needs_review'\n        or v_alt_status='needs_review'\n        or v_component_status='needs_review'\n        then 'needs_review'\n      when v_similarity_status='warning' then 'warning'\n      else 'pass'\n    end\n  );\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_record_ai_invocation_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_record_ai_invocation_v1(text,text,text,text,boolean,integer,text,text,text,text,text,integer,bigint,bigint,bigint,bigint,bigint,integer,jsonb)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_record_ai_invocation_v1(p_action_code text, p_domain_owner text, p_source_endpoint text, p_run_id text, p_dry_run boolean, p_item_count integer, p_model_requested text, p_model_resolved text, p_prompt_version text, p_response_id text, p_invocation_status text, p_http_status integer, p_input_tokens bigint, p_cached_input_tokens bigint, p_output_tokens bigint, p_reasoning_output_tokens bigint, p_total_tokens bigint, p_latency_ms integer, p_metadata_json jsonb DEFAULT '{}'::jsonb)\n RETURNS TABLE(invocation_id uuid, created_new boolean)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_id uuid;\nbegin\n  if nullif(btrim(p_action_code),'') is null\n     or nullif(btrim(p_domain_owner),'') is null\n     or nullif(btrim(p_source_endpoint),'') is null\n     or nullif(btrim(p_model_requested),'') is null then\n    raise exception 'AI invocation action/domain/endpoint/model are required';\n  end if;\n\n  if p_item_count is null or p_item_count < 0 then\n    raise exception 'AI invocation item_count must be >= 0';\n  end if;\n\n  if p_invocation_status not in ('RESPONSE_RECEIVED','USAGE_UNAVAILABLE','HTTP_ERROR') then\n    raise exception 'Invalid AI invocation status: %', p_invocation_status;\n  end if;\n\n  if p_response_id is not null then\n    select a.invocation_id\n      into v_id\n    from public.feya_growth_ai_invocations_v1 a\n    where a.response_id = p_response_id;\n\n    if v_id is not null then\n      return query select v_id, false;\n      return;\n    end if;\n  end if;\n\n  insert into public.feya_growth_ai_invocations_v1 (\n    action_code,\n    domain_owner,\n    source_endpoint,\n    run_id,\n    dry_run,\n    item_count,\n    model_requested,\n    model_resolved,\n    prompt_version,\n    response_id,\n    invocation_status,\n    http_status,\n    input_tokens,\n    cached_input_tokens,\n    output_tokens,\n    reasoning_output_tokens,\n    total_tokens,\n    latency_ms,\n    metadata_json\n  )\n  values (\n    btrim(p_action_code),\n    btrim(p_domain_owner),\n    btrim(p_source_endpoint),\n    nullif(btrim(coalesce(p_run_id,'')),''),\n    coalesce(p_dry_run,true),\n    p_item_count,\n    btrim(p_model_requested),\n    nullif(btrim(coalesce(p_model_resolved,'')),''),\n    nullif(btrim(coalesce(p_prompt_version,'')),''),\n    nullif(btrim(coalesce(p_response_id,'')),''),\n    p_invocation_status,\n    p_http_status,\n    p_input_tokens,\n    p_cached_input_tokens,\n    p_output_tokens,\n    p_reasoning_output_tokens,\n    p_total_tokens,\n    p_latency_ms,\n    coalesce(p_metadata_json,'{}'::jsonb)\n  )\n  on conflict (response_id) do nothing\n  returning feya_growth_ai_invocations_v1.invocation_id into v_id;\n\n  if v_id is null and p_response_id is not null then\n    select a.invocation_id\n      into v_id\n    from public.feya_growth_ai_invocations_v1 a\n    where a.response_id = p_response_id;\n\n    return query select v_id, false;\n    return;\n  end if;\n\n  return query select v_id, true;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_record_content_cqa_result_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_record_content_cqa_result_v1(uuid,text,text,jsonb,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_record_content_cqa_result_v1(p_draft_id uuid, p_expected_cqa_status text, p_cqa_status text, p_result jsonb, p_reviewer text, p_policy_version text)\n RETURNS TABLE(ok boolean, draft_id uuid, cqa_status text, cqa_reviewed_at timestamp with time zone)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_row public.feya_commerce_seo_pack_drafts_v1%rowtype;\n  v_reviewed_at timestamptz := now();\nbegin\n  if p_cqa_status not in (\n    'pass',\n    'pass_with_warnings',\n    'revision_required',\n    'domain_review_required',\n    'reject'\n  ) then\n    raise exception 'Unsupported CQA status: %', p_cqa_status;\n  end if;\n\n  if nullif(btrim(coalesce(p_reviewer,'')),'') is null then\n    raise exception 'CQA reviewer is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_policy_version,'')),'') is null then\n    raise exception 'CQA policy version is required';\n  end if;\n\n  if p_result is null or jsonb_typeof(p_result) <> 'object' then\n    raise exception 'CQA result must be a JSON object';\n  end if;\n\n  select *\n    into v_row\n  from public.feya_commerce_seo_pack_drafts_v1 d\n  where d.id=p_draft_id\n    and d.archived_at is null\n  for update;\n\n  if not found then\n    raise exception 'Active SEO pack draft not found: %', p_draft_id;\n  end if;\n\n  if v_row.cqa_status <> p_expected_cqa_status then\n    raise exception 'Stale CQA state for draft %: expected %, current %',\n      p_draft_id,p_expected_cqa_status,v_row.cqa_status;\n  end if;\n\n  update public.feya_commerce_seo_pack_drafts_v1 d\n  set cqa_status=p_cqa_status,\n      cqa_result_snapshot=p_result,\n      cqa_reviewer=p_reviewer,\n      cqa_policy_version=p_policy_version,\n      cqa_reviewed_at=v_reviewed_at,\n      updated_at=now()\n  where d.id=p_draft_id;\n\n  insert into public.feya_commerce_seo_pack_draft_events_v1 (\n    draft_id,\n    canonical_product_id,\n    event_type,\n    from_status,\n    to_status,\n    actor,\n    note,\n    payload\n  )\n  values (\n    v_row.id,\n    v_row.canonical_product_id,\n    'cqa_checked',\n    v_row.status,\n    v_row.status,\n    p_reviewer,\n    'Independent CQA review recorded',\n    jsonb_build_object(\n      'cqa_status',p_cqa_status,\n      'policy_version',p_policy_version,\n      'result',p_result\n    )\n  );\n\n  return query\n  select true,p_draft_id,p_cqa_status,v_reviewed_at;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_record_keyword_cleanup_review_recommendation_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_record_keyword_cleanup_review_recommendation_v1(bigint,text,text,text,text,text,jsonb,text,text,text,uuid,jsonb)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_record_keyword_cleanup_review_recommendation_v1(p_cleanup_id bigint, p_expected_review_status text, p_recommendation text, p_recommended_keyword text, p_recommended_page_level text, p_recommended_intent text, p_issues_json jsonb, p_reason text, p_model_name text, p_prompt_version text, p_run_id uuid, p_source_snapshot jsonb)\n RETURNS TABLE(recommendation_id uuid, created_new boolean, recommendation text, review_risk text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_cleanup public.feya_commerce_seo_keyword_ai_cleanup_v1%rowtype;\n  v_risk public.feya_commerce_v_keyword_cleanup_review_risk_v1%rowtype;\n  v_hash text;\n  v_existing public.feya_commerce_seo_keyword_cleanup_review_recommendations_v1%rowtype;\n  v_row public.feya_commerce_seo_keyword_cleanup_review_recommendations_v1%rowtype;\n  v_keyword text;\nbegin\n  if p_recommendation not in ('APPROVE','REJECT','HUMAN_REVIEW','HOLD') then\n    raise exception 'Unsupported review recommendation: %',p_recommendation;\n  end if;\n\n  if nullif(btrim(coalesce(p_reason,'')),'') is null then\n    raise exception 'Recommendation reason is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_model_name,'')),'') is null then\n    raise exception 'Recommendation model is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_prompt_version,'')),'') is null then\n    raise exception 'Recommendation prompt version is required';\n  end if;\n\n  if p_run_id is null then\n    raise exception 'Recommendation run id is required';\n  end if;\n\n  if p_issues_json is null or jsonb_typeof(p_issues_json) <> 'array' then\n    raise exception 'Recommendation issues must be a JSON array';\n  end if;\n\n  select *\n    into v_cleanup\n  from public.feya_commerce_seo_keyword_ai_cleanup_v1 c\n  where c.cleanup_id=p_cleanup_id\n  for update;\n\n  if not found then\n    raise exception 'Keyword cleanup row not found: %',p_cleanup_id;\n  end if;\n\n  if v_cleanup.review_status <> p_expected_review_status then\n    raise exception 'Stale cleanup review status: expected %, current %',\n      p_expected_review_status,v_cleanup.review_status;\n  end if;\n\n  if v_cleanup.review_status not in ('pending','needs_review') then\n    raise exception 'Cleanup status % is not reviewable',v_cleanup.review_status;\n  end if;\n\n  select *\n    into v_risk\n  from public.feya_commerce_v_keyword_cleanup_review_risk_v1 q\n  where q.cleanup_id=p_cleanup_id;\n\n  if not found then\n    raise exception 'Cleanup row is not the current pending review candidate';\n  end if;\n\n  v_keyword := case\n    when p_recommendation='APPROVE' then coalesce(\n      nullif(btrim(p_recommended_keyword),''),\n      nullif(btrim(v_risk.effective_keyword),'')\n    )\n    else nullif(btrim(p_recommended_keyword),'')\n  end;\n\n  if p_recommendation='APPROVE' and v_keyword is null then\n    raise exception 'APPROVE recommendation requires a keyword';\n  end if;\n\n  v_hash := md5(\n    jsonb_build_object(\n      'recommendation',p_recommendation,\n      'recommended_keyword',v_keyword,\n      'recommended_page_level',p_recommended_page_level,\n      'recommended_intent',p_recommended_intent,\n      'issues',p_issues_json,\n      'reason',p_reason\n    )::text\n  );\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_keyword_cleanup_review_recommendations_v1 r\n  where r.cleanup_id=p_cleanup_id\n    and r.prompt_version=p_prompt_version\n    and r.recommendation_hash=v_hash\n  order by r.created_at desc\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.recommendation_id,false,\n           v_existing.recommendation,v_existing.review_risk;\n    return;\n  end if;\n\n  insert into public.feya_commerce_seo_keyword_cleanup_review_recommendations_v1 (\n    cleanup_id,keyword_id,keyword_norm,review_risk,recommendation,\n    recommended_keyword,recommended_page_level,recommended_intent,\n    issues_json,reason,model_name,prompt_version,run_id,\n    source_snapshot,recommendation_hash\n  )\n  values (\n    p_cleanup_id,v_cleanup.keyword_id,v_cleanup.keyword_norm,\n    v_risk.review_risk,p_recommendation,v_keyword,\n    nullif(btrim(p_recommended_page_level),''),\n    nullif(btrim(p_recommended_intent),''),\n    p_issues_json,p_reason,p_model_name,p_prompt_version,p_run_id,\n    coalesce(p_source_snapshot,'{}'::jsonb),v_hash\n  )\n  returning * into v_row;\n\n  return query\n  select v_row.recommendation_id,true,v_row.recommendation,v_row.review_risk;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_record_page_ownership_proposal_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_record_page_ownership_proposal_v1(uuid,uuid,text,text,text,text,jsonb,text,text,uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_record_page_ownership_proposal_v1(p_query_cluster_id uuid, p_seo_page_id uuid, p_ownership_role text, p_market_code text, p_locale text, p_rationale text, p_evidence_json jsonb, p_model_name text, p_prompt_version text, p_run_id uuid)\n RETURNS TABLE(proposal_id uuid, created_new boolean, proposal_status text, proposal_hash text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_cluster public.feya_commerce_seo_query_clusters_v1%rowtype;\n  v_page public.feya_commerce_seo_pages_v1%rowtype;\n  v_existing public.feya_commerce_seo_page_ownership_proposals_v1%rowtype;\n  v_row public.feya_commerce_seo_page_ownership_proposals_v1%rowtype;\n  v_hash text;\n  v_owner_count integer;\nbegin\n  if p_ownership_role not in ('primary','secondary','support') then\n    raise exception 'Unsupported ownership role: %',p_ownership_role;\n  end if;\n\n  if nullif(btrim(coalesce(p_model_name,'')),'') is null then\n    raise exception 'Model name is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_prompt_version,'')),'') is null then\n    raise exception 'Prompt version is required';\n  end if;\n\n  if p_run_id is null then\n    raise exception 'Run id is required';\n  end if;\n\n  select *\n    into v_cluster\n  from public.feya_commerce_seo_query_clusters_v1 c\n  where c.query_cluster_id=p_query_cluster_id;\n\n  if not found then\n    raise exception 'Query cluster not found: %',p_query_cluster_id;\n  end if;\n\n  if v_cluster.cluster_status <> 'approved' then\n    raise exception 'Query cluster status % is not eligible for ownership proposal',\n      v_cluster.cluster_status;\n  end if;\n\n  select *\n    into v_page\n  from public.feya_commerce_seo_pages_v1 p\n  where p.seo_page_id=p_seo_page_id;\n\n  if not found then\n    raise exception 'SEO page not found: %',p_seo_page_id;\n  end if;\n\n  if v_page.portfolio_status <> 'active' then\n    raise exception 'SEO page portfolio status % is not eligible',v_page.portfolio_status;\n  end if;\n\n  if v_page.indexation_intent not in ('candidate','indexable') then\n    raise exception 'SEO page indexation intent % is not eligible',v_page.indexation_intent;\n  end if;\n\n  if p_ownership_role='primary' then\n    select count(*)::integer\n      into v_owner_count\n    from public.feya_commerce_seo_page_query_ownership_v1 o\n    where o.query_cluster_id=p_query_cluster_id\n      and o.market_code=coalesce(nullif(btrim(p_market_code),''),'US')\n      and o.locale=coalesce(nullif(btrim(p_locale),''),'en-US')\n      and o.ownership_role='primary'\n      and o.ownership_status in ('intended','active','protected')\n      and o.effective_to is null;\n\n    if v_owner_count > 0 then\n      raise exception 'Query cluster already has an active primary owner for market/locale';\n    end if;\n  end if;\n\n  v_hash := md5(\n    jsonb_build_object(\n      'query_cluster_id',p_query_cluster_id,\n      'seo_page_id',p_seo_page_id,\n      'ownership_role',p_ownership_role,\n      'market_code',coalesce(nullif(upper(btrim(p_market_code)),''),'US'),\n      'locale',coalesce(nullif(btrim(p_locale),''),'en-US')\n    )::text\n  );\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_page_ownership_proposals_v1 p\n  where p.proposal_hash=v_hash\n    and p.proposal_status not in ('REJECTED','CANCELLED')\n  order by p.created_at desc\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.proposal_id,false,\n           v_existing.proposal_status,v_existing.proposal_hash;\n    return;\n  end if;\n\n  insert into public.feya_commerce_seo_page_ownership_proposals_v1 (\n    query_cluster_id,seo_page_id,ownership_role,market_code,locale,\n    rationale,evidence_json,proposal_status,model_name,prompt_version,\n    run_id,proposal_hash\n  )\n  values (\n    p_query_cluster_id,p_seo_page_id,p_ownership_role,\n    coalesce(nullif(upper(btrim(p_market_code)),''),'US'),\n    coalesce(nullif(btrim(p_locale),''),'en-US'),\n    nullif(btrim(p_rationale),''),\n    coalesce(p_evidence_json,'{}'::jsonb),\n    'REVIEW',p_model_name,p_prompt_version,p_run_id,v_hash\n  )\n  returning * into v_row;\n\n  return query\n  select v_row.proposal_id,true,v_row.proposal_status,v_row.proposal_hash;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "feya_fn_record_query_cluster_proposal_v1",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "feya_fn_record_query_cluster_proposal_v1(text,text,text,text,text,jsonb,text,text,text,uuid,jsonb)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_record_query_cluster_proposal_v1(p_cluster_label text, p_normalized_intent text, p_intent_type text, p_language_code text, p_market_scope text, p_members_json jsonb, p_rationale text, p_model_name text, p_prompt_version text, p_run_id uuid, p_source_snapshot_json jsonb)\n RETURNS TABLE(proposal_id uuid, proposal_code text, created_new boolean, proposal_status text, proposal_hash text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_member jsonb;\n  v_keyword_norm text;\n  v_member_role text;\n  v_seed_count integer := 0;\n  v_ready_count integer;\n  v_member_count integer := 0;\n  v_hash text;\n  v_existing public.feya_commerce_seo_query_cluster_proposals_v1%rowtype;\n  v_row public.feya_commerce_seo_query_cluster_proposals_v1%rowtype;\n  v_code text;\nbegin\n  if nullif(btrim(coalesce(p_cluster_label,'')),'') is null then\n    raise exception 'Cluster label is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_normalized_intent,'')),'') is null then\n    raise exception 'Normalized intent is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_prompt_version,'')),'') is null then\n    raise exception 'Prompt version is required';\n  end if;\n\n  if nullif(btrim(coalesce(p_model_name,'')),'') is null then\n    raise exception 'Model name is required';\n  end if;\n\n  if p_run_id is null then\n    raise exception 'Run id is required';\n  end if;\n\n  if p_members_json is null\n     or jsonb_typeof(p_members_json) <> 'array'\n     or jsonb_array_length(p_members_json)=0 then\n    raise exception 'Proposal members must be a non-empty JSON array';\n  end if;\n\n  for v_member in\n    select value from jsonb_array_elements(p_members_json)\n  loop\n    v_keyword_norm := nullif(btrim(v_member ->> 'keyword_norm'),'');\n    v_member_role := coalesce(nullif(btrim(v_member ->> 'member_role'),''),'member');\n\n    if v_keyword_norm is null then\n      raise exception 'Proposal member missing keyword_norm';\n    end if;\n\n    if v_member_role not in ('seed','member') then\n      raise exception 'Unsupported proposal member role: %',v_member_role;\n    end if;\n\n    if v_member_role='seed' then\n      v_seed_count := v_seed_count + 1;\n    end if;\n\n    select count(*)::integer\n      into v_ready_count\n    from public.feya_commerce_v_query_cluster_proposal_candidates_v1 c\n    where c.keyword_norm=v_keyword_norm\n      and c.proposal_candidate_status='READY_FOR_CLUSTER_PROPOSAL';\n\n    if v_ready_count = 0 then\n      raise exception 'Keyword % is not a human-approved unclustered proposal candidate',v_keyword_norm;\n    end if;\n\n    v_member_count := v_member_count + 1;\n  end loop;\n\n  if v_seed_count <> 1 then\n    raise exception 'Query cluster proposal must contain exactly one seed member; found %',v_seed_count;\n  end if;\n\n  v_hash := md5(\n    jsonb_build_object(\n      'cluster_label',lower(btrim(p_cluster_label)),\n      'normalized_intent',lower(btrim(p_normalized_intent)),\n      'intent_type',coalesce(lower(btrim(p_intent_type)),''),\n      'language_code',coalesce(lower(btrim(p_language_code)),'en'),\n      'market_scope',coalesce(upper(btrim(p_market_scope)),'GLOBAL'),\n      'members',p_members_json\n    )::text\n  );\n\n  select *\n    into v_existing\n  from public.feya_commerce_seo_query_cluster_proposals_v1 p\n  where p.proposal_hash=v_hash\n    and p.proposal_status not in ('REJECTED','CANCELLED')\n  order by p.created_at desc\n  limit 1;\n\n  if found then\n    return query\n    select v_existing.proposal_id,v_existing.proposal_code,false,\n           v_existing.proposal_status,v_existing.proposal_hash;\n    return;\n  end if;\n\n  v_code := 'QCP-' || to_char(clock_timestamp(),'YYYYMMDD-HH24MISS') || '-' ||\n            upper(substr(replace(gen_random_uuid()::text,'-',''),1,6));\n\n  insert into public.feya_commerce_seo_query_cluster_proposals_v1 (\n    proposal_code,cluster_label,normalized_intent,intent_type,\n    language_code,market_scope,proposed_members_json,rationale,\n    proposal_status,model_name,prompt_version,run_id,\n    source_snapshot_json,proposal_hash\n  )\n  values (\n    v_code,btrim(p_cluster_label),lower(btrim(p_normalized_intent)),\n    nullif(lower(btrim(p_intent_type)),''),\n    coalesce(nullif(lower(btrim(p_language_code)),''),'en'),\n    coalesce(nullif(upper(btrim(p_market_scope)),''),'GLOBAL'),\n    p_members_json,nullif(btrim(p_rationale),''),\n    'REVIEW',p_model_name,p_prompt_version,p_run_id,\n    coalesce(p_source_snapshot_json,'{}'::jsonb),v_hash\n  )\n  returning * into v_row;\n\n  return query\n  select v_row.proposal_id,v_row.proposal_code,true,\n         v_row.proposal_status,v_row.proposal_hash;\nend;\n$function$\n",
+      "anon_execute": false,
+      "service_execute": true,
+      "authenticated_execute": false
+    }
+  ],
+  "relations": [
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_business_truth_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": false,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": false
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_product_drafts",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_seo_keyword_ai_cleanup_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_seo_keyword_master_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_seo_keyword_metric_snapshots_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "name": "feya_commerce_seo_pack_drafts_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": false,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": false
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_content_brief_compiler_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": false,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": false
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_content_qa_shadow_status_safe_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_keyword_cleanup_review_status_safe_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_page_ownership_shortlist_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_page_query_ownership_candidate_clusters_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_query_cluster_proposal_queue_safe_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_commerce_v_seo_keyword_ai_cleanup_report_v1",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "name": "feya_commerce_v_seo_product_truth_v4",
+      "owner": "postgres",
+      "relkind": "v",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": false,
+      "relrowsecurity": false,
+      "service_select": true,
+      "authenticated_select": false
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_metric_request_batch_keywords_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "feya_metric_request_batch_v1",
+      "owner": "postgres",
+      "relkind": "r",
+      "policies": null,
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "service_select": true,
+      "authenticated_select": true
+    }
+  ],
+  "project_id": "ysnizcgzhdwdfdkjkhud",
+  "captured_at": "2026-09-24T08:49:38.309754+00:00",
+  "database_exposed_schema_settings": null
+}

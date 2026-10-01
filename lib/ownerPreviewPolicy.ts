@@ -1,0 +1,60 @@
+/** Owner-authorized visual review, 2026-09-24. Vercel Deployment Protection is
+ * the access boundary for these explicitly approved preview branches; this is not a public mode.
+ * Only server-provided deployment metadata is accepted, never request headers.
+ */
+const OWNER_PREVIEW_BRANCHES = new Set([
+  'work/search-architecture-foundation-20260923',
+  'design/hybrid-visual-integration-20260928',
+  'work/storefront-performance-foundation-20260930',
+  'work/storefront-next16-upgrade-20260930',
+  'work/storefront-invalidation-contract-20260930',
+  'work/storefront-card-runtime-swap-20260930',
+  'work/storefront-route-cache-phase6-20260930',
+  'work/navigation-hub-phase8-20261001',
+  'work/search-owner-route-phase9-20261001',
+  'work/storefront-next1638-security-20261001',
+  'work/storefront-media-performance-phase10-20261001',
+  'work/seo-content-structured-data-phase11-20261001',
+  'work/search-release-phase12-readiness-20261001',
+]);
+
+export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {
+  return env.FEYA_OWNER_PREVIEW_DISABLED !== 'true'
+    && env.VERCEL === '1'
+    && env.VERCEL_ENV === 'preview'
+    && env.VERCEL_PROJECT_ID === 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
+    && OWNER_PREVIEW_BRANCHES.has(env.VERCEL_GIT_COMMIT_REF || '');
+}
+
+/** GET/HEAD tables and the two audited, read-only Product Truth RPCs only. */
+export function ownerPreviewReadFetch(transport: typeof fetch, supabaseUrl: string): typeof fetch {
+  const origin = new URL(supabaseUrl).origin;
+  const readRpcs = new Set([
+    '/rest/v1/rpc/feya_commerce_get_seo_product_truth_v4',
+    '/rest/v1/rpc/feya_commerce_get_step7_storefront_products_api_v7',
+  ]);
+  return async (input, init) => {
+    const url = new URL(input instanceof Request ? input.url : String(input));
+    const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase();
+    const tableRead = /^\/rest\/v1\/[a-zA-Z0-9_]+$/.test(url.pathname) && ['GET', 'HEAD'].includes(method);
+    const rpcRead = readRpcs.has(url.pathname) && ['GET', 'HEAD', 'POST'].includes(method);
+    if (url.origin !== origin || url.username || url.password || (!tableRead && !rpcRead)) {
+      return new Response(JSON.stringify({message: 'Предпросмотр: изменение данных выключено.', code: 'owner_preview_read_only'}), {
+        status: 423, headers: {'Content-Type': 'application/json', 'Cache-Control': 'private, no-store'},
+      });
+    }
+    return transport(input, {...init, cache: 'no-store', redirect: 'error'});
+  };
+}
+
+
+export function isHybridVisualPreviewDeployment(env: Record<string, string | undefined>) {
+  return isOwnerPreviewDeployment(env)
+    && [
+      'design/hybrid-visual-integration-20260928',
+      'work/storefront-performance-foundation-20260930',
+      'work/storefront-next16-upgrade-20260930',
+      'work/storefront-invalidation-contract-20260930',
+      'work/storefront-card-runtime-swap-20260930',
+    ].includes(env.VERCEL_GIT_COMMIT_REF || '');
+}
