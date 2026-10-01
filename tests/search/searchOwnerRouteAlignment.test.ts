@@ -61,6 +61,15 @@ test('owner pages stay release-gated noindex and related PDP links come only fro
   assert.match(release,/return\{index:false,follow:true,nocache:true\}/);
 });
 
+test('owner-pending preferred URLs fail at the HTTP boundary until approval',()=>{
+  const middleware=readFileSync('middleware.ts','utf8');
+  assert.match(middleware,/PENDING_SEARCH_OWNER_RENAMES/);
+  assert.match(middleware,/PENDING_SEARCH_OWNER_PATHS\.has/);
+  assert.match(middleware,/status:\s*404/);
+  assert.match(middleware,/\/collections\/burning-man-outfits/);
+  assert.match(middleware,/\/collections\/performance-costumes/);
+});
+
 test('Phase 9 does not install redirects before the explicit owner decision',()=>{
   const nextConfig=readFileSync('next.config.ts','utf8');
   assert.doesNotMatch(nextConfig,/burning-man-outfits|performance-costumes/);
