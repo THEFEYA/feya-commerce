@@ -44,8 +44,8 @@
     "app/admin/seo-gate/page.tsx": "c3694b0698591b5c86238e7ff75c227531d36e5d",
     "app/admin/orders/page.tsx": "c96230b0bfd63485a25a25ca0ff9ea2e53c47713",
     "components/DiscoveryHubPage.tsx": "b6989c28592e509ca16f0f20e3c9d637f46531d7",
-    "app/events-performance/page.tsx": "fda4f7c42656147c51b3a9874f6852c41d7979ec",
-    "app/style/page.tsx": "16d0924017828d8fb75244accc719cf5141e1a14",
+    "app/events-performance/page.tsx": "320f63d32458a8f605f89f1d5a38c6d37f7947cb",
+    "app/style/page.tsx": "b7e5b0313f8b757088b99c040da38938656eb443",
     "app/collections/page.tsx": "0d7ad69690457809aa350d004f478f9125ec2106"
   }
 }
