@@ -2,13 +2,14 @@ export const instant = false;
 
 import type {Metadata} from 'next';
 import {notFound} from 'next/navigation';
+import {connection} from 'next/server';
 import Link from 'next/link';
 import {Suspense} from 'react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
-import {readCachedSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
+import {readSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
 type PageProps={params:Promise<{slug:string}>};
@@ -18,13 +19,17 @@ function jsonLd(value:unknown){
 }
 
 export async function generateMetadata({params}:PageProps):Promise<Metadata>{
+  // Search Release activation is mutable runtime governance. Keep the visible
+  // collection payload cached, but resolve release-bound metadata after request
+  // connection so a production build never freezes a pre/post-activation state.
+  await connection();
   const {slug}=await params;
   const candidate=getSearchLandingCandidate(slug);
   if(!candidate)return {title:'Collection not found',robots:{index:false,follow:true}};
 
   const path=`/collections/${candidate.slug}`;
   const [metadata,robots]=await Promise.all([
-    readCachedSearchLandingMetadata(slug),
+    readSearchLandingMetadata(slug),
     releaseRobotsForPath(`/collections/${candidate.slug}`),
   ]);
   const content=metadata?.content;
