@@ -47,10 +47,33 @@ test('Phase 12 migrations do not activate Search Release',()=>{
   for(const path of [
     'supabase/migrations/20261001143000_phase12_owner_route_renames_v1.sql',
     'supabase/migrations/20261001151500_phase12_foundational_page_versions_v2.sql',
+    'supabase/migrations/20261001165000_phase12_wave_a_release_v10.sql',
   ]){
     const source=readFileSync(path,'utf8');
     assert.doesNotMatch(source,/set\s+release_status\s*=\s*'ACTIVE'/i);
     assert.doesNotMatch(source,/feya_search_prepare_release_activation_v1\s*\(/);
     assert.doesNotMatch(source,/feya_search_execute_release_activation_v1\s*\(/);
   }
+});
+
+test('Phase 12 v10 materializes the exact owner-approved Wave A while remaining fail-closed',()=>{
+  const source=readFileSync('supabase/migrations/20261001165000_phase12_wave_a_release_v10.sql','utf8');
+  assert.match(source,/release_version,release_status/);
+  assert.match(source,/\n\s*10,\n\s*'GATE_FAILED'/);
+  assert.match(source,/51f4973a516bcd1205d123681f66dc2ff2d44bfb/);
+  assert.match(source,/\/collections\/burning-man-outfits/);
+  assert.match(source,/\/collections\/performance-costumes/);
+  assert.match(source,/feya_storefront_approved_product_bindings_v1/);
+  assert.match(source,/product_items<>207/);
+  assert.match(source,/index_items<>18/);
+  assert.match(source,/noindex_items<>210/);
+  assert.match(source,/gate_count<>20/);
+  assert.match(source,/fail_count<>4/);
+  assert.match(source,/'K02','FAIL'/);
+  assert.match(source,/'K14','FAIL'/);
+  assert.match(source,/'K19','FAIL'/);
+  assert.match(source,/'K20','FAIL'/);
+  assert.doesNotMatch(source,/feya_search_prepare_release_activation_v1\s*\(/);
+  assert.doesNotMatch(source,/feya_search_execute_release_activation_v1\s*\(/);
+  assert.doesNotMatch(source,/set\s+release_status\s*=\s*'ACTIVE'/i);
 });
