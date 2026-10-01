@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -312,7 +313,7 @@ export function ProductDetailClient({
             aria-label={`Show image ${i + 1} of ${gallery.length}`}
             aria-pressed={idx === i}
             className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
-            {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {g.url ? <Image src={String(g.url)} alt="" fill sizes="132px" loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
         <div className="col-span-12 lg:min-w-0 lg:flex-1 lg:self-start flex justify-center">
@@ -331,7 +332,7 @@ export function ProductDetailClient({
             }}
             aria-label={`Open image ${idx + 1} of ${gallery.length || 1}. Use Left and Right Arrow keys to browse images.`}
             className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
-            {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} loading={idx === 0 ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {main ? <Image src={String(main)} alt={activeImage?.alt || shortHead} fill sizes="(max-width: 1023px) calc(100vw - 48px), 520px" loading={idx === 0 ? 'eager' : 'lazy'} fetchPriority={idx === 0 ? 'high' : 'auto'} className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
             {gallery.length > 1 ? <>
               <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(-1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></span>
               <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></span>
