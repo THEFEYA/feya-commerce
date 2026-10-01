@@ -1,7 +1,7 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
-const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v10-production-crawl.json',import.meta.url),'utf8'));
+const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v11-production-crawl.json',import.meta.url),'utf8'));
 const origin=new URL(manifest.release.targetOrigin).origin;
 // Next.js 16.3.8 only switches to blocking metadata for its htmlLimitedBots
 // matcher. Google-InspectionTool is the Search Console crawler and is explicitly
