@@ -1,6 +1,6 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {getCommerceOrderIntentServerClient} from '@/lib/commerceOrderIntentServer';
-import {createCommerceOrderIntent,CommerceOrderIntentError} from '@/lib/commerceOrderIntentStorage';
+import {createCommerceOrderIntent,getCommerceCheckoutPolicyBundle,CommerceOrderIntentError} from '@/lib/commerceOrderIntentStorage';
 
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{
   status,
@@ -46,6 +46,19 @@ function failure(error:unknown){
     ok:false,code:'order_intent_request_failed',write_outcome:'unknown',retry_same_request:true,
     shipping_authority_ready:false,order_creation_enabled:false,payment_enabled:false,provider_session_enabled:false,
   },503);
+}
+
+
+export async function GET(){
+  try{
+    const server=getCommerceOrderIntentServerClient();
+    if(!server.ok)return reply({
+      ok:false,code:server.code,
+      shipping_authority_ready:false,order_creation_enabled:false,payment_enabled:false,provider_session_enabled:false,
+    },server.status);
+    const policy=await getCommerceCheckoutPolicyBundle(server.client);
+    return reply({ok:true,policy});
+  }catch(error){return failure(error);}
 }
 
 export async function POST(request:NextRequest){
