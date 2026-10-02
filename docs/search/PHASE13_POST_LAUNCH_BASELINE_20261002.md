@@ -174,3 +174,19 @@ production ads.
 
 The other connected Google Ads account `2333697098` is not linked to Merchant Center in the observed
 state. Production Merchant linking must be deliberate and must not be inferred solely from the account name.
+
+
+## 8. Legal/privacy correction adopted
+
+The project no longer blocks the public Privacy / Terms routes solely because the owner's former sole-proprietor
+registration is inactive.
+
+Current split:
+
+- Privacy / Terms: public, truthful, noindex trust/OAuth surfaces;
+- GA4: still disabled until the actual privacy-controller identity and correct production web stream are verified;
+- Seller Online: separate commerce role gate; not presented as active until payment + role confirmation are both true;
+- Merchant Center: still held until real checkout/business identity/feed readiness exists.
+
+Canonical rationale:
+`docs/search/MASTER_AMENDMENT_LEGAL_PRIVACY_COMMERCE_20261002.md`.
