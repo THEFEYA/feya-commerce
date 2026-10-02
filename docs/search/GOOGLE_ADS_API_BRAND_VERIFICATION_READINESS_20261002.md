@@ -28,7 +28,8 @@ Explorer alone. CSV evidence remains a valid fallback until the project is upgra
 
 Current production state:
 
-- canonical homepage: `https://thefeya.com/`
+- canonical store homepage: `https://thefeya.com/`
+- dedicated OAuth application homepage: `https://thefeya.com/marketing-tools`
 - domain ownership: verified in Search Console as `sc-domain:thefeya.com`
 - Privacy Policy: `https://thefeya.com/privacy` — public HTTP 200, `noindex,follow`
 - Terms: `https://thefeya.com/terms` — public HTTP 200, `noindex,follow`
@@ -36,7 +37,7 @@ Current production state:
 - Privacy includes Google API / Google Ads user-data disclosure;
 - admin/internal routes remain private.
 
-These pages are trust/OAuth surfaces, not Search Release owners.
+These pages are trust/OAuth surfaces, not Search Release owners. The dedicated app homepage is preferred for OAuth Branding because it describes the actual internal Google Ads/keyword-planning/reporting functionality without altering the frozen commerce homepage.
 
 ## 4. Google Cloud Console actions that still require account UI confirmation
 
@@ -49,7 +50,7 @@ For project `826834264134`:
 3. Branding:
    - App name: TheFEYA (or the exact existing OAuth app name if already established);
    - User support email: `manager.feya@gmail.com`;
-   - App home page: `https://thefeya.com/`;
+   - App home page: `https://thefeya.com/marketing-tools`;
    - Privacy policy: `https://thefeya.com/privacy`;
    - Terms of service: `https://thefeya.com/terms`;
    - authorized domain: `thefeya.com`.
