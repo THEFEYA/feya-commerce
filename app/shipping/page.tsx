@@ -52,7 +52,7 @@ export default function ShippingPage(){
           <h2 className="text-bone text-xl">Payment</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>The payment methods available for an order will be shown at checkout before the order is submitted.</p>
-            <p>This pre-index storefront preview does not process live payments. No payment-method claim is published here until checkout is enabled and the payment configuration is approved.</p>
+            <p>The live catalog does not process online payments yet. No payment-method claim is published until checkout and the payment configuration are explicitly enabled and verified.</p>
           </div>
         </article>
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
