@@ -171,3 +171,32 @@ Phase 12 acceptance is complete for the Search Release:
 
 The next canonical phase is **Phase 13 — Post-launch learning loop**.
 
+
+
+## 8. Strict ACTIVE-release regression gate
+
+After activation, the original Phase 12 production crawler was found to encode only the historical
+pre-activation expectation (`noindex` + empty sitemap). That made the first documentation-only main
+run fail even though the live production state was correct.
+
+The crawler was upgraded to an ACTIVE-aware contract and bound to the exact v12 manifest.
+
+Current main:
+
+- git SHA: `4e3667210cb4b440adcebf12af2d55f796daa571`
+- FEYA validation run: `36981513584`
+- result: **18/18 jobs SUCCESS**
+- strict ACTIVE production crawl job: `110756882434 = SUCCESS`
+- crawl evidence artifact: `11215660753`
+- production deployment: `dpl_8u28gem5gyWLyhv4y1sZaQGyv5MH = READY`
+
+The strict crawler now verifies the post-activation contract directly:
+
+- 18 ACTIVE release URLs: HTTP 200, indexable, self-canonical;
+- sitemap: exact 18-URL ACTIVE corpus;
+- robots.txt: sitemap advertised, private/internal paths blocked;
+- 207-PDP noindex manifest remains enforced through the deterministic HTTP sample;
+- utility/filter noindex remains enforced;
+- retired owner redirects remain enforced.
+
+This closes the regression gap between PRE_ACTIVATION and ACTIVE Search Release states.
