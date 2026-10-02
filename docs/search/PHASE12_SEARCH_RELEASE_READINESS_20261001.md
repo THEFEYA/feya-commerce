@@ -1,5 +1,7 @@
 # Phase 12 — Search Release Readiness — 2026-10-01
 
+> **Historical readiness checkpoint.** Phase 12 has since completed. Current activation/postflight authority is `PHASE12_SEARCH_RELEASE_POSTFLIGHT_20261002.md`. Preserve this file as the pre-activation reasoning trail; do not use its old FAIL-gate status as current state.
+
 Canonical source: **TheFEYA Storefront, Search & Performance Architecture v1.0**, Phase 12.
 
 This checkpoint covers readiness, owner-decision implementation and materialization of the current immutable Wave A v11. It does **not** prepare or activate Search Release indexing.
