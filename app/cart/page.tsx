@@ -17,7 +17,7 @@ export default function CartPage(){
     <Header/>
     <section className="container-feya pt-36 pb-16 lg:pt-44 lg:pb-24">
       <div className="max-w-3xl rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-7 lg:p-10">
-        <div className="eyebrow-gold">Pre-launch storefront</div>
+        <div className="eyebrow-gold">Catalog storefront</div>
         <h1 className="visual-display mt-4 text-[clamp(46px,5.5vw,76px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Bag</h1>
         <p className="mt-6 text-[15px] leading-7 text-[var(--bone-dim)]">
           Online checkout is not active yet. Product pages and collection pages are available for catalog review while the payment flow is being completed.
