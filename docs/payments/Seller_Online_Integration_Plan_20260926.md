@@ -82,3 +82,21 @@ This complements, rather than replaces, mandatory consumer-law remedies.
 
 TheFEYA public store email:
 manager.feya@gmail.com
+
+
+## 2026-10-02 role/disclosure amendment
+
+This section supersedes the single-flag disclosure rule above where the two conflict.
+
+New fail-closed production rule:
+
+- `FEYA_SELLER_ONLINE_PAYMENTS_ENABLED=true` means the payment integration is technically enabled;
+- `FEYA_SELLER_ONLINE_ROLE_CONFIRMED=true` means Seller Online's public buyer/reseller/shipper/payment-recipient role has been confirmed for `thefeya.com`;
+- public Seller Online transaction disclosure appears only when **both** are true.
+
+TheFEYA must not label Seller Online LLC as `merchant of record` unless Seller Online confirms that exact term
+for this domain/account.
+
+The current organic Search Release does not depend on Seller Online activation. Merchant Center product/feed
+activation remains held until real checkout can be completed and the Merchant business/transaction identity
+matches the active payment model.
