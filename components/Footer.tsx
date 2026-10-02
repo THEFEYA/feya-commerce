@@ -80,7 +80,12 @@ export function Footer() {
       <div className="relative z-10 border-t border-[rgba(216,214,211,0.10)] bg-[rgba(7,7,10,0.65)]">
         <div className="container-feya py-2.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-[10px] tracking-[0.34em] uppercase text-[rgba(200,194,181,0.58)]">
           <span>© TheFEYA Atelier · Made to order</span>
-          <span>Pre-index storefront · checkout not active yet</span>
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <span>·</span>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <span>· Checkout not active</span>
+          </span>
         </div>
       </div>
     </footer>
