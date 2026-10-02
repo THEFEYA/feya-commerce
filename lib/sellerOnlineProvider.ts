@@ -2,6 +2,8 @@ export const SELLER_ONLINE_PROVIDER = {
   providerCode: 'seller-online',
   legalName: 'Seller-Online LLC',
   legalJurisdiction: 'Pennsylvania, United States',
+  publicRoleDescription: 'buyer, reseller, shipper and direct payment recipient',
+  merchantOfRecordConfirmed: false,
   contactAddress: {
     line1: '635 Somers Ave',
     city: 'Feasterville-Trevose',
@@ -15,6 +17,13 @@ export const SELLER_ONLINE_PROVIDER = {
   publicSite: 'https://seller-online.com',
 } as const;
 
+export function sellerOnlineDisclosureConfirmed() {
+  return process.env.FEYA_SELLER_ONLINE_ROLE_CONFIRMED === 'true';
+}
+
 export function isSellerOnlinePaymentsEnabled() {
-  return process.env.FEYA_SELLER_ONLINE_PAYMENTS_ENABLED === 'true';
+  // Payment/resale disclosure cannot be activated by a payment flag alone.
+  // The site must also have explicit confirmation of Seller Online's role for thefeya.com.
+  return process.env.FEYA_SELLER_ONLINE_PAYMENTS_ENABLED === 'true'
+    && sellerOnlineDisclosureConfirmed();
 }
