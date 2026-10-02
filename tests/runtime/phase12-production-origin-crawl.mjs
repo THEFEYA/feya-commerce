@@ -1,7 +1,8 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
-const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v11-production-crawl.json',import.meta.url),'utf8'));
+const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v12-production-crawl.json',import.meta.url),'utf8'));
+const releaseActive=manifest.release.status==='ACTIVE'&&Number(manifest.release.activeReleaseCount)===1;
 const origin=new URL(manifest.release.targetOrigin).origin;
 // Next.js 16.3.8 only switches to blocking metadata for its htmlLimitedBots
 // matcher. Google-InspectionTool is the Search Console crawler and is explicitly
@@ -16,7 +17,8 @@ const productNoindexSamplePaths=Array.from(
   }))
 ).filter(Boolean);
 const result={
-  contract:'phase12_production_origin_crawl_evidence_v2',
+  contract:'phase12_production_origin_crawl_evidence_v3',
+  releaseMode:releaseActive?'ACTIVE':'PRE_ACTIVATION',
   startedAt:new Date().toISOString(),
   release:manifest.release,
   origin,
@@ -171,6 +173,22 @@ async function checkNoindexPath(path,{canonical=true,allow404=false}={}){
   }
   return{...entry,pass};
 }
+
+async function checkIndexPath(path){
+  const response=await fetchHead(path);
+  const signals=headSignals(response.html);
+  const expected=normalizeUrl(path);
+  const entry={
+    path,
+    status:response.status,
+    noindex:hasNoindex(signals,response.headers),
+    canonical:signals.canonical?normalizeUrl(signals.canonical):null,
+    expectedCanonical:expected,
+    xRobotsTag:response.headers.get('x-robots-tag')||null,
+    attempt:response.attempt,
+  };
+  return{...entry,pass:response.status===200&&!entry.noindex&&entry.canonical===expected};
+}
 async function mapLimit(items,limit,fn){
   const output=new Array(items.length);
   let cursor=0;
@@ -210,7 +228,7 @@ try{
     phase12Markers:{burningManOwner:markerA,performanceOwner:markerB},
     pass:home.status===200
       && normalizeUrl(signals.canonical||'/')===normalizeUrl('/')
-      && hasNoindex(signals,home.headers)
+      && (releaseActive?!hasNoindex(signals,home.headers):hasNoindex(signals,home.headers))
       && markerA&&markerB,
   };
   result.originChecks.push(homeEntry);
@@ -246,11 +264,19 @@ if(!canonicalOriginReady){
   result.deepCrawlSkipped=true;
   result.deepCrawlSkipReason='K02 canonical production origin is not serving the Phase 12 storefront; K14 remains blocked.';
 }else{
-const indexCandidateEntries=await mapLimit(manifest.indexCandidates,6,async path=>checkNoindexPath(path));
+const indexCandidateEntries=await mapLimit(
+  manifest.indexCandidates,
+  6,
+  async path=>releaseActive?checkIndexPath(path):checkNoindexPath(path)
+);
 for(const entry of indexCandidateEntries){
   result.indexCandidates.push(entry);
   if(!entry.pass)fail(
-    entry.error?'Wave A candidate fetch failed':'Wave A candidate failed pre-activation crawl contract',
+    entry.error
+      ?'Wave A candidate fetch failed'
+      :releaseActive
+        ?'Wave A candidate failed ACTIVE release index/canonical contract'
+        :'Wave A candidate failed pre-activation crawl contract',
     entry
   );
 }
@@ -311,22 +337,54 @@ try{
   const hasSitemap=/^\s*Sitemap:/im.test(response.text);
   const disallowAdmin=/Disallow:\s*\/admin\//i.test(response.text);
   const disallowInternal=/Disallow:\s*\/api\/internal\//i.test(response.text);
-  const entry={status:response.status,hasSitemap,disallowAdmin,disallowInternal,body:response.text.slice(0,4000),pass:response.status===200&&!hasSitemap&&disallowAdmin&&disallowInternal};
+  const entry={
+    status:response.status,
+    hasSitemap,
+    disallowAdmin,
+    disallowInternal,
+    body:response.text.slice(0,4000),
+    pass:response.status===200
+      && (releaseActive?hasSitemap:!hasSitemap)
+      && disallowAdmin
+      && disallowInternal
+  };
   result.robots=entry;
-  if(!entry.pass)fail('robots.txt failed inactive-release contract',entry);
+  if(!entry.pass)fail(
+    releaseActive?'robots.txt failed ACTIVE-release contract':'robots.txt failed inactive-release contract',
+    entry
+  );
 }catch(error){fail('robots.txt fetch failed',{error:String(error?.message||error)});}
 
 try{
   const response=await fetchText('/sitemap.xml');
   const urlCount=(response.text.match(/<url(?:\s|>)/gi)||[]).length;
-  const entry={status:response.status,urlCount,body:response.text.slice(0,4000),pass:response.status===200&&urlCount===0};
+  const locs=[...response.text.matchAll(/<loc>([^<]+)<\/loc>/gi)].map(match=>normalizeUrl(match[1]));
+  const expectedLocs=manifest.indexCandidates.map(path=>normalizeUrl(path)).sort();
+  const actualLocs=[...locs].sort();
+  const exactActiveCorpus=actualLocs.length===expectedLocs.length
+    && actualLocs.every((value,index)=>value===expectedLocs[index]);
+  const entry={
+    status:response.status,
+    urlCount,
+    locs:actualLocs,
+    expectedLocs:releaseActive?expectedLocs:[],
+    body:response.text.slice(0,4000),
+    pass:response.status===200
+      && (releaseActive
+        ?urlCount===manifest.indexCandidates.length&&exactActiveCorpus
+        :urlCount===0)
+  };
   result.sitemap=entry;
-  if(!entry.pass)fail('sitemap.xml exposed URLs before activation',entry);
+  if(!entry.pass)fail(
+    releaseActive?'sitemap.xml failed exact ACTIVE-release corpus contract':'sitemap.xml exposed URLs before activation',
+    entry
+  );
 }catch(error){fail('sitemap.xml fetch failed',{error:String(error?.message||error)});}
 
 result.finishedAt=new Date().toISOString();
 result.summary={
   passed:result.errors.length===0,
+  releaseMode:releaseActive?'ACTIVE':'PRE_ACTIVATION',
   errorCount:result.errors.length,
   indexCandidatesChecked:result.indexCandidates.length,
   indexCandidatesPassed:result.indexCandidates.filter(x=>x.pass).length,
