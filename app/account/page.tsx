@@ -7,7 +7,7 @@ import {Footer} from '@/components/Footer';
 
 export const metadata:Metadata={
   title:'Account | TheFEYA',
-  description:'TheFEYA account access is not active in the current pre-launch storefront.',
+  description:'TheFEYA customer account access is not active yet.',
   alternates:{canonical:'/account'},
   robots:{index:false,follow:false},
 };
