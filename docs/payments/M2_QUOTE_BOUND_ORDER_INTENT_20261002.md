@@ -96,3 +96,34 @@ Feature switch:
 The switch stays false after schema installation until exact production runtime evidence passes.
 
 This package does not change the public visual storefront.
+
+
+## 2026-10-02 v2 policy-binding amendment
+
+Before this order-intent layer can participate in an actual checkout, it must also preserve the Human Owner's
+explicit policy-acknowledgement requirement.
+
+The active server contract is upgraded to:
+
+`commerce_order_intent_v2`
+
+Additional request field:
+
+`policy_acknowledgement = { accepted: true, bundle_sha256: <current bundle> }`
+
+The current bundle is generated from the active Human-Owner business-truth versions that back Terms,
+Returns and Shipping, including cancellation, return/remake, custom-order, sale-item, event-date, customs,
+production and standard/express delivery truth.
+
+Rules:
+
+- checkbox acceptance must be explicit true;
+- a missing/false acknowledgement is rejected;
+- a stale bundle hash is rejected;
+- the server records the acceptance timestamp;
+- the exact policy bundle JSON/hash is immutable once bound to an order intent;
+- browser item prices/totals remain forbidden;
+- shipping amount/total/payment/order creation/provider session remain disabled.
+
+This closes the evidence requirement that checkout must retain the policy version accepted with the exact
+quoted configuration. It does not make the intent payable.
