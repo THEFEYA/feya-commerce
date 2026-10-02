@@ -16,25 +16,28 @@ test('public legal identity is explicit, complete and fail-closed',async()=>{
   assert.match(identity,/manager\.feya@gmail\.com/);
 });
 
-test('Terms and Privacy fail closed instead of publishing placeholder identity',async()=>{
+test('Terms and Privacy stay public without inventing a seller identity',async()=>{
   for(const path of ['../../app/terms/page.tsx','../../app/privacy/page.tsx']){
     const source=await readFile(new URL(path,import.meta.url),'utf8');
     assert.match(source,/getPublicLegalIdentity\(\)/);
-    assert.match(source,/if\(!identity\)notFound\(\)/);
-    assert.match(source,/robots:\{index:false,follow:false\}/);
-    assert.match(source,/releaseRobotsForPath/);
+    assert.doesNotMatch(source,/notFound\(/);
+    assert.match(source,/robots:\{index:false,follow:true\}/);
+    assert.match(source,/manager\.feya@gmail\.com/);
     assert.doesNotMatch(source,/TODO|PLACEHOLDER|YOUR COMPANY|COMPANY NAME/i);
   }
 });
 
-test('Seller Online disclosure is conditional on the real payment flag',async()=>{
+test('Seller Online disclosure requires both payment enablement and confirmed public role',async()=>{
   const terms=await readFile(new URL('../../app/terms/page.tsx',import.meta.url),'utf8');
   const privacy=await readFile(new URL('../../app/privacy/page.tsx',import.meta.url),'utf8');
+  const provider=await readFile(new URL('../../lib/sellerOnlineProvider.ts',import.meta.url),'utf8');
   for(const source of [terms,privacy]){
     assert.match(source,/isSellerOnlinePaymentsEnabled\(\)/);
     assert.match(source,/sellerOnlineEnabled\?/);
     assert.match(source,/SELLER_ONLINE_PROVIDER/);
   }
+  assert.match(provider,/FEYA_SELLER_ONLINE_PAYMENTS_ENABLED/);
+  assert.match(provider,/FEYA_SELLER_ONLINE_ROLE_CONFIRMED/);
 });
 
 test('legal shell preserves confirmed store policy sources without inventing governing jurisdiction',async()=>{
