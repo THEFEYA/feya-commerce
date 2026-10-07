@@ -90,3 +90,18 @@ test('web vital events require an explicit metric and numeric value',()=>{
     landing_page_id:page.page_id,
   }),/WEB_VITAL_NAME_REQUIRED/);
 });
+
+test('web vital aggregation preserves the metric ID and signed delta under the navigation page version',()=>{
+  const input={
+    event_id:'44444444-4444-4444-8444-444444444444',
+    session_id:'55555555-5555-4555-8555-555555555555',
+    event_name:'web_vital' as const,page,landing_page_id:page.page_id,
+    metric_name:'INP' as const,metric_value:150,metric_id:'v6-document-1',
+    metric_delta:-50,metric_navigation_type:'navigate',
+  };
+  const event=buildMeasurementEnvelope(input);
+  assert.equal(event.page_version_id,page.page_version_id);
+  assert.equal(ga4EventParameters(event).metric_id,'v6-document-1');
+  assert.equal(ga4EventParameters(event).metric_delta,-50);
+  assert.throws(()=>buildMeasurementEnvelope({...input,metric_delta:Infinity}),/WEB_VITAL_DELTA_INVALID/);
+});

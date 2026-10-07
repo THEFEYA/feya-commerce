@@ -1,5 +1,7 @@
 # TheFEYA Master Execution Status — 2026-09-30
 
+> Historical checkpoint. Resume from [the 2026-10-07 launch checkpoint](../search/LAUNCH_READINESS_AND_NEXT_STEPS_20261007.md). Phases 9–12 have since progressed through ACTIVE v12. The old Phase 9 next-action section below is retained as evidence, not a current task.
+
 Canonical plan: **TheFEYA Storefront, Search & Performance Architecture v1.0**.
 
 This file is a checkpoint against the canonical master so implementation does not drift, repeat completed work, or skip a migration gate.
