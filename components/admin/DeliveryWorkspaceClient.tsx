@@ -55,7 +55,7 @@ function newRule(): DraftShippingRule {
   return { id: crypto.randomUUID(), scope: 'default', countries: [], postal_prefix: null, standard: null, express: null };
 }
 function ProfileSelect({ label, value, profiles, onChange }: { label: string; value: string | null; profiles: Array<{ id: string; name: string }>; onChange: (v: string | null) => void }) {
-  return <label className={styles.field}>{label}<select value={value || ''} onChange={e => onChange(e.target.value || null)}>
+  return <label className={styles.field}>{label}<select aria-label={label} value={value || ''} onChange={e => onChange(e.target.value || null)}>
     <option value="">Не выбран / наследовать</option>{profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
   </select></label>;
 }
@@ -64,7 +64,7 @@ function ShippingProfileEditor({ profile, update }: { profile: DraftShippingProf
     <summary className={styles.summary}>{profile.name} · {profile.currency} · черновик</summary>
     <div className={styles.grid}>
       <label className={styles.field}>Название профиля<input value={profile.name} maxLength={120} onChange={e => update({ ...profile, name: e.target.value })} /></label>
-      <label className={styles.field}>Валюта<select value={profile.currency} onChange={e => update({ ...profile, currency: e.target.value as 'EUR' | 'USD' })}><option>EUR</option><option>USD</option></select></label>
+      <label className={styles.field}>Валюта<select aria-label="Валюта" value={profile.currency} onChange={e => update({ ...profile, currency: e.target.value as 'EUR' | 'USD' })}><option>EUR</option><option>USD</option></select></label>
       <CountryCodesField label="Обслуживаемые страны, коды через запятую" value={profile.served_countries} onChange={served_countries => update({ ...profile, served_countries })} />
       <label className={styles.field}>Максимум товаров в посылке<input type="number" min={1} max={1000} value={profile.max_units_per_parcel ?? ''} onChange={e => update({ ...profile, max_units_per_parcel: numberOrNull(e.target.value) })} /></label>
     </div>
@@ -73,7 +73,7 @@ function ShippingProfileEditor({ profile, update }: { profile: DraftShippingProf
       const set = (value: DraftShippingRule) => update({ ...profile, rules: profile.rules.map(r => r.id === rule.id ? value : r) });
       return <fieldset className={styles.fieldset} key={rule.id}><legend>Правило {i + 1}</legend>
         <div className={styles.grid}>
-          <label className={styles.field}>Область действия<select value={rule.scope} onChange={e => set({ ...rule, scope: e.target.value as DraftShippingRule['scope'], countries: [], postal_prefix: e.target.value === 'postal_prefix' ? '' : null })}>
+          <label className={styles.field}>Область действия<select aria-label="Область действия" value={rule.scope} onChange={e => set({ ...rule, scope: e.target.value as DraftShippingRule['scope'], countries: [], postal_prefix: e.target.value === 'postal_prefix' ? '' : null })}>
             <option value="default">Базовая ставка</option><option value="zone">Зона: несколько стран</option><option value="country">Одна страна</option><option value="postal_prefix">Почтовое исключение одной страны</option>
           </select></label>
           {rule.scope !== 'default' && <CountryCodesField label={rule.scope === 'zone' ? 'Коды стран зоны' : 'Код страны'} value={rule.countries} onChange={countries => set({ ...rule, countries })} />}
@@ -193,7 +193,7 @@ export function DeliveryWorkspaceClient() {
         <div className={styles.grid}>
           <label className={styles.field}>Часовой пояс мастерской<input placeholder="Europe/Madrid" value={draft.scheduling_time_zone || ''} onChange={e => change(d => ({ ...d, scheduling_time_zone: e.target.value || null }))} /></label>
           <label className={styles.field}>Приём заказов на текущий день до<input type="time" value={draft.cutoff_local || ''} onChange={e => change(d => ({ ...d, cutoff_local: e.target.value || null }))} /></label>
-          <label className={styles.field}>Как объединять товары в посылки<select value={draft.combination_rule || ''} onChange={e => change(d => ({ ...d, combination_rule: e.target.value as DeliveryWorkspaceDraft['combination_rule'] || null }))}>
+          <label className={styles.field}>Как объединять товары в посылки<select aria-label="Как объединять товары в посылки" value={draft.combination_rule || ''} onChange={e => change(d => ({ ...d, combination_rule: e.target.value as DeliveryWorkspaceDraft['combination_rule'] || null }))}>
             <option value="">Нужно определить</option><option value="one_parcel_highest_rate">Одна посылка: самая высокая применимая ставка</option><option value="separate_profile_parcels">По профилям: отдельные посылки, сумма ставок</option>
           </select></label>
           <ProfileSelect label="Доставка по умолчанию" value={draft.default_shipping_profile_id} profiles={draft.shipping_profiles} onChange={v => change(d => ({ ...d, default_shipping_profile_id: v }))} />
@@ -215,8 +215,8 @@ export function DeliveryWorkspaceClient() {
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Привязки к товарам</h2></div>
         <div className={styles.grid}>
-          <label className={styles.field}>Товар<select value={productId} onChange={e => selectTarget(e.target.value, '')}><option value="">Выберите товар</option>{catalog.map(p => <option key={p.canonical_product_id} value={p.canonical_product_id}>{p.title}</option>)}</select></label>
-          <label className={styles.field}>Конфигурация<select value={configurationId} onChange={e => selectTarget(productId, e.target.value)} disabled={!currentProduct}><option value="">Весь товар</option>{currentProduct?.configurations.map(c => <option key={c.configuration_price_id} value={c.configuration_price_id}>{c.name}</option>)}</select></label>
+          <label className={styles.field}>Товар<select aria-label="Товар" value={productId} onChange={e => selectTarget(e.target.value, '')}><option value="">Выберите товар</option>{catalog.map(p => <option key={p.canonical_product_id} value={p.canonical_product_id}>{p.title}</option>)}</select></label>
+          <label className={styles.field}>Конфигурация<select aria-label="Конфигурация" value={configurationId} onChange={e => selectTarget(productId, e.target.value)} disabled={!currentProduct}><option value="">Весь товар</option>{currentProduct?.configurations.map(c => <option key={c.configuration_price_id} value={c.configuration_price_id}>{c.name}</option>)}</select></label>
           <ProfileSelect label="Профиль доставки для привязки" value={shippingId} profiles={draft.shipping_profiles} onChange={setShippingId} />
           <ProfileSelect label="Профиль изготовления для привязки" value={productionId} profiles={draft.production_profiles} onChange={setProductionId} />
         </div>
@@ -231,7 +231,7 @@ export function DeliveryWorkspaceClient() {
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Предпросмотр заказа</h2></div>
         <p className={styles.hint}>Проверяется сохранённая версия. Стоимость товаров не меняется; даты — расчётный сценарий в часовом поясе мастерской, без гарантии даты мероприятия.</p>
-        <div className={styles.grid}><label className={styles.field}>Страна назначения<select value={country} onChange={e => { setCountry(e.target.value); setPreview(null); }}><CountryOptions /></select></label>
+        <div className={styles.grid}><label className={styles.field}>Страна назначения<select aria-label="Страна назначения" value={country} onChange={e => { setCountry(e.target.value); setPreview(null); }}><CountryOptions /></select></label>
           <label className={styles.field}>Почтовый индекс<input value={postal} maxLength={32} onChange={e => { setPostal(e.target.value); setPreview(null); }} /></label></div>
         <fieldset className={styles.fieldset}><legend>Метод доставки</legend><div className={styles.row}>
           <label className={styles.method}><input type="radio" name="delivery-method" checked={shippingMethod === 'standard'} onChange={() => { setShippingMethod('standard'); setPreview(null); }} /><Truck size={18} aria-hidden="true" />Стандартная</label>

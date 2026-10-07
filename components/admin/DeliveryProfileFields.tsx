@@ -39,7 +39,7 @@ export function DurationFields({ label, value, onChange }: { label: string; valu
     <div className={styles.grid}>
       <label className={styles.field}>От, дней<input type="number" min={0} max={365} value={value?.min ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: Number(e.target.value), max: value?.max ?? Number(e.target.value), unit: value?.unit ?? null })} /></label>
       <label className={styles.field}>До, дней<input type="number" min={0} max={365} value={value?.max ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: value?.min ?? Number(e.target.value), max: Number(e.target.value), unit: value?.unit ?? null })} /></label>
-      <label className={styles.field}>Какие дни<select value={value?.unit || ''} onChange={e => onChange({ min: value?.min ?? 0, max: value?.max ?? 0, unit: e.target.value as DraftDuration['unit'] || null })}>
+      <label className={styles.field}>Какие дни<select aria-label="Какие дни" value={value?.unit || ''} onChange={e => onChange({ min: value?.min ?? 0, max: value?.max ?? 0, unit: e.target.value as DraftDuration['unit'] || null })}>
         <option value="">Нужно уточнить</option><option value="calendar_days">Календарные</option><option value="business_days">Рабочие по календарю</option>
       </select></label>
     </div>
