@@ -112,7 +112,9 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 Следовательно, повторно подавать ту же заявку сейчас не нужно. Письма в этой сессии не отправлялись.
 
-Сроки изготовления/доставки уже подтверждены. Стоимость доставки — отдельный отсутствующий факт. Не использовать исторические «standard included» / «express +45» как payable authority.
+Сроки изготовления/доставки уже подтверждены. **7 октября Human Owner выбрал «Расчёт перед оплатой»: стоимость зависит от адреса и заказа.** Это решение о модели, не утверждение конкретной суммы. Фиксированные GLOBAL rate heads не создавать. Не использовать исторические «standard included» / «express +45» как payable authority.
+
+Оставшаяся shipping dependency: подтвердить реально доступный калькулятор провайдера/перевозчика, его входные данные и ответ. Точная shipping amount/currency/expiry должны приходить в immutable receipt из этого проверенного источника; произвольная сумма браузера и угадывание страны из свободного delivery text не подходят. Текущий `commerce_shipping_quote_v1` разрешает только утверждённые rate heads и сам по себе такой dynamic adapter не реализует.
 
 ## Оценка завершённости
 
@@ -136,7 +138,7 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 | Порядок / параллельная линия | Работа | Критерий закрытия |
 | --- | --- | --- |
-| A — commerce | Получить owner shipping charge model: точные EUR Standard/Express ставки для действующего scope либо проверяемый расчёт перед оплатой | Утверждённая authority; runtime shipping receipt и checkout total совпадают с ней |
+| A — commerce | Owner model **выбран: расчёт перед оплатой**. Подтвердить калькулятор, необходимые destination/package fields и реализовать server-side dynamic shipping adapter | Authoritative amount/currency/expiry привязаны к точному intent, адресу/заказу и методу; receipt и checkout total совпадают с расчётом; фиксированные ставки не создаются |
 | B — commerce, параллельно A | Получить финальный ответ Seller Online: role, разрешённый mode, credentials, sandbox и callback requirements | Provider/domain-specific evidence; публичные transaction disclosures соответствуют реальной схеме |
 | C — после A/B | Подключить существующие контролы к exact quote → policy-accepted intent → shipping → snapshot → подтверждённому provider session | Успех/отказ/повтор/idempotency; проверка amount/currency; authenticated webhook и replay; реальный server order receipt; recovery/refund path |
 | D — analytics, независимо от Merchant | Подтвердить privacy-controller identity и correct `thefeya.com` GA4 web stream; настроить consent и event validation | Production-only page/product/landing/release attribution; withdrawal; DebugView/Realtime proof; paid purchase только из server truth |
