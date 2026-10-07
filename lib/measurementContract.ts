@@ -54,6 +54,9 @@ export type FeyaMeasurementEnvelope={
   metric_name?:'LCP'|'INP'|'CLS';
   metric_value?:number;
   metric_rating?:'good'|'needs-improvement'|'poor';
+  metric_id?:string;
+  metric_delta?:number;
+  metric_navigation_type?:string;
 };
 
 function isUuid(value:string){
@@ -80,6 +83,9 @@ export function buildMeasurementEnvelope(input:{
   metric_name?:'LCP'|'INP'|'CLS';
   metric_value?:number;
   metric_rating?:'good'|'needs-improvement'|'poor';
+  metric_id?:string;
+  metric_delta?:number;
+  metric_navigation_type?:string;
 }):FeyaMeasurementEnvelope{
   if(!FEYA_MEASUREMENT_EVENTS.includes(input.event_name))throw new Error('FEYA_MEASUREMENT_EVENT_UNSUPPORTED');
   if(!input.page.measurement_enabled)throw new Error('FEYA_MEASUREMENT_DISABLED_FOR_ENVIRONMENT');
@@ -103,6 +109,8 @@ export function buildMeasurementEnvelope(input:{
   if(input.event_name==='web_vital'){
     if(!input.metric_name)throw new Error('FEYA_MEASUREMENT_WEB_VITAL_NAME_REQUIRED');
     if(typeof input.metric_value!=='number'||!Number.isFinite(input.metric_value)||input.metric_value<0)throw new Error('FEYA_MEASUREMENT_WEB_VITAL_VALUE_INVALID');
+    if(input.metric_id!==undefined&&(!input.metric_id.trim()||input.metric_id.length>100))throw new Error('FEYA_MEASUREMENT_WEB_VITAL_ID_INVALID');
+    if(input.metric_delta!==undefined&&!Number.isFinite(input.metric_delta))throw new Error('FEYA_MEASUREMENT_WEB_VITAL_DELTA_INVALID');
   }
 
   return{
@@ -125,6 +133,9 @@ export function buildMeasurementEnvelope(input:{
     ...(input.metric_name?{metric_name:input.metric_name}:{}),
     ...(typeof input.metric_value==='number'?{metric_value:input.metric_value}:{}),
     ...(input.metric_rating?{metric_rating:input.metric_rating}:{}),
+    ...(input.metric_id?{metric_id:input.metric_id}:{}),
+    ...(typeof input.metric_delta==='number'?{metric_delta:input.metric_delta}:{}),
+    ...(input.metric_navigation_type?{metric_navigation_type:input.metric_navigation_type}:{}),
   };
 }
 
@@ -156,5 +167,8 @@ export function ga4EventParameters(event:FeyaMeasurementEnvelope){
     metric_name:event.metric_name,
     metric_value:event.metric_value,
     metric_rating:event.metric_rating,
+    metric_id:event.metric_id,
+    metric_delta:event.metric_delta,
+    metric_navigation_type:event.metric_navigation_type,
   };
 }

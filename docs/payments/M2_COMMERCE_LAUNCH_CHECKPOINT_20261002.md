@@ -1,5 +1,7 @@
 # M2 Commerce Launch Checkpoint — 2026-10-02
 
+> Current continuation: [2026-10-07 launch checkpoint](../search/LAUNCH_READINESS_AND_NEXT_STEPS_20261007.md). Checkout snapshot is installed in production; Seller Online acknowledged ticket #403264, with technical confirmation pending. Human Owner chose calculated shipping before payment on 2026-10-07. Next dependencies are the verified dynamic shipping calculator/adapter and provider integration/role confirmation; do not seed fixed rates or repeat the snapshot merge task. Older owner-fact sections below are historical.
+
 Status: **CHECKOUT AUTHORITY CHAIN IN PROGRESS / LIVE PAYMENT OFF**
 
 This checkpoint is the continuation anchor for the finite launch objective. It must be read together with:

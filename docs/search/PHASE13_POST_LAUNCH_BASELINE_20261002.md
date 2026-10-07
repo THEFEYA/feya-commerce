@@ -1,5 +1,7 @@
 # Phase 13 — Post-launch Baseline — 2026-10-02
 
+> Current status: [2026-10-07 launch checkpoint](LAUNCH_READINESS_AND_NEXT_STEPS_20261007.md). Public Privacy/Terms are live. The earlier seller-data/Privacy-404 blockers were corrected; launch-day `indexed=0` is historical, not a current GSC result. Phase 13 still requires actual GSC/GA4/commerce evidence before content changes.
+
 Canonical coordination source: **TheFEYA Master Storefront, Search & Performance Architecture v1.0**, Phase 13.
 
 Status: **BASELINE OPEN / DO NOT OPTIMIZE FROM ZERO-DAY DATA**

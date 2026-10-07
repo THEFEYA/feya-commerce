@@ -1,5 +1,7 @@
 'use client';
 
+import type {Metric} from 'web-vitals';
+import {createWebVitalsCollector,resolveWebVitalContext} from '@/lib/measurementWebVitals';
 import {
   buildMeasurementEnvelope,
   ga4EventParameters,
@@ -31,6 +33,66 @@ let currentContext:FeyaMeasurementPageContext|null=null;
 let sentCount=0;
 let blockedCount=0;
 let lastPageViewKey='';
+const documentPath=typeof window==='undefined'?null:window.location.pathname.replace(/\/+$/,'')||'/';
+const vitalContexts=new Map<string,FeyaMeasurementPageContext>();
+let documentContextPending:Promise<void>|null=null;
+
+function vitalContext(metric:Metric){
+  if(typeof window==='undefined'||!documentPath)return null;
+  return resolveWebVitalContext(metric.navigationURL,documentPath,window.location.origin,vitalContexts);
+}
+
+function vitalsAllowed(metric?:Metric){
+  if(typeof window==='undefined'||getAnalyticsConsent()!=='granted')return false;
+  if(!currentContext?.measurement_enabled||currentContext.environment!=='production'
+    ||!currentContext.ga4_measurement_id)return false;
+  if(window.location.pathname.startsWith('/admin')||window.location.pathname.startsWith('/api'))return false;
+  if(!metric)return true;
+  const page=vitalContext(metric);
+  return Boolean(page?.measurement_enabled&&page.environment==='production'
+    &&page.ga4_measurement_id===currentContext.ga4_measurement_id);
+}
+
+const webVitals=createWebVitalsCollector({
+  load:()=>import('web-vitals'),
+  allowed:vitalsAllowed,
+  send:(metric)=>{
+    const page=vitalContext(metric);
+    if(!page||!['LCP','INP','CLS'].includes(metric.name))return false;
+    return trackMeasurementEvent('web_vital',{
+      metric_name:metric.name as 'LCP'|'INP'|'CLS',
+      metric_value:metric.value,
+      metric_rating:metric.rating,
+      metric_id:metric.id,
+      metric_delta:metric.delta,
+      metric_navigation_type:metric.navigationType,
+    },page).sent;
+  },
+});
+
+async function startWebVitals(){
+  if(!vitalsAllowed()||!documentPath)return;
+  if(documentPath.startsWith('/admin')||documentPath.startsWith('/api')){
+    webVitals.disable();return;
+  }
+  // Consent may be granted after an SPA navigation. Buffered document metrics
+  // still belong to the original URL, so obtain its own immutable FEYA IDs once.
+  if(!vitalContexts.has(documentPath)){
+    if(!documentContextPending){
+      documentContextPending=(async()=>{
+        const response=await fetch(`/api/measurement/context?path=${encodeURIComponent(documentPath)}`,{
+          cache:'no-store',headers:{Accept:'application/json'},
+        });
+        if(!response.ok)return;
+        const body=await response.json() as {ok?:boolean;context?:FeyaMeasurementPageContext};
+        if(vitalsAllowed()&&body.ok&&body.context?.path===documentPath&&body.context.measurement_enabled
+          &&body.context.environment==='production')vitalContexts.set(documentPath,body.context);
+      })();
+    }
+    try{await documentContextPending;}finally{documentContextPending=null;}
+  }
+  if(vitalContexts.has(documentPath))await webVitals.start();
+}
 
 function state(){
   if(typeof window==='undefined')return;
@@ -106,6 +168,8 @@ export function setAnalyticsConsent(value:'granted'|'denied'){
   if(typeof window==='undefined')return;
   try{window.localStorage.setItem(CONSENT_KEY,value);}catch{}
   if(value==='denied'){
+    webVitals.disable();
+    vitalContexts.clear();
     clearSessionIdentity();
     window.gtag?.('consent','update',{
       analytics_storage:'denied',
@@ -128,7 +192,17 @@ export function setAnalyticsConsent(value:'granted'|'denied'){
 
 export function setMeasurementPageContext(context:FeyaMeasurementPageContext|null){
   currentContext=context;
-  if(context)ensureGoogleTag();
+  if(context){
+    ensureGoogleTag();
+    if(context.measurement_enabled&&context.environment==='production'&&!vitalContexts.has(context.path)){
+      vitalContexts.set(context.path,context);
+    }
+    void startWebVitals().catch(()=>{});
+  }else if(typeof window!=='undefined'
+    &&(window.location.pathname.startsWith('/admin')||window.location.pathname.startsWith('/api'))){
+    webVitals.disable();
+    vitalContexts.clear();
+  }
   state();
 }
 
@@ -144,15 +218,20 @@ export function trackMeasurementEvent(
     metric_name?:'LCP'|'INP'|'CLS';
     metric_value?:number;
     metric_rating?:'good'|'needs-improvement'|'poor';
-  }={}
+    metric_id?:string;
+    metric_delta?:number;
+    metric_navigation_type?:string;
+  }={},
+  pageContext:FeyaMeasurementPageContext|null=currentContext,
 ){
-  if(typeof window==='undefined'||!currentContext){
+  if(typeof window==='undefined'||!currentContext||!pageContext){
     blockedCount+=1;state();return{sent:false,reason:'context_unavailable'} as const;
   }
   if(getAnalyticsConsent()!=='granted'){
     blockedCount+=1;state();return{sent:false,reason:'consent_not_granted'} as const;
   }
-  if(!ensureGoogleTag()){
+  if(!currentContext.measurement_enabled||pageContext.environment!=='production'
+    ||pageContext.ga4_measurement_id!==currentContext.ga4_measurement_id||!ensureGoogleTag()){
     blockedCount+=1;state();return{sent:false,reason:'measurement_disabled'} as const;
   }
 
@@ -160,12 +239,18 @@ export function trackMeasurementEvent(
     event_id:window.crypto.randomUUID(),
     session_id:ensureSessionId(),
     event_name:eventName,
-    page:currentContext,
+    page:pageContext,
     landing_page_id:ensureLandingPageId(currentContext.page_id),
     ...input,
   });
 
-  window.gtag?.('event',eventName,ga4EventParameters(envelope));
+  window.gtag?.('event',eventName,{
+    ...ga4EventParameters(envelope),
+    ...(eventName==='web_vital'?{
+      page_location:`${window.location.origin}${pageContext.path}`,
+      value:input.metric_delta??input.metric_value,
+    }:{}),
+  });
   sentCount+=1;
   state();
   window.dispatchEvent(new CustomEvent('feya:measurement',{detail:envelope}));
