@@ -112,10 +112,15 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
     await check('Delivery settings keep readable labels and no horizontal page overflow on desktop and mobile', async () => {
       await page.setViewportSize({ width: 1360, height: 900 });
       await page.locator('details.owner-card').evaluateAll(nodes => nodes.forEach(n => n.open = false));
-      await page.screenshot({ path: join(out, 'delivery-workspace-desktop.png'), fullPage: true });
+      await page.evaluate(async () => { await document.fonts.ready; window.scrollTo(0, 0); });
+      await page.screenshot({ path: join(out, 'delivery-workspace-desktop.png'), fullPage: true, animations: 'disabled', caret: 'hide' });
       await page.setViewportSize({ width: 390, height: 844 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-      await page.screenshot({ path: join(out, 'delivery-workspace-mobile.png'), fullPage: true });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+      const layout = await page.evaluate(() => ({ width: window.innerWidth, scroll: document.documentElement.scrollWidth,
+        outside: [...document.querySelectorAll('main *')].filter(node => node.getBoundingClientRect().right > window.innerWidth + 1)
+          .slice(0, 12).map(node => ({ tag: node.tagName, class: node.className, right: node.getBoundingClientRect().right })) }));
+      await page.screenshot({ path: join(out, 'delivery-workspace-mobile.png'), fullPage: true, animations: 'disabled', caret: 'hide' });
+      assert.ok(layout.scroll <= layout.width, JSON.stringify(layout));
       assert.deepEqual(errors, []);
     });
     await page.close();

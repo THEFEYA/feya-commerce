@@ -53,6 +53,8 @@ Local acceptance: 422/422 search tests; focused DB suite 8 passing and one nativ
 
 CI extends the existing PostgreSQL 17 matrix with `delivery-workspace` and the existing isolated Supabase runtime with authenticated save/rename/assignment/preview, origin/actor/public-RPC denial, retries/concurrency and desktop/mobile screenshots. No separate pipeline is introduced. Local Chromium download was unavailable; the first CI run also stalled during the browser download. CI uses the runner's installed Chrome through Playwright's supported `chrome` channel, retaining bounded bundled-Chromium installation if Chrome is absent. It records the actual channel/version; all Auth/PostgREST/browser scenarios still run. The implementation PR records these receipts after completion.
 
+Browser verification caught implicit select labels containing option text and mobile intrinsic grid/table widths exceeding the viewport. Selects now have names matching visible labels; zero-minimum grid tracks, bounded children and an internally scrolling assignment table contain long configuration text. The new workspace declares readable notice/hint colors for the existing dark owner shell and 16px mobile inputs. These changes are confined to this new private module. Screenshots wait for fonts, start at the top and disable animations; a failed width assertion preserves element-bound diagnostics and the mobile screenshot.
+
 Production apply is additive and initially empty: revision 0, zero workspace versions, no active rates, all public/payment gates false. Apply result, scoped advisors, exact deployment SHA and anonymous API denial are recorded in the PR. Migration presence in Git alone does not prove production apply.
 
 ## Next finite continuation
