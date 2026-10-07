@@ -2,6 +2,8 @@
 
 Status: **SCHEMA/CONTRACT READY / ZERO ACTIVE RATES / PUBLIC SWITCH OFF**
 
+> 2026-10-07 continuation: the owner chose configurable product shipping profiles and destination rates, calculated on the server before payment. The current GLOBAL-only foundation is not that implementation. See [the cart/delivery execution plan](M2_CART_DELIVERY_SERVICES_EXECUTION_PLAN_20261007.md) for versioned successors, calendars and acceptance criteria. Numerical examples remain drafts; a third-party carrier calculator is optional, and provider payment confirmation is a separate dependency.
+
 This package advances the finite checkout path without inventing shipping prices.
 
 ## Why it exists

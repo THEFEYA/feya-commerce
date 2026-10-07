@@ -112,9 +112,11 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 Следовательно, повторно подавать ту же заявку сейчас не нужно. Письма в этой сессии не отправлялись.
 
-Сроки изготовления/доставки уже подтверждены. **7 октября Human Owner выбрал «Расчёт перед оплатой»: стоимость зависит от адреса и заказа.** Это решение о модели, не утверждение конкретной суммы. Фиксированные GLOBAL rate heads не создавать. Не использовать исторические «standard included» / «express +45» как payable authority.
+Действующие сроки изготовления/доставки подтверждены; тип производственного дня намеренно не указан. **7 октября Human Owner уточнил «Расчёт перед оплатой»: сервер рассчитывает доставку прежде всего по управляемым владельцем тарифам, профилям товаров и странам.** Внешний carrier/provider calculator возможен позднее и не является обязательной предпосылкой. Примеры $19/$35, $30/$50 и новых production ranges — DRAFT, не утверждённые активные ставки. Текущие merchandise quotes — EUR; валюту новых тарифов требуется согласовать. Не использовать исторические «standard included» / «express +45» как payable authority.
 
-Оставшаяся shipping dependency: подтвердить реально доступный калькулятор провайдера/перевозчика, его входные данные и ответ. Точная shipping amount/currency/expiry должны приходить в immutable receipt из этого проверенного источника; произвольная сумма браузера и угадывание страны из свободного delivery text не подходят. Текущий `commerce_shipping_quote_v1` разрешает только утверждённые rate heads и сам по себе такой dynamic adapter не реализует.
+Оставшаяся shipping dependency: утвердить точную currency/rate matrix, обслуживаемые страны, parcel/quantity rules и production calendars, реализовать server resolver и versioned destination/profile-aware successors к текущим intent/shipping/snapshot. Сумма и версии связываются в immutable receipt с заказом, адресом и методом; произвольная сумма браузера и угадывание страны из свободного delivery text не подходят. Текущий `commerce_shipping_quote_v1` разрешает только GLOBAL rate heads и сам по себе такую систему не реализует.
+
+Конкретный scope корзины, допуслуг, купонов, возвратов и CRM, фактические implementation gaps и первичные исследования зафиксированы в [M2 cart/delivery execution plan](../payments/M2_CART_DELIVERY_SERVICES_EXECUTION_PLAN_20261007.md). Непубличный календарный helper подготовлен; его наличие не означает готовность admin profiles или публичного checkout. Уточнение заменяет прежнюю трактовку этого checkpoint как обязательного внешнего dynamic adapter.
 
 ## Оценка завершённости
 
@@ -138,7 +140,7 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 | Порядок / параллельная линия | Работа | Критерий закрытия |
 | --- | --- | --- |
-| A — commerce | Owner model **выбран: расчёт перед оплатой**. Подтвердить калькулятор, необходимые destination/package fields и реализовать server-side dynamic shipping adapter | Authoritative amount/currency/expiry привязаны к точному intent, адресу/заказу и методу; receipt и checkout total совпадают с расчётом; фиксированные ставки не создаются |
+| A — commerce | Owner model **уточнён: управляемые тарифные профили + destination-aware расчёт перед оплатой**. Утвердить ставки/currency/parcel rule/calendars, создать admin/resolver и successors контрактов | Authoritative amount/currency/expiry и date/profile/rate versions привязаны к exact intent, адресу/заказу и методу; receipt и payable total совпадают; примерные ставки не активируются |
 | B — commerce, параллельно A | Получить финальный ответ Seller Online: role, разрешённый mode, credentials, sandbox и callback requirements | Provider/domain-specific evidence; публичные transaction disclosures соответствуют реальной схеме |
 | C — после A/B | Подключить существующие контролы к exact quote → policy-accepted intent → shipping → snapshot → подтверждённому provider session | Успех/отказ/повтор/idempotency; проверка amount/currency; authenticated webhook и replay; реальный server order receipt; recovery/refund path |
 | D — analytics, независимо от Merchant | Подтвердить privacy-controller identity и correct `thefeya.com` GA4 web stream; настроить consent и event validation | Production-only page/product/landing/release attribution; withdrawal; DebugView/Realtime proof; paid purchase только из server truth |
