@@ -13,6 +13,7 @@ const errorLabels: Record<string, string> = {
   authentication_required: 'Войдите в кабинет владельца, чтобы загрузить и изменить настройки.',
   owner_not_allowed: 'Этот аккаунт не имеет доступа к настройкам магазина.',
   owner_actions_disabled: 'Изменение настроек магазина пока выключено.',
+  delivery_workspace_draft_disabled: 'Работа с черновиками доставки пока выключена.',
   owner_action_auth_disabled: 'Для настроек магазина требуется защищённый вход владельца.',
   delivery_workspace_revision_conflict: 'Настройки уже изменились в другой вкладке. Скопируйте нужные изменения, затем загрузите сохранённую версию.',
   delivery_workspace_request_conflict: 'Этот запрос уже использован для другого изменения. Загрузите сохранённую версию.',

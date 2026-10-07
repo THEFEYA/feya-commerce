@@ -32,6 +32,10 @@ Tables have RLS and no anon/authenticated grants. Service role can SELECT but ca
 
 The API reuses owner allowlist/step-up authentication, private/no-store headers, same-origin POST checks, bounded request reading and strict validation. It accepts no browser actor, approval, clock or public payment capability. Its endpoint is in the exact owner step-up set; unrelated preview mutations stay blocked. The admin page serializes no privileged data before API authentication. No credentials reach client components.
 
+`FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED` is a separate server-only, default-off scope. Draft access requires verified owner authentication and the existing allowlist; it never enables `FEYA_OWNER_ACTIONS_ENABLED`, price actions, approved shipping rates or payments. Runtime acceptance runs this draft scope with general owner actions explicitly disabled, and proves unrelated price actions remain locked. The first real-browser run correctly denied an anonymous RPC with PostgreSQL `42501` / HTTP 401; its test is corrected to distinguish unauthenticated 401 from authenticated 403 rather than misclassifying correct denial as a failure.
+
+Production preflight found `/admin/company/system` and an existing owner API return 503 while admin authentication is disabled. The Vercel environment-list connector returned 403. Its mapped CLI metadata-only fallback (CLI 62.7.0, exact production project/team) found no existing credentials; its attempted login flow was stopped without signing in. Migration and deployment alone therefore cannot be reported as a usable production owner workspace until protected access is verified. Existing owner identities are not guessed and the general owner-actions switch is not enabled for this feature.
+
 ## Preview rules and limits
 
 - Default rates apply only to explicitly served ISO countries.

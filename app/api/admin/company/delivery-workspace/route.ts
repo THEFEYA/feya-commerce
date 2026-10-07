@@ -34,7 +34,7 @@ async function bodyJSON(request: NextRequest) {
   } finally { reader.releaseLock(); }
 }
 export async function GET() {
-  const actor = await requireOwnerActionActor();
+  const actor = await requireOwnerActionActor('delivery_workspace_draft');
   if (!actor.ok) return reply({ ok: false, code: actor.code }, actor.status);
   try {
     const [workspace, catalog] = await Promise.all([readDeliveryWorkspace(actor.service), readDeliveryCatalog(actor.service)]);
@@ -42,7 +42,7 @@ export async function GET() {
   } catch (error) { return failure(error); }
 }
 export async function POST(request: NextRequest) {
-  const actor = await requireOwnerActionActor();
+  const actor = await requireOwnerActionActor('delivery_workspace_draft');
   if (!actor.ok) return reply({ ok: false, code: actor.code }, actor.status);
   if (!sameOrigin(request)) return reply({ ok: false, code: 'delivery_same_origin_required' }, 403);
   try {

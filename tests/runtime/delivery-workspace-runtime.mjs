@@ -29,7 +29,7 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       assert.ok(ready);
     });
     server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3009'], {
-      env: { ...env, FEYA_OWNER_ACTION_AUTH_REQUIRED: 'true', FEYA_OWNER_ACTIONS_ENABLED: 'true' }, stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...env, FEYA_OWNER_ACTION_AUTH_REQUIRED: 'true', FEYA_OWNER_ACTIONS_ENABLED: 'false', FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED: 'true' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     server.stdout.on('data', b => log += b); server.stderr.on('data', b => log += b);
     let ready = false;
@@ -38,11 +38,17 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
     await check('Delivery APIs require an owner, reject public RPCs, default-off actions and foreign or missing origins', async () => {
       const initial = await read(); assert.equal(initial.workspace.revision, 0); assert.deepEqual(initial.catalog[0].configurations[0].currencies, ['EUR']);
       assert.equal((await fetch(base + path)).status, 401);
-      assert.equal((await ownerPage.request.get('http://127.0.0.1:3000' + path)).status(), 423);
+      const disabled = await ownerPage.request.get('http://127.0.0.1:3000' + path);
+      assert.equal(disabled.status(), 423); assert.equal((await disabled.json()).code, 'delivery_workspace_draft_disabled');
+      const unrelated = await ownerPage.request.get(base + '/api/admin/review/prices/baseline-adoption');
+      assert.equal(unrelated.status(), 423); assert.equal((await unrelated.json()).code, 'owner_actions_disabled');
       const body = { action: 'save', request_id: randomUUID(), expected_revision: 0, draft: syntheticDeliveryWorkspace() };
       for (const headers of [{}, { Origin: 'https://untrusted.example' }, { Origin: 'null' }]) assert.equal((await post(body, headers)).status, 403);
       const publicClient = createClient(url, anon, { auth: { persistSession: false, autoRefreshToken: false } });
-      for (const client of [publicClient, outsider]) for (const name of ['feya_commerce_read_delivery_workspace_v1', 'feya_commerce_delivery_catalog_v1', 'feya_commerce_delivery_workspace_health_v1']) { const r = await client.rpc(name); assert.equal(r.status, 403); }
+      for (const client of [publicClient, outsider]) for (const name of ['feya_commerce_read_delivery_workspace_v1', 'feya_commerce_delivery_catalog_v1', 'feya_commerce_delivery_workspace_health_v1']) {
+        const r = await client.rpc(name); assert.equal(r.error?.code, '42501', 'Known RPC must reject the role for insufficient privileges');
+        if (client === publicClient) assert.ok([401, 403].includes(r.status)); else assert.equal(r.status, 403);
+      }
       const jar = new Map(), client = createServerClient(url, anon, { cookies: { getAll: () => [...jar].map(([name, value]) => ({ name, value })), setAll: values => values.forEach(c => jar.set(c.name, c.value)) } });
       assert.equal((await client.auth.signInWithPassword({ email: otherEmail, password })).error, null);
       const context = await browser.newContext(); await context.addCookies([...jar].map(([name, value]) => ({ name, value, url: base })));
