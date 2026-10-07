@@ -2,6 +2,8 @@
 
 > Current continuation: [2026-10-07 launch checkpoint](../search/LAUNCH_READINESS_AND_NEXT_STEPS_20261007.md) and [cart/delivery execution plan](M2_CART_DELIVERY_SERVICES_EXECUTION_PLAN_20261007.md). Checkout snapshot is installed in production; Seller Online acknowledged ticket #403264, with technical confirmation pending. Human Owner clarified calculated shipping before payment as owner-managed product profiles and destination rates; an external carrier calculator is optional. Next: exact currency/rate matrix, parcel rules and calendars, versioned profile/destination-aware successors, then provider integration/role confirmation. Dollar amounts and new timing examples are drafts; do not seed them or repeat the snapshot merge task. Older owner-fact sections below are historical.
 
+> 2026-10-07 implementation continuation: [draft delivery workspace](M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md) adds owner profiles/assignments and server date/cost preview inside the existing Company admin. Immutable draft history does not publish rates; next is approved profile/destination-aware successor authority and cart binding. Current migration/CI/deployment receipts live in its PR; older snapshot-under-CI text below is historical.
+
 Status: **CHECKOUT AUTHORITY CHAIN IN PROGRESS / LIVE PAYMENT OFF**
 
 This checkpoint is the continuation anchor for the finite launch objective. It must be read together with:

@@ -1,4 +1,5 @@
 export const OWNER_ACTION_STEP_UP_PATHS = new Set([
+  '/api/admin/company/delivery-workspace',
   '/api/admin/review/prices/baseline-adoption',
   '/api/admin/review/prices/baseline-adoption/approval',
   '/api/admin/review/prices/manual-configuration-repair',

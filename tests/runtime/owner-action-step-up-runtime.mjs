@@ -45,7 +45,7 @@ export async function verifyOwnerActionStepUpRuntime({
     });
 
     await check('Step-up price endpoint requires an authenticated owner instead of opening preview writes',async()=>{
-      for(const path of ['/api/admin/review/prices/baseline-adoption','/api/admin/review/prices/manual-configuration-repair','/api/admin/review/prices/manual-price-governance']){
+      for(const path of ['/api/admin/review/prices/baseline-adoption','/api/admin/review/prices/manual-configuration-repair','/api/admin/review/prices/manual-price-governance','/api/admin/company/delivery-workspace']){
         const response=await anonPage.request.post(base+path,{data:{action:'prepare'}});
         assert.equal(response.status(),401,path);
         const body=await response.json();
