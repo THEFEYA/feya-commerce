@@ -77,6 +77,7 @@ function ownerArea(pathname: string) {
   ) return 'results';
   if (
     pathname.startsWith('/admin/company/system') ||
+    pathname.startsWith('/admin/company/delivery') ||
     pathname.startsWith('/admin/company/advanced') ||
     pathname.startsWith('/admin/advanced') ||
     pathname.startsWith('/admin/system') ||
@@ -97,6 +98,7 @@ function ownerArea(pathname: string) {
 
 function currentContext(pathname: string) {
   const detailed: Array<[string, string]> = [
+    ['/admin/company/delivery', 'Доставка и изготовление'],
     ['/admin/company/owner-attention', 'Решения владельца'],
     ['/admin/company/signals', 'Сигналы'],
     ['/admin/company/results/changes', 'Изменения'],

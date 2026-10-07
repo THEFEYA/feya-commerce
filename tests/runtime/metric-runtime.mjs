@@ -26,6 +26,7 @@ import {verifyClosedReviewRuntime} from './closed-review-runtime.mjs';
 import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
 import {verifyVariantDraftRuntime} from './variant-draft-runtime.mjs';
 import {verifyOwnerActionStepUpRuntime} from './owner-action-step-up-runtime.mjs';
+import {verifyDeliveryWorkspaceRuntime} from './delivery-workspace-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
@@ -127,7 +128,11 @@ try {
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
  server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
  let ready=false;for(let i=0;i<80;i++){try{const r=await fetch(base+'/admin/login');if(r.status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.equal(ready,true,'Next did not start');
- browser=await chromium.launch({headless:true});const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
+ const browserChannel=process.env.FEYA_TEST_BROWSER_CHANNEL;
+ assert.ok(browserChannel===undefined||browserChannel==='chrome','Only bundled Chromium or installed Chrome are supported');
+ browser=await chromium.launch({headless:true,...(browserChannel?{channel:browserChannel}:{})});
+ report.runtime_browser={channel:browserChannel||'bundled_chromium',version:browser.version()};
+ const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
  await check('Storefront revalidation route authenticates, derives stock scope, audits delivery and replays idempotently',async()=>{
   const endpoint=base+'/api/internal/storefront-revalidate';
   const requestKey='runtime-stock-invalidation-0001';
@@ -327,6 +332,7 @@ try {
   assert.deepEqual(googleProvider.state.errors,[]);report.google_ads_provider='synthetic_loopback_not_live_google';report.google_ads_atomic_runtime_pass=true;
  });
  await verifyVariantDraftRuntime({db,browser,ownerPage,env,out,check,report,service,outsider,url,anon,otherEmail,password});
+ await verifyDeliveryWorkspaceRuntime({db,browser,ownerPage,env,out,check,report,service,outsider,url,anon,otherEmail,password});
  await check('Local advisor confirms hardened paths; other findings retained for review',async()=>{
   const findings=cli(['db','advisors','--local','--workdir',work,'--type','security','--fail-on','none','-o','json']);
   await writeFile(join(out,'security-advisors.json'),findings);report.local_advisors_executed=true;report.advisor_release_pass=false;

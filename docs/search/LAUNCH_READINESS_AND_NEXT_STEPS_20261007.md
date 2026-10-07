@@ -2,6 +2,10 @@
 
 Дата проверки: **2026-10-07**. Это операционный checkpoint, а не новый дизайн, Product Truth или Search Release.
 
+Текущее M2 продолжение после PR #70: [кабинет draft-профилей доставки и изготовления](../payments/M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md). Реализованы owner editing/assignments и server cost/date preview сохранённой версии; публикация тарифов, подключение корзины и оплата остаются следующими этапами. Production/CI receipts фиксируются в implementation PR; базовые search/GSC evidence ниже не переснимаются без причины.
+
+Production-доступ к кабинету пока закрыт: auth gate возвращает 503; Vercel environment API вернул 403, а точный CLI fallback не имеет действующей авторизации. Новый раздел использует отдельный `FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED`, сохраняя общие owner actions выключенными. Подготовленный код и empty migration не означают, что владелец уже может менять настройки в production; требуется доступ к конфигурации и проверка существующего allowlist.
+
 ## Решение
 
 **Для первой органической SEO-волны сайт технически готов и уже открыт для индексации.** Search Release v12 ACTIVE. Посадочные страницы уже созданы, одобрены и опубликованы. Повторная генерация каталога, SEO-ядра или этих страниц сейчас не требуется.
@@ -114,9 +118,9 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 Действующие сроки изготовления/доставки подтверждены; тип производственного дня намеренно не указан. **7 октября Human Owner уточнил «Расчёт перед оплатой»: сервер рассчитывает доставку прежде всего по управляемым владельцем тарифам, профилям товаров и странам.** Внешний carrier/provider calculator возможен позднее и не является обязательной предпосылкой. Примеры $19/$35, $30/$50 и новых production ranges — DRAFT, не утверждённые активные ставки. Текущие merchandise quotes — EUR; валюту новых тарифов требуется согласовать. Не использовать исторические «standard included» / «express +45» как payable authority.
 
-Оставшаяся shipping dependency: утвердить точную currency/rate matrix, обслуживаемые страны, parcel/quantity rules и production calendars, реализовать server resolver и versioned destination/profile-aware successors к текущим intent/shipping/snapshot. Сумма и версии связываются в immutable receipt с заказом, адресом и методом; произвольная сумма браузера и угадывание страны из свободного delivery text не подходят. Текущий `commerce_shipping_quote_v1` разрешает только GLOBAL rate heads и сам по себе такую систему не реализует.
+Оставшаяся shipping dependency: открыть защищённый production-доступ к готовому draft-кабинету, утвердить точную currency/rate matrix, обслуживаемые страны, parcel/quantity rules и production calendars, добавить approval/publication и versioned destination/profile-aware successors к текущим intent/shipping/snapshot. Черновой resolver уже рассчитывает стоимость и даты сохранённой версии; публичная authoritative quote chain ещё не подключена. Сумма и версии связываются в immutable receipt с заказом, адресом и методом; произвольная сумма браузера и угадывание страны из свободного delivery text не подходят. Текущий `commerce_shipping_quote_v1` разрешает только GLOBAL rate heads и сам по себе такую систему не реализует.
 
-Конкретный scope корзины, допуслуг, купонов, возвратов и CRM, фактические implementation gaps и первичные исследования зафиксированы в [M2 cart/delivery execution plan](../payments/M2_CART_DELIVERY_SERVICES_EXECUTION_PLAN_20261007.md). Непубличный календарный helper подготовлен; его наличие не означает готовность admin profiles или публичного checkout. Уточнение заменяет прежнюю трактовку этого checkpoint как обязательного внешнего dynamic adapter.
+Конкретный scope корзины, допуслуг, купонов, возвратов и CRM, фактические implementation gaps и первичные исследования зафиксированы в [M2 cart/delivery execution plan](../payments/M2_CART_DELIVERY_SERVICES_EXECUTION_PLAN_20261007.md). Календарный helper подключён к защищённому server draft preview; это не payable shipping receipt или публичный checkout. Уточнение заменяет прежнюю трактовку этого checkpoint как обязательного внешнего dynamic adapter.
 
 ## Оценка завершённости
 
@@ -140,7 +144,7 @@ Live Architecture Canon v1.12 включает предшествующие v1.8
 
 | Порядок / параллельная линия | Работа | Критерий закрытия |
 | --- | --- | --- |
-| A — commerce | Owner model **уточнён: управляемые тарифные профили + destination-aware расчёт перед оплатой**. Утвердить ставки/currency/parcel rule/calendars, создать admin/resolver и successors контрактов | Authoritative amount/currency/expiry и date/profile/rate versions привязаны к exact intent, адресу/заказу и методу; receipt и payable total совпадают; примерные ставки не активируются |
+| A — commerce | Owner model **уточнён: управляемые тарифные профили + destination-aware расчёт перед оплатой**. Draft admin/resolver реализованы; открыть защищённый доступ, утвердить ставки/currency/parcel rule/calendars, добавить approval/publication и successors контрактов | Authoritative amount/currency/expiry и date/profile/rate versions привязаны к exact intent, адресу/заказу и методу; receipt и payable total совпадают; примерные ставки не активируются |
 | B — commerce, параллельно A | Получить финальный ответ Seller Online: role, разрешённый mode, credentials, sandbox и callback requirements | Provider/domain-specific evidence; публичные transaction disclosures соответствуют реальной схеме |
 | C — после A/B | Подключить существующие контролы к exact quote → policy-accepted intent → shipping → snapshot → подтверждённому provider session | Успех/отказ/повтор/idempotency; проверка amount/currency; authenticated webhook и replay; реальный server order receipt; recovery/refund path |
 | D — analytics, независимо от Merchant | Подтвердить privacy-controller identity и correct `thefeya.com` GA4 web stream; настроить consent и event validation | Production-only page/product/landing/release attribution; withdrawal; DebugView/Realtime proof; paid purchase только из server truth |

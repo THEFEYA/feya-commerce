@@ -16,13 +16,16 @@ function parseCsv(value: string | undefined) {
 }
 
 export type OwnerActionConfigStatus = ReturnType<typeof getOwnerActionConfigStatus>;
+export type OwnerActionScope = 'owner_actions' | 'delivery_workspace_draft';
 
-export function getOwnerActionConfigStatus() {
+export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_actions') {
   const auth = getAdminAuthConfigStatus();
   const serviceRoleConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
-  const actionSwitchEnabled = process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
+  const actionSwitchEnabled = scope === 'delivery_workspace_draft'
+    ? process.env.FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED === 'true'
+    : process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
   const actionAuthRequired = isOwnerActionAuthRequired(process.env);
 
   const blockers: string[] = [];
@@ -30,10 +33,13 @@ export function getOwnerActionConfigStatus() {
   if (!auth.allowlistConfigured) blockers.push('allowlist владельца не настроен');
   if (!auth.supabaseUrlConfigured || !auth.publicKeyConfigured) blockers.push('Supabase Auth настроен не полностью');
   if (!serviceRoleConfigured) blockers.push('серверный защищённый исполнитель не настроен');
-  if (!actionSwitchEnabled) blockers.push('переключатель owner actions остаётся выключенным');
+  if (!actionSwitchEnabled) blockers.push(scope === 'delivery_workspace_draft'
+    ? 'переключатель черновиков доставки остаётся выключенным'
+    : 'переключатель owner actions остаётся выключенным');
 
   return {
     ...auth,
+    scope,
     serviceRoleConfigured,
     actionSwitchEnabled,
     actionAuthRequired,
@@ -43,14 +49,17 @@ export function getOwnerActionConfigStatus() {
   };
 }
 
-export async function requireOwnerActionActor() {
-  const config = getOwnerActionConfigStatus();
+export async function requireOwnerActionActor(scope: OwnerActionScope = 'owner_actions') {
+  const config = getOwnerActionConfigStatus(scope);
 
   if (!isOwnerActionAuthRequired(process.env)) {
     return { ok: false as const, status: 423, code: 'owner_action_auth_disabled', error: 'Owner actions are locked until protected step-up authentication is enabled.' };
   }
 
   if (!config.actionSwitchEnabled) {
+    if (scope === 'delivery_workspace_draft') {
+      return { ok: false as const, status: 423, code: 'delivery_workspace_draft_disabled', error: 'Delivery workspace drafts are intentionally disabled.' };
+    }
     return { ok: false as const, status: 423, code: 'owner_actions_disabled', error: 'Owner actions are intentionally disabled.' };
   }
 

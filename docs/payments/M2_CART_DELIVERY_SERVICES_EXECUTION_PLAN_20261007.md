@@ -2,7 +2,7 @@
 
 Дата: 2026-10-07. База проверки: production/main `7aa17844dadbedd1adf2a278811ca4d3e51ca145`.
 
-Статус: **модель доставки уточнена владельцем; численные примеры — DRAFT; календарный расчёт подготовлен как внутренний модуль; новый checkout ещё не подключён**.
+Статус: **модель доставки уточнена владельцем; численные примеры — DRAFT; кабинет профилей и серверный предпросмотр реализованы отдельным M2 пакетом; новый checkout ещё не подключён**. Текущая реализация и границы: [delivery workspace checkpoint](M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md); production/CI receipts фиксируются в implementation PR.
 
 Это конкретизация M2 по текущему сообщению владельца, а не замена MASTER v1.2 или повторное открытие Phase 12. Действующие Product Truth, Search Release v12 и публичная визуальная система сохраняются. Расширять функциональность корзины следует внутри существующего оформления.
 
@@ -38,8 +38,9 @@
 | Цена и policy acceptance | Quote-bound order intent v2 и immutable acceptance точного policy bundle подготовлены; public gate выключен |
 | Shipping quote | v1 знает утверждённые GLOBAL EUR rate heads; активных ставок нет. Нет адресных/товарных профилей |
 | Checkout snapshot | v1 складывает серверные merchandise + shipping receipts; пока нет налогов, скидок, допуслуг или provider session |
-| Редактирование профилей в кабинете | Нужен новый раздел внутри существующего admin, соответствующие versioned records и команды |
-| Динамические даты | В этом пакете добавлен `lib/commerceDeliveryEstimate.ts`; пока не подключён к UI, DB receipt или API |
+| Редактирование профилей в кабинете | Реализованы «Система → Доставка и изготовление», immutable draft versions, protected owner API, country/parcel rules и product/configuration assignments. Publication ещё отсутствует |
+| Production-доступ к кабинету | Пока закрыт admin auth gate (503). Vercel env API отказал (403), CLI не имеет действующей авторизации. Нельзя считать кабинет доступным владельцу до защищённой настройки существующего allowlist и отдельного draft switch |
+| Динамические даты | `lib/commerceDeliveryEstimate.ts` подключён к выполнению защищённого server admin preview. Это draft simulation сохранённой версии, не публичный payable shipping receipt |
 | Priority / custom sizing / gift services | Нет действующей системы оплачиваемых допуслуг |
 | Купоны / affiliate / customer referrals | Нет implementation в новом commerce path; перенос старых внешних приложений не подтверждён |
 | Email / phone | В серверном intent есть контактные поля; phone допускает NULL. Это не согласие на рекламу |
@@ -210,7 +211,7 @@ Proposed workflow:
 
 Купоны и услуги нужны в целевой системе; отсутствие необязательного модуля не является причиной повторно закрывать индексацию или бесконечно откладывать базовую оплату. Полная affiliate payroll, AI campaigns и wishlist retargeting не добавляются в mandatory launch denominator. Готовность search wave и прежняя ориентировочная launch оценка 75–80% не повышаются от одного документа или непубличного helper.
 
-## 11. Проверка этого пакета
+## 11. Проверка календарного пакета PR #70
 
 Локальная проверка: 405/405 search tests прошли, в том числе 10 новых calendar tests и существующие shipping/intent/snapshot boundaries; TypeScript passed. Scoped lint новых TypeScript файлов: 0 errors / 0 warnings. Известная проблема глобального legacy lint config не исправляется в этом пакете. Финальная CI/build receipt добавляется в PR после проверки. Ни DB migrations/rates, ни публичные страницы, ни production feature flags этим пакетом не меняются. Модуль не импортирован в клиентскую сборку; новых зависимостей или маркетинговых скриптов нет.
 

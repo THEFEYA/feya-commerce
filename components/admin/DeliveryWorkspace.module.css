@@ -1,0 +1,24 @@
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 24px; overflow-wrap: anywhere; }
+.controls { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.controls > * { min-width: 0; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.row > * { min-width: 0; max-width: 100%; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 6px; font-size: 13px; font-weight: 550; min-width: 0; }
+.field input, .field select, .field textarea { width: 100%; min-width: 0; min-height: 42px; border: 1px solid #d8dcda; border-radius: 8px; padding: 9px 11px; background: #fff; color: #232b28; font: inherit; font-weight: 400; }
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 2px solid #45624f; outline-offset: 2px; }
+.check { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; min-height: 36px; }
+.check input { width: 17px; height: 17px; accent-color: #45624f; }
+.fieldset { min-width: 0; border: 1px solid #e2e5e3; border-radius: 10px; padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 12px 0 0; }
+.fieldset legend { padding: 0 5px; font-size: 13px; font-weight: 650; }
+.hint { font-size: 12px; color: #b9c0ba; margin: 4px 0; line-height: 1.6; }
+.stack { display: grid; gap: 12px; }
+.notice { padding: 14px; border-radius: 10px; background: #f2f5f2; color: #232b28; font-size: 14px; line-height: 1.6; }
+.error { padding: 14px; border-radius: 10px; background: #fff0ed; color: #863b2b; font-size: 14px; }
+.summary { cursor: pointer; font-weight: 650; padding: 4px 0; }
+.result { padding: 16px; border: 1px solid #d8dcda; border-radius: 12px; display: grid; gap: 10px; }
+.method { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid #d8dcda; border-radius: 10px; }
+.scroll { overflow-x: auto; min-width: 0; max-width: 100%; }
+.table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 13px; }
+.table th, .table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e2e5e3; }
+@media (max-width: 720px) { .grid { grid-template-columns: minmax(0, 1fr); } .fieldset { padding: 10px; } .field input, .field select, .field textarea { font-size: 16px; } }

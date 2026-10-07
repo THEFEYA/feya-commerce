@@ -13,6 +13,7 @@ test('owner action auth can be enabled without global admin auth',()=>{
 });
 
 test('step-up path allowlist is deliberately narrow',()=>{
+  assert.equal(isOwnerActionStepUpPath('/api/admin/company/delivery-workspace'),true);
   assert.equal(isOwnerActionStepUpPath('/api/admin/review/prices/baseline-adoption/approval'),true);
   assert.equal(isOwnerActionStepUpPath('/api/admin/review/prices/baseline-adoption'),true);
   for(const path of [
@@ -29,6 +30,10 @@ test('owner preview permits login POST but no business write outside the narrow 
   assert.equal(ownerPreviewMutationAllowed('/admin/login','POST',enabled),true);
   assert.equal(ownerPreviewMutationAllowed('/api/admin/review/prices/baseline-adoption/approval','POST',enabled),true);
   assert.equal(ownerPreviewMutationAllowed('/api/admin/review/prices/baseline-adoption','POST',enabled),true);
+  assert.equal(ownerPreviewMutationAllowed('/api/admin/company/delivery-workspace','POST',enabled),true);
+  assert.equal(ownerPreviewMutationAllowed('/api/admin/company/delivery-workspace','GET',enabled),true);
+  assert.equal(ownerPreviewMutationAllowed('/api/admin/company/delivery-workspace','POST',{}),false);
+  assert.equal(ownerPreviewMutationAllowed('/api/admin/company/delivery-workspace','DELETE',enabled),false);
   assert.equal(ownerPreviewMutationAllowed('/api/admin/review-events','POST',enabled),false);
   assert.equal(ownerPreviewMutationAllowed('/api/admin/products/x/offer-promotion','POST',enabled),false);
   assert.equal(ownerPreviewMutationAllowed('/api/admin/review/prices/baseline-adoption','DELETE',enabled),false);

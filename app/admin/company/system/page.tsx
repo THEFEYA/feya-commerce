@@ -213,6 +213,7 @@ export default async function AdminSystemPage() {
         </header>
 
         <nav className="owner-subnav" aria-label="Разделы системы">
+          <Link href="/admin/company/delivery">Доставка и изготовление</Link>
           <a href="#readiness">Готовность</a>
           <a href="#sources">Источники данных</a>
           <a href="#permissions">Права и автоматизация</a>
