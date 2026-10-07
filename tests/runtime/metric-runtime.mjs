@@ -128,7 +128,11 @@ try {
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
  server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
  let ready=false;for(let i=0;i<80;i++){try{const r=await fetch(base+'/admin/login');if(r.status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.equal(ready,true,'Next did not start');
- browser=await chromium.launch({headless:true});const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
+ const browserChannel=process.env.FEYA_TEST_BROWSER_CHANNEL;
+ assert.ok(browserChannel===undefined||browserChannel==='chrome','Only bundled Chromium or installed Chrome are supported');
+ browser=await chromium.launch({headless:true,...(browserChannel?{channel:browserChannel}:{})});
+ report.runtime_browser={channel:browserChannel||'bundled_chromium',version:browser.version()};
+ const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
  await check('Storefront revalidation route authenticates, derives stock scope, audits delivery and replays idempotently',async()=>{
   const endpoint=base+'/api/internal/storefront-revalidate';
   const requestKey='runtime-stock-invalidation-0001';
