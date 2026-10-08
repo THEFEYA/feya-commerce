@@ -52,6 +52,15 @@ export function AdminNav() {
         <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Внутренняя админка · слой качества v4</div>
       </Link>
 
+      <div className="mt-3 flex flex-wrap gap-2" aria-label="Переход между кабинетами FEYA">
+        <Link href="/admin/company" className="rounded-lg border border-[rgba(212,178,106,.30)] px-3 py-2 text-[11px] text-[var(--gold-warm)] hover:border-[rgba(212,178,106,.60)] hover:text-white">
+          Командный центр →
+        </Link>
+        <Link href="/admin/company/delivery" className="rounded-lg border border-[rgba(216,214,211,.16)] px-3 py-2 text-[11px] text-[var(--bone-dim)] hover:text-white">
+          Доставка →
+        </Link>
+      </div>
+
       <nav className="mt-5 space-y-1.5 overflow-y-auto pr-1">
         {NAV.map(({ href, label, note, icon: Icon }) => {
           const active = isActive(pathname, href);
