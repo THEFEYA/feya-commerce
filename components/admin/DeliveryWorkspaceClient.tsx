@@ -190,8 +190,8 @@ export function DeliveryWorkspaceClient() {
   function addShipping(example = false) {
     const rule = newRule();
     if (example) {
-      rule.standard = { amount_minor: 1900, transit: null, calendar: null };
-      rule.express = { amount_minor: 3500, transit: null, calendar: null };
+      rule.standard = { amount_minor: 1900, transit: { min: 10, max: 14, unit: 'business_days' }, calendar: workingWeek(null) };
+      rule.express = { amount_minor: 3500, transit: { min: 7, max: 10, unit: 'business_days' }, calendar: workingWeek(null) };
     }
     change(d => ({ ...d, shipping_profiles: [...d.shipping_profiles, { id: crypto.randomUUID(), name: example ? 'Пример владельца: $19 / $35' : `Доставка ${d.shipping_profiles.length + 1}`,
       currency: example ? 'USD' : 'EUR', served_countries: [], max_units_per_parcel: null, rules: [rule] }] }));
@@ -204,7 +204,8 @@ export function DeliveryWorkspaceClient() {
   function bulkAssign(ids: string[], kind: 'shipping' | 'production', profileId: string) {
     const eligible = new Set(catalog.map(p => p.canonical_product_id));
     const targets = new Set(ids.filter(id => eligible.has(id)));
-    if (!targets.size || !draft[ kind === 'shipping' ? 'shipping_profiles' : 'production_profiles' ].some(p => p.id === profileId)) return;
+    const eligibleProfiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
+    if (!targets.size || !eligibleProfiles.some(p => p.id === profileId)) return;
     change(d => {
       const rest = d.assignments.filter(a => !(targets.has(a.canonical_product_id) && a.configuration_price_id === null));
       const replacements = [...targets].flatMap(id => {
@@ -295,7 +296,7 @@ export function DeliveryWorkspaceClient() {
       <section className="owner-section"><div className="owner-section-head"><h2>Профили доставки</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
         <div className="owner-actions"><button type="button" className="owner-button" onClick={() => addShipping()} disabled={draft.shipping_profiles.length >= 50}>Добавить профиль доставки</button>
-          <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить пример $19 / $35</button></div>
+          <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить черновой пример $19 / $35 (USD)</button></div>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления</h2></div>
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
