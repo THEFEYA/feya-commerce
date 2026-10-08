@@ -109,6 +109,11 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       assert.equal((await read()).approval.revision, 1);
       assert.equal((await db.query('select count(*)::int n from public.feya_commerce_delivery_approvals_v1')).rows[0].n, 1);
       await page.reload(); await page.getByRole('button', { name: 'Сохранить черновик', exact: true }).waitFor();
+      // Reload starts a fresh test basket/target, so the following scenarios
+      // explicitly choose their product instead of relying on previous UI state.
+      await page.getByLabel('Товар', { exact: true }).selectOption(ids.product);
+      await page.getByLabel('Конфигурация', { exact: true }).selectOption(ids.config);
+      await page.getByRole('button', { name: 'Добавить выбранное в тестовый заказ', exact: true }).click();
     });
     await check('USD owner examples and unspecified production day basis save as drafts without becoming payable', async () => {
       await page.getByRole('button', { name: 'Добавить пример $19 / $35', exact: true }).click();

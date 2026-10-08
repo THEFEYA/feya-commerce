@@ -35,7 +35,7 @@ The existing PostgreSQL 17 suite also tests approval races, rollback of a failed
 
 ## Remaining finite queue
 
-1. Resolve production owner access: the Vercel connector is installed/enabled, but the exact project's environment listing still returns 403 on 8 October. The prior mapped CLI fallback has no authenticated credentials. The current production owner workspace remains inaccessible; this is not a lost passport or unfinished migration.
+1. Resolve production owner access: the Vercel connector is installed/enabled, but the exact project's environment listing and creation of the new production approval switch both return 403 on 8 October. No variable was changed. The prior mapped CLI fallback has no authenticated credentials. The current production owner workspace remains inaccessible; this is not a lost passport or unfinished migration.
 2. Verify the approved owner allowlist and auth configuration. Enable only required production scopes, preserving generic owner actions and payment gates; verify a real authorized login. Approval is an independent switch and stays off until reviewed.
 3. Owner fills actual currency, served countries, rates, parcel rules, production capacity/day basis, calendars and cutoff, then approves the exact version. These facts are entered through the existing module rather than inferred from illustrative prices.
 4. Implement a country/postal/basket-bound shipping successor with immutable amount/date/version/expiry receipt, country-first public estimates and current-offer revalidation. Bind it to intent/snapshot successors; do not reuse the old GLOBAL shipping receipt.
