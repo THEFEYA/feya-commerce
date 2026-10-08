@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getAdminAuthConfigStatus, getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { adminAccessDecision, adminLoginConfigurationReady } from '@/lib/adminAccess';
+import { classifyAdminLoginFailure } from '@/lib/adminLoginFailure';
 
 export async function loginAdmin(formData: FormData) {
   if (!adminLoginConfigurationReady(getAdminAuthConfigStatus())) {
@@ -26,7 +27,7 @@ export async function loginAdmin(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect('/admin/login?error=invalid_credentials');
+    redirect(`/admin/login?error=${classifyAdminLoginFailure(error)}`);
   }
 
   if (!data.user || !adminAccessDecision(data.user, process.env).allowed) {
