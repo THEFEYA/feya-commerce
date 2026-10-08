@@ -9,6 +9,8 @@ import type { DeliveryApprovalReadiness } from '@/lib/commerceDeliveryApproval';
 import type { DeliveryApprovalRequest, DeliveryApprovalState } from '@/lib/commerceDeliveryApprovalStorage';
 import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, MethodFields } from './DeliveryProfileFields';
 import styles from './DeliveryWorkspace.module.css';
+import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
+import { applyDeliveryBulkProfile } from '@/lib/commerceDeliveryBulkDraft';
 
 const endpoint = '/api/admin/company/delivery-workspace';
 const errorLabels: Record<string, string> = {
@@ -63,8 +65,11 @@ async function api<T>(body?: unknown, signal?: AbortSignal): Promise<T> {
   return data as T;
 }
 const numberOrNull = (value: string) => value === '' ? null : Number(value);
+const workingWeek = (value: { working_weekdays: number[]; holidays: string[] } | null) =>
+  ({ working_weekdays: [1, 2, 3, 4, 5], holidays: value?.holidays || [] });
 type LoadedWorkspace = {
   workspace: DeliveryWorkspaceState; catalog: DeliveryCatalogProduct[];
+  catalog_media?: DeliveryCatalogMedia[]; catalog_media_unavailable?: boolean;
   approval_enabled: boolean; approval: DeliveryApprovalState | null; catalog_sha256: string | null;
   approval_readiness: DeliveryApprovalReadiness;
 };
@@ -122,6 +127,7 @@ export function DeliveryWorkspaceClient() {
   const [workspace, setWorkspace] = useState<DeliveryWorkspaceState | null>(null);
   const [draft, setDraft] = useState<DeliveryWorkspaceDraft>(emptyDeliveryWorkspace);
   const [catalog, setCatalog] = useState<DeliveryCatalogProduct[]>([]);
+  const [catalogMedia, setCatalogMedia] = useState<DeliveryCatalogMedia[]>([]);
   const [busy, setBusy] = useState(true), [dirty, setDirty] = useState(false);
   const [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [productId, setProductId] = useState(''), [configurationId, setConfigurationId] = useState('');
@@ -135,7 +141,8 @@ export function DeliveryWorkspaceClient() {
   const pendingApproval = useRef<DeliveryApprovalRequest | null>(null);
   const currentProduct = catalog.find(p => p.canonical_product_id === productId);
   function acceptLoaded(data: LoadedWorkspace) {
-    setWorkspace(data.workspace); setDraft(data.workspace.draft || emptyDeliveryWorkspace()); setCatalog(data.catalog); setDirty(false); setPreview(null);
+    setWorkspace(data.workspace); setDraft(data.workspace.draft || emptyDeliveryWorkspace());
+    setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(false); setPreview(null);
     setApprovalData({ approval_enabled: data.approval_enabled, approval: data.approval,
       catalog_sha256: data.catalog_sha256, approval_readiness: data.approval_readiness });
   }
@@ -195,6 +202,11 @@ export function DeliveryWorkspaceClient() {
     change(d => ({ ...d, assignments: [...d.assignments.filter(a => !(a.canonical_product_id === productId && a.configuration_price_id === (configurationId || null))),
       ...(shippingId || productionId ? [{ canonical_product_id: productId, configuration_price_id: configurationId || null, shipping_profile_id: shippingId, production_profile_id: productionId }] : [])] }));
   }
+  function bulkAssign(ids: string[], kind: 'shipping' | 'production', profileId: string) {
+    const profiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
+    if (!ids.length || !profiles.some(p => p.id === profileId)) return;
+    change(d => applyDeliveryBulkProfile(d, catalog, ids, kind, profileId));
+  }
   function selectTarget(product: string, configuration: string) {
     setProductId(product); setConfigurationId(configuration);
     const a = draft.assignments.find(x => x.canonical_product_id === product && x.configuration_price_id === (configuration || null));
@@ -242,13 +254,28 @@ export function DeliveryWorkspaceClient() {
     {workspace && <>
       <section className="owner-section"><div className="owner-section-head"><h2>Правила заказа и отправки</h2></div>
         <div className={styles.grid}>
-          <label className={styles.field}>Часовой пояс мастерской<input placeholder="Europe/Madrid" value={draft.scheduling_time_zone || ''} onChange={e => change(d => ({ ...d, scheduling_time_zone: e.target.value || null }))} /></label>
+          <label className={styles.field}>Часовой пояс мастерской<input placeholder="Europe/Kyiv" value={draft.scheduling_time_zone || ''} onChange={e => change(d => ({ ...d, scheduling_time_zone: e.target.value || null }))} /></label>
           <label className={styles.field}>Приём заказов на текущий день до<input type="time" value={draft.cutoff_local || ''} onChange={e => change(d => ({ ...d, cutoff_local: e.target.value || null }))} /></label>
           <label className={styles.field}>Как объединять товары в посылки<select aria-label="Как объединять товары в посылки" value={draft.combination_rule || ''} onChange={e => change(d => ({ ...d, combination_rule: e.target.value as DeliveryWorkspaceDraft['combination_rule'] || null }))}>
             <option value="">Нужно определить</option><option value="one_parcel_highest_rate">Одна посылка: самая высокая применимая ставка</option><option value="separate_profile_parcels">По профилям: отдельные посылки, сумма ставок</option>
           </select></label>
           <ProfileSelect label="Доставка по умолчанию" value={draft.default_shipping_profile_id} profiles={draft.shipping_profiles} onChange={v => change(d => ({ ...d, default_shipping_profile_id: v }))} />
           <ProfileSelect label="Изготовление по умолчанию" value={draft.default_production_profile_id} profiles={draft.production_profiles} onChange={v => change(d => ({ ...d, default_production_profile_id: v }))} />
+        </div>
+        <p className={styles.hint}>Часовой пояс — время работы мастерской для расчёта сроков, не страна покупателя. Если изготовление в Украине, используйте Europe/Kyiv. Страну доставки покупатель выберет в корзине.</p>
+        <div className={styles.row}>
+          <button type="button" className="owner-button" onClick={() => change(d => ({ ...d, scheduling_time_zone: 'Europe/Kyiv' }))}>Часовой пояс мастерской: Украина</button>
+          <button type="button" className="owner-button" onClick={() => change(d => ({
+            ...d, dispatch_calendar: workingWeek(d.dispatch_calendar),
+            production_profiles: d.production_profiles.map(p => ({ ...p, calendar: workingWeek(p.calendar) })),
+            shipping_profiles: d.shipping_profiles.map(p => ({
+              ...p, rules: p.rules.map(rule => ({
+                ...rule,
+                standard: rule.standard ? { ...rule.standard, calendar: workingWeek(rule.standard.calendar) } : null,
+                express: rule.express ? { ...rule.express, calendar: workingWeek(rule.express.calendar) } : null,
+              })),
+            })),
+          }))}>Пн–Пт для всех календарей</button>
         </div>
         <p className={styles.hint}>В режиме отдельных посылок товары одного профиля объединяются до его вместимости. Остаток создаёт ещё одну посылку с той же ставкой. Для одной посылки общее количество должно помещаться в каждый применимый профиль.</p>
         <CalendarFields label="Дни отправки из мастерской" value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
@@ -262,7 +289,17 @@ export function DeliveryWorkspaceClient() {
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
         <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
           id: crypto.randomUUID(), name: `Изготовление ${min}–${max} дней`, duration: { min, max, unit: null }, calendar: null, max_units_per_order: null, requires_specifications: false,
-        }] }))}>Добавить {min}–{max} дней</button>)}</div>
+        }] }))}>Добавить {min}–{max} дней</button>)}
+          <button type="button" className="owner-button" disabled={draft.production_profiles.length >= 47} onClick={() => change(d => {
+            const ranges = [[1, 3], [3, 5], [7, 10], [10, 14]];
+            const existing = new Set(d.production_profiles.map(p => `${p.duration?.min}-${p.duration?.max}`));
+            const next = ranges.filter(([min, max]) => !existing.has(`${min}-${max}`)).map(([min, max]) => ({
+              id: crypto.randomUUID(), name: `Изготовление ${min}–${max} рабочих дней`,
+              duration: { min, max, unit: 'business_days' as const },
+              calendar: workingWeek(null), max_units_per_order: null, requires_specifications: false,
+            }));
+            return { ...d, production_profiles: [...d.production_profiles, ...next] };
+          })}>Добавить рабочие профили Пн–Пт (1–3, 3–5, 7–10, 10–14)</button></div>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Привязки к товарам</h2></div>
         <div className={styles.grid}>
@@ -273,6 +310,9 @@ export function DeliveryWorkspaceClient() {
         </div>
         <p className={styles.hint}>Затронуто конфигураций: {currentProduct ? configurationId ? 1 : currentProduct.configurations.length : 0}. Точная конфигурация важнее настройки товара; незаданные поля наследуются отдельно.</p>
         <div className="owner-actions"><button type="button" className="owner-button" disabled={!currentProduct} onClick={assign}>Сохранить привязку в черновике</button><button type="button" className="owner-button" disabled={!currentProduct || lines.length >= 20} onClick={addLine}>Добавить выбранное в тестовый заказ</button></div>
+        <DeliveryBulkAssignments catalog={catalog} media={catalogMedia}
+          shippingProfiles={draft.shipping_profiles} productionProfiles={draft.production_profiles}
+          onApply={bulkAssign} />
         {draft.assignments.length > 0 && <div className={styles.scroll}><table className={styles.table}><thead><tr><th>Товар / конфигурация</th><th>Доставка</th><th>Изготовление</th><th>Действие</th></tr></thead><tbody>{draft.assignments.map(a => {
           const p = catalog.find(x => x.canonical_product_id === a.canonical_product_id);
           return <tr key={`${a.canonical_product_id}:${a.configuration_price_id}`}><td>{p?.title || 'Товар недоступен'}<br/>{a.configuration_price_id ? p?.configurations.find(c => c.configuration_price_id === a.configuration_price_id)?.name || 'Конфигурация недоступна' : 'Весь товар'}</td>

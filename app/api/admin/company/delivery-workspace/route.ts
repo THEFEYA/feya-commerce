@@ -39,14 +39,30 @@ export async function GET() {
   const actor = await requireOwnerActionActor('delivery_workspace_draft');
   if (!actor.ok) return reply({ ok: false, code: actor.code }, actor.status);
   try {
-    if (process.env.FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED === 'true') {
-      const context = await readDeliveryApprovalContext(actor.service);
-      return reply({ ok: true, ...context, approval_enabled: true,
-        approval_readiness: deliveryApprovalReadiness(context.workspace.draft, context.catalog) });
-    }
-    const [workspace, catalog] = await Promise.all([readDeliveryWorkspace(actor.service), readDeliveryCatalog(actor.service)]);
-    return reply({ ok: true, workspace, catalog, approval_enabled: false, approval: null, catalog_sha256: null,
-      approval_readiness: deliveryApprovalReadiness(workspace.draft, catalog) });
+    const payload = process.env.FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED === 'true'
+      ? await (async () => {
+        const context = await readDeliveryApprovalContext(actor.service);
+        return { ...context, approval_enabled: true,
+          approval_readiness: deliveryApprovalReadiness(context.workspace.draft, context.catalog) };
+      })()
+      : await (async () => {
+        const [workspace, catalog] = await Promise.all([readDeliveryWorkspace(actor.service), readDeliveryCatalog(actor.service)]);
+        return { workspace, catalog, approval_enabled: false, approval: null, catalog_sha256: null,
+          approval_readiness: deliveryApprovalReadiness(workspace.draft, catalog) };
+      })();
+
+    // Display-only data from the existing approved card projection. It never becomes
+    // delivery authority and cannot alter the versioned catalog or approval hashes.
+    // If media is temporarily unavailable, the original name-based editor still works.
+    const mediaRead = await actor.service.from('feya_storefront_product_cards_v1')
+      .select('canonical_product_id,primary_image_url,product_slug,product_type').limit(500);
+    const approvedIds = new Set(payload.catalog.map(p => p.canonical_product_id));
+    const catalog_media = mediaRead.error ? [] : (mediaRead.data || [])
+      .filter(row => approvedIds.has(row.canonical_product_id))
+      .map(row => ({ canonical_product_id: row.canonical_product_id,
+        primary_image_url: row.primary_image_url || '', product_slug: row.product_slug || '',
+        product_type: row.product_type || null }));
+    return reply({ ok: true, ...payload, catalog_media, catalog_media_unavailable: Boolean(mediaRead.error) });
   } catch (error) { return failure(error); }
 }
 export async function POST(request: NextRequest) {
