@@ -65,7 +65,7 @@ begin
     then raise exception 'approved_shipping_quote_request_invalid'; end if;
   request_id:=(p_request->>'request_id')::uuid;
   select array_agg(t.id order by t.id) into ids
-  from (select (v::text)::uuid id from jsonb_array_elements_text(p_request->'quote_receipt_ids') v) t;
+  from (select e.value::uuid id from jsonb_array_elements_text(p_request->'quote_receipt_ids') as e(value)) t;
   if ids is null or cardinality(ids)<>(select count(distinct id) from unnest(ids) id)
     then raise exception 'approved_shipping_quote_request_invalid'; end if;
   country:=p_request->>'country';
@@ -92,19 +92,19 @@ end $$;
 create function public.feya_commerce_create_approved_shipping_quote_v2(p_request jsonb,p_resolution jsonb) returns jsonb
 language plpgsql volatile security definer set search_path='' as $$
 declare normalized jsonb; ids uuid[]; old public.feya_commerce_approved_shipping_quote_receipts_v2;
-  context jsonb; approval jsonb; v_merchandise jsonb; request_hash text; request_id uuid;
+  context jsonb; approval jsonb; v_merchandise jsonb; request_hash text; v_request_id uuid;
   v_amount bigint; v_parcel_count integer; v_parcel_total numeric; v_parcel_units numeric;
   v_merchandise_units numeric; calc_at timestamptz; created timestamptz;
   expire_at timestamptz; quote_id uuid:=gen_random_uuid(); response jsonb;
 begin
   normalized:=public.feya_commerce_normalize_approved_shipping_request_v2(p_request);
-  request_id:=(normalized->>'request_id')::uuid;
-  select array_agg((v::text)::uuid order by (v::text)::uuid) into ids
-    from jsonb_array_elements_text(normalized->'quote_receipt_ids') v;
+  v_request_id:=(normalized->>'request_id')::uuid;
+  select array_agg(t.id order by t.id) into ids
+    from (select e.value::uuid id from jsonb_array_elements_text(normalized->'quote_receipt_ids') as e(value)) t;
   request_hash:=encode(pg_catalog.sha256(convert_to(normalized::text,'UTF8')),'hex');
 
-  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('feya-approved-shipping-quote-v2:'||request_id::text,0));
-  select * into old from public.feya_commerce_approved_shipping_quote_receipts_v2 where request_id=request_id;
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('feya-approved-shipping-quote-v2:'||v_request_id::text,0));
+  select * into old from public.feya_commerce_approved_shipping_quote_receipts_v2 where request_id=v_request_id;
   if found then
     if old.request_sha256<>request_hash then raise exception 'approved_shipping_quote_request_conflict'; end if;
     return old.response || jsonb_build_object('replayed',true,'expired',old.expires_at<=transaction_timestamp());
@@ -171,7 +171,7 @@ begin
   expire_at:=created+interval '15 minutes';
 
   response:=jsonb_build_object('contract_version','commerce_approved_shipping_quote_v2',
-    'shipping_quote_receipt_id',quote_id,'request_id',request_id,
+    'shipping_quote_receipt_id',quote_id,'request_id',v_request_id,
     'approval_id',approval->>'approval_id','approval_revision',approval->'revision',
     'workspace_version_id',approval->>'workspace_version_id','workspace_revision',approval->'workspace_revision',
     'catalog_sha256',context->>'catalog_sha256',
@@ -190,7 +190,7 @@ begin
     destination_country,destination_postal_code,shipping_method,currency,amount_minor,parcel_count,
     details,response,calculated_at,created_at,expires_at
   ) values (
-    quote_id,request_id,request_hash,
+    quote_id,v_request_id,request_hash,
     (approval->>'approval_id')::uuid,(approval->>'revision')::bigint,
     (approval->>'workspace_version_id')::uuid,(approval->>'workspace_revision')::bigint,approval->>'snapshot_sha256',
     context->>'catalog_sha256',p_resolution->>'basket_sha256',p_resolution->>'destination_sha256',ids,
