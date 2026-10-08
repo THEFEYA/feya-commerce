@@ -4,7 +4,7 @@ import {connection} from 'next/server';
 import { getSiteUrl } from '@/lib/siteConfig';
 import { MeasurementRuntime } from '@/components/MeasurementRuntime';
 import { AnalyticsConsentBanner } from '@/components/AnalyticsConsentBanner';
-import { publicLegalIdentityReady } from '@/lib/publicLegalIdentity';
+import { getStorefrontAnalyticsState } from '@/lib/publicPrivacyController';
 import './globals.css';
 
 
@@ -28,9 +28,7 @@ async function SearchReleaseRuntimeMarker(){
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const analyticsConsentReady=publicLegalIdentityReady()
-    && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
-    && process.env.FEYA_ANALYTICS_ENABLED==='true';
+  const analyticsConsentReady=getStorefrontAnalyticsState().enabled;
 
   return (
     <html lang="en">

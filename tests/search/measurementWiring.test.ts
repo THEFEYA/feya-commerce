@@ -6,13 +6,12 @@ test('measurement runtime is mounted globally but remains environment gated',asy
   const layout=await readFile(new URL('../../app/layout.tsx',import.meta.url),'utf8');
   const route=await readFile(new URL('../../app/api/measurement/context/route.ts',import.meta.url),'utf8');
   assert.match(layout,/MeasurementRuntime/);
-  assert.match(route,/environment==='production'/);
-  assert.match(route,/FEYA_ANALYTICS_ENABLED==='true'/);
-  assert.match(route,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
+  const policy=await readFile(new URL('../../lib/privacyControllerPolicy.ts',import.meta.url),'utf8');
+  assert.match(route,/getStorefrontAnalyticsState\(\)/);
+  assert.match(policy,/environment !== 'production'/);
   assert.match(layout,/AnalyticsConsentBanner/);
-  assert.match(layout,/publicLegalIdentityReady\(\)/);
-  assert.match(layout,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
-  assert.match(route,/FEYA_GA4_MEASUREMENT_ID/);
+  assert.match(layout,/getStorefrontAnalyticsState\(\)\.enabled/);
+  assert.match(policy,/FEYA_GA4_MEASUREMENT_ID/);
   assert.match(route,/measurement_private_surface_excluded/);
   assert.match(route,/Cache-Control':'no-store/);
 });
@@ -60,6 +59,5 @@ test('privacy control is available only after legal/privacy/analytics readiness 
   assert.match(consent,/Decline analytics/);
   assert.match(consent,/setAnalyticsConsent\(value\)/);
   assert.match(privacy,/AnalyticsConsentPreferences/);
-  assert.match(privacy,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
-  assert.match(privacy,/FEYA_ANALYTICS_ENABLED==='true'/);
+  assert.match(privacy,/getStorefrontAnalyticsState\(\)\.enabled/);
 });
