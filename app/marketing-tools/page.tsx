@@ -4,9 +4,10 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {GOOGLE_MARKETING_APPLICATION_NAME} from '@/lib/googleOAuthReviewConfiguration';
 
 export const metadata:Metadata={
-  title:'TheFEYA Marketing Tools',
+  title:GOOGLE_MARKETING_APPLICATION_NAME,
   description:'Public information page for the internal TheFEYA marketing application that connects authorized Google Ads data for keyword planning and reporting.',
   alternates:{canonical:'/marketing-tools'},
   // OAuth/brand-review trust surface, not a Search Release owner.
@@ -21,7 +22,7 @@ export default function MarketingToolsPage(){
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">TheFEYA · Internal marketing application</div>
         <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">
-          TheFEYA Marketing Tools
+          {GOOGLE_MARKETING_APPLICATION_NAME}
         </h1>
         <p className="mt-6 max-w-3xl text-[16px] leading-7 text-[#aaa2a0]">
           This page describes the internal application used by TheFEYA to connect authorized marketing data for our own store. It is not a public advertising network, payment service or customer account product.
@@ -62,6 +63,7 @@ export default function MarketingToolsPage(){
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>Our Privacy Policy explains how the application accesses, uses, stores and shares data, including Google-authorized data.</p>
             <p>Questions about this application can be sent to <a className="text-bone hover:text-white" href="mailto:manager.feya@gmail.com">manager.feya@gmail.com</a>.</p>
+            <p>Phone: <a className="text-bone hover:text-white" href="tel:+380636556288">+380 63 655 62 88</a>. WhatsApp, Viber and Telegram are available at this number.</p>
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/privacy" className="btn-ghost">Privacy Policy</Link>

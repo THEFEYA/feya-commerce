@@ -5,6 +5,7 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
 import { capabilityLabel, capabilityOwnerSummary, implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { googleOAuthReviewConfiguration } from '@/lib/googleOAuthReviewConfiguration';
 async function getCapabilities(): Promise<{ rows: GrowthCapabilityStatusRow[]; error?: string }> {
   const supabase = getAdminReadClient();
 
@@ -25,13 +26,6 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
-function statusClass(value: unknown) {
-  const state = asText(value, '').toUpperCase();
-  if (state === 'AVAILABLE') return 'ok';
-  if (state === 'UNAVAILABLE' || state === 'NOT_OBSERVABLE') return 'danger';
-  return 'warning';
-}
-
 function countState(rows: GrowthCapabilityStatusRow[], state: string) {
   return rows.filter((row) => row.capability_state === state).length;
 }
@@ -39,6 +33,7 @@ function countState(rows: GrowthCapabilityStatusRow[], state: string) {
 export default async function AdminSystemReadinessPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string }> }) {
   const params = await searchParams;
   const { rows, error } = await getCapabilities();
+  const googleReview = googleOAuthReviewConfiguration(process.env);
   const q = String(params.q || '').trim().toLowerCase();
   const stateFilter = String(params.state || 'attention').toUpperCase();
 
@@ -93,6 +88,18 @@ export default async function AdminSystemReadinessPage({ searchParams }: { searc
         </section>
 
         {error ? <OwnerDataError error={error} /> : null}
+
+        <section className="owner-card" style={{ marginBottom: '18px' }}>
+          <h2>Google: проверка приложения</h2>
+          <p className="owner-card-copy">Приложение: {googleReview.applicationName}. Номер проекта в MASTER: {googleReview.expectedProjectNumber}.</p>
+          <p className="owner-card-copy">Подсказка номера из текущего OAuth client ID: {googleReview.oauthProjectNumberHint || 'недоступна'}. Сверьте её с Project number в Google Cloud → Project info и с существующим клиентом в Clients.</p>
+          {googleReview.projectHintMatchesExpected === false ? <p className="owner-card-copy">Номера отличаются: сначала подтвердите, какой проект владеет рабочими OAuth credentials и перенесённым доступом Google Ads API.</p> : null}
+          <p className="owner-card-copy">Brand verification и Basic access ещё требуют подтверждения в Google. После сверки проекта заполните Branding, опубликуйте External / In production, выполните Verify Branding → Publish branding и подайте Basic application.</p>
+          <div className="owner-actions">
+            <a href={googleReview.brandingUrl} className="owner-button" target="_blank" rel="noopener noreferrer">Открыть Google Branding</a>
+            <Link href="/marketing-tools" className="owner-button">Публичная страница приложения</Link>
+          </div>
+        </section>
 
         <form action="/admin/system-readiness" className="owner-card" style={{ marginBottom: '18px' }}>
           <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">

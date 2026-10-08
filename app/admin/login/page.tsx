@@ -2,7 +2,8 @@ export const instant = false;
 
 import Link from 'next/link';
 import { loginAdmin } from './actions';
-import { isAdminAuthRequired } from '@/lib/supabaseAuth';
+import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
+import { adminLoginConfigurationReady } from '@/lib/adminAccess';
 
 type PageProps = {
   searchParams: Promise<{ error?: string; next?: string }>;
@@ -13,13 +14,15 @@ function getErrorMessage(error: string | undefined) {
   if (error === 'missing_credentials') return 'Введите email и пароль.';
   if (error === 'invalid_credentials') return 'Неверный email или пароль.';
   if (error === 'not_authorized') return 'Аккаунт подтверждён, но не имеет доступа к FEYA Admin.';
+  if (error === 'configuration_required') return 'Сначала завершите настройку защищённого входа.';
   return error;
 }
 
 export default async function AdminLoginPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const errorMessage = getErrorMessage(params.error);
-  const authRequired = isAdminAuthRequired();
+  const config = getAdminAuthConfigStatus();
+  const loginReady = adminLoginConfigurationReady(config);
   const nextPath = typeof params.next === 'string' && params.next.startsWith('/admin') ? params.next : '/admin';
 
   return (
@@ -37,10 +40,20 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
           <h1>Вход в админку</h1>
           <p>Только для заранее созданных аккаунтов Supabase Auth. Публичная регистрация намеренно отключена.</p>
 
-          {!authRequired ? (
+          {!config.loginEnabled ? (
             <div className="notice">
               Механизм защищённого входа установлен, но обязательная авторизация пока выключена. Включать её можно только после настройки разрешённого списка владельцев.
             </div>
+          ) : null}
+
+          {!config.allowlistConfigured ? (
+            <div className="notice" role="status">
+              Разрешённый список владельцев не заполнен. В Vercel добавьте FEYA_ADMIN_ALLOWED_EMAILS для Production: email вашего аккаунта Supabase Auth. Затем выполните Redeploy. Почта поддержки должна быть отдельно создана в Supabase → Authentication → Users → Add user → Create new user.
+            </div>
+          ) : null}
+
+          {!config.supabaseUrlConfigured || !config.publicKeyConfigured ? (
+            <div className="notice" role="status">Для входа нужны URL и public key соответствующего проекта Supabase.</div>
           ) : null}
 
           {errorMessage ? <div className="notice">{errorMessage}</div> : null}
@@ -54,6 +67,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
                 type="email"
                 autoComplete="email"
                 required
+                disabled={!loginReady}
                 style={{ width: '100%', marginTop: '6px', padding: '12px', borderRadius: '12px' }}
               />
             </label>
@@ -65,11 +79,12 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
                 type="password"
                 autoComplete="current-password"
                 required
+                disabled={!loginReady}
                 style={{ width: '100%', marginTop: '6px', padding: '12px', borderRadius: '12px' }}
               />
             </label>
 
-            <button type="submit" style={{ padding: '12px 16px', borderRadius: '12px', cursor: 'pointer' }}>
+            <button type="submit" disabled={!loginReady} style={{ padding: '12px 16px', borderRadius: '12px', cursor: 'pointer' }}>
               Войти
             </button>
           </form>

@@ -8,6 +8,8 @@
 
 Продолжение 8 октября: [exact saved-version approval](M2_DELIVERY_APPROVAL_IMPLEMENTATION_20261008.md) и [MASTER access/privacy/cart supplement](../search/MASTER_ACCESS_PRIVACY_CART_EXECUTION_AMENDMENT_20261008.md). PR #71/#72 слиты, draft и approval migrations установлены. Private approval не публикует ставки; owner access остаётся отдельным dependency. Данный подробный services/recovery backlog сохраняется полностью.
 
+Последний access checkpoint: [новые скриншоты / Google review](../search/GOOGLE_REVIEW_OWNER_ACCESS_CHECKPOINT_20261008.md). После ручного redeploy private API уже 401; для рабочего входа осталось создать owner Auth account и добавить email allowlist. Исторические строки 503 ниже относятся к проверке до этого redeploy.
+
 ## 1. Уточнение, которое меняет предыдущий checkpoint
 
 «Расчёт перед оплатой» означает прежде всего **расчёт на сервере по тарифам, которыми управляет владелец**:

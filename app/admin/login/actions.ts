@@ -2,10 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
-import { adminAccessDecision } from '@/lib/adminAccess';
+import { getAdminAuthConfigStatus, getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
+import { adminAccessDecision, adminLoginConfigurationReady } from '@/lib/adminAccess';
 
 export async function loginAdmin(formData: FormData) {
+  if (!adminLoginConfigurationReady(getAdminAuthConfigStatus())) {
+    redirect('/admin/login?error=configuration_required');
+  }
   const email = String(formData.get('email') || '').trim();
   const password = String(formData.get('password') || '');
   const requestedNext = String(formData.get('next') || '').trim();

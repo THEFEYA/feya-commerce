@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { adminAuthConfiguration } from './adminAccess';
 
 function getSupabasePublicKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
@@ -9,19 +10,8 @@ export function isAdminAuthRequired() {
   return process.env.FEYA_ADMIN_AUTH_REQUIRED === 'true';
 }
 
-function hasCsvValues(value: string | undefined) {
-  return Boolean(value?.split(',').map((item) => item.trim()).filter(Boolean).length);
-}
-
 export function getAdminAuthConfigStatus() {
-  return {
-    required: isAdminAuthRequired(),
-    supabaseUrlConfigured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-    publicKeyConfigured: Boolean(getSupabasePublicKey()),
-    allowlistConfigured:
-      hasCsvValues(process.env.FEYA_ADMIN_ALLOWED_USER_IDS) ||
-      hasCsvValues(process.env.FEYA_ADMIN_ALLOWED_EMAILS),
-  };
+  return adminAuthConfiguration(process.env);
 }
 
 export async function getSupabaseAuthServerClient() {
