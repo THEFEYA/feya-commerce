@@ -44,10 +44,13 @@ test('unapproved destination and missing parcel limits remain explicit blockers 
   d.assignments = []; // explicit override from fixture must not shadow the new default
   const request = syntheticDeliveryRequest();
   assert.throws(() => previewDeliveryDraft(d, request, syntheticDeliveryCatalog, deliveryIds.version, '2026-10-08T10:00:00.000Z'),
+    /delivery_quantity_rule_required/);
+  d.shipping_profiles.at(-1)!.max_units_per_parcel = 2;
+  assert.throws(() => previewDeliveryDraft(d, request, syntheticDeliveryCatalog, deliveryIds.version, '2026-10-08T10:00:00.000Z'),
     /delivery_country_not_served/);
   d.shipping_profiles.at(-1)!.served_countries = ['US'];
-  assert.throws(() => previewDeliveryDraft(d, request, syntheticDeliveryCatalog, deliveryIds.version, '2026-10-08T10:00:00.000Z'),
-    /delivery_quantity_rule_required/);
+  assert.equal(previewDeliveryDraft(d, request, syntheticDeliveryCatalog, deliveryIds.version,
+    '2026-10-08T10:00:00.000Z').shipping_amount_minor, 1900);
 });
 
 test('remote surcharge only derives an EUR draft amount; it is not a country classifier or per-item tax', () => {
