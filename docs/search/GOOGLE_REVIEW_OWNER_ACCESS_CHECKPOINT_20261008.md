@@ -69,6 +69,16 @@ Owner actions, delivery publication, checkout и GA4 этим не включа�
 
 First search wave готова, десять collection landings уже существуют. Никаких новых SEO текстов/DNA/ценообразования/visual styles этим пакетом не меняется. Общая оценка launch 75–80% не увеличивается из-за docs/setup help. Нужны точные факты и доступы, не повторное широкое исследование.
 
+## 5a. Новый owner login incident — поздний checkpoint 8 октября
+
+В production Supabase у `manager.feya@gmail.com` обнаружена **новая учётная запись** (создана позже ранее проверенной), `email_confirmed_at = null`, пароль задан, но `last_sign_in_at = null`. Предыдущий successful sign-in относится к прошлой записи и не подтверждает работу нового аккаунта. Реальный сайт направил владельца на `/admin/login?error=invalid_credentials`.
+
+В `app/admin/login/actions.ts` все ошибки `signInWithPassword` до нового исправления переводились в один `invalid_credentials`. Действие: отдельно показывать `email_not_confirmed`, `invalid_credentials`, `rate_limited` и недоступность сервиса; никаких raw Supabase ошибок, токенов, хешей, паролей в URL/логи. Логи с `referer=http://localhost:3000` могут быть результатом изолированных CI-тестов и не доказывают ошибку конкретной попытки пользователя.
+
+**Human owner single required step:** Supabase Dashboard → Authentication → Users → существующая запись `manager.feya@gmail.com` → подтвердить её email в предусмотренном Auth UI или официальным Admin Auth способом. Если пароль после этого всё ещё не принимается, провести поддерживаемый процесс сброса пароля/установки нового пароля в Supabase (не Gmail). **Не изменять напрямую auth.users SQL, не удалять учетную запись и не отключать публично FEYA admin protection.** В текущем подключённом Supabase Tool нет `auth.admin.updateUserById`; credentials к service-role для вызова Admin Auth не извлекать через сообщения.
+
+Публичный storefront не меняется. M2 shipping quote v2 и Search v12 остаются закрытыми/утверждёнными техническими фазами; доступ владельца и коммерческая публикация тарифов — отдельные owner gates.
+
 ## 6. Первичные источники и validation receipts
 
 - [Google Ads brand verification](https://developers.google.com/google-ads/api/docs/api-policy/brand-verification), проверено 8 октября, updated 7 октября: Basic prerequisite, External/In production, Verify/Publish.
