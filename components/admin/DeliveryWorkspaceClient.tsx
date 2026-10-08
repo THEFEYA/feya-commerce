@@ -191,8 +191,8 @@ export function DeliveryWorkspaceClient() {
   function addShipping(example = false) {
     const rule = newRule();
     if (example) {
-      rule.standard = { amount_minor: 1900, transit: { min: 10, max: 14, unit: 'business_days' }, calendar: workingWeek(null) };
-      rule.express = { amount_minor: 3500, transit: { min: 7, max: 10, unit: 'business_days' }, calendar: workingWeek(null) };
+      rule.standard = { amount_minor: 1900, transit: null, calendar: null };
+      rule.express = { amount_minor: 3500, transit: null, calendar: null };
     }
     change(d => ({ ...d, shipping_profiles: [...d.shipping_profiles, { id: crypto.randomUUID(), name: example ? 'Пример владельца: $19 / $35' : `Доставка ${d.shipping_profiles.length + 1}`,
       currency: example ? 'USD' : 'EUR', served_countries: [], max_units_per_parcel: null, rules: [rule] }] }));
@@ -283,13 +283,23 @@ export function DeliveryWorkspaceClient() {
       <section className="owner-section"><div className="owner-section-head"><h2>Профили доставки</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
         <div className="owner-actions"><button type="button" className="owner-button" onClick={() => addShipping()} disabled={draft.shipping_profiles.length >= 50}>Добавить профиль доставки</button>
-          <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить черновой пример $19 / $35 (USD)</button></div>
+          <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить пример $19 / $35</button></div>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления</h2></div>
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
-        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10], [10, 14]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
-          id: crypto.randomUUID(), name: `Изготовление ${min}–${max} рабочих дней`, duration: { min, max, unit: 'business_days' }, calendar: workingWeek(null), max_units_per_order: null, requires_specifications: false,
-        }] }))}>Добавить {min}–{max} дней</button>)}</div>
+        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
+          id: crypto.randomUUID(), name: `Изготовление ${min}–${max} дней`, duration: { min, max, unit: null }, calendar: null, max_units_per_order: null, requires_specifications: false,
+        }] }))}>Добавить {min}–{max} дней</button>)}
+          <button type="button" className="owner-button" disabled={draft.production_profiles.length >= 47} onClick={() => change(d => {
+            const ranges = [[1, 3], [3, 5], [7, 10], [10, 14]];
+            const existing = new Set(d.production_profiles.map(p => `${p.duration?.min}-${p.duration?.max}`));
+            const next = ranges.filter(([min, max]) => !existing.has(`${min}-${max}`)).map(([min, max]) => ({
+              id: crypto.randomUUID(), name: `Изготовление ${min}–${max} рабочих дней`,
+              duration: { min, max, unit: 'business_days' as const },
+              calendar: workingWeek(null), max_units_per_order: null, requires_specifications: false,
+            }));
+            return { ...d, production_profiles: [...d.production_profiles, ...next] };
+          })}>Добавить рабочие профили Пн–Пт (1–3, 3–5, 7–10, 10–14)</button></div>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Привязки к товарам</h2></div>
         <div className={styles.grid}>
