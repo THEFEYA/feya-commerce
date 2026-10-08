@@ -25,23 +25,25 @@ async function loadProducts() {
   const result = await supabase
     .from(STOREFRONT_VIEW_V4)
     .select(STOREFRONT_V4_CARD_SELECT)
-    .limit(250);
+    .limit(250)
+    .abortSignal(AbortSignal.timeout(8000));
 
   if (result.error) return { products: [], error: result.error.message };
   return { products: result.data || [], error: null };
 }
 
-async function loadReviewEvents(): Promise<AdminReviewEvent[]> {
+async function loadReviewEvents(): Promise<{ events: AdminReviewEvent[]; error: string | null }> {
   const supabase = getSupabaseServiceClient();
-  if (!supabase) return [];
+  if (!supabase) return { events: [], error: 'Нет сервера чтения проверочных событий.' };
 
   const { data, error } = await supabase
     .from('feya_commerce_v_admin_review_events_v1')
     .select('review_event_id,event_type,event_status,product_slug,canonical_product_id,created_at')
-    .limit(1000);
+    .limit(1000)
+    .abortSignal(AbortSignal.timeout(8000));
 
-  if (error) return [];
-  return (data || []) as AdminReviewEvent[];
+  if (error) return { events: [], error: error.message };
+  return { events: (data || []) as AdminReviewEvent[], error: null };
 }
 
 function summarize(products: StorefrontProduct[], reviewEvents: AdminReviewEvent[]) {
@@ -124,7 +126,9 @@ function StatusPill({ children, tone = 'neutral' }) {
 }
 
 export default async function AdminPage() {
-  const [{ products, error }, reviewEvents] = await Promise.all([loadProducts(), loadReviewEvents()]);
+  const [{ products, error: productsError }, eventsResult] = await Promise.all([loadProducts(), loadReviewEvents()]);
+  const reviewEvents = eventsResult.events;
+  const error = productsError || eventsResult.error;
   const stats = summarize(products, reviewEvents);
   const priorityProducts = products
     .map((product) => ({ product, readiness: getProductReadiness(product, getProductEvents(product, reviewEvents)) }))
@@ -142,9 +146,18 @@ export default async function AdminPage() {
         <Link href="/shop" className="btn-ghost self-start lg:self-auto">Витрина <ArrowUpRight size={13} /></Link>
       </div>
 
-      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
+      <div className="mb-7 flex flex-wrap items-center gap-3">
+        <Link href="/admin/company" className="btn-ghost">Командный центр FEYA <ArrowUpRight size={13} /></Link>
+        <Link href="/admin/company/delivery" className="btn-ghost">Доставка и изготовление <ArrowUpRight size={13} /></Link>
+      </div>
 
-      <AdminReadinessOverviewClient products={stats.products} labelReview={stats.labelReview} priceReview={stats.unverifiedPrice} componentIssues={stats.missingComponent} mediaReview={stats.mediaNeedsReview} />
+      {error ? <div role="alert" className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone)] mb-7">
+        <strong>Сводка Product OS временно недоступна.</strong>
+        <p className="mt-2 text-[13px] text-[var(--bone-dim)]">Серверный запрос каталога или событий не завершился. Нули не означают отсутствие товаров; статистика намеренно скрыта до успешной загрузки. Остальные разделы открываются по ссылкам слева.</p>
+        <details className="mt-3 text-[12px] text-[var(--bone-dim)]"><summary>Техническая причина</summary><code>{error}</code></details>
+      </div> : null}
+
+      {!error ? <><AdminReadinessOverviewClient products={stats.products} labelReview={stats.labelReview} priceReview={stats.unverifiedPrice} componentIssues={stats.missingComponent} mediaReview={stats.mediaNeedsReview} />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <StatCard label="Готово" value={stats.ready} tone="success" note="Закрыто через общую логику готовности." />
@@ -198,6 +211,7 @@ export default async function AdminPage() {
           </div>
         </section>
       </div>
+      </> : null}
     </section>
   </main>;
 }
