@@ -10,6 +10,8 @@
 
 Последний access checkpoint: [новые скриншоты / Google review](../search/GOOGLE_REVIEW_OWNER_ACCESS_CHECKPOINT_20261008.md). После ручного redeploy private API уже 401; для рабочего входа осталось создать owner Auth account и добавить email allowlist. Исторические строки 503 ниже относятся к проверке до этого redeploy.
 
+Следующий инженерный checkpoint: [approved delivery resolution](M2_APPROVED_DELIVERY_RESOLUTION_IMPLEMENTATION_20261008.md). Exact approved settings + current merchandise + country/postal/method теперь разрешаются одним service-only read и серверным calculator; immutable shipping receipt/expiry и intent/snapshot successors остаются открыты. Ни новые черновики, ни client amount не являются rate authority.
+
 ## 1. Уточнение, которое меняет предыдущий checkpoint
 
 «Расчёт перед оплатой» означает прежде всего **расчёт на сервере по тарифам, которыми управляет владелец**:

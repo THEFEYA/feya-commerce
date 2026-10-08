@@ -8,6 +8,7 @@ import { variantDependenciesSQL, variantMigrationSQL, seedVariantProduct, prepar
 import { emptyDeliveryWorkspace } from '../../lib/commerceDeliveryWorkspace.ts';
 import { syntheticDeliveryWorkspace } from '../fixtures/commerceDeliveryWorkspace.ts';
 import { deliveryApprovalReadiness } from '../../lib/commerceDeliveryApproval.ts';
+import { resolveApprovedDelivery, APPROVED_DELIVERY_RESOLUTION } from '../../lib/commerceApprovedDeliveryResolution.ts';
 
 const actor = '70000000-0000-4000-8000-000000000041', otherActor = '70000000-0000-4000-8000-000000000042';
 const nativeURL = process.env.FEYA_TEST_DATABASE_URL;
@@ -29,6 +30,7 @@ before(async () => {
   await db.query('insert into public.feya_commerce_offer_heads_v1(canonical_product_id,current_offer_revision_id) values($1,$2)', [variantTestIds.product, offer.offerRevisionId]);
   await db.exec(await migration());
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008083213_commerce_delivery_approval_v1.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261008160534_commerce_approved_delivery_context_v1.sql', import.meta.url), 'utf8'));
 });
 after(async () => { await db?.close(); });
 async function service(fn, client = db) { await client.query('set role service_role'); try { return await fn(client); } finally { await client.query('reset role'); } }
@@ -38,6 +40,7 @@ const count = async () => (await db.query('select count(*)::int n from public.fe
 
 test('new schema contains no draft or active rate; public and authenticated roles cannot read or execute', async () => {
   const initial = await read(); assert.equal(initial.revision, 0); assert.equal(initial.draft, null); assert.equal(initial.public_rates_enabled, false);
+  await assert.rejects(service(c => c.query('select public.feya_commerce_approved_delivery_context_v1($1::uuid[])', [[randomUUID()]])), /approval_required/);
   for (const role of ['anon', 'authenticated']) {
     await db.query('set role ' + role);
     try {
@@ -187,4 +190,71 @@ test('native concurrent approvals of one head allow one new immutable receipt', 
     assert.equal(result.filter(r => r.status === 'fulfilled').length, 1); assert.equal(result.filter(r => r.status === 'rejected').length, 1);
     assert.match(result.find(r => r.status === 'rejected').reason.message, /revision_conflict/); assert.equal(await approvalCount(), 3);
   } finally { await Promise.all(clients.map(c => c.end())); }
+});
+
+const approvedContext = ids => service(async c => (await c.query('select public.feya_commerce_approved_delivery_context_v1($1::uuid[]) r', [ids])).rows[0].r);
+let merchandiseReceipt;
+test('approved delivery resolver is an invoker read inaccessible to browser roles', async () => {
+  const f = (await db.query("select prosecdef,provolatile from pg_proc where oid='public.feya_commerce_approved_delivery_context_v1(uuid[])'::regprocedure")).rows[0];
+  assert.equal(f.prosecdef, false); assert.equal(f.provolatile, 's');
+  for (const role of ['anon','authenticated']) {
+    await db.query('set role ' + role);
+    try { await assert.rejects(db.query('select public.feya_commerce_approved_delivery_context_v1($1::uuid[])', [[randomUUID()]]), /permission denied/); }
+    finally { await db.query('reset role'); }
+  }
+  const i = variantTestIds;
+  merchandiseReceipt = await service(async c => (await c.query('select public.feya_commerce_create_quote_v1($1::jsonb) r', [JSON.stringify({
+    request_id: randomUUID(), canonical_product_id: i.product, variant_id: i.variant, configuration_price_id: i.config,
+    color_id: i.gold, size_id: null, expected_product_revision: 1, expected_offer_revision: 1, quantity: 2,
+  })])).rows[0].r);
+});
+test('an edited draft never changes the exact approved delivery snapshot used by server receipts', async () => {
+  const c = await context(), changed = structuredClone(c.workspace.draft);
+  changed.shipping_profiles[0].rules[0].standard.amount_minor = 9999;
+  await save(changed, c.workspace.revision);
+  const r = await approvedContext([merchandiseReceipt.quote_receipt_id]);
+  assert.equal(r.approved_workspace.version_id, r.approval.workspace_version_id);
+  assert.equal(r.approved_workspace.snapshot_sha256, r.approval.snapshot_sha256);
+  assert.notEqual(r.approved_workspace.version_id, (await read()).version_id);
+  assert.equal(r.approved_workspace.draft.shipping_profiles[0].rules[0].standard.amount_minor, 1900);
+  const rpcClient = { rpc: async (name, args) => ({ data: await approvedContext(args.p_quote_receipt_ids), error: null }) };
+  const result = await resolveApprovedDelivery(rpcClient, { contract_version: APPROVED_DELIVERY_RESOLUTION,
+    quote_receipt_ids: [merchandiseReceipt.quote_receipt_id], country: 'US', postal_code: '10001', shipping_method: 'standard' });
+  assert.equal(result.shipping_amount_minor, 1900); assert.equal(result.parcels[0].quantity, 2);
+  assert.equal(result.persisted, false); assert.equal(result.payable, false); assert.equal(result.payment_enabled, false);
+  assert.equal(await approvalCount(), nativeURL ? 3 : 2);
+});
+test('missing or duplicate merchandise receipts are rejected; no quote is silently omitted', async () => {
+  await assert.rejects(approvedContext([randomUUID()]), /quote_not_current/);
+  await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id, randomUUID()]), /quote_not_current/);
+  await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id, merchandiseReceipt.quote_receipt_id]), /request_invalid/);
+  await assert.rejects(approvedContext([]), /request_invalid/);
+});
+test('a new offer head invalidates old price receipts even when the catalog currency is unchanged', async () => {
+  const newer = await seedApprovedOfferProjection(db, { offerRevisionId: randomUUID(), priceQuoteId: randomUUID(), offerRevision: 2 });
+  await db.query('update public.feya_commerce_offer_heads_v1 set current_offer_revision_id=$1 where canonical_product_id=$2', [newer.offerRevisionId, variantTestIds.product]);
+  try { await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id]), /quote_not_current/); }
+  finally { await db.query('update public.feya_commerce_offer_heads_v1 set current_offer_revision_id=$1 where canonical_product_id=$2', [merchandiseReceipt.offer_revision_id, variantTestIds.product]); }
+});
+test('expired merchandise is rejected even when its exact approved offer is still current', async () => {
+  const expiredId = randomUUID();
+  await db.query(`insert into public.feya_commerce_quote_receipts_v1(
+    quote_receipt_id,request_id,request_sha256,offer_revision_id,canonical_product_id,product_revision,
+    variant_id,configuration_price_id,color_id,size_id,quantity,unit_amount_minor,line_amount_minor,currency,
+    price_quote_id,price_revision,price_source,response,expires_at)
+    select $1,$2,request_sha256,offer_revision_id,canonical_product_id,product_revision,
+      variant_id,configuration_price_id,color_id,size_id,quantity,unit_amount_minor,line_amount_minor,currency,
+      price_quote_id,price_revision,price_source,response,now()-interval '1 day'
+    from public.feya_commerce_quote_receipts_v1 where quote_receipt_id=$3`, [expiredId,randomUUID(),merchandiseReceipt.quote_receipt_id]);
+  await assert.rejects(approvedContext([expiredId]), /quote_not_current/);
+});
+test('catalog drift and permission drift close the resolver without changing any approved head', async () => {
+  const beforeApproval = (await context()).approval;
+  await db.query('delete from public.feya_commerce_offer_heads_v1 where canonical_product_id=$1', [variantTestIds.product]);
+  try { await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id]), /catalog_changed/); }
+  finally { await db.query('insert into public.feya_commerce_offer_heads_v1(canonical_product_id,current_offer_revision_id) values($1,$2)', [variantTestIds.product, merchandiseReceipt.offer_revision_id]); }
+  await db.exec('grant execute on function public.feya_commerce_approved_delivery_context_v1(uuid[]) to authenticated');
+  try { await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id]), /boundary_not_ready/); }
+  finally { await db.exec('revoke execute on function public.feya_commerce_approved_delivery_context_v1(uuid[]) from authenticated'); }
+  assert.equal((await approvedContext([merchandiseReceipt.quote_receipt_id])).approval.workspace_version_id, beforeApproval.workspace_version_id);
 });
