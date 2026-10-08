@@ -20,6 +20,7 @@
 - Postal input нормализуется; применяется существующий приоритет postal → country → zone → default. Unsupported destination, disabled override, неопределённые day basis/calendar, превышенная capacity и непроверенные custom specifications закрывают расчёт.
 - Результат фиксирует approval ID/revision, workspace ID/revision/hash, catalog hash, exact merchandise IDs, basket/destination fingerprints, method, currency, shipping amount, parcels, calendars/production references, server calculation timestamp и estimated arrival window.
 - Даты сохраняют `start_basis=preview_ready_now` и `event_date_guaranteed=false`. Они не подтверждают оплаченный заказ, production slot или полученные мерки. Изготовление и Express transit остаются отдельными этапами.
+- Native PostgreSQL JSON timestamp с микросекундами и timezone offset нормализуется в ISO milliseconds на server boundary; сохраняется тот же DB instant. Этот случай проверяется отдельной regression проверкой и native integration suite.
 
 Basket/destination fingerprints служат внутренней сверке. Hash почтового индекса не делает данные анонимными: не отправлять destination/контакты/fingerprints в GA4 или LLM. Полный адрес в этот контракт не входит; tax/region/address authority должна быть определена в checkout successor.
 
@@ -36,7 +37,7 @@ Production verification после установки:
 - production test read корректно отклонён с `approved_delivery_approval_required` при нулевом approval head;
 - security advisors совпадают с исходным baseline, новый RPC не фигурирует в findings. Это не утверждение, что legacy baseline всего проекта свободен от замечаний.
 
-Локально: 456/456 search tests, TypeScript, production build и scoped lint прошли. Delivery DB suite: 20 PASS, 2 native concurrency checks skipped в PGlite; native PostgreSQL CI обязан выполнить все 22. Тесты охватывают immutable approved-vs-draft selection, exact current/expired/missing merchandise, aggregate variant capacity, country/postal/disabled method, currency/specifications, public-role denial и permission drift. Финальные exact-head CI/production receipts записываются в implementation PR.
+Локально: 457/457 search tests, TypeScript, production build и scoped lint прошли. Delivery DB suite: 20 PASS, 2 native concurrency checks skipped в PGlite; native PostgreSQL CI обязан выполнить все 22. Тесты охватывают immutable approved-vs-draft selection, exact current/expired/missing merchandise, aggregate variant capacity, country/postal/disabled method, currency/specifications, public-role denial и permission drift. Финальные exact-head CI/production receipts записываются в implementation PR.
 
 ## Следующий обязательный пакет M2
 

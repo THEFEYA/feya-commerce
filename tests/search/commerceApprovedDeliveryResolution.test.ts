@@ -39,6 +39,12 @@ test('client prices, quantities, readiness and timestamps are rejected before an
   }
   for (const ids of [[], [quoteId, quoteId], [null], Array.from({ length: 21 }, () => randomUUID())]) assert.throws(() => parseApprovedDeliveryRequest({ ...request(), quote_receipt_ids: ids }), /request_invalid/);
 });
+test('native PostgreSQL microsecond/offset timestamps normalize to the same server instant for calendar arithmetic', async () => {
+  const c = context(); c.calculated_at = '2026-10-08T12:00:00.123456+02:00';
+  const result = await resolveApprovedDelivery(client(c), request());
+  assert.equal(result.calculated_at, '2026-10-08T10:00:00.123Z');
+  assert.equal(result.parcels[0].estimate.ready_at, result.calculated_at);
+});
 test('approved identity, snapshot and catalog drift fail closed; response flags cannot enable commerce', async () => {
   for (const change of [
     (c: ReturnType<typeof context>) => { c.approved_workspace.version_id = randomUUID(); },

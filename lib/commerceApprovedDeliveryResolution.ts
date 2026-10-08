@@ -79,7 +79,10 @@ function parseContext(raw: unknown, request: ApprovedDeliveryRequest): ApprovedD
   const merchandise = lines as DeliveryMerchandiseLine[];
   if (merchandise.map(l => l.quote_receipt_id).sort().join(',') !== request.quote_receipt_ids.join(',')
     || new Set(merchandise.map(l => l.currency)).size !== 1 || new Set(merchandise.map(l => l.release_ref)).size !== 1) fail('approved_delivery_context_invalid');
-  return { approval, approved_workspace: workspace, catalog, catalog_sha256: raw.catalog_sha256, merchandise, calculated_at: raw.calculated_at };
+  // Native PostgreSQL JSON carries microseconds; the calendar contract uses ISO
+  // milliseconds. Normalize the database instant, never substitute browser/server now.
+  return { approval, approved_workspace: workspace, catalog, catalog_sha256: raw.catalog_sha256, merchandise,
+    calculated_at: new Date(raw.calculated_at).toISOString() };
 }
 
 /** One RPC reads the exact approved snapshot and current merchandise under one database snapshot. Never use the editable draft head. */
