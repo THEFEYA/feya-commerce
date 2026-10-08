@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Plane, Truck } from 'lucide-react';
 import { emptyDeliveryWorkspace, type DeliveryWorkspaceDraft, type DeliveryCatalogProduct, type DraftShippingProfile, type DraftShippingRule, type DraftProductionProfile, type DeliveryPreviewLine, type DeliveryDraftPreview } from '@/lib/commerceDeliveryWorkspace';
 import type { DeliveryWorkspaceState, DeliveryWorkspaceSaveRequest } from '@/lib/commerceDeliveryWorkspaceStorage';
+import type { DeliveryApprovalReadiness } from '@/lib/commerceDeliveryApproval';
+import type { DeliveryApprovalRequest, DeliveryApprovalState } from '@/lib/commerceDeliveryApprovalStorage';
 import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, MethodFields } from './DeliveryProfileFields';
 import styles from './DeliveryWorkspace.module.css';
 
@@ -14,6 +16,16 @@ const errorLabels: Record<string, string> = {
   owner_not_allowed: 'Этот аккаунт не имеет доступа к настройкам магазина.',
   owner_actions_disabled: 'Изменение настроек магазина пока выключено.',
   delivery_workspace_draft_disabled: 'Работа с черновиками доставки пока выключена.',
+  delivery_approval_disabled: 'Утверждение версий пока выключено. Черновики можно продолжать проверять.',
+  delivery_approval_settings_incomplete: 'Заполните пункты проверки сохранённой версии перед утверждением.',
+  delivery_approval_revision_conflict: 'Версия уже изменилась. Загрузите сохранённую версию и проверьте её заново.',
+  delivery_approval_catalog_conflict: 'Предложения каталога изменились. Загрузите настройки и повторите проверку валют и привязок.',
+  delivery_approval_request_conflict: 'Этот запрос уже относится к другому утверждению. Загрузите сохранённую версию.',
+  delivery_approval_outcome_unknown: 'Результат утверждения пока не подтверждён. Повторите действие без изменения настроек: повтор не создаст вторую запись.',
+  delivery_countries_required: 'Укажите обслуживаемые страны.',
+  delivery_country_rate_required: 'Для каждой обслуживаемой страны нужен хотя бы один доступный метод доставки.',
+  delivery_catalog_empty: 'Нет конфигураций с действующими ценовыми предложениями.',
+  delivery_draft_save_required: 'Сначала сохраните черновик.',
   owner_action_auth_disabled: 'Для настроек магазина требуется защищённый вход владельца.',
   delivery_workspace_revision_conflict: 'Настройки уже изменились в другой вкладке. Скопируйте нужные изменения, затем загрузите сохранённую версию.',
   delivery_workspace_request_conflict: 'Этот запрос уже использован для другого изменения. Загрузите сохранённую версию.',
@@ -51,6 +63,11 @@ async function api<T>(body?: unknown, signal?: AbortSignal): Promise<T> {
   return data as T;
 }
 const numberOrNull = (value: string) => value === '' ? null : Number(value);
+type LoadedWorkspace = {
+  workspace: DeliveryWorkspaceState; catalog: DeliveryCatalogProduct[];
+  approval_enabled: boolean; approval: DeliveryApprovalState | null; catalog_sha256: string | null;
+  approval_readiness: DeliveryApprovalReadiness;
+};
 function newRule(): DraftShippingRule {
   return { id: crypto.randomUUID(), scope: 'default', countries: [], postal_prefix: null, standard: null, express: null };
 }
@@ -113,24 +130,29 @@ export function DeliveryWorkspaceClient() {
   const [country, setCountry] = useState('US'), [postal, setPostal] = useState('');
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard');
   const [preview, setPreview] = useState<DeliveryDraftPreview | null>(null);
+  const [approvalData, setApprovalData] = useState<Pick<LoadedWorkspace, 'approval_enabled' | 'approval' | 'catalog_sha256' | 'approval_readiness'> | null>(null);
   const pendingSave = useRef<DeliveryWorkspaceSaveRequest | null>(null);
+  const pendingApproval = useRef<DeliveryApprovalRequest | null>(null);
   const currentProduct = catalog.find(p => p.canonical_product_id === productId);
-  function acceptLoaded(data: { workspace: DeliveryWorkspaceState; catalog: DeliveryCatalogProduct[] }) {
+  function acceptLoaded(data: LoadedWorkspace) {
     setWorkspace(data.workspace); setDraft(data.workspace.draft || emptyDeliveryWorkspace()); setCatalog(data.catalog); setDirty(false); setPreview(null);
+    setApprovalData({ approval_enabled: data.approval_enabled, approval: data.approval,
+      catalog_sha256: data.catalog_sha256, approval_readiness: data.approval_readiness });
   }
   useEffect(() => {
     const controller = new AbortController();
-    api<{ workspace: DeliveryWorkspaceState; catalog: DeliveryCatalogProduct[] }>(undefined, controller.signal)
+    api<LoadedWorkspace>(undefined, controller.signal)
       .then(acceptLoaded).catch(e => { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); })
       .finally(() => { if (!controller.signal.aborted) setBusy(false); });
     return () => controller.abort();
   }, []);
   function change(update: (value: DeliveryWorkspaceDraft) => DeliveryWorkspaceDraft) {
     setDraft(update); setDirty(true); setPreview(null); setNotice(''); setError(''); pendingSave.current = null;
+    pendingApproval.current = null;
   }
   async function reload() {
     setBusy(true); setError('');
-    try { acceptLoaded(await api()); pendingSave.current = null; setNotice('Сохранённая версия загружена.'); }
+    try { acceptLoaded(await api()); pendingSave.current = null; pendingApproval.current = null; setNotice('Сохранённая версия загружена.'); }
     catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
     finally { setBusy(false); }
   }
@@ -141,8 +163,22 @@ export function DeliveryWorkspaceClient() {
     try {
       await api(pendingSave.current);
       acceptLoaded(await api()); pendingSave.current = null;
+      pendingApproval.current = null;
       setNotice('Черновик сохранён новой версией. Публичные тарифы и оплата остаются выключенными.');
     } catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
+    finally { setBusy(false); }
+  }
+  async function approve() {
+    if (!workspace?.version_id || !workspace.snapshot_sha256 || !approvalData?.approval_enabled
+      || !approvalData.approval || !approvalData.catalog_sha256 || !approvalData.approval_readiness.ready || dirty) return;
+    setBusy(true); setError(''); setNotice('');
+    pendingApproval.current ||= { action: 'approve', request_id: crypto.randomUUID(), expected_revision: approvalData.approval.revision,
+      expected_workspace_version_id: workspace.version_id, expected_workspace_revision: workspace.revision,
+      expected_snapshot_sha256: workspace.snapshot_sha256, expected_catalog_sha256: approvalData.catalog_sha256, business_review_confirmed: true };
+    try {
+      await api(pendingApproval.current); acceptLoaded(await api()); pendingApproval.current = null;
+      setNotice('Сохранённая версия утверждена. Тарифы в корзине и оплата остаются выключенными.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'delivery_approval_outcome_unknown'); }
     finally { setBusy(false); }
   }
   function addShipping(example = false) {
@@ -183,6 +219,21 @@ export function DeliveryWorkspaceClient() {
       {['authentication_required', 'owner_not_allowed'].includes(error) && <Link href="/admin/login?next=/admin/company/delivery" className="owner-button">Войти в кабинет</Link>}
     </div>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}
+    {approvalData && <section className="owner-card" aria-label="Проверка и утверждение доставки">
+      <h2>Проверка сохранённой версии</h2>
+      <p className={styles.hint}>Проверяются конфигурации с действующими предложениями: {approvalData.approval_readiness.configuration_count}. Неиспользуемые примеры остаются черновиками.</p>
+      {dirty && <p className={styles.notice}>Есть несохранённые изменения. Сохраните их для новой проверки.</p>}
+      {approvalData.approval_readiness.ready
+        ? <p>Настройки заполнены. Перед утверждением проверьте валюты, страны, вместимость посылок, сроки и календари.</p>
+        : <><p>Нужно заполнить или исправить: {approvalData.approval_readiness.issue_count}.</p>
+          <ul>{approvalData.approval_readiness.issues.slice(0, 20).map((issue, index) => <li key={`${issue.code}:${index}`}>{issue.subject}: {message(issue.code)}</li>)}</ul>
+          {approvalData.approval_readiness.issue_count > 20 && <p className={styles.hint}>После исправления этих пунктов повторите сохранение, чтобы увидеть остальные.</p>}</>}
+      {approvalData.approval?.revision ? <p>Утверждённая запись {approvalData.approval.revision} относится к сохранённой версии {approvalData.approval.workspace_revision}. Последующие черновики не изменяют эту запись.</p> : null}
+      <p className={styles.hint}>Утверждение фиксирует ваше согласование этих настроек. Подключение расчёта к корзине выполняется отдельно.</p>
+      <button type="button" className="owner-button" onClick={approve} disabled={busy || dirty || !approvalData.approval_enabled
+        || !approvalData.approval_readiness.ready || approvalData.approval?.workspace_version_id === workspace?.version_id && approvalData.approval?.catalog_sha256 === approvalData.catalog_sha256}>Утвердить сохранённую версию</button>
+      {!approvalData.approval_enabled && <p className={styles.hint}>Утверждение пока выключено; можно сохранять и проверять черновики.</p>}
+    </section>}
     <fieldset className={styles.controls} disabled={busy}><legend className="sr-only">Настройки доставки и тестовый заказ</legend>
     <div className={styles.row}><span className="owner-status is-warning">Черновик · версия {workspace?.revision ?? '…'}{dirty ? ' · есть несохранённые изменения' : ''}</span>
       <button type="button" className="owner-button" disabled={busy || !workspace || !dirty} onClick={save}>Сохранить черновик</button>

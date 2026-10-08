@@ -13,7 +13,7 @@ import { syntheticDeliveryWorkspace, syntheticDeliveryRequest } from '../fixture
 export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, env, out, check, report, service, outsider, url, anon, otherEmail, password }) {
   assert.ok(['localhost', '127.0.0.1'].includes(db.connectionParameters.host));
   const base = 'http://127.0.0.1:3009', path = '/api/admin/company/delivery-workspace';
-  let server, log = '';
+  let server, approvalOffServer, approvalRequest, log = '';
   const post = async (body, headers = { Origin: base }) => {
     const r = await ownerPage.request.post(base + path, { data: body, headers }); return { status: r.status(), body: await r.json() };
   };
@@ -24,12 +24,13 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       const offer = await seedApprovedOfferProjection(db, {});
       await db.query('insert into public.feya_commerce_offer_heads_v1(canonical_product_id,current_offer_revision_id) values($1,$2)', [ids.product, offer.offerRevisionId]);
       await db.query(await readFile('supabase/migrations/20261007211548_commerce_delivery_workspace_draft_v1.sql', 'utf8'));
+      await db.query(await readFile('supabase/migrations/20261008083213_commerce_delivery_approval_v1.sql', 'utf8'));
       let ready = false;
       for (let i = 0; i < 40; i++) { const r = await service.rpc('feya_commerce_delivery_workspace_health_v1'); if (!r.error && r.data?.ready) { ready = true; break; } await new Promise(r => setTimeout(r, 150)); }
       assert.ok(ready);
     });
     server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3009'], {
-      env: { ...env, FEYA_OWNER_ACTION_AUTH_REQUIRED: 'true', FEYA_OWNER_ACTIONS_ENABLED: 'false', FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED: 'true' }, stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...env, FEYA_OWNER_ACTION_AUTH_REQUIRED: 'true', FEYA_OWNER_ACTIONS_ENABLED: 'false', FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED: 'true', FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED: 'true' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     server.stdout.on('data', b => log += b); server.stderr.on('data', b => log += b);
     let ready = false;
@@ -45,7 +46,7 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       const body = { action: 'save', request_id: randomUUID(), expected_revision: 0, draft: syntheticDeliveryWorkspace() };
       for (const headers of [{}, { Origin: 'https://untrusted.example' }, { Origin: 'null' }]) assert.equal((await post(body, headers)).status, 403);
       const publicClient = createClient(url, anon, { auth: { persistSession: false, autoRefreshToken: false } });
-      for (const client of [publicClient, outsider]) for (const name of ['feya_commerce_read_delivery_workspace_v1', 'feya_commerce_delivery_catalog_v1', 'feya_commerce_delivery_workspace_health_v1']) {
+      for (const client of [publicClient, outsider]) for (const name of ['feya_commerce_read_delivery_workspace_v1', 'feya_commerce_delivery_catalog_v1', 'feya_commerce_delivery_workspace_health_v1', 'feya_commerce_delivery_approval_context_v1', 'feya_commerce_read_delivery_approval_v1', 'feya_commerce_delivery_approval_health_v1']) {
         const r = await client.rpc(name); assert.equal(r.error?.code, '42501', 'Known RPC must reject the role for insufficient privileges');
         if (client === publicClient) assert.ok([401, 403].includes(r.status)); else assert.equal(r.status, 403);
       }
@@ -91,6 +92,24 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       await page.getByText('Черновой расчёт доставки:', { exact: false }).waitFor();
       assert.deepEqual(errors, []);
     });
+    await check('Owner approves an exact complete saved version; retries and later drafts retain immutable evidence', async () => {
+      const initial = await read(); assert.equal(initial.approval_readiness.ready, true); assert.equal(initial.approval.revision, 0);
+      const responsePromise = page.waitForResponse(r => r.url() === base + path && r.request().method() === 'POST' && r.request().postDataJSON()?.action === 'approve');
+      await page.getByRole('button', { name: 'Утвердить сохранённую версию', exact: true }).click();
+      const response = await responsePromise; assert.equal(response.status(), 200); approvalRequest = response.request().postDataJSON();
+      await page.getByText('Сохранённая версия утверждена. Тарифы в корзине и оплата остаются выключенными.', { exact: true }).waitFor();
+      const receipt = (await response.json()).receipt; assert.equal(receipt.payment_enabled, false); assert.equal(receipt.public_rates_enabled, false);
+      assert.equal((await read()).approval.workspace_version_id, initial.workspace.version_id);
+      const retry = await post(approvalRequest); assert.equal(retry.status, 200); assert.equal(retry.body.receipt.replayed, true); assert.equal(retry.body.receipt.approval_id, receipt.approval_id);
+      for (const extra of [{ actor_id: randomUUID() }, { validation: { ready: true } }, { approved_at: 'now' }, { payment_enabled: true }, { business_review_confirmed: false }]) assert.equal((await post({ ...approvalRequest, ...extra })).status, 400);
+      assert.equal((await post({ ...approvalRequest, request_id: randomUUID() })).status, 409);
+      const changed = await post({ action: 'save', request_id: randomUUID(), expected_revision: initial.workspace.revision, draft: initial.workspace.draft });
+      assert.equal(changed.status, 200); assert.notEqual((await read()).workspace.version_id, receipt.workspace_version_id);
+      const oldRetry = await post(approvalRequest); assert.equal(oldRetry.status, 200); assert.equal(oldRetry.body.receipt.approval_id, receipt.approval_id);
+      assert.equal((await read()).approval.revision, 1);
+      assert.equal((await db.query('select count(*)::int n from public.feya_commerce_delivery_approvals_v1')).rows[0].n, 1);
+      await page.reload(); await page.getByRole('button', { name: 'Сохранить черновик', exact: true }).waitFor();
+    });
     await check('USD owner examples and unspecified production day basis save as drafts without becoming payable', async () => {
       await page.getByRole('button', { name: 'Добавить пример $19 / $35', exact: true }).click();
       await page.getByRole('button', { name: 'Добавить 7–10 дней', exact: true }).click();
@@ -104,10 +123,31 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       await page.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
       await page.getByText('Черновик сохранён новой версией. Публичные тарифы и оплата остаются выключенными.', { exact: true }).waitFor();
       await page.getByRole('button', { name: 'Рассчитать доставку и даты', exact: true }).click();
-      await page.getByText('Валюта доставки не совпадает с валютой товаров.', { exact: false }).waitFor();
+      await page.getByRole('alert').getByText('Валюта доставки не совпадает с валютой товаров.', { exact: false }).waitFor();
       assert.equal(await page.getByText('Черновой расчёт доставки:', { exact: false }).count(), 0);
       const other = await post({ action: 'preview', expected_revision: (await read()).workspace.revision, request: syntheticDeliveryRequest() });
       assert.equal(other.status, 422); assert.equal(other.body.code, 'delivery_currency_mismatch');
+      const current = await read(); assert.equal(current.approval_readiness.ready, false);
+      assert.equal(await page.getByRole('button', { name: 'Утвердить сохранённую версию', exact: true }).isDisabled(), true);
+      const attempt = await post({ ...approvalRequest, request_id: randomUUID(), expected_revision: current.approval.revision,
+        expected_workspace_version_id: current.workspace.version_id, expected_workspace_revision: current.workspace.revision,
+        expected_snapshot_sha256: current.workspace.snapshot_sha256, expected_catalog_sha256: current.catalog_sha256 });
+      assert.equal(attempt.status, 422); assert.equal(attempt.body.code, 'delivery_approval_settings_incomplete');
+    });
+    await check('Approval stays disabled independently of authenticated draft editing and general owner actions', async () => {
+      const offBase = 'http://127.0.0.1:3010';
+      approvalOffServer = spawn(process.execPath, ['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3010'], {
+        env: { ...env, FEYA_OWNER_ACTION_AUTH_REQUIRED: 'true', FEYA_OWNER_ACTIONS_ENABLED: 'false', FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED: 'true', FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED: 'false' }, stdio: ['ignore','pipe','pipe'],
+      });
+      approvalOffServer.stdout.on('data', b => log += b); approvalOffServer.stderr.on('data', b => log += b);
+      let started = false;
+      for (let i=0;i<60;i++) { try { if ((await fetch(offBase + '/admin/login')).status === 200) { started=true; break; } } catch {} await new Promise(r => setTimeout(r,250)); }
+      assert.ok(started);
+      const get = await ownerPage.request.get(offBase + path); assert.equal(get.status(), 200);
+      const state = await get.json(); assert.equal(state.approval_enabled, false); assert.equal(state.approval, null);
+      const disabled = await ownerPage.request.post(offBase + path, { data: approvalRequest, headers: { Origin: offBase } });
+      assert.equal(disabled.status(), 423); assert.equal((await disabled.json()).code, 'delivery_approval_disabled');
+      assert.equal((await read()).approval.revision, 1);
     });
     await check('Delivery settings keep readable labels and no horizontal page overflow on desktop and mobile', async () => {
       await page.setViewportSize({ width: 1360, height: 900 });
@@ -125,9 +165,10 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
     });
     await page.close();
     report.delivery_workspace_runtime_pass = true; report.delivery_workspace_draft_only = true;
+    report.delivery_workspace_private_approval_pass = true;
   } finally {
     for (const value of [env.SUPABASE_SERVICE_ROLE_KEY, env.NEXT_PUBLIC_SUPABASE_ANON_KEY]) if (value) log = log.replaceAll(value, '[redacted]');
     await writeFile(join(out, 'delivery-workspace-runtime.log'), log);
-    if (server) { server.kill('SIGTERM'); await Promise.race([once(server, 'exit'), new Promise(r => setTimeout(r, 5000))]); if (server.exitCode === null) server.kill('SIGKILL'); }
+    for (const child of [server, approvalOffServer]) if (child) { child.kill('SIGTERM'); await Promise.race([once(child, 'exit'), new Promise(r => setTimeout(r, 5000))]); if (child.exitCode === null) child.kill('SIGKILL'); }
   }
 }

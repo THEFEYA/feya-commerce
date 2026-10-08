@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { readDeliveryCatalog, readDeliveryWorkspace, saveDeliveryWorkspace, DeliveryWorkspaceStorageError } from '@/lib/commerceDeliveryWorkspaceStorage';
 import { previewDeliveryDraft } from '@/lib/commerceDeliveryWorkspace';
+import { deliveryApprovalReadiness } from '@/lib/commerceDeliveryApproval';
+import { approveDeliveryWorkspace, readDeliveryApprovalContext } from '@/lib/commerceDeliveryApprovalStorage';
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' } });
 function failure(error: unknown) {
@@ -37,8 +39,14 @@ export async function GET() {
   const actor = await requireOwnerActionActor('delivery_workspace_draft');
   if (!actor.ok) return reply({ ok: false, code: actor.code }, actor.status);
   try {
+    if (process.env.FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED === 'true') {
+      const context = await readDeliveryApprovalContext(actor.service);
+      return reply({ ok: true, ...context, approval_enabled: true,
+        approval_readiness: deliveryApprovalReadiness(context.workspace.draft, context.catalog) });
+    }
     const [workspace, catalog] = await Promise.all([readDeliveryWorkspace(actor.service), readDeliveryCatalog(actor.service)]);
-    return reply({ ok: true, workspace, catalog });
+    return reply({ ok: true, workspace, catalog, approval_enabled: false, approval: null, catalog_sha256: null,
+      approval_readiness: deliveryApprovalReadiness(workspace.draft, catalog) });
   } catch (error) { return failure(error); }
 }
 export async function POST(request: NextRequest) {
@@ -49,6 +57,11 @@ export async function POST(request: NextRequest) {
     const body = await bodyJSON(request);
     if (!body || typeof body !== 'object' || Array.isArray(body)) return reply({ ok: false, code: 'delivery_workspace_request_invalid' }, 400);
     const input = body as Record<string, unknown>;
+    if (input.action === 'approve') {
+      if (process.env.FEYA_DELIVERY_WORKSPACE_APPROVAL_ENABLED !== 'true') return reply({ ok: false, code: 'delivery_approval_disabled' }, 423);
+      const receipt = await approveDeliveryWorkspace(actor.service, body, actor.userId);
+      return reply({ ok: true, receipt });
+    }
     if (input.action === 'save') {
       const catalog = await readDeliveryCatalog(actor.service);
       const receipt = await saveDeliveryWorkspace(actor.service, body, actor.userId, catalog);
