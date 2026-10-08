@@ -11,7 +11,7 @@ import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, Meth
 import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
 import { applyDeliveryBulkProfile } from '@/lib/commerceDeliveryBulkDraft';
-import { addOwnerConfirmedEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
+import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
 const errorLabels: Record<string, string> = {
@@ -287,10 +287,17 @@ export function DeliveryWorkspaceClient() {
           <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить пример $19 / $35</button>
           <button type="button" className="owner-button"
             disabled={draft.shipping_profiles.length >= 50 || draft.shipping_profiles.some(p => p.name === FEYA_EUR_BASE_PROFILE_NAME)}
-            onClick={() => change(d => addOwnerConfirmedEurDraft(d, () => crypto.randomUUID()))}>
+            onClick={() => change(d => addOwnerApprovedRemoteZoneToEurDraft(addOwnerConfirmedEurDraft(d, () => crypto.randomUUID()), () => crypto.randomUUID()))}>
             Создать базовый EUR-профиль: €19 Standard / €35 Express
+          </button>
+          <button type="button" className="owner-button"
+            disabled={!draft.shipping_profiles.some(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR')
+              || draft.shipping_profiles.some(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.rules.some(rule =>
+                rule.scope === 'zone' && rule.countries.some(code => ['AU','MX','NZ'].includes(code))))}
+            onClick={() => change(d => addOwnerApprovedRemoteZoneToEurDraft(d, () => crypto.randomUUID()))}>
+            Добавить утверждённую зону AU / MX / NZ (+€20) в черновик
           </button></div>
-        <p className={styles.hint}>Подтверждённые тарифы в EUR: €19 / €35. Кнопка создаёт только черновой профиль и назначает его по умолчанию, если ранее не выбран другой. Выберите обслуживаемые страны, вместимость посылки и остальные параметры перед сохранением и проверкой. Надбавка +€20 применяется только к отдельно согласованной зоне; никакая страна не назначается автоматически.</p>
+        <p className={styles.hint}>Подтверждено владельцем: Standard €19, Express €35; для Австралии (AU), Мексики (MX), Новой Зеландии (NZ) — €39 / €55 за посылку. Саудовская Аравия (SA) без надбавки, если включена в обслуживаемые страны. Новая кнопка EUR создаёт эти правила лишь в черновике. Добавьте остальные обслуживаемые страны, вместимость посылки и календарь перед сохранением/проверкой. Публичная публикация и оплата остаются выключенными.</p>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления</h2></div>
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
