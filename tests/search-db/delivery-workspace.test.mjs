@@ -31,6 +31,7 @@ before(async () => {
   await db.exec(await migration());
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008083213_commerce_delivery_approval_v1.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008160534_commerce_approved_delivery_context_v1.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261008223000_commerce_approved_shipping_quote_v2.sql', import.meta.url), 'utf8'));
 });
 after(async () => { await db?.close(); });
 async function service(fn, client = db) { await client.query('set role service_role'); try { return await fn(client); } finally { await client.query('reset role'); } }
@@ -257,4 +258,115 @@ test('catalog drift and permission drift close the resolver without changing any
   try { await assert.rejects(approvedContext([merchandiseReceipt.quote_receipt_id]), /boundary_not_ready/); }
   finally { await db.exec('revoke execute on function public.feya_commerce_approved_delivery_context_v1(uuid[]) from authenticated'); }
   assert.equal((await approvedContext([merchandiseReceipt.quote_receipt_id])).approval.workspace_version_id, beforeApproval.workspace_version_id);
+});
+
+const makeV2Request = () => ({
+  contract_version: 'commerce_approved_shipping_quote_v2', request_id: randomUUID(),
+  quote_receipt_ids: [merchandiseReceipt.quote_receipt_id], country: 'US', postal_code: '10001',
+  shipping_method: 'standard',
+});
+const approvedQuoteResolution = async () => {
+  const client = { rpc: async (name, args) => {
+    assert.equal(name, 'feya_commerce_approved_delivery_context_v1');
+    return { data: await approvedContext(args.p_quote_receipt_ids), error: null };
+  } };
+  return resolveApprovedDelivery(client, { contract_version: APPROVED_DELIVERY_RESOLUTION,
+    quote_receipt_ids: [merchandiseReceipt.quote_receipt_id], country: 'US', postal_code: '10001',
+    shipping_method: 'standard' });
+};
+const saveShippingV2 = (request, resolution, client = db) => service(async c =>
+  (await c.query('select public.feya_commerce_create_approved_shipping_quote_v2($1::jsonb,$2::jsonb) r',
+    [JSON.stringify(request),JSON.stringify(resolution)])).rows[0].r, client);
+const lookupShippingV2 = (request, client = db) => service(async c =>
+  (await c.query('select public.feya_commerce_lookup_approved_shipping_quote_v2($1::jsonb) r',
+    [JSON.stringify(request)])).rows[0].r, client);
+const v2Count = async () => (await db.query('select count(*)::int n from public.feya_commerce_approved_shipping_quote_receipts_v2')).rows[0].n;
+
+test('approved v2 shipping quote receipts and RPCs are strictly private, immutable and default nonpayable', async () => {
+  const health = await service(async c => (await c.query('select public.feya_commerce_approved_shipping_quote_health_v2() r')).rows[0].r);
+  assert.equal(health.ready, true); assert.equal(health.public_rates_enabled, false); assert.equal(health.payment_enabled, false);
+  for (const role of ['anon','authenticated']) {
+    await db.query('set role ' + role);
+    try {
+      await assert.rejects(db.query('select * from public.feya_commerce_approved_shipping_quote_receipts_v2'), /permission denied/);
+      for (const call of [
+        'select public.feya_commerce_approved_shipping_quote_health_v2()',
+        'select public.feya_commerce_lookup_approved_shipping_quote_v2(\'{}\'::jsonb)',
+        'select public.feya_commerce_create_approved_shipping_quote_v2(\'{}\'::jsonb,\'{}\'::jsonb)'
+      ]) await assert.rejects(db.query(call), /permission denied/);
+    } finally { await db.query('reset role'); }
+  }
+  assert.equal(await v2Count(), 0);
+});
+
+let v2Request, v2Receipt, v2Resolution;
+test('approved workspace / current merchandise creates one immutable 15-minute destination-aware shipping quote', async () => {
+  v2Request = makeV2Request(); v2Resolution = await approvedQuoteResolution();
+  assert.equal(v2Resolution.shipping_amount_minor, 1900); assert.equal(v2Resolution.currency, 'EUR');
+  assert.equal(await lookupShippingV2(v2Request), null);
+  v2Receipt = await saveShippingV2(v2Request, v2Resolution);
+  assert.equal(v2Receipt.currency, 'EUR'); assert.equal(v2Receipt.amount_minor, 1900);
+  assert.equal(v2Receipt.persisted, true); assert.equal(v2Receipt.payable, false);
+  assert.equal(v2Receipt.payment_enabled, false); assert.equal(v2Receipt.provider_session_enabled, false);
+  assert.equal(v2Receipt.public_rates_enabled, false); assert.equal(v2Receipt.replayed, false);
+  assert.equal(v2Receipt.workspace_version_id, v2Resolution.workspace_version_id);
+  assert.equal(v2Receipt.basket_sha256, v2Resolution.basket_sha256);
+  assert.equal(v2Receipt.destination_sha256, v2Resolution.destination_sha256);
+  assert.ok(Date.parse(v2Receipt.expires_at) > Date.parse(v2Receipt.created_at));
+  assert.ok(Math.abs(Date.parse(v2Receipt.expires_at) - Date.parse(v2Receipt.created_at) - 900000) < 1000);
+  assert.equal(await v2Count(), 1);
+});
+
+test('same request ID and normalized destination replay exact historical quote; changed request conflicts', async () => {
+  const replay = await saveShippingV2(v2Request, { ...v2Resolution, shipping_amount_minor: 9999 });
+  assert.equal(replay.replayed, true); assert.equal(replay.amount_minor, 1900);
+  assert.equal(replay.shipping_quote_receipt_id, v2Receipt.shipping_quote_receipt_id);
+  const read = await lookupShippingV2({ ...v2Request, postal_code: '10 001' });
+  assert.equal(read.replayed, true); assert.equal(read.shipping_quote_receipt_id, v2Receipt.shipping_quote_receipt_id);
+  await assert.rejects(lookupShippingV2({ ...v2Request, country: 'AU' }), /request_conflict/);
+  await assert.rejects(saveShippingV2({ ...v2Request, postal_code: '90001' }, v2Resolution), /request_conflict/);
+  assert.equal(await v2Count(), 1);
+});
+
+test('v2 writer refuses modified money, authority, stale server clock and forbids immutable history edits', async () => {
+  const req = makeV2Request();
+  await assert.rejects(saveShippingV2(req, { ...v2Resolution, shipping_amount_minor: 1901 }), /amount_invalid/);
+  await assert.rejects(saveShippingV2(req, { ...v2Resolution, currency: 'USD' }), /resolution_invalid/);
+  await assert.rejects(saveShippingV2(req, { ...v2Resolution, snapshot_sha256: 'f'.repeat(64) }), /authority_changed/);
+  await assert.rejects(saveShippingV2(req, { ...v2Resolution, calculated_at: '2026-01-01T00:00:00Z' }), /resolution_stale/);
+  await assert.rejects(db.query('update public.feya_commerce_approved_shipping_quote_receipts_v2 set amount_minor=1'), /history_immutable/);
+  await assert.rejects(db.query('delete from public.feya_commerce_approved_shipping_quote_receipts_v2'), /history_immutable/);
+  assert.equal(await v2Count(), 1);
+});
+
+test('no current approved owner delivery head cannot create a new v2 shipping quote', async () => {
+  const head = (await db.query("select approval_id, revision from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'")).rows[0];
+  await db.query("delete from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'");
+  try {
+    await assert.rejects(saveShippingV2(makeV2Request(), v2Resolution), /approved_delivery_approval_required/);
+    assert.equal(await v2Count(), 1);
+  } finally {
+    await db.query("insert into public.feya_commerce_delivery_approval_head_v1(workspace_key,approval_id,revision) values('thefeya',$1,$2)", [head.approval_id,head.revision]);
+  }
+});
+
+test('offer head drift invalidates v2 creation before it writes a customer receipt', async () => {
+  const newer = await seedApprovedOfferProjection(db, { offerRevisionId: randomUUID(), priceQuoteId: randomUUID(), offerRevision: 22 });
+  await db.query('update public.feya_commerce_offer_heads_v1 set current_offer_revision_id=$1 where canonical_product_id=$2', [newer.offerRevisionId, variantTestIds.product]);
+  try {
+    await assert.rejects(saveShippingV2(makeV2Request(), v2Resolution), /approved_delivery_(quote_not_current|catalog_changed)/);
+    assert.equal(await v2Count(), 1);
+  } finally { await db.query('update public.feya_commerce_offer_heads_v1 set current_offer_revision_id=$1 where canonical_product_id=$2', [merchandiseReceipt.offer_revision_id,variantTestIds.product]); }
+});
+
+test('native concurrent same-key quote writes persist one receipt and exact replay', { skip: !nativeURL }, async () => {
+  const request = makeV2Request(), resolution = await approvedQuoteResolution();
+  const clients = await Promise.all([connect(),connect()]);
+  try {
+    const outcomes = await Promise.all(clients.map(c => saveShippingV2(request,resolution,c)));
+    assert.equal(outcomes.length,2);
+    assert.equal(outcomes[0].shipping_quote_receipt_id,outcomes[1].shipping_quote_receipt_id);
+    assert.deepEqual(outcomes.map(v => v.replayed).sort(), [false,true]);
+    assert.equal(await v2Count(),2);
+  } finally { await Promise.all(clients.map(c => c.end())); }
 });
