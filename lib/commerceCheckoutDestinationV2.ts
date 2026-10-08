@@ -46,7 +46,7 @@ const controlChars = /[\x00-\x1F\x7F]/u;
 export class CheckoutDestinationV2Error extends Error {
   constructor(code: string) { super(code); }
 }
-const fail = (code: string): never => { throw new CheckoutDestinationV2Error(code); };
+function fail(code: string): never { throw new CheckoutDestinationV2Error(code); }
 const record = (v: unknown): v is Record<string, unknown> =>
   Boolean(v && typeof v === 'object' && !Array.isArray(v));
 
