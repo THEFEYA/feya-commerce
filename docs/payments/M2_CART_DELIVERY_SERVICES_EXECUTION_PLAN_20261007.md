@@ -4,6 +4,8 @@
 
 Статус: **модель доставки уточнена владельцем; численные примеры — DRAFT; кабинет профилей и серверный предпросмотр реализованы отдельным M2 пакетом; новый checkout ещё не подключён**. Текущая реализация и границы: [delivery workspace checkpoint](M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md); production/CI receipts фиксируются в implementation PR.
 
+**Owner currency supersession 2026-10-08:** [Confirmed EUR policy](M2_OWNER_CONFIRMED_EUR_SHIPPING_20261008.md) replaces USD example amounts for future rates: €19 Standard / €35 Express / +€20 for *approved* remote-zone parcels. Historical USD examples below remain as dated evidence only; they must not become payable. No destinations or public rates are auto-approved.
+
 Это конкретизация M2 по текущему сообщению владельца, а не замена MASTER v1.2 или повторное открытие Phase 12. Действующие Product Truth, Search Release v12 и публичная визуальная система сохраняются. Расширять функциональность корзины следует внутри существующего оформления.
 
 Продолжение 8 октября: [exact saved-version approval](M2_DELIVERY_APPROVAL_IMPLEMENTATION_20261008.md) и [MASTER access/privacy/cart supplement](../search/MASTER_ACCESS_PRIVACY_CART_EXECUTION_AMENDMENT_20261008.md). PR #71/#72 слиты, draft и approval migrations установлены. Private approval не публикует ставки; owner access остаётся отдельным dependency. Данный подробный services/recovery backlog сохраняется полностью.
