@@ -22,28 +22,36 @@ async function loadProducts() {
   const supabase = getAdminReadClient();
   if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
 
-  const result = await supabase
-    .from(STOREFRONT_VIEW_V4)
-    .select(STOREFRONT_V4_CARD_SELECT)
-    .limit(250)
-    .abortSignal(AbortSignal.timeout(8000));
+  try {
+    const result = await supabase
+      .from(STOREFRONT_VIEW_V4)
+      .select(STOREFRONT_V4_CARD_SELECT)
+      .limit(250)
+      .abortSignal(AbortSignal.timeout(8000));
 
-  if (result.error) return { products: [], error: result.error.message };
-  return { products: result.data || [], error: null };
+    if (result.error) return { products: [], error: result.error.message };
+    return { products: result.data || [], error: null };
+  } catch {
+    return { products: [], error: 'Тайм-аут серверного чтения каталога v4.' };
+  }
 }
 
 async function loadReviewEvents(): Promise<{ events: AdminReviewEvent[]; error: string | null }> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) return { events: [], error: 'Нет сервера чтения проверочных событий.' };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_admin_review_events_v1')
-    .select('review_event_id,event_type,event_status,product_slug,canonical_product_id,created_at')
-    .limit(1000)
-    .abortSignal(AbortSignal.timeout(8000));
+  try {
+    const { data, error } = await supabase
+      .from('feya_commerce_v_admin_review_events_v1')
+      .select('review_event_id,event_type,event_status,product_slug,canonical_product_id,created_at')
+      .limit(1000)
+      .abortSignal(AbortSignal.timeout(8000));
 
-  if (error) return { events: [], error: error.message };
-  return { events: (data || []) as AdminReviewEvent[], error: null };
+    if (error) return { events: [], error: error.message };
+    return { events: (data || []) as AdminReviewEvent[], error: null };
+  } catch {
+    return { events: [], error: 'Тайм-аут серверного чтения проверочных событий.' };
+  }
 }
 
 function summarize(products: StorefrontProduct[], reviewEvents: AdminReviewEvent[]) {
