@@ -1,6 +1,7 @@
 import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {PGlite} from '@electric-sql/pglite';
+import {readFile} from 'node:fs/promises';
 import pg from 'pg';
 import {observedMetricSchemaSQL,metricMigrationSQL} from './helpers/observed-metric-schema.mjs';
 import {readerMigrationSQL} from './helpers/observed-reader-boundary.mjs';
@@ -75,4 +76,59 @@ test('rollback restores only seven legacy grants, retaining prior 50 denials, hi
  await role('anon',()=>assert.rejects(db.query('select * from public.feya_commerce_v_seo_metric_system_status_v1'),/permission denied/));
  assert.deepEqual(await role('service_role',rows),baseline);
  try{await assert.rejects(db.exec(await internalViewAccessSQL()),/Prior access\/reader boundary unhealthy/);}finally{await db.exec('rollback');}
+});
+
+const legacyPrivacySQL=()=>readFile(new URL('../../supabase/migrations/20261008163518_legacy_private_contact_access_v1.sql',import.meta.url),'utf8');
+test('legacy privacy closure is safe when historical tables and token creator are absent',async()=>{
+ await db.exec('alter role service_role bypassrls');
+ await db.exec(await legacyPrivacySQL());
+ await role('anon',()=>db.query('select * from public.feya_commerce_v_step7_storefront_products_api limit 1'));
+});
+test('observed broad grants and token minting close atomically while service rows and writes remain available',async()=>{
+ await db.exec(`create schema feya_sales;create schema gen;
+  grant usage on schema feya_sales,gen to anon,authenticated,service_role;
+  create table public.dashboard_tokens(token text primary key,note text);
+  create table feya_sales.contacts(id int primary key,email text);
+  create table feya_sales.lead_contacts(id int primary key,contact_id int);
+  insert into public.dashboard_tokens values('SYNTHETIC_TEST_ONLY','fixture');
+  insert into feya_sales.contacts values(1,'synthetic@example.invalid');
+  insert into feya_sales.lead_contacts values(1,1);
+  grant all on public.dashboard_tokens,feya_sales.contacts,feya_sales.lead_contacts to public;
+  grant select(token) on public.dashboard_tokens to anon;
+  grant update(note) on public.dashboard_tokens to authenticated;
+  create function gen.create_dashboard_token(integer,text) returns text language plpgsql security definer set search_path='' as $$
+   begin insert into public.dashboard_tokens values('SYNTHETIC_MINT_'||$1,$2);return 'SYNTHETIC_MINT_'||$1;end $$;
+  create function public.validate_dashboard_token(text) returns boolean language sql security definer set search_path='' as $$
+   select exists(select 1 from public.dashboard_tokens where token=$1) $$;`);
+ assert.equal((await role('anon',()=>db.query('select count(*)::int n from public.dashboard_tokens'))).rows[0].n,1);
+ await role('anon',()=>db.query("select gen.create_dashboard_token(2,'synthetic note')"));
+ await db.exec(await legacyPrivacySQL());
+ for(const browser of ['anon','authenticated'])for(const table of ['public.dashboard_tokens','feya_sales.contacts','feya_sales.lead_contacts']){
+  await role(browser,()=>assert.rejects(db.query('select * from '+table),/permission denied/));
+  await role(browser,()=>assert.rejects(db.query('delete from '+table),/permission denied/));
+ }
+ await role('anon',()=>assert.rejects(db.query('select token from public.dashboard_tokens'),/permission denied/));
+ await role('authenticated',()=>assert.rejects(db.query("update public.dashboard_tokens set note='must not write'"),/permission denied/));
+ for(const browser of ['anon','authenticated'])await role(browser,()=>assert.rejects(db.query("select gen.create_dashboard_token(3,'must not mint')"),/permission denied/));
+ assert.equal((await role('service_role',()=>db.query('select count(*)::int n from public.dashboard_tokens'))).rows[0].n,2);
+ await role('service_role',()=>db.query("select gen.create_dashboard_token(4,'backend fixture')"));
+ await role('service_role',()=>db.query("update feya_sales.contacts set email='backend@example.invalid' where id=1"));
+ assert.equal((await role('anon',()=>db.query("select public.validate_dashboard_token('SYNTHETIC_TEST_ONLY') ok"))).rows[0].ok,true);
+ assert.equal((await role('anon',()=>db.query("select public.validate_dashboard_token('UNKNOWN') ok"))).rows[0].ok,false);
+ await db.exec(await legacyPrivacySQL());
+ assert.equal((await role('service_role',()=>db.query('select count(*)::int n from public.dashboard_tokens'))).rows[0].n,3);
+});
+test('closure preserves a column-only service grant without granting the rest of the row or new write privileges',async()=>{
+ await db.exec('revoke all on public.dashboard_tokens from service_role;grant select(token) on public.dashboard_tokens to service_role;grant select(note) on public.dashboard_tokens to public');
+ await db.exec(await legacyPrivacySQL());
+ await role('service_role',()=>db.query('select token,note from public.dashboard_tokens'));
+ await role('service_role',()=>assert.rejects(db.query('delete from public.dashboard_tokens'),/permission denied/));
+ await role('anon',()=>assert.rejects(db.query('select note from public.dashboard_tokens'),/permission denied/));
+ assert.equal((await db.query("select has_table_privilege('service_role','public.dashboard_tokens','SELECT') ok")).rows[0].ok,false);
+});
+test('an unexpected legacy relation kind rolls back preceding changes rather than closing access partially',async()=>{
+ await db.exec('drop table feya_sales.lead_contacts;create view feya_sales.lead_contacts as select 1 as id;grant select on public.dashboard_tokens to anon');
+ try{await assert.rejects(db.exec(await legacyPrivacySQL()),/relation_type_changed/);}finally{await db.exec('rollback');}
+ assert.equal((await db.query("select has_table_privilege('anon','public.dashboard_tokens','SELECT') ok")).rows[0].ok,true);
+ await db.exec('revoke select on public.dashboard_tokens from anon');
 });
