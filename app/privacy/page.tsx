@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {getPublicLegalIdentity} from '@/lib/publicLegalIdentity';
+import {getPublicPrivacyController,getStorefrontAnalyticsState} from '@/lib/publicPrivacyController';
 import {AnalyticsConsentPreferences} from '@/components/AnalyticsConsentBanner';
 import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 
@@ -20,10 +21,9 @@ export const metadata:Metadata={
 
 export default function PrivacyPage(){
   const identity=getPublicLegalIdentity();
+  const controller=getPublicPrivacyController();
   const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
-  const analyticsReady=Boolean(identity)
-    && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
-    && process.env.FEYA_ANALYTICS_ENABLED==='true';
+  const analyticsReady=getStorefrontAnalyticsState().enabled;
 
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
@@ -40,7 +40,7 @@ export default function PrivacyPage(){
     <section className="container-feya pb-16 lg:pb-24">
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
-          <h2 className="text-bone text-xl">{identity?'Site operator':'Storefront contact & current status'}</h2>
+          <h2 className="text-bone text-xl">{identity?'Site operator':controller?'Data controller':'Storefront contact & current status'}</h2>
           <div className="mt-4 space-y-2 text-[15px] leading-7 text-[var(--bone-dim)]">
             {identity?<>
               <p>{identity.legalName}, trading as {identity.brandName}</p>
@@ -49,11 +49,16 @@ export default function PrivacyPage(){
               <p>{[identity.address.city,identity.address.region,identity.address.postalCode].filter(Boolean).join(', ')}</p>
               <p>{identity.address.country}</p>
               <p className="pt-2">Privacy contact: <a className="text-bone hover:text-white" href={`mailto:${identity.contactEmail}`}>{identity.contactEmail}</a></p>
+            </>:controller?<>
+              <p>Data controller: {controller.name}.</p>
+              <p>Privacy contact: <a className="text-bone hover:text-white" href={`mailto:${controller.contactEmail}`}>{controller.contactEmail}</a>.</p>
+              <p>The privacy-controller disclosure does not identify a seller or activate checkout. Transaction-party information is provided separately for an enabled ordering flow.</p>
             </>:<>
               <p>TheFEYA is the public storefront brand and studio contact for this catalog website.</p>
               <p>Online checkout, payment processing and optional production analytics are not activated until the relevant seller/payment and privacy-controller disclosures are confirmed.</p>
               <p>Privacy and storefront contact: <a className="text-bone hover:text-white" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
             </>}
+            {identity&&controller?<p>Data controller: {controller.name}. Privacy contact: <a className="text-bone hover:text-white" href={`mailto:${controller.contactEmail}`}>{controller.contactEmail}</a>.</p>:null}
           </div>
         </article>
 

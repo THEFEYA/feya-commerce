@@ -22,11 +22,11 @@ test('analytics stays fail-closed until the actual privacy-controller identity i
   const privacy=readFileSync('app/privacy/page.tsx','utf8');
   const measurement=readFileSync('app/api/measurement/context/route.ts','utf8');
 
-  assert.match(layout,/publicLegalIdentityReady\(\)/);
-  assert.match(layout,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
-  assert.match(layout,/FEYA_ANALYTICS_ENABLED==='true'/);
-  assert.match(privacy,/const analyticsReady=Boolean\(identity\)/);
-  assert.match(measurement,/FEYA_GA4_MEASUREMENT_ID/);
+  assert.match(layout,/getStorefrontAnalyticsState\(\)\.enabled/);
+  assert.match(privacy,/getPublicPrivacyController\(\)/);
+  assert.match(privacy,/const analyticsReady=getStorefrontAnalyticsState\(\)\.enabled/);
+  assert.match(measurement,/const analyticsState=getStorefrontAnalyticsState\(\)/);
+  assert.doesNotMatch(layout,/publicLegalIdentityReady/);
 });
 
 test('Seller Online disclosure requires explicit role confirmation in addition to the payment switch',()=>{

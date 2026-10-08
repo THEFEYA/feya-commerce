@@ -789,6 +789,43 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
       const robots=await (await request('/robots.txt')).text();assert.match(robots,/Disallow: \/(?:\r?\n|$)/);
     });
+    await check('Controller identity independently gates real production measurement and public privacy without postal disclosure',async()=>{
+      const activation={FEYA_ANALYTICS_ENABLED:'true',FEYA_ANALYTICS_PRIVACY_READY:'true',FEYA_GA4_MEASUREMENT_ID:'G-TEST123',
+        FEYA_PUBLIC_LEGAL_IDENTITY_CONFIRMED:'false',FEYA_PUBLIC_LEGAL_NAME:'Fixture Seller',
+        FEYA_PUBLIC_LEGAL_ADDRESS_LINE1:'Fixture Postal Address',FEYA_PUBLIC_LEGAL_ADDRESS_CITY:'Fixture City',
+        FEYA_PUBLIC_LEGAL_ADDRESS_POSTAL_CODE:'00000',FEYA_PUBLIC_LEGAL_ADDRESS_COUNTRY:'US',
+        FEYA_PRIVACY_CONTROLLER_NAME:'Fixture Privacy Controller',FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL:'privacy@example.invalid'};
+      const cases=[
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'false',enabled:false,blocker:'privacy_controller_unconfirmed_or_incomplete'},
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL:'',enabled:false,blocker:'privacy_controller_unconfirmed_or_incomplete'},
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',enabled:true,blocker:null},
+        {VERCEL_ENV:'preview',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',enabled:false,blocker:'non_production_environment'},
+      ];
+      for(const {enabled,blocker,...settings} of cases){
+        await stop();await start({...activation,...settings});
+        const response=await request('/api/measurement/context?path='+encodeURIComponent(path));
+        assert.equal(response.status(),200);const body=await response.json();
+        assert.equal(body.context.measurement_enabled,enabled);
+        assert.equal(body.context.ga4_measurement_id,enabled?'G-TEST123':null);
+        assert.equal(body.context.measurement_blocker,blocker);
+        assert.equal(JSON.stringify(body.context).includes('privacy@example.invalid'),false);
+        assert.equal(JSON.stringify(body.context).includes('Fixture Privacy Controller'),false);
+        const privacyResponse=await request('/privacy');assert.equal(privacyResponse.status(),200);
+        const html=await privacyResponse.text();assert.doesNotMatch(html,/Fixture Postal Address/);
+        if(settings.FEYA_PRIVACY_CONTROLLER_CONFIRMED==='true'&&settings.FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL!==''){
+          assert.match(html,/Fixture Privacy Controller/);assert.match(html,/privacy@example.invalid/);
+        }else assert.doesNotMatch(html,/Fixture Privacy Controller/);
+        if(enabled){
+          await page.evaluate(()=>localStorage.removeItem('feya_analytics_consent_v1'));
+          await page.goto(base+'/privacy');await page.locator('aside[aria-label="Analytics privacy choice"]').getByRole('button',{name:'Allow analytics',exact:true}).waitFor();
+          assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+          assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+          assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_landing_page_v1')),null);
+          const terms=await (await request('/terms')).text();assert.doesNotMatch(terms,/Fixture Privacy Controller/);
+        }
+      }
+      report.privacy_controller_separate_gate_pass=true;
+    });
     report.closed_review_runtime_pass=true;report.closed_review_release_id=binding.release_id;report.closed_review_presentation_sha256=binding.presentation_sha256;
     report.limitations.push('Closed release uses pinned real copy/media URLs and source prices, loopback source/approval fixtures, and substituted browser image bytes. No production deployment, live CDN/price/orderability/payment or indexation certification.');
   }catch(error){

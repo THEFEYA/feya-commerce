@@ -6,6 +6,8 @@
 
 Это конкретизация M2 по текущему сообщению владельца, а не замена MASTER v1.2 или повторное открытие Phase 12. Действующие Product Truth, Search Release v12 и публичная визуальная система сохраняются. Расширять функциональность корзины следует внутри существующего оформления.
 
+Продолжение 8 октября: [exact saved-version approval](M2_DELIVERY_APPROVAL_IMPLEMENTATION_20261008.md) и [MASTER access/privacy/cart supplement](../search/MASTER_ACCESS_PRIVACY_CART_EXECUTION_AMENDMENT_20261008.md). PR #71/#72 слиты, draft и approval migrations установлены. Private approval не публикует ставки; owner access остаётся отдельным dependency. Данный подробный services/recovery backlog сохраняется полностью.
+
 ## 1. Уточнение, которое меняет предыдущий checkpoint
 
 «Расчёт перед оплатой» означает прежде всего **расчёт на сервере по тарифам, которыми управляет владелец**:

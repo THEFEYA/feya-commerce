@@ -2,6 +2,8 @@
 
 Дата проверки: **2026-10-07**. Это операционный checkpoint, а не новый дизайн, Product Truth или Search Release.
 
+Продолжение на 8 октября: [MASTER — доступы, минимальные раскрытия и корзина](MASTER_ACCESS_PRIVACY_CART_EXECUTION_AMENDMENT_20261008.md). PR #71/#72 слиты; сохранение и точное утверждение delivery versions реализованы. Postal site-operator identity и analytics controller теперь разделяются. Первоначальные live/GSC observations ниже остаются датированными, а текущие receipts нового пакета фиксируются в его PR.
+
 Текущее M2 продолжение после PR #70: [кабинет draft-профилей доставки и изготовления](../payments/M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md). Реализованы owner editing/assignments и server cost/date preview сохранённой версии; публикация тарифов, подключение корзины и оплата остаются следующими этапами. Production/CI receipts фиксируются в implementation PR; базовые search/GSC evidence ниже не переснимаются без причины.
 
 Production-доступ к кабинету пока закрыт: auth gate возвращает 503; Vercel environment API вернул 403, а точный CLI fallback не имеет действующей авторизации. Новый раздел использует отдельный `FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED`, сохраняя общие owner actions выключенными. Подготовленный код и empty migration не означают, что владелец уже может менять настройки в production; требуется доступ к конфигурации и проверка существующего allowlist.

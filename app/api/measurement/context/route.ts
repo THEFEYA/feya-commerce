@@ -1,6 +1,7 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {readSearchReleasePathState} from '@/lib/searchReleaseIndexationServer';
+import {getStorefrontAnalyticsState} from '@/lib/publicPrivacyController';
 
 function normalizePath(value:string|null){
   if(!value)return null;
@@ -60,12 +61,8 @@ export async function GET(request:NextRequest){
   }
 
   const environment=measurementEnvironment();
-  const measurementId=(process.env.FEYA_GA4_MEASUREMENT_ID||'').trim();
-  const measurementEnabled=environment==='production'
-    && process.env.FEYA_ANALYTICS_ENABLED==='true'
-    && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
-    && /^G-[A-Z0-9]+$/i.test(measurementId)
-    && pageVersionLookupHealthy;
+  const analyticsState=getStorefrontAnalyticsState();
+  const measurementEnabled=analyticsState.enabled && pageVersionLookupHealthy;
 
   return NextResponse.json({
     ok:true,
@@ -77,8 +74,8 @@ export async function GET(request:NextRequest){
       path,
       environment,
       measurement_enabled:measurementEnabled,
-      ga4_measurement_id:measurementEnabled?measurementId:null,
-      measurement_blocker:pageVersionLookupHealthy?null:'page_version_lookup_unavailable',
+      ga4_measurement_id:measurementEnabled?analyticsState.measurementId:null,
+      measurement_blocker:pageVersionLookupHealthy?analyticsState.blocker:'page_version_lookup_unavailable',
     }
   },{headers:{'Cache-Control':'no-store'}});
 }
