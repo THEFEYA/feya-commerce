@@ -52,3 +52,41 @@ export function previewRemoteEurSurcharge(
   if (!Number.isSafeInteger(total)) throw new Error('delivery_amount_overflow');
   return total;
 }
+
+/** Explicitly authorized by the owner on 2026-10-08.
+ * This modifies a private *draft* only; never publishes or assumes all countries
+ * are served. Saudi Arabia is deliberately NOT in this surcharge zone. */
+export const FEYA_APPROVED_REMOTE_COUNTRY_CODES = ['AU', 'MX', 'NZ'] as const;
+
+export function addOwnerApprovedRemoteZoneToEurDraft(
+  draft: DeliveryWorkspaceDraft,
+  generateId: () => string,
+): DeliveryWorkspaceDraft {
+  const profile = draft.shipping_profiles.find(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR');
+  if (!profile) return draft;
+
+  // An overlapping zone would make tariff priority ambiguous. Do not silently
+  // overwrite bespoke country/postal tariffs or insert another competing zone.
+  if (profile.rules.some(rule => rule.scope === 'zone'
+    && rule.countries.some(code => (FEYA_APPROVED_REMOTE_COUNTRY_CODES as readonly string[]).includes(code)))) return draft;
+
+  const base = profile.rules.find(rule => rule.scope === 'default'
+    && rule.standard?.amount_minor != null && rule.express?.amount_minor != null);
+  if (!base?.standard || !base.express) return draft;
+  if (profile.rules.length >= 100) return draft;
+
+  const zoneRule = {
+    id: generateId(),
+    scope: 'zone' as const,
+    countries: [...FEYA_APPROVED_REMOTE_COUNTRY_CODES],
+    postal_prefix: null,
+    standard: { ...base.standard, amount_minor: previewRemoteEurSurcharge(base.standard.amount_minor!) },
+    express: { ...base.express, amount_minor: previewRemoteEurSurcharge(base.express.amount_minor!) },
+  };
+  const patched: DraftShippingProfile = {
+    ...profile,
+    served_countries: [...new Set([...profile.served_countries, ...FEYA_APPROVED_REMOTE_COUNTRY_CODES])],
+    rules: [...profile.rules, zoneRule],
+  };
+  return { ...draft, shipping_profiles: draft.shipping_profiles.map(p => p.id === profile.id ? patched : p) };
+}
