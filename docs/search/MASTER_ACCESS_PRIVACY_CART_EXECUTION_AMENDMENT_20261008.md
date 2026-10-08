@@ -2,6 +2,8 @@
 
 Дата: 2026-10-08. Canonical execution supplement к MASTER commerce v1.2 и Legal / Privacy / Commerce amendment 2026-10-02. Новые решения следуют иерархии MASTER: текущие официальные требования → фактические роли/данные FEYA → более ранние исследования. Публичный визуал, Product Truth, DNA, цены и ACTIVE Search Release v12 сохраняются.
 
+Последующее уточнение по десяти скриншотам владельца 8 октября, 14:32–14:36 Europe/Madrid: [Google review и owner access checkpoint](GOOGLE_REVIEW_OWNER_ACCESS_CHECKPOINT_20261008.md). Оно конкретизирует текущий OAuth app name, отсутствие owner Auth account, применившийся redeploy и минимальные действия владельца; подробная очередь корзины ниже сохраняется.
+
 ## 1. Что действительно завершено
 
 - Phase 12 / первая органическая волна завершены: immutable v12 ACTIVE, 18 разрешённых URL, включая 10 одобренных посадочных страниц. Это разрешение на индексацию, не обещание позиции и не свежий счётчик Google.
@@ -44,7 +46,7 @@ Vercel API этой сессии отказал в чтении env metadata и 
 4. В Deployments → последний **Production/main** → **Redeploy**. Сохранение env само по себе не меняет уже работающий deployment. Не переактивировать Search Release и не включать commerce/analytics flags.
 5. Открыть [рабочий кабинет](https://thefeya.com/admin/company/delivery); войти выбранным Supabase email/password через `/admin/login`. Пароль вводится только на странице входа. Сообщить результат входа и email, если требуется дальнейшая проверка allowlist; пароль/API secrets не нужны.
 
-Установка env — ручной dependency, а не выполненное действие агента. До её проверки production кабинет продолжает возвращать 503. Общие owner actions остаются закрыты; последующие scopes открываются отдельно.
+Установка env — ручной dependency, а не выполненное действие агента. По новым скриншотам и проверке redeploy auth switch уже применился: private delivery API теперь требует вход (401), owner email/allowlist ещё отсутствуют. Общие owner actions остаются закрыты; последующие scopes открываются отдельно. Минимальный оставшийся маршрут указан в новом checkpoint выше.
 
 ## 3. Для чего имя и адрес нужны, а для чего — нет
 
@@ -80,7 +82,7 @@ Vercel API этой сессии отказал в чтении env metadata и 
 
 | Поле | Значение для текущей review surface |
 | --- | --- |
-| App name | `TheFEYA Marketing Tools` — совпадает с существующей публичной страницей; при другой актуальной app identity сначала согласовать её, не создавать новый OAuth client |
+| App name | `FEYA SEO Metrics Tool` — фактическое существующее имя на новых скриншотах; публичная review page выравнивается с ним без создания нового OAuth client |
 | App homepage | `https://thefeya.com/marketing-tools` |
 | Privacy | `https://thefeya.com/privacy` |
 | Terms | `https://thefeya.com/terms` |

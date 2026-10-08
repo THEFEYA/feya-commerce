@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 test('OAuth brand-review homepage is public, noindex and explains the actual internal app',()=>{
   const page=readFileSync('app/marketing-tools/page.tsx','utf8');
-  assert.match(page,/title:'TheFEYA Marketing Tools'/);
+  assert.match(page,/title:GOOGLE_MARKETING_APPLICATION_NAME/);
   assert.match(page,/alternates:\{canonical:'\/marketing-tools'\}/);
   assert.match(page,/robots:\{index:false,follow:true\}/);
   assert.match(page,/internal application used by TheFEYA/);
