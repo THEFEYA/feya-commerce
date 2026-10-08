@@ -1,6 +1,8 @@
 # TheFEYA — MASTER: доступы, минимальные раскрытия и продолжение корзины
 
-Дата: 2026-10-08. Canonical execution supplement к MASTER commerce v1.2 и Legal / Privacy / Commerce amendment 2026-10-02. Новые решения следуют иерархии MASTER: текущие официальные требования → фактические роли/данные FEYA → более ранние исследования. Публичный визуал, Product Truth, DNA, цены и ACTIVE Search Release v12 сохраняются.
+Дата: 2026-10-08.
+**Owner currency decision (2026-10-08):** [M2 owner-confirmed EUR shipping rates](../../docs/payments/M2_OWNER_CONFIRMED_EUR_SHIPPING_20261008.md) — Standard €19, Express €35, remote-zone +€20 *only after explicit destination approval*. These are new commercial EUR rates, not conversion of old USD examples; no publishing/approval, payments, or country rules are enabled by this note.
+ Canonical execution supplement к MASTER commerce v1.2 и Legal / Privacy / Commerce amendment 2026-10-02. Новые решения следуют иерархии MASTER: текущие официальные требования → фактические роли/данные FEYA → более ранние исследования. Публичный визуал, Product Truth, DNA, цены и ACTIVE Search Release v12 сохраняются.
 
 Последующее уточнение по десяти скриншотам владельца 8 октября, 14:32–14:36 Europe/Madrid: [Google review и owner access checkpoint](GOOGLE_REVIEW_OWNER_ACCESS_CHECKPOINT_20261008.md). Оно конкретизирует текущий OAuth app name, отсутствие owner Auth account, применившийся redeploy и минимальные действия владельца; подробная очередь корзины ниже сохраняется.
 
