@@ -29,6 +29,9 @@ function rejectRPC(error: { code?: string; message?: string }): never {
 export async function readDeliveryWorkspace(client: QuoteRPCClient): Promise<DeliveryWorkspaceState> {
   const { data, error } = await client.rpc('feya_commerce_read_delivery_workspace_v1');
   if (error) rejectRPC(error);
+  return parseDeliveryWorkspaceState(data);
+}
+export function parseDeliveryWorkspaceState(data: unknown): DeliveryWorkspaceState {
   if (!record(data) || data.contract_version !== DELIVERY_WORKSPACE_CONTRACT || !closed(data)
     || !Number.isSafeInteger(data.revision) || Number(data.revision) < 0
     || (data.revision === 0 ? data.version_id !== null || data.snapshot_sha256 !== null || data.draft !== null || data.updated_at !== null
@@ -43,6 +46,9 @@ export async function readDeliveryWorkspace(client: QuoteRPCClient): Promise<Del
 export async function readDeliveryCatalog(client: QuoteRPCClient): Promise<DeliveryCatalogProduct[]> {
   const { data, error } = await client.rpc('feya_commerce_delivery_catalog_v1');
   if (error) rejectRPC(error);
+  return parseDeliveryCatalog(data);
+}
+export function parseDeliveryCatalog(data: unknown): DeliveryCatalogProduct[] {
   if (!Array.isArray(data) || data.length > 2000 || data.some(p => !record(p) || !uuid(p.canonical_product_id)
     || typeof p.title !== 'string' || !Array.isArray(p.configurations) || p.configurations.some(c => !record(c)
       || !uuid(c.configuration_price_id) || typeof c.name !== 'string' || !Array.isArray(c.currencies)

@@ -59,6 +59,8 @@ Production apply is additive and initially empty: revision 0, zero workspace ver
 
 ## Next finite continuation
 
+8 October continuation: [exact saved-version approval](M2_DELIVERY_APPROVAL_IMPLEMENTATION_20261008.md) adds mechanical completeness checks and separately gated immutable Human Owner approval. It seeds no settings and does not publish public cart rates or payments. Production owner authentication remains a real external access blocker; the 8 October Vercel environment-list request returned 403 again. The following public-quote/checkout work still requires its versioned successor.
+
 1. Review currency, served countries, parcel behavior, production capacity/day basis/calendar/cutoff. These are business facts, not inferred from example prices.
 2. Implement approval/publication of exact immutable versions and a destination/basket-bound successor quote. Add country-first read-only cart estimates before full contacts and policy acceptance.
 3. Bind exact shipping receipts into intent/snapshot successors, revalidating current offers, destination, saved versions and expiry. Taxes/services/discounts need separate authoritative lines.
