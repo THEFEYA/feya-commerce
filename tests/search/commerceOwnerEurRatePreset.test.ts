@@ -41,6 +41,7 @@ test('EUR preset preserves an existing approved-draft assignment and never overr
 test('unapproved destination and missing parcel limits remain explicit blockers after adding preset', () => {
   const initial = syntheticDeliveryWorkspace(), d = addOwnerConfirmedEurDraft(initial, randomUUID);
   d.default_shipping_profile_id = d.shipping_profiles.at(-1)!.id;
+  d.assignments = []; // explicit override from fixture must not shadow the new default
   const request = syntheticDeliveryRequest();
   assert.throws(() => previewDeliveryDraft(d, request, syntheticDeliveryCatalog, deliveryIds.version, '2026-10-08T10:00:00.000Z'),
     /delivery_country_not_served/);
