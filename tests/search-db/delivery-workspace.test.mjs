@@ -350,6 +350,19 @@ test('no current approved owner delivery head cannot create a new v2 shipping qu
   }
 });
 
+test('replaced approved delivery head rejects stale computed EUR amount before insertion', async () => {
+  const current = (await db.query("select approval_id,revision from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'")).rows[0];
+  const alternative = (await db.query('select approval_id,revision from public.feya_commerce_delivery_approvals_v1 where approval_id<>$1 order by revision limit 1', [current.approval_id])).rows[0];
+  assert.ok(alternative);
+  await db.query("update public.feya_commerce_delivery_approval_head_v1 set approval_id=$1,revision=$2 where workspace_key='thefeya'", [alternative.approval_id,alternative.revision]);
+  try {
+    await assert.rejects(saveShippingV2(makeV2Request(), v2Resolution), /approved_shipping_quote_authority_changed/);
+    assert.equal(await v2Count(), 1);
+  } finally {
+    await db.query("update public.feya_commerce_delivery_approval_head_v1 set approval_id=$1,revision=$2 where workspace_key='thefeya'", [current.approval_id,current.revision]);
+  }
+});
+
 test('offer head drift invalidates v2 creation before it writes a customer receipt', async () => {
   const newer = await seedApprovedOfferProjection(db, { offerRevisionId: randomUUID(), priceQuoteId: randomUUID(), offerRevision: 22 });
   await db.query('update public.feya_commerce_offer_heads_v1 set current_offer_revision_id=$1 where canonical_product_id=$2', [newer.offerRevisionId, variantTestIds.product]);
