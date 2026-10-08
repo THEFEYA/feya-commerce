@@ -18,6 +18,12 @@ Never silently apply an extra €20 to every product in the same parcel, add the
 
 A large-format/oversize product may be manually bound by the owner to a separate shipping profile; **do not auto-label it based on product title, category, costume DNA or photography alone**. Specific quantity/packing/combination policy for mixed items remains an owner gate. The currently supported delivery profiles are standard and express methods on a profile; an oversize profile is an exception, not a third customer-facing delivery method.
 
+## Owner-approved first remote-country zone — 2026-10-08
+
+The Human Owner explicitly confirmed **AU Australia, MX Mexico and NZ New Zealand** as the *first* remote surcharge zone: Standard €39 / Express €55, consisting of base EUR 19/35 +20 per applicable parcel. **SA Saudi Arabia remains on the ordinary base rate if/when included among served destinations.**
+
+This is a **commercial remote-price decision** only, not evidence that a carrier serves every postcode or service method. Exact territorial exclusions, parcel dimensions, service-country allowlist and calendar promises must be validated before the saved owner draft is approved. The new admin button adds the zone only to an EUR draft; it does not publish rates or enable a customer quote. All other allowed destinations use the approved normal profile by default unless given a separate, explicit override.
+
 ## Day calculations (owner policy, draft only)
 
 - Workshop production, dispatch and published delivery working-day calendars use Monday–Friday; Saturday/Sunday excluded for the conservative initial model. Holiday dates must be explicit, not fabricated.
