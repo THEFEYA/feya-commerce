@@ -817,7 +817,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         }else assert.doesNotMatch(html,/Fixture Privacy Controller/);
         if(enabled){
           await page.evaluate(()=>localStorage.removeItem('feya_analytics_consent_v1'));
-          await page.goto(base+'/privacy');await page.getByRole('button',{name:'Allow analytics',exact:true}).waitFor();
+          await page.goto(base+'/privacy');await page.locator('aside[aria-label="Analytics privacy choice"]').getByRole('button',{name:'Allow analytics',exact:true}).waitFor();
           assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
           assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
           assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_landing_page_v1')),null);
