@@ -12,7 +12,10 @@ type PageProps = {
 function getErrorMessage(error: string | undefined) {
   if (!error) return null;
   if (error === 'missing_credentials') return 'Введите email и пароль.';
-  if (error === 'invalid_credentials') return 'Неверный email или пароль.';
+  if (error === 'invalid_credentials') return 'Supabase не принял email или пароль. Используйте пароль, созданный для FEYA Admin в Supabase Auth — не от Gmail.';
+  if (error === 'email_not_confirmed') return 'Email пользователя Supabase Auth ещё не подтверждён. Откройте Supabase → Authentication → Users, выберите пользователя и подтвердите его email. Пароль Gmail здесь не подходит.';
+  if (error === 'auth_rate_limited') return 'Supabase временно ограничил попытки входа. Подождите и попробуйте снова; пароль сейчас не меняйте.';
+  if (error === 'auth_temporarily_unavailable') return 'Сервис авторизации временно не отвечает. Это не означает, что пароль неправильный. Повторите позже.';
   if (error === 'not_authorized') return 'Аккаунт подтверждён, но не имеет доступа к FEYA Admin.';
   if (error === 'configuration_required') return 'Сначала завершите настройку защищённого входа.';
   return error;
@@ -39,6 +42,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
           <div className="phase-label">Защищённый вход FEYA Admin</div>
           <h1>Вход в админку</h1>
           <p>Только для заранее созданных аккаунтов Supabase Auth. Публичная регистрация намеренно отключена.</p>
+          <p className="muted">Это отдельный пароль учётной записи Supabase Auth, не пароль от Google, Gmail или панели Vercel. Если вы создавали пользователя повторно, проверьте подтверждение email и используйте пароль последней учётной записи.</p>
 
           {!config.loginEnabled ? (
             <div className="notice">
