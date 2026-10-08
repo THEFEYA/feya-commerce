@@ -48,7 +48,7 @@ create trigger feya_approved_shipping_quote_immutable_v2 before update or delete
 -- production calendar time, merchandise, or approval state subsequently changes.
 create function public.feya_commerce_normalize_approved_shipping_request_v2(p_request jsonb) returns jsonb
 language plpgsql immutable set search_path='' as $$
-declare ids uuid[]; id uuid; country text; postal text; method text; request_id uuid;
+declare ids uuid[]; country text; postal text; method text; request_id uuid;
 begin
   if p_request is null or jsonb_typeof(p_request)<>'object' or octet_length(p_request::text)>4096
     or (select count(*) from jsonb_object_keys(p_request))<>6
@@ -66,7 +66,7 @@ begin
   request_id:=(p_request->>'request_id')::uuid;
   select array_agg(t.id order by t.id) into ids
   from (select e.value::uuid id from jsonb_array_elements_text(p_request->'quote_receipt_ids') as e(value)) t;
-  if ids is null or cardinality(ids)<>(select count(distinct id) from unnest(ids) id)
+  if ids is null or cardinality(ids)<>(select count(distinct q.receipt_id) from unnest(ids) as q(receipt_id))
     then raise exception 'approved_shipping_quote_request_invalid'; end if;
   country:=p_request->>'country';
   postal:=upper(regexp_replace(p_request->>'postal_code','[ -]','','g'));
