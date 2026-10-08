@@ -10,6 +10,7 @@ import type { DeliveryApprovalRequest, DeliveryApprovalState } from '@/lib/comme
 import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, MethodFields } from './DeliveryProfileFields';
 import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
+import { applyDeliveryBulkProfile } from '@/lib/commerceDeliveryBulkDraft';
 
 const endpoint = '/api/admin/company/delivery-workspace';
 const errorLabels: Record<string, string> = {
@@ -202,23 +203,9 @@ export function DeliveryWorkspaceClient() {
       ...(shippingId || productionId ? [{ canonical_product_id: productId, configuration_price_id: configurationId || null, shipping_profile_id: shippingId, production_profile_id: productionId }] : [])] }));
   }
   function bulkAssign(ids: string[], kind: 'shipping' | 'production', profileId: string) {
-    const eligible = new Set(catalog.map(p => p.canonical_product_id));
-    const targets = new Set(ids.filter(id => eligible.has(id)));
-    const eligibleProfiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
-    if (!targets.size || !eligibleProfiles.some(p => p.id === profileId)) return;
-    change(d => {
-      const rest = d.assignments.filter(a => !(targets.has(a.canonical_product_id) && a.configuration_price_id === null));
-      const replacements = [...targets].flatMap(id => {
-        const prior = d.assignments.find(a => a.canonical_product_id === id && a.configuration_price_id === null);
-        const shipping_profile_id = kind === 'shipping' ? profileId : prior?.shipping_profile_id || null;
-        const production_profile_id = kind === 'production' ? profileId : prior?.production_profile_id || null;
-        return shipping_profile_id || production_profile_id ? [{
-          canonical_product_id: id, configuration_price_id: null, shipping_profile_id, production_profile_id,
-        }] : [];
-      });
-      // Exact configuration overrides are untouched; they remain more specific than product-wide assignments.
-      return { ...d, assignments: [...rest, ...replacements] };
-    });
+    const profiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
+    if (!ids.length || !profiles.some(p => p.id === profileId)) return;
+    change(d => applyDeliveryBulkProfile(d, catalog, ids, kind, profileId));
   }
   function selectTarget(product: string, configuration: string) {
     setProductId(product); setConfigurationId(configuration);
