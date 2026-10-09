@@ -12,11 +12,11 @@ Date: 2026-10-09. **Owner-linked official Seller Online email #738609 received 1
 - Required payment-operator address disclosure (not the brand owner's personal/business address): **Seller-Online LLC, 635 Somers Ave, Feasterville-Trevose, PA 19053, United States.** Their support requests placement in Footer, Contact Us, Terms & Conditions and Privacy Policy, with appropriate role text before payment.
 - This email does **not** definitively settle the transactional invoicing seller identity, tax, duties, refund ownership, currency support, exact webhook signature format, API v2 endpoint schema and rate limit, production/sandbox credentials, or whether account/onboarding KYC is complete. These are still explicit merchant release gates, not excuses to present unverifiable detail.
 
-## Implemented in bounded legal-copy PR
+## Implemented provider authority; public-copy release separately gated
 
-`lib/sellerOnlineProvider.ts` holds the provider-confirmed role, source date, exact checkout sentence and integration/application links. Existing `isSellerOnlinePaymentsEnabled()` **still requires both explicit environment flags**; no public payment switch is enabled by publishing the name/address.
+`lib/sellerOnlineProvider.ts` holds the confirmed role, source date, exact future checkout sentence, US operator address and integration/application links. Existing `isSellerOnlinePaymentsEnabled()` **still requires both explicit environment flags**, so neither vendor metadata nor this PR enables payments.
 
-`components/Footer.tsx`, `app/contact/page.tsx`, `app/terms/page.tsx`, `app/privacy/page.tsx` show the provider's required address with an **activation-pending** qualifier when payments are OFF. When payments eventually pass their release gates, the exact recommended checkout sentence can be used, but no order/payment route has been introduced. Preserve the existing public design and SEO/Search v12. This is not a claim TheFEYA itself is registered in Pennsylvania, nor a substitute for confirming the actual data controller/seller of goods.
+The originally prepared modifications to `components/Footer.tsx`, `app/contact/page.tsx`, `app/terms/page.tsx` and `app/privacy/page.tsx` were **reverted to byte-for-byte owner-frozen main sources**. Exact-byte Phase 12 source pins and public visual manifest blocked an unreviewed release. This PR therefore does NOT claim partner address is live on thefeya.com. The requirement from Seller Online to display it before activation is a **separate explicit legal-copy/site-release gate**: prepare a small owner-reviewed exception to the source freeze, update approved hashes only with visual verification, and ensure no premature "active payment" claim. Never bypass the frozen-source tests just to make CI green.
 
 ## Project sequencing
 
