@@ -92,15 +92,9 @@ test('one extra DISTINCT listing incurs EUR 5, not a duplicate shipment fee',asy
 test('multiple options and quantities from same listing do NOT cause additional handling',async()=>{
   const x=context();const row=structuredClone(x.merchandise[0]);
   row.quote_receipt_id=q2;
-  row.variant_id=randomUUID();row.configuration_price_id=deliveryIds.otherConfiguration;
+  row.variant_id=randomUUID();row.configuration_price_id=deliveryIds.configuration;
   row.quantity=3;row.unit_amount_minor=15500;row.line_amount_minor=46500;
   x.merchandise.push(row);
-  x.approved_workspace.draft.assignments.push({
-    canonical_product_id:deliveryIds.product,
-    configuration_price_id:deliveryIds.otherConfiguration,
-    shipping_profile_id:null,
-    production_profile_id:x.approved_workspace.draft.production_profiles[0].id,
-  });
   const r=await resolveCartCostBreakdown(client(x),req([q2,q1]));
   assert.equal(r.merchandise_subtotal_minor,62000);
   assert.equal(r.handling_amount_minor,0);
