@@ -34,6 +34,21 @@ before(async () => {
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008223000_commerce_approved_shipping_quote_v2.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009160000_carrier_method_evidence_private_v1.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009201000_ukrposhta_verified_source_ingestion_v1.sql', import.meta.url), 'utf8'));
+  // Synthetic policy bundle used ONLY inside the isolated database fixture.
+  // Production resolves its genuine versioned business-truth policy bundle.
+  await db.exec(`
+    create or replace function public.feya_commerce_checkout_policy_bundle_v1()
+    returns jsonb language sql stable set search_path='' as $fixture_policy$
+      select jsonb_build_object(
+        'contract_version','checkout_policy_bundle_v1',
+        'bundle_sha256',repeat('a',64),
+        'explicit_checkbox_required',true,
+        'routes',jsonb_build_object('terms','/terms','returns','/returns','shipping','/shipping')
+      );
+    $fixture_policy$;
+    grant execute on function public.feya_commerce_checkout_policy_bundle_v1() to service_role;
+  `);
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261009213500_commerce_checkout_preflight_private_v2.sql', import.meta.url), 'utf8'));
 
 });
 after(async () => { await db?.close(); });
@@ -588,3 +603,144 @@ test('native parallel identical private source writes are atomic and no second c
       assert.equal(await carrierEvidenceCount(),3);
     } finally { await Promise.all(clients.map(c=>c.end())); }
   });
+
+const preflightCount = async () => (await db.query(
+  'select count(*)::int n from public.feya_commerce_checkout_preflights_v2')).rows[0].n;
+const preflightInput=(requestId=randomUUID(),shippingId=v2Receipt?.shipping_quote_receipt_id)=>({
+  contract_version:'commerce_checkout_preflight_v2',
+  request_id:requestId,
+  shipping_quote_receipt_id:shippingId,
+  destination:{
+    contract_version:'commerce_checkout_destination_v2',country:'US',
+    postal_code:'10 001',recipient_full_name:'CI Synthetic User',
+    contact_email:'ci-synthetic@example.test',contact_phone:null,
+    region:'NY',city:'New York',address_line1:'123 Fixture St',address_line2:null,
+  },
+  policy_acknowledgement:{accepted:true,bundle_sha256:'a'.repeat(64)},
+});
+const createPreflight=(request,client=db)=>service(async c=>
+  (await c.query('select public.feya_commerce_create_checkout_preflight_v2($1::jsonb) r',
+    [JSON.stringify(request)])).rows[0].r,client);
+
+test('private checkout v2 stores no direct customer contacts, has RLS and rejects all browser role access',async()=>{
+  const health=await service(async c=>(await c.query(
+    'select public.feya_commerce_checkout_preflight_health_v2() r')).rows[0].r);
+  assert.equal(health.private_boundary_ready,true);
+  assert.equal(health.preflight_count,0);
+  assert.equal(health.legal_data_controller_verified,false);
+  assert.equal(health.carrier_proof_complete,false);
+  assert.equal(health.tax_calculation_enabled,false);
+  assert.equal(health.payable,false);
+  assert.equal(health.payment_enabled,false);
+  for(const role of ['anon','authenticated']){
+    await db.query('set role '+role);
+    try{
+      await assert.rejects(db.query('select * from public.feya_commerce_checkout_preflights_v2'),
+        /permission denied/);
+      await assert.rejects(db.query(
+        "select public.feya_commerce_create_checkout_preflight_v2('{}'::jsonb)"),/permission denied/);
+      await assert.rejects(db.query(
+        'select public.feya_commerce_checkout_preflight_health_v2()'),/permission denied/);
+    }finally{await db.query('reset role');}
+  }
+});
+let savedPreflight,originalPreflightRequest;
+test('shipping v2, exact current offer, same destination, accepted policies bind one immutable private pre-tax record',async()=>{
+  originalPreflightRequest=preflightInput();
+  savedPreflight=await createPreflight(originalPreflightRequest);
+  assert.equal(savedPreflight.contract_version,'commerce_checkout_preflight_v2');
+  assert.equal(savedPreflight.shipping_quote_receipt_id,v2Receipt.shipping_quote_receipt_id);
+  assert.equal(savedPreflight.policy_bundle_sha256,'a'.repeat(64));
+  assert.equal(savedPreflight.currency,'EUR');
+  assert.equal(savedPreflight.merchandise_subtotal_minor,merchandiseReceipt.line_amount_minor);
+  assert.equal(savedPreflight.shipping_amount_minor,1900);
+  assert.equal(savedPreflight.handling_amount_minor,0);
+  assert.equal(savedPreflight.additional_distinct_listing_count,0);
+  assert.equal(savedPreflight.pre_tax_estimate_minor,merchandiseReceipt.line_amount_minor+1900);
+  assert.equal(savedPreflight.taxes_minor,null);
+  assert.equal(savedPreflight.amount_due_minor,null);
+  assert.equal(savedPreflight.carrier_proof_complete,false);
+  assert.equal(savedPreflight.payment_enabled,false);
+  assert.equal(savedPreflight.provider_session_enabled,false);
+  assert.equal(savedPreflight.order_creation_enabled,false);
+  assert.equal(savedPreflight.payable,false);
+  assert.equal(savedPreflight.policy_accepted,true);
+  assert.ok(!JSON.stringify(savedPreflight).includes('ci-synthetic@example.test'));
+  assert.ok(!JSON.stringify(savedPreflight).includes('Fixture St'));
+  const row=(await db.query(
+    'select destination,policy_bundle_sha256,destination_postal_code from public.feya_commerce_checkout_preflights_v2')).rows[0];
+  assert.deepEqual(row.destination,{country:'US',postal_code:'10001'});
+  assert.ok(!JSON.stringify(row).includes('ci-synthetic@example.test'));
+  assert.ok(!JSON.stringify(row).includes('Fixture St'));
+  assert.equal(row.destination_postal_code,'10001');
+  assert.equal(await preflightCount(),1);
+});
+test('preflight request ID exact replay is stable, any PII/quote change conflicts',async()=>{
+  const repeat=await createPreflight(originalPreflightRequest);
+  assert.equal(repeat.preflight_id,savedPreflight.preflight_id);
+  assert.equal(repeat.replayed,true);
+  assert.equal(repeat.amount_due_minor,null);
+  await assert.rejects(createPreflight({...originalPreflightRequest,
+    destination:{...originalPreflightRequest.destination,address_line1:'Another Synthetic Address'}}),
+    /checkout_preflight_request_conflict/);
+  assert.equal(await preflightCount(),1);
+});
+test('client money, unauthorised policy, wrong address/zip and blocked routes fail before storing PII',async()=>{
+  const orig=preflightInput();
+  for(const bad of [
+    {...orig,request_id:randomUUID(),amount_minor:1},
+    {...orig,request_id:randomUUID(),taxes_minor:0},
+    {...orig,request_id:randomUUID(),payment_enabled:true},
+    {...orig,request_id:randomUUID(),policy_acknowledgement:{accepted:false,bundle_sha256:'a'.repeat(64)}},
+    {...orig,request_id:randomUUID(),policy_acknowledgement:{accepted:true,bundle_sha256:'f'.repeat(64)}},
+    {...orig,request_id:randomUUID(),destination:{...orig.destination,country:'RU'}},
+    {...orig,request_id:randomUUID(),destination:{...orig.destination,country:'BY'}},
+    {...orig,request_id:randomUUID(),destination:{...orig.destination,postal_code:'90001'}},
+    {...orig,request_id:randomUUID(),destination:{...orig.destination,contact_email:'not-email'}},
+    {...orig,request_id:randomUUID(),destination:{...orig.destination,unexpected_discount:900}},
+  ]){
+    await assert.rejects(createPreflight(bad),
+      /checkout_preflight_(request_invalid|policy_or_address_invalid|address_invalid|destination_unserved|policy_version_conflict|shipping_identity_invalid)/);
+  }
+  assert.equal(await preflightCount(),1);
+});
+test('a second request cannot bind a reused immutable shipping v2 receipt to another recipient',async()=>{
+  await assert.rejects(createPreflight(preflightInput(randomUUID())),
+    /duplicate key|unique constraint/i);
+  assert.equal(await preflightCount(),1);
+});
+test('privacy-bearing preflight table is immutable and no browser mutation can rewrite the policy/address',async()=>{
+  await assert.rejects(db.query(
+    "update public.feya_commerce_checkout_preflights_v2 set pre_tax_estimate_minor=1"),
+    /checkout_preflight_history_immutable/);
+  await assert.rejects(db.query('delete from public.feya_commerce_checkout_preflights_v2'),
+    /checkout_preflight_history_immutable/);
+  assert.equal(await preflightCount(),1);
+});
+test('approval drift rejects a new checkout preflight without creating another customer record',async()=>{
+  const head=(await db.query(
+    "select approval_id,revision from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'")).rows[0];
+  await db.query("delete from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'");
+  try{
+    await assert.rejects(createPreflight(preflightInput(randomUUID())),
+      /checkout_preflight_shipping_approval_changed/);
+    assert.equal(await preflightCount(),1);
+  }finally{
+    await db.query("insert into public.feya_commerce_delivery_approval_head_v1(workspace_key,approval_id,revision) values('thefeya',$1,$2)",
+      [head.approval_id,head.revision]);
+  }
+});
+test('native concurrent same-key private preflight persists exactly once', {skip:!nativeURL},async()=>{
+  // Use a different valid immutable shipping receipt to avoid the unique
+  // shipping-quote constraint on our earlier test preflight record.
+  const q=makeV2Request(),resolution=await approvedQuoteResolution(),
+    shipping=await saveShippingV2(q,resolution),
+    req=preflightInput(randomUUID(),shipping.shipping_quote_receipt_id);
+  const clients=await Promise.all([connect(),connect()]);
+  try{
+    const pair=await Promise.all(clients.map(c=>createPreflight(req,c)));
+    assert.equal(pair[0].preflight_id,pair[1].preflight_id);
+    assert.deepEqual(pair.map(x=>x.replayed).sort(),[false,true]);
+    assert.equal(await preflightCount(),2);
+  }finally{await Promise.all(clients.map(c=>c.end()));}
+});
