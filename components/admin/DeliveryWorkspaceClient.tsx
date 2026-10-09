@@ -319,7 +319,7 @@ export function DeliveryWorkspaceClient() {
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления</h2></div>
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
-        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
+        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50 || draft.production_profiles.some(p => p.duration?.min === min && p.duration?.max === max)} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
           id: crypto.randomUUID(), name: `Изготовление ${min}–${max} рабочих дней`, duration: { min, max, unit: null }, calendar: null, max_units_per_order: null, requires_specifications: false,
         }] }))}>Добавить {min}–{max} дней</button>)}
           <button type="button" className="owner-button" disabled={draft.production_profiles.length >= 47} onClick={() => change(d => {
