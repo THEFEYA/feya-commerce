@@ -14,7 +14,7 @@
 
 `lib/commerceCheckoutPreflightV2.ts` normalizes/restricts every request, rejects mixed/blocked/unserved inputs and strictly parses nonpayable response. `lib/commerceCheckoutPreflightV2Server.ts` has **no public route** and requires BOTH `FEYA_COMMERCE_CHECKOUT_PREFLIGHT_V2_ENABLED=true` and verified privacy-controller `FEYA_PRIVACY_CONTROLLER_CONFIRMED=true`. Both are **false until human legal approval**.
 
-Native Postgres and PGlite isolated tests exercise exact immutable shipping receipt, policy hash, private PII storage (synthetic only), duplicate ID conflicts, replay, blocked countries, unapproved/expired quote, head drift, role boundaries and native concurrent writes. The isolated fixture provides a **test-only** dummy policy function; live production uses the real versioned business-truth policy service. This package does not auto-update existing policy prices/text.
+Native Postgres and PGlite isolated tests exercise exact immutable shipping receipt, policy hash, synthetic-only address validation and direct-PII nonretention, duplicate ID conflicts, replay, blocked countries, unapproved/expired quote, head drift, role boundaries and native concurrent writes. The isolated fixture provides a **test-only** dummy policy function; live production uses the real versioned business-truth policy service. This package does not auto-update existing policy prices/text.
 
 ## Real blockers to first paid order — unchanged and cannot be ignored
 
