@@ -622,7 +622,7 @@ const createPreflight=(request,client=db)=>service(async c=>
   (await c.query('select public.feya_commerce_create_checkout_preflight_v2($1::jsonb) r',
     [JSON.stringify(request)])).rows[0].r,client);
 
-test('private checkout v2 contains no real users, has RLS and rejects all browser role access',async()=>{
+test('private checkout v2 stores no direct customer contacts, has RLS and rejects all browser role access',async()=>{
   const health=await service(async c=>(await c.query(
     'select public.feya_commerce_checkout_preflight_health_v2() r')).rows[0].r);
   assert.equal(health.private_boundary_ready,true);
@@ -669,8 +669,9 @@ test('shipping v2, exact current offer, same destination, accepted policies bind
   assert.ok(!JSON.stringify(savedPreflight).includes('Fixture St'));
   const row=(await db.query(
     'select destination,policy_bundle_sha256,destination_postal_code from public.feya_commerce_checkout_preflights_v2')).rows[0];
-  assert.equal(row.destination.contact_email,'ci-synthetic@example.test');
-  assert.equal(row.destination.postal_code,'10001');
+  assert.deepEqual(row.destination,{country:'US',postal_code:'10001'});
+  assert.ok(!JSON.stringify(row).includes('ci-synthetic@example.test'));
+  assert.ok(!JSON.stringify(row).includes('Fixture St'));
   assert.equal(row.destination_postal_code,'10001');
   assert.equal(await preflightCount(),1);
 });
