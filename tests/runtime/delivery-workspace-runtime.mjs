@@ -91,6 +91,7 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       await page.getByLabel('Назначить срок изготовления').selectOption(syntheticDeliveryWorkspace().production_profiles[0].id);
       await page.getByRole('button', { name: 'Назначить и сохранить: 1 товаров' }).click();
       await page.getByText('Сохранено в Supabase. Товары перемещены из «Без профиля» в выбранный срок изготовления.', { exact: true }).waitFor();
+      assert.equal(await page.getByText('Есть несохранённые изменения. Сохраните их для новой проверки.', { exact: true }).count(), 0);
       let afterBulk = await read();
       assert.ok(afterBulk.workspace.revision > current.revision);
       const general = afterBulk.workspace.draft.assignments.find(a => a.canonical_product_id === ids.product && a.configuration_price_id === null);
