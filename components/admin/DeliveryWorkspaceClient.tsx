@@ -12,6 +12,7 @@ import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
 import { applyUniformProductionProfile } from '@/lib/commerceDeliveryBulkDraft';
 import { normalizeRegularDeliveryWorkingWeek, equivalentDeliveryWorkspaceDraft } from '@/lib/commerceDeliveryRegularWeek';
+import { prepareUniversalBuyerShippingDraft, summarizeDeliveryApprovalIssues } from '@/lib/commerceUniversalBuyerShippingDraft';
 import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
@@ -267,8 +268,16 @@ export function DeliveryWorkspaceClient() {
       {approvalData.approval_readiness.ready
         ? <p>Настройки заполнены. Перед утверждением проверьте валюты, страны, вместимость посылок, сроки и календари.</p>
         : <><p>Нужно заполнить или исправить: {approvalData.approval_readiness.issue_count}.</p>
-          <ul>{approvalData.approval_readiness.issues.slice(0, 20).map((issue, index) => <li key={`${issue.code}:${index}`}>{issue.subject}: {message(issue.code)}</li>)}</ul>
-          {approvalData.approval_readiness.issue_count > 20 && <p className={styles.hint}>После исправления этих пунктов повторите сохранение, чтобы увидеть остальные.</p>}</>}
+          <p className={styles.hint}>Показываем причины группами, чтобы не повторять одно сообщение для сотен вариантов товара. Общий профиль доставки действует на все обычные товары.</p>
+          <ul>{summarizeDeliveryApprovalIssues(approvalData.approval_readiness.issues).map(group =>
+            <li key={group.code}>
+              {message(group.code)} — {group.count} записей в проверенном фрагменте.
+              <details><summary className={styles.hint}>Примеры ({group.examples.length})</summary>
+                <ul>{group.examples.map((subject, i) => <li key={i}>{subject}</li>)}</ul>
+              </details>
+            </li>)}</ul>
+          {approvalData.approval_readiness.issue_count > approvalData.approval_readiness.issues.length
+            && <p className={styles.hint}>Всего проблем: {approvalData.approval_readiness.issue_count}. Здесь сгруппированы первые {approvalData.approval_readiness.issues.length}. После исправлений заново проверьте сохранённый черновик.</p>}</>}
       {approvalData.approval?.revision ? <p>Утверждённая запись {approvalData.approval.revision} относится к сохранённой версии {approvalData.approval.workspace_revision}. Последующие черновики не изменяют эту запись.</p> : null}
       <p className={styles.hint}>Утверждение фиксирует ваше согласование этих настроек. Подключение расчёта к корзине выполняется отдельно.</p>
       <button type="button" className="owner-button" onClick={approve} disabled={busy || dirty || !approvalData.approval_enabled
@@ -299,7 +308,17 @@ export function DeliveryWorkspaceClient() {
         <p className={styles.hint}>Пн–Пт уже применяются ко всем обычным профилям и датам. Приоритетное производство в выходные будет отдельной услугой позже. Для посылок сохраняются проверенные ограничения по вместимости.</p>
         <CalendarFields label="Дни отправки из мастерской" fixedWorkweek value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
       </section>
-      <section className="owner-section"><div className="owner-section-head"><h2>Профили доставки</h2></div>
+      <section className="owner-section"><div className="owner-section-head"><h2>Общая доставка для всех товаров</h2></div>
+        <p className={styles.hint}>Покупатель выбирает Standard или Express в корзине — это два метода доставки одной посылки, не товарные варианты и не разное изготовление. Исключения по объёму можно оставить на отдельных конфигурациях.</p>
+        <div className="owner-actions">
+          <button type="button" className="owner-button" disabled={busy}
+            onClick={() => void persistDraft(prepareUniversalBuyerShippingDraft(draft, () => crypto.randomUUID()))}>
+            Подготовить и сохранить общую доставку: €19 / €35 + AU/MX/NZ
+          </button>
+        </div>
+        <p className={styles.hint}>Записывает одну новую версию черновика через защищённый вход владельца. Если есть пустой профиль Standart, использует его вместо создания второго. Сроки изготовления 207 товаров не меняются. Обслуживаемые страны кроме AU/MX/NZ и вместимость посылки не угадываем; публичные тарифы и оплата остаются выключены.</p>
+      </section>
+      <section className="owner-section"><div className="owner-section-head"><h2>Технические профили и исключения по доставке</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
         <div className="owner-actions"><button type="button" className="owner-button" onClick={() => addShipping()} disabled={draft.shipping_profiles.length >= 50}>Добавить профиль доставки</button>
           <button type="button" className="owner-button" onClick={() => addShipping(true)} disabled={draft.shipping_profiles.length >= 50}>Добавить пример $19 / $35</button>
