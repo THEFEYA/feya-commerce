@@ -39,8 +39,8 @@ export default function ContactPage(){
           </p>
         </article>
 
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
-          <div className="eyebrow-gold">{sellerOnlineEnabled ? 'Payment service contact' : 'Planned payment processing partner · pending activation'}</div>
+        {sellerOnlineEnabled ? <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+          <div className="eyebrow-gold">Payment service contact</div>
           <h2 className="mt-3 text-bone text-xl">{SELLER_ONLINE_PROVIDER.legalName}</h2>
           <div className="mt-4 space-y-1 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}</p>
@@ -49,8 +49,7 @@ export default function ContactPage(){
             <p className="pt-2">Email: <a className="text-bone hover:text-white" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a></p>
             <p>Phone: {SELLER_ONLINE_PROVIDER.usOfficePhone}</p>
           </div>
-          {!sellerOnlineEnabled && <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">TheFEYA has not yet activated Seller Online checkout. This partner contact is displayed for integration review; no online payment can be made here at present.</p>}
-        </article>
+        </article> : null}
       </div>
     </section>
     <Footer/>
