@@ -18,7 +18,8 @@ create table public.feya_commerce_checkout_preflights_v2 (
   destination_sha256 text not null check(destination_sha256 ~ '^[0-9a-f]{64}$'),
   destination_country text not null check(destination_country ~ '^[A-Z]{2}$'),
   destination_postal_code text not null check(length(destination_postal_code) between 1 and 32),
-  -- PRIVATE contact/address, not returned by RPC; no browser or analytics read.
+  -- Address is verified transiently. Persist country/postal only, NEVER name,
+  -- email, phone or street address before a governed private PII retention flow.
   destination jsonb not null check(jsonb_typeof(destination)='object'),
   policy_bundle_sha256 text not null check(policy_bundle_sha256 ~ '^[0-9a-f]{64}$'),
   policy_accepted_at timestamptz not null,
@@ -268,7 +269,7 @@ begin
     v_id,v_request_id,v_hash,v_quote_id,
     v_quote.approval_id,v_quote.approval_revision,v_quote.workspace_version_id,
     v_quote.basket_sha256,v_quote.destination_sha256,v_country,v_postal,
-    v_normalized->'destination',v_policy_hash,v_created,
+    jsonb_build_object('country',v_country,'postal_code',v_postal),v_policy_hash,v_created,
     v_merchandise::bigint,v_quote.amount_minor,v_handling,
     v_total::bigint,'EUR',v_response,v_created,v_expires
   );
@@ -307,7 +308,7 @@ begin
   return jsonb_build_object('contract_version','commerce_checkout_preflight_v2',
     'private_boundary_ready',v_ok,
     'preflight_count',(select count(*) from public.feya_commerce_checkout_preflights_v2),
-    'legal_data_controller_verified',false,
+    'legal_data_controller_verified',false,'full_contact_persisted',false,
     'carrier_proof_complete',false,
     'tax_calculation_enabled',false,
     'payable',false,'payment_enabled',false,'provider_session_enabled',false);
