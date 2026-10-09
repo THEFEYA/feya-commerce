@@ -14,7 +14,7 @@ export type BuyerServiceReview={
   queue_priority:'regular'|'priority';
   carrier_selected_by:'thefeya_at_dispatch';
   delivery_estimate_basis:'owner_planning_estimate_not_guaranteed';
-  transit_business_days:{min:number;max:number};
+  indicative_service_window_business_days:{min:number;max:number};
   amount_minor:number;
   currency:'EUR';
   payable:false;public_rates_enabled:false;payment_enabled:false;
@@ -26,6 +26,8 @@ export type BuyerServiceReview={
  * The actual carrier and service are selected during fulfillment. Priority
  * means processing/production/dispatch queue preference; it does not assert
  * that a different or faster transport product will be purchased.
+ * The displayed owner planning window is NOT an API-verified courier transit
+ * service-level agreement and must not be described as one.
  *
  * This is ONLY for an unlisted, preview-only visual design review. The actual
  * immutable payable quote must read approved workspace + current merchandise
@@ -35,13 +37,13 @@ export const BUYER_SERVICES_REVIEW:readonly BuyerServiceReview[]=[
   {method:'standard',label:'Standard',queue_priority:'regular',
    carrier_selected_by:'thefeya_at_dispatch',
    delivery_estimate_basis:'owner_planning_estimate_not_guaranteed',
-   transit_business_days:{min:10,max:14},
+   indicative_service_window_business_days:{min:10,max:14},
    amount_minor:FEYA_EUR_STANDARD_MINOR,currency:'EUR',
    payable:false,public_rates_enabled:false,payment_enabled:false},
   {method:'express',label:'Express',queue_priority:'priority',
    carrier_selected_by:'thefeya_at_dispatch',
    delivery_estimate_basis:'owner_planning_estimate_not_guaranteed',
-   transit_business_days:{min:6,max:9},
+   indicative_service_window_business_days:{min:6,max:9},
    amount_minor:FEYA_EUR_EXPRESS_MINOR,currency:'EUR',
    payable:false,public_rates_enabled:false,payment_enabled:false},
 ] as const;
