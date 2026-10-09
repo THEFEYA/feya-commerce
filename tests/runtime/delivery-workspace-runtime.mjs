@@ -74,7 +74,7 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
     await check('Owner delivery UI renames profiles, saves assignments and runs the server date preview', async () => {
       await page.goto(base + '/admin/company/delivery'); await page.getByRole('heading', { name: 'Доставка и изготовление', exact: true }).waitFor();
       await page.getByLabel('Название профиля', { exact: true }).first().fill('Доставка: переименованный профиль');
-      await page.getByLabel('Обслуживаемые страны, коды через запятую').fill('US, AU, MX');
+      await page.getByLabel('Страны с подтверждённой возможностью доставки (коды через запятую)').fill('US, AU, MX');
       await page.getByLabel('Товар', { exact: true }).selectOption(ids.product);
       await page.getByLabel('Конфигурация', { exact: true }).selectOption(ids.config);
       await page.getByLabel('Профиль доставки для привязки', { exact: true }).selectOption(syntheticDeliveryWorkspace().shipping_profiles[0].id);
