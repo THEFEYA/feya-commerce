@@ -1,5 +1,7 @@
 # TheFEYA — корзина, доставка, услуги и клиентские коммуникации
 
+**2026-10-09 Owner future-work addendum (NONBLOCKING):** [customer order tracking → optional account/wishlist → promotions/referrals/CRM](M2_CUSTOMER_LIFECYCLE_OWNER_ADDITIONS_20261009.md). Nothing in this extension is a dependency for the first real paid *guest* order. Preserve existing M2 shipping/checkout critical path and ACTIVE Search v12; do not insert signup/popups into the first checkout.
+
 **Human Owner update 2026-10-09:** [EUR €5 per additional distinct listing and official carrier country evidence](M2_CARRIER_EUR_HANDLING_POLICY_20261009.md). A carrier-referenced list is provisional until live route/method/postcode verification; RU/BY/KP and Ukrposhta's 22 suspended destinations are blocked by M2 checkout/approval. This overrides earlier USD €5 ambiguity but does NOT enable a fee, tax, or payment. Current owner workspace rev16 retains Express 6–9 business days (older examples 7–10 are historical).\n\n
 Дата: 2026-10-07. База проверки: production/main `7aa17844dadbedd1adf2a278811ca4d3e51ca145`.
 
