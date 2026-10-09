@@ -65,7 +65,7 @@ export function parseCarrierOwnerParcelRequest(raw:unknown):CarrierOwnerParcelRe
     ||raw.packaging_reference.trim().length>200
     ||/[\u0000-\u001f\u007f]/.test(raw.packaging_reference))
     throw new CarrierOwnerReviewError('carrier_owner_review_request_invalid',400);
-  return {...raw,packaging_reference:raw.packaging_reference.trim()} as CarrierOwnerParcelRequest;
+  return {...raw,packaging_reference:raw.packaging_reference.trim()} as unknown as CarrierOwnerParcelRequest;
 }
 function validReview(raw:unknown):raw is OwnerParcelReview{
   return record(raw)&&validId(raw.review_id)
