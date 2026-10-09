@@ -99,7 +99,8 @@ begin
   ]) then
     return jsonb_build_object('contract_version','commerce_carrier_method_context_v1',
       'evidence','[]'::jsonb,'evidence_count',0,'blocked',true,
-      'payable',false,'payment_enabled',false,'provider_session_enabled',false);
+      'checked_at',to_char(transaction_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+      'public_rates_enabled',false,'payable',false,'payment_enabled',false,'provider_session_enabled',false);
   end if;
 
   select count(*) into v_total
@@ -115,7 +116,8 @@ begin
   if v_total>200 then
     return jsonb_build_object('contract_version','commerce_carrier_method_context_v1',
       'evidence','[]'::jsonb,'evidence_count',v_total,'blocked',true,
-      'reason','evidence_overflow_fail_closed','payable',false,'payment_enabled',false,
+      'checked_at',to_char(transaction_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+      'public_rates_enabled',false,'reason','evidence_overflow_fail_closed','payable',false,'payment_enabled',false,
       'provider_session_enabled',false);
   end if;
   select coalesce(jsonb_agg(jsonb_build_object(
@@ -140,7 +142,8 @@ begin
     and m.business_review_confirmed=true;
   return jsonb_build_object('contract_version','commerce_carrier_method_context_v1',
     'evidence',v_evidence,'evidence_count',v_total,'blocked',false,
-    'payable',false,'payment_enabled',false,'provider_session_enabled',false);
+    'checked_at',to_char(transaction_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+    'public_rates_enabled',false,'payable',false,'payment_enabled',false,'provider_session_enabled',false);
 end $$;
 
 create function public.feya_commerce_carrier_method_health_v1()
