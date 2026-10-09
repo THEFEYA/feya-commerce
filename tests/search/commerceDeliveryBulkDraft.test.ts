@@ -72,7 +72,7 @@ test('reassign manufacturing time across all options clears conflicting variant 
 });
 
 test('conflicting or partly assigned variants are visible in the Needs review bucket, never hidden as one duration', () => {
-  const draft = syntheticDeliveryWorkspace(), product = syntheticDeliveryCatalog[0];
+  const draft = syntheticDeliveryWorkspace(), product = structuredClone(syntheticDeliveryCatalog[0]);
   const other = randomUUID();
   draft.production_profiles.push({ ...structuredClone(draft.production_profiles[0]), id: other, name: 'other' });
   draft.assignments = [{
