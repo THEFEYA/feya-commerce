@@ -18,12 +18,16 @@ export function prepareUniversalBuyerShippingDraft(
   // with EUR 19/35 and an explicit 6-9 business-day Express window.
   // Never create an unwanted second profile or silently overwrite her transit.
   const one = next.shipping_profiles.length === 1 ? next.shipping_profiles[0] : null;
-  const rule = one?.rules.length === 1 ? one.rules[0] : null;
+  const rule = one?.rules.find(r => r.scope === 'default') || null;
+  const allowedZone = (r: NonNullable<typeof rule>) => r.scope === 'zone'
+    && r.countries.length === FEYA_APPROVED_REMOTE_COUNTRY_CODES.length
+    && FEYA_APPROVED_REMOTE_COUNTRY_CODES.every(code => r.countries.includes(code));
   const reusable = Boolean(one && rule && one.currency === 'EUR'
     && (!next.default_shipping_profile_id || next.default_shipping_profile_id === one.id)
     && !next.assignments.some(a => a.shipping_profile_id && a.shipping_profile_id !== one.id)
-    && one.served_countries.length === 0 && one.max_units_per_parcel === null
-    && rule.scope === 'default' && rule.countries.length === 0 && rule.postal_prefix === null
+    && one.max_units_per_parcel === null
+    && one.rules.every(r => r === rule || allowedZone(r))
+    && rule.countries.length === 0 && rule.postal_prefix === null
     && (rule.standard?.amount_minor == null || rule.standard.amount_minor === FEYA_EUR_STANDARD_MINOR)
     && (rule.express?.amount_minor == null || rule.express.amount_minor === FEYA_EUR_EXPRESS_MINOR)
   ));
