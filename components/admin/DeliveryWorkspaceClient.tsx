@@ -143,8 +143,12 @@ export function DeliveryWorkspaceClient() {
   const pendingApproval = useRef<DeliveryApprovalRequest | null>(null);
   const currentProduct = catalog.find(p => p.canonical_product_id === productId);
   function acceptLoaded(data: LoadedWorkspace) {
-    setWorkspace(data.workspace); setDraft(data.workspace.draft || emptyDeliveryWorkspace());
-    setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(false); setPreview(null);
+    const savedDraft = data.workspace.draft || emptyDeliveryWorkspace();
+    const regularDraft = normalizeRegularDeliveryWorkingWeek(savedDraft);
+    const workweekChanged = JSON.stringify(regularDraft) !== JSON.stringify(savedDraft);
+    setWorkspace(data.workspace); setDraft(regularDraft);
+    setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(workweekChanged); setPreview(null);
+    if (workweekChanged) setNotice('Рабочая неделя Пн–Пт установлена автоматически. Сохраните черновик, чтобы записать её в Supabase.');
     setApprovalData({ approval_enabled: data.approval_enabled, approval: data.approval,
       catalog_sha256: data.catalog_sha256, approval_readiness: data.approval_readiness });
   }
@@ -156,7 +160,8 @@ export function DeliveryWorkspaceClient() {
     return () => controller.abort();
   }, []);
   function change(update: (value: DeliveryWorkspaceDraft) => DeliveryWorkspaceDraft) {
-    setDraft(update); setDirty(true); setPreview(null); setNotice(''); setError(''); pendingSave.current = null;
+    setDraft(d => normalizeRegularDeliveryWorkingWeek(update(d)));
+    setDirty(true); setPreview(null); setNotice(''); setError(''); pendingSave.current = null;
     pendingApproval.current = null;
   }
   async function reload() {
@@ -165,18 +170,36 @@ export function DeliveryWorkspaceClient() {
     catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
     finally { setBusy(false); }
   }
-  async function save() {
-    if (!workspace) return;
+  async function persistDraft(candidate: DeliveryWorkspaceDraft): Promise<boolean> {
+    if (!workspace || busy) return false;
+    const normalized = normalizeRegularDeliveryWorkingWeek(candidate);
+    if (!dirty && JSON.stringify(normalized) === JSON.stringify(workspace.draft)) {
+      setNotice('Настройки уже сохранены в Supabase. Новая версия не требуется.');
+      return true;
+    }
     setBusy(true); setError(''); setNotice('');
-    pendingSave.current ||= { action: 'save', request_id: crypto.randomUUID(), expected_revision: workspace.revision, draft };
+    setDraft(normalized); setDirty(true);
+    // Reuse the same immutable request on retry only for the exact same candidate.
+    if (pendingSave.current && JSON.stringify(pendingSave.current.draft) !== JSON.stringify(normalized)) {
+      pendingSave.current = null;
+    }
+    pendingSave.current ||= {
+      action: 'save', request_id: crypto.randomUUID(),
+      expected_revision: workspace.revision, draft: normalized,
+    };
     try {
       await api(pendingSave.current);
-      acceptLoaded(await api()); pendingSave.current = null;
-      pendingApproval.current = null;
-      setNotice('Черновик сохранён новой версией. Публичные тарифы и оплата остаются выключенными.');
-    } catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
-    finally { setBusy(false); }
+      const loaded = await api<LoadedWorkspace>();
+      acceptLoaded(loaded);
+      pendingSave.current = null; pendingApproval.current = null;
+      setNotice(`Сохранено в Supabase: версия ${loaded.workspace.revision}. Оплата и публичные тарифы выключены.`);
+      return true;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable');
+      return false;
+    } finally { setBusy(false); }
   }
+  async function save() { await persistDraft(draft); }
   async function approve() {
     if (!workspace?.version_id || !workspace.snapshot_sha256 || !approvalData?.approval_enabled
       || !approvalData.approval || !approvalData.catalog_sha256 || !approvalData.approval_readiness.ready || dirty) return;
@@ -204,10 +227,14 @@ export function DeliveryWorkspaceClient() {
     change(d => ({ ...d, assignments: [...d.assignments.filter(a => !(a.canonical_product_id === productId && a.configuration_price_id === (configurationId || null))),
       ...(shippingId || productionId ? [{ canonical_product_id: productId, configuration_price_id: configurationId || null, shipping_profile_id: shippingId, production_profile_id: productionId }] : [])] }));
   }
-  function bulkAssign(ids: string[], kind: 'shipping' | 'production', profileId: string) {
-    const profiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
-    if (!ids.length || !profiles.some(p => p.id === profileId)) return;
-    change(d => applyDeliveryBulkProfile(d, catalog, ids, kind, profileId));
+  async function bulkAssign(ids: string[], profileId: string): Promise<boolean> {
+    if (!ids.length || !draft.production_profiles.some(p => p.id === profileId)) return false;
+    const candidate = applyUniformProductionProfile(draft, catalog, ids, profileId);
+    if (candidate === draft && !dirty) {
+      setNotice('У выбранных товаров уже назначен этот срок. Новая версия не создавалась.');
+      return true;
+    }
+    return persistDraft(candidate);
   }
   function selectTarget(product: string, configuration: string) {
     setProductId(product); setConfigurationId(configuration);
@@ -228,7 +255,7 @@ export function DeliveryWorkspaceClient() {
     finally { setBusy(false); }
   }
   return <div className={styles.workspace} aria-busy={busy}>
-    <div className={styles.notice}>Черновики для проверки. Сохранение не меняет цены доставки на сайте. Производственные сроки требуют явного типа дней, календаря и допустимого количества товаров.</div>
+    <div className={styles.notice}>Обычные рабочие дни заданы автоматически: Пн–Пт, без субботы и воскресенья. Временные профили изготовления можно назначать и сохранять сразу по фото. Сохранённый черновик не включает публичные тарифы или оплату.</div>
     {error && <div className={styles.error} role="alert">{message(error)}<details><summary>Код причины</summary>{error}</details>
       {['authentication_required', 'owner_not_allowed'].includes(error) && <Link href="/admin/login?next=/admin/company/delivery" className="owner-button">Войти в кабинет</Link>}
     </div>}
@@ -267,17 +294,7 @@ export function DeliveryWorkspaceClient() {
         <p className={styles.hint}>Часовой пояс — время работы мастерской для расчёта сроков, не страна покупателя. Если изготовление в Украине, используйте Europe/Kyiv. Страну доставки покупатель выберет в корзине.</p>
         <div className={styles.row}>
           <button type="button" className="owner-button" onClick={() => change(d => ({ ...d, scheduling_time_zone: 'Europe/Kyiv' }))}>Часовой пояс мастерской: Украина</button>
-          <button type="button" className="owner-button" onClick={() => change(d => ({
-            ...d, dispatch_calendar: workingWeek(d.dispatch_calendar),
-            production_profiles: d.production_profiles.map(p => ({ ...p, calendar: workingWeek(p.calendar) })),
-            shipping_profiles: d.shipping_profiles.map(p => ({
-              ...p, rules: p.rules.map(rule => ({
-                ...rule,
-                standard: rule.standard ? { ...rule.standard, calendar: workingWeek(rule.standard.calendar) } : null,
-                express: rule.express ? { ...rule.express, calendar: workingWeek(rule.express.calendar) } : null,
-              })),
-            })),
-          }))}>Пн–Пт для всех календарей</button>
+
         </div>
         <p className={styles.hint}>Пн–Пт уже применяются ко всем обычным профилям и датам. Приоритетное производство в выходные будет отдельной услугой позже. Для посылок сохраняются проверенные ограничения по вместимости.</p>
         <CalendarFields label="Дни отправки из мастерской" fixedWorkweek value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
