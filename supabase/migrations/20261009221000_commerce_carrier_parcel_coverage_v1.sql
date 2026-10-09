@@ -167,6 +167,7 @@ begin
     'workspace_version_id',v_quote.workspace_version_id,
     'workspace_revision',v_quote.workspace_revision,
     'country',v_quote.destination_country,
+    'postal_code',v_quote.destination_postal_code,
     'shipping_method',v_quote.shipping_method,
     'parcel_count',v_quote.parcel_count,
     'checked_at',v_checked,'quote_expires_at',v_quote.expires_at,
