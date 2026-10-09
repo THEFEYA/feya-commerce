@@ -1,5 +1,6 @@
 # TheFEYA — корзина, доставка, услуги и клиентские коммуникации
 
+**Human Owner update 2026-10-09:** [EUR €5 per additional distinct listing and official carrier country evidence](M2_CARRIER_EUR_HANDLING_POLICY_20261009.md). A carrier-referenced list is provisional until live route/method/postcode verification; RU/BY/KP and Ukrposhta's 22 suspended destinations are blocked by M2 checkout/approval. This overrides earlier USD €5 ambiguity but does NOT enable a fee, tax, or payment. Current owner workspace rev16 retains Express 6–9 business days (older examples 7–10 are historical).\n\n
 Дата: 2026-10-07. База проверки: production/main `7aa17844dadbedd1adf2a278811ca4d3e51ca145`.
 
 Статус: **модель доставки уточнена владельцем; численные примеры — DRAFT; кабинет профилей и серверный предпросмотр реализованы отдельным M2 пакетом; новый checkout ещё не подключён**. Текущая реализация и границы: [delivery workspace checkpoint](M2_DELIVERY_WORKSPACE_IMPLEMENTATION_20261007.md); production/CI receipts фиксируются в implementation PR.
