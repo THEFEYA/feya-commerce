@@ -112,11 +112,11 @@ export default function PrivacyPage(){
           <h2 className="text-bone text-xl">Orders and payments</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             {sellerOnlineEnabled?<>
-              <p>For the enabled Seller Online ordering/payment flow, information necessary to process, resell, deliver or support the transaction may be shared with {SELLER_ONLINE_PROVIDER.legalName} under the terms and privacy practices applicable to that service.</p>
-              <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+              <p>Payments are securely processed by {SELLER_ONLINE_PROVIDER.legalName}, our authorized payment recipient and logistics partner. Information necessary for an order may be shared with this partner for payment, delivery and support, subject to the applicable privacy practices and data-protection requirements.</p>
             </>:<>
-              <p>Online checkout and payment processing are not active in the current catalog storefront. Seller Online is not presented as an active transaction party until the integration and required disclosure for thefeya.com are explicitly confirmed and enabled.</p>
+              <p>Online checkout and payment processing are not active on this catalog storefront. Seller-Online LLC is the intended authorized payment recipient and logistics partner for the future API v2 integration, but no buyer payment or order personal data is transmitted to it by an inactive checkout.</p>
             </>}
+            <p>Partner address for disclosure: {SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
           </div>
         </article>
 
