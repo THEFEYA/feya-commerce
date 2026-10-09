@@ -3,6 +3,7 @@
 import { DELIVERY_COUNTRIES, type DraftCalendar, type DraftDuration, type DraftShippingMethod } from '@/lib/commerceDeliveryWorkspace';
 import styles from './DeliveryWorkspace.module.css';
 import { useState } from 'react';
+import { standardWeekCalendar } from '@/lib/commerceDeliveryRegularWeek';
 
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const displayNames = new Intl.DisplayNames(['ru'], { type: 'region' });
@@ -15,7 +16,20 @@ export function CountryCodesField({ label, value, onChange }: { label: string; v
     onFocus={() => { setText(value.join(', ')); setEditing(true); }} onBlur={() => setEditing(false)}
     onChange={e => { setText(e.target.value); onChange([...new Set(e.target.value.toUpperCase().split(/[\s,;]+/).filter(Boolean))]); }} /></label>;
 }
-export function CalendarFields({ label, value, onChange }: { label: string; value: DraftCalendar | null; onChange: (v: DraftCalendar | null) => void }) {
+export function CalendarFields({ label, value, onChange, fixedWorkweek = false }: { label: string; value: DraftCalendar | null; onChange: (v: DraftCalendar | null) => void; fixedWorkweek?: boolean }) {
+  if (fixedWorkweek) {
+    const current = standardWeekCalendar(value);
+    return <fieldset className={styles.fieldset}>
+      <legend>{label}</legend>
+      <p className={styles.hint}>Понедельник–пятница — рабочие дни автоматически. Суббота и воскресенье всегда исключены из обычных сроков.</p>
+      <label className={styles.field}>Дополнительные нерабочие даты (если есть)
+        <textarea rows={2} placeholder="YYYY-MM-DD — одна дата в строке"
+          value={current.holidays.join('\n')}
+          onChange={e => onChange({ ...current, holidays: e.target.value.split('\n') })}
+          onBlur={() => onChange({ ...current, holidays: [...new Set(current.holidays.map(d => d.trim()).filter(Boolean))] })} />
+      </label>
+    </fieldset>;
+  }
   return <fieldset className={styles.fieldset}>
     <legend>{label}</legend>
     <p className={styles.hint}>Отметьте рабочие дни. Праздники: YYYY-MM-DD, по одной дате в строке.</p>
@@ -33,27 +47,27 @@ export function CalendarFields({ label, value, onChange }: { label: string; valu
     {!value && <p className={styles.hint}>Календарь пока не задан.</p>}
   </fieldset>;
 }
-export function DurationFields({ label, value, onChange }: { label: string; value: DraftDuration | null; onChange: (v: DraftDuration | null) => void }) {
+export function DurationFields({ label, value, onChange, fixedBusinessDays = false }: { label: string; value: DraftDuration | null; onChange: (v: DraftDuration | null) => void; fixedBusinessDays?: boolean }) {
   return <fieldset className={styles.fieldset}>
     <legend>{label}</legend>
     <div className={styles.grid}>
-      <label className={styles.field}>От, дней<input type="number" min={0} max={365} value={value?.min ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: Number(e.target.value), max: value?.max ?? Number(e.target.value), unit: value?.unit ?? null })} /></label>
-      <label className={styles.field}>До, дней<input type="number" min={0} max={365} value={value?.max ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: value?.min ?? Number(e.target.value), max: Number(e.target.value), unit: value?.unit ?? null })} /></label>
-      <label className={styles.field}>Какие дни<select aria-label="Какие дни" value={value?.unit || ''} onChange={e => onChange({ min: value?.min ?? 0, max: value?.max ?? 0, unit: e.target.value as DraftDuration['unit'] || null })}>
+      <label className={styles.field}>От, дней<input type="number" min={0} max={365} value={value?.min ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: Number(e.target.value), max: value?.max ?? Number(e.target.value), unit: fixedBusinessDays ? 'business_days' : (value?.unit ?? null) })} /></label>
+      <label className={styles.field}>До, дней<input type="number" min={0} max={365} value={value?.max ?? ''} onChange={e => onChange(e.target.value === '' ? null : { min: value?.min ?? Number(e.target.value), max: Number(e.target.value), unit: fixedBusinessDays ? 'business_days' : (value?.unit ?? null) })} /></label>
+      {fixedBusinessDays ? <p className={styles.hint}>Рабочие дни: только Пн–Пт. Учитывается автоматически.</p> : <label className={styles.field}>Какие дни<select aria-label="Какие дни" value={value?.unit || ''} onChange={e => onChange({ min: value?.min ?? 0, max: value?.max ?? 0, unit: e.target.value as DraftDuration['unit'] || null })}>
         <option value="">Нужно уточнить</option><option value="calendar_days">Календарные</option><option value="business_days">Рабочие по календарю</option>
-      </select></label>
+      </select></label>}
     </div>
   </fieldset>;
 }
 export function MethodFields({ label, value, onChange }: { label: string; value: DraftShippingMethod | null; onChange: (v: DraftShippingMethod | null) => void }) {
   return <fieldset className={styles.fieldset}>
     <legend>{label}</legend>
-    <label className={styles.check}><input type="checkbox" checked={value !== null} onChange={e => onChange(e.target.checked ? { amount_minor: null, transit: null, calendar: null } : null)} />Метод доступен в этом правиле</label>
+    <label className={styles.check}><input type="checkbox" checked={value !== null} onChange={e => onChange(e.target.checked ? { amount_minor: null, transit: null, calendar: standardWeekCalendar(null) } : null)} />Метод доступен в этом правиле</label>
     {value && <>
       <label className={styles.field}>Цена доставки<input type="number" min={0} max={1000000} step="0.01" value={value.amount_minor === null ? '' : value.amount_minor / 100} onChange={e => onChange({ ...value, amount_minor: e.target.value === '' ? null : Math.round(Number(e.target.value) * 100) })} /></label>
       <p className={styles.hint}>В валюте профиля. Пустое поле — цена не задана; 0 — явная бесплатная доставка в черновике.</p>
-      <DurationFields label="В пути после отправки" value={value.transit} onChange={transit => onChange({ ...value, transit })} />
-      <CalendarFields label="Календарь перевозчика" value={value.calendar} onChange={calendar => onChange({ ...value, calendar })} />
+      <DurationFields label="В пути после отправки" fixedBusinessDays value={value.transit} onChange={transit => onChange({ ...value, transit })} />
+      <CalendarFields label="Календарь перевозчика" fixedWorkweek value={value.calendar} onChange={calendar => onChange({ ...value, calendar })} />
     </>}
   </fieldset>;
 }
