@@ -100,6 +100,8 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       await page.reload();
       await page.getByLabel('Показывать товары').selectOption(`profile:${general.production_profile_id}`);
       assert.equal(await page.getByRole('checkbox', { name: `Выбрать товар: ${assignedProduct.title}` }).count(), 1);
+      await page.getByLabel('Товар', { exact: true }).selectOption(ids.product);
+      await page.getByLabel('Конфигурация', { exact: true }).selectOption(ids.config);
       await page.getByRole('button', { name: 'Добавить выбранное в тестовый заказ', exact: true }).click();
       await page.getByRole('button', { name: 'Рассчитать доставку и даты', exact: true }).click();
       await page.getByText('Черновой расчёт доставки:', { exact: false }).waitFor();
