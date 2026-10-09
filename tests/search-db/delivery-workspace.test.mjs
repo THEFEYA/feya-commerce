@@ -810,7 +810,7 @@ test('immutable owner profile review can scope a current source method but canno
     workspace_version_id:row.workspace_version_id,
     workspace_revision:row.workspace_revision,
     shipping_profile_id:ids[0],
-    parcel_class:'ordinary',max_units_per_parcel:2,
+    parcel_class:'ordinary',max_units_per_parcel:4,
     envelope_weight_grams:1600,envelope_length_mm:450,
     envelope_width_mm:340,envelope_height_mm:180,
     packaging_reference:'SYNTHETIC LOCAL QA review',
@@ -870,7 +870,7 @@ test('Owner parcel context shows current approved exact profiles and remains non
   const selected=x.profiles.find(p=>p.shipping_profile_id===ownerParcelRequest.shipping_profile_id);
   assert.ok(selected);
   assert.equal(selected.owner_review.parcel_class,'ordinary');
-  assert.equal(selected.owner_review.max_units_per_parcel,2);
+  assert.equal(selected.owner_review.max_units_per_parcel,4);
   assert.equal(selected.owner_review.packaging_reference,'SYNTHETIC LOCAL QA review');
   assert.ok(x.source_observation_count>=1);
   assert.equal(x.payable,false);
