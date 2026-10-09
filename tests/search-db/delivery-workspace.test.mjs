@@ -808,7 +808,7 @@ test('immutable owner profile review can scope a current source method but canno
   ownerParcelRequest={
     request_id:randomUUID(),
     workspace_version_id:row.workspace_version_id,
-    workspace_revision:row.workspace_revision,
+    workspace_revision:Number(row.workspace_revision),
     shipping_profile_id:ids[0],
     parcel_class:'ordinary',max_units_per_parcel:4,
     envelope_weight_grams:1600,envelope_length_mm:450,
