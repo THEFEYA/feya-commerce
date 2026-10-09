@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import { FeyaMark } from '@/components/FeyaMark';
-import { isSellerOnlinePaymentsEnabled, SELLER_ONLINE_PROVIDER } from '@/lib/sellerOnlineProvider';
 
 const FOOTER_COLUMNS = [
   {
@@ -40,7 +39,6 @@ const FOOTER_COLUMNS = [
 ];
 
 export function Footer() {
-  const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
   return (
     <footer className="relative border-t border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.72)] overflow-hidden">
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_10%_0%,rgba(212,178,106,0.12),transparent_32%),radial-gradient(circle_at_90%_70%,rgba(216,214,211,0.10),transparent_35%)]" />
@@ -80,14 +78,6 @@ export function Footer() {
       </div>
 
       <div className="relative z-10 border-t border-[rgba(216,214,211,0.10)] bg-[rgba(7,7,10,0.65)]">
-        <div className="container-feya pt-4 text-[11px] leading-5 text-[rgba(200,194,181,0.68)]">
-          <p>
-            {sellerOnlineEnabled ? 'Payment Processing & Shipping Operator: ' : 'Planned Payment Processing & Shipping Operator (activation pending): '}
-            {SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1},
-            {' '}{SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.
-          </p>
-          {!sellerOnlineEnabled && <p>Online payment is not active. No payment is processed by Seller-Online LLC on this catalog website at this stage.</p>}
-        </div>
         <div className="container-feya py-2.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-[10px] tracking-[0.34em] uppercase text-[rgba(200,194,181,0.58)]">
           <span>© TheFEYA Atelier · Made to order</span>
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
