@@ -101,7 +101,24 @@ export default function TermsPage(){
             <p>For the enabled Seller Online checkout flow, {SELLER_ONLINE_PROVIDER.legalName} may act as buyer, reseller, shipper and direct payment recipient under the terms applicable to that service. TheFEYA does not label Seller Online as “merchant of record” unless that exact role is separately confirmed for thefeya.com.</p>
             <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
           </div>
-        </article>:null}
+        </article>:<article className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.035)] p-6 lg:col-span-2 lg:p-7">
+          <h2 className="text-bone text-xl">Planned payment &amp; logistics partner</h2>
+          <div className="mt-4 grid gap-5 text-[15px] leading-7 text-[var(--bone-dim)] md:grid-cols-2">
+            <div className="space-y-3">
+              <p>Seller-Online LLC has confirmed that TheFEYA&apos;s custom website can be connected using its API v2, subject to account onboarding and activation.</p>
+              <p>The intended role is authorized payment recipient and logistics partner. <strong className="font-medium text-bone">Online checkout and payment are not active yet.</strong></p>
+              <p>This disclosure identifies the payment service partner, not the confirmed legal seller or manufacturer of TheFEYA products. Those transaction details must be confirmed before online sales.</p>
+            </div>
+            <div>
+              <p className="font-medium text-bone">Payment &amp; shipping operator contact</p>
+              <address className="mt-2 not-italic">{SELLER_ONLINE_PROVIDER.legalName}<br/>
+                {SELLER_ONLINE_PROVIDER.contactAddress.line1}<br/>
+                {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}<br/>
+                {SELLER_ONLINE_PROVIDER.contactAddress.country}</address>
+              <p className="mt-3">Email: <a className="break-all text-bone underline underline-offset-4 hover:text-white" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a></p>
+            </div>
+          </div>
+        </article>}
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
