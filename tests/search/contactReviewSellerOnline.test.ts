@@ -31,8 +31,8 @@ test('Contact design uses real customer support, canonical provider metadata and
   assert.match(component,/online checkout|Online payments/i);
   assert.match(component,/href="\/privacy"/);
   assert.match(component,/href="\/terms"/);
-  assert.match(component,/href="\/returns"/);
-  assert.match(component,/href="\/shipping"/);
+  assert.match(component,/href:\x27\/returns\x27/);
+  assert.match(component,/href:\x27\/shipping\x27/);
   assert.match(provider,/merchantOfRecordConfirmed: false/);
   assert.doesNotMatch(component,/Merchant of Record|is our legal seller|guaranteed response|24\/7/i);
   assert.match(component,/focus-visible/);
