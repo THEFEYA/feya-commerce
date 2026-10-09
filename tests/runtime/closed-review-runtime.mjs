@@ -467,9 +467,398 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const href=await page.locator('a[data-testid^="product-card-"]').first().getAttribute('href');assert.equal(href,release.entries[20].copy.metadata.canonical_path);
       await page.getByRole('link',{name:'Previous 20',exact:true}).click();await page.waitForURL('**/shop');
       await page.getByTestId('shop-page').waitFor();
+      // ProductCard intentionally lazy-loads hover media only AFTER React's
+      // onPointerEnter/onFocus handler runs. A purely SSR card can be visible
+      // before client hydration; hovering it then does not request swap media.
+      // Wait for the actual React event props before triggering the hover.
+      await page.waitForFunction(()=>{
+        const card=document.querySelector('.product-card.has-hover-media');
+        return card instanceof Element
+          && Object.keys(card).some(key=>key.startsWith('__reactProps
+      // Transient navigation/hydration states can remove the hovered element
+      // between two animation frames. Wait for real computed opacity rather
+      // than throwing TypeError when the queried element is temporarily null.
+      await page.waitForFunction(()=>{
+        const element=document.querySelector('.product-card:hover .hover-media');
+        return element instanceof Element && Number(getComputedStyle(element).opacity)>.9;
+      });
+      await page.mouse.move(0,0);
+      const colorEntry=release.entries.find(e=>e.product.canonical_color_label);
+      if(colorEntry){
+        const color=String(colorEntry.product.canonical_color_label);
+        await page.goto(base+'/shop?color='+encodeURIComponent(color));
+        assert.ok(await page.locator('a[data-testid^="product-card-"]').count()>0);
+        const next=page.getByRole('link',{name:'Show 20 more',exact:true});
+        if(await next.count()){assert.match(await next.getAttribute('href'),/color=/);}
+      }
+      await page.goto(base+path);const related=page.locator('a[href^="/collections/"]').first();if(await related.count()){const target=await related.getAttribute('href');assert.ok(target?.startsWith('/collections/'));}
+      const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
+      await page.goto(base+galleryEntry.copy.metadata.canonical_path);
+      const mainImage=page.locator('button[class*="max-w-[520px]"] img');
+      const before=await mainImage.getAttribute('src');await page.locator('button[class*="max-w-[520px]"] svg.lucide-chevron-right').click();
+      await page.waitForFunction(before=>Boolean(document.querySelector('button[class*="max-w-[520px]"] img')) && document.querySelector('button[class*="max-w-[520px]"] img').getAttribute('src')!==before,before);
+      for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
+        await page.setViewportSize(viewport);await page.goto(base+'/shop');await page.getByTestId('shop-page').waitFor();
+        await page.screenshot({path:join(out,`closed-review-shop-${viewport.width}.png`),fullPage:true});
+        await page.goto(base+path);await page.getByRole('button',{name:'Preview only',exact:false}).waitFor();
+        await page.screenshot({path:join(out,`closed-review-pdp-${viewport.width}.png`),fullPage:true});
+      }
+      const noJs=await browser.newContext({javaScriptEnabled:false,storageState:await ownerPage.context().storageState()});
+      try{
+        // Cache Components streams runtime URL state through Suspense. A browser with
+        // JavaScript disabled does not apply Next's stream-injection payload, so DOM
+        // clickability is not a valid progressive-enhancement gate for this route.
+        // The crawl contract is the server response itself: it must expose ordinary
+        // anchors and a followable page-2 response without any client execution.
+        const firstResponse=await noJs.request.get(base+'/shop');
+        assert.equal(firstResponse.status(),200);
+        const firstDoc=await documentData(await firstResponse.text());
+        assert.equal(firstDoc.cards.length,20);
+        assert.equal(firstDoc.next,'/shop?page=2');
+        const secondResponse=await noJs.request.get(base+firstDoc.next);
+        assert.equal(secondResponse.status(),200);
+        const secondDoc=await documentData(await secondResponse.text());
+        assert.equal(secondDoc.cards.length,20);
+        assert.equal(secondDoc.cards[0],release.entries[20].copy.metadata.canonical_path);
+      }finally{await noJs.close();}
+      assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
+    });
+    await check('Phase 8 navigation hubs preserve keyboard and owner-link parity',async()=>{
+      const owners=[
+        '/collections/shoulder-armor','/collections/bodysuits','/collections/costume-masks',
+        '/collections/costume-headpieces','/collections/costume-belts','/collections/festival-outfits',
+        '/collections/rave-outfits','/collections/burning-man-outfits','/collections/performance-costumes',
+        '/collections/festival-skirts',
+      ];
+      for(const route of ['/events-performance','/style','/collections']){
+        assert.equal((await request(route)).status(),200,route);
+      }
+
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
+      const nav=page.getByTestId('primary-nav');
+      const parent=nav.getByRole('link',{name:'Events & Performance',exact:true});
+      const disclosure=nav.getByRole('button',{name:'Events & Performance submenu',exact:true});
+      await parent.focus();
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
+      await disclosure.focus();
+      assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
+      await disclosure.press('Enter');
+      await page.waitForFunction(
+        ()=>document.querySelector('[aria-label="Events & Performance submenu"]')?.getAttribute('aria-expanded')==='true',
+      );
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
+      await page.keyboard.press('Tab');
+      assert.equal(await page.evaluate(()=>document.activeElement?.closest('#nav-panel-events_performance')?.id),'nav-panel-events_performance');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(
+        ()=>document.activeElement?.getAttribute('aria-label')==='Events & Performance submenu',
+      );
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
+      assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
+
+      const hrefs=await page.evaluate(()=>({
+        desktop:[...document.querySelectorAll('[id^="nav-panel-"] a[href]')].map(n=>n.getAttribute('href')),
+        mobile:[...document.querySelectorAll('#mobile-site-navigation a[href]')].map(n=>n.getAttribute('href')),
+      }));
+      for(const href of owners){
+        assert.ok(hrefs.desktop.includes(href),href);
+        assert.ok(hrefs.mobile.includes(href),href);
+      }
+
+      await page.goto(base+'/style');
+      await page.getByTestId('shop-page').waitFor();
+      const styleFilter=page.getByTestId('filter-sidebar').getByRole('button',{name:'Style',exact:true});
+      assert.equal(await styleFilter.getAttribute('aria-expanded'),'true');
+
+      await page.setViewportSize({width:390,height:844});
+      await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
+      const menu=page.getByRole('button',{name:'Menu',exact:true});
+      await menu.click();
+      await page.getByRole('dialog',{name:'Site navigation'}).waitFor();
+      await page.waitForFunction(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation')));
+      assert.equal(await page.evaluate(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation'))),true);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Menu');
+      assert.equal(await menu.evaluate(node=>node===document.activeElement),true);
+
+      report.phase8_navigation_keyboard_pass=true;
+      report.phase8_owner_link_parity_pass=true;
+    });
+
+    await restorePhase12OwnerEvidence();
+
+    await check('Phase 12 owner-approved routes preserve governed membership, noindex and permanent aliases',async()=>{
+      const owners=[
+        ['/collections/shoulder-armor',80],
+        ['/collections/bodysuits',30],
+        ['/collections/costume-masks',11],
+        ['/collections/costume-headpieces',34],
+        ['/collections/costume-belts',13],
+        ['/collections/festival-outfits',111],
+        ['/collections/rave-outfits',40],
+        ['/collections/burning-man-outfits',45],
+        ['/collections/performance-costumes',96],
+        ['/collections/festival-skirts',56],
+      ];
+      for(const [ownerPath,count] of owners){
+        const response=await request(ownerPath);
+        assert.equal(response.status(),200,ownerPath);
+
+        await page.goto(base+ownerPath,{waitUntil:'domcontentloaded'});
+        await page.getByText(`${count} orderable pieces`,{exact:true}).waitFor();
+
+        await page.waitForFunction((expectedPath)=>{
+          const canonical=document.querySelector('link[rel="canonical"]')?.getAttribute('href')||'';
+          try{return new URL(canonical,location.origin).pathname===expectedPath;}catch{return false;}
+        },ownerPath);
+        await page.waitForFunction(
+          ()=>/noindex/i.test(document.querySelector('meta[name="robots"]')?.getAttribute('content')||''),
+        );
+
+        const canonicalHref=await page.locator('link[rel="canonical"]').getAttribute('href');
+        const robotsContent=await page.locator('meta[name="robots"]').getAttribute('content');
+        assert.ok(canonicalHref,ownerPath+' canonical');
+        assert.equal(new URL(canonicalHref,base).pathname,ownerPath,ownerPath);
+        assert.match(robotsContent||'',/noindex/i,ownerPath);
+      }
+
+      for(const [oldPath,newPath] of [
+        ['/collections/burning-man-looks','/collections/burning-man-outfits'],
+        ['/collections/stage-outfits','/collections/performance-costumes'],
+      ]){
+        const response=await ownerPage.request.get(base+oldPath,{maxRedirects:0});
+        assert.equal(response.status(),308,oldPath);
+        assert.equal(new URL(response.headers().location,base).pathname,newPath,oldPath);
+      }
+
+      report.phase12_current_owner_routes_pass=true;
+      report.phase12_owner_redirects_pass=true;
+    });
+
+    await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
+      await page.goto(base+path);
+      const response=await page.request.get(base+'/api/measurement/context?path='+encodeURIComponent(path));
+      assert.equal(response.status(),200);
+      const body=await response.json();
+      assert.equal(body.ok,true);
+      assert.equal(body.context.page_id,first.identity.seo_page_id);
+      assert.equal(body.context.canonical_product_id,first.identity.canonical_product_id);
+      assert.equal(body.context.environment,'preview');
+      assert.equal(body.context.measurement_enabled,false);
+      assert.equal(body.context.ga4_measurement_id,null);
+
+      await page.waitForFunction(()=>Boolean(window.__FEYA_MEASUREMENT_STATE__));
+      let state=await page.evaluate(()=>window.__FEYA_MEASUREMENT_STATE__);
+      assert.equal(state.consent,'unset');
+      assert.equal(state.sent,0);
+      assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_landing_page_v1')),null);
+
+      await page.evaluate(()=>localStorage.setItem('feya_analytics_consent_v1','granted'));
+      await page.reload();
+      await page.waitForFunction(()=>Boolean(window.__FEYA_MEASUREMENT_STATE__));
+      state=await page.evaluate(()=>window.__FEYA_MEASUREMENT_STATE__);
+      assert.equal(state.consent,'granted');
+      assert.equal(state.sent,0,'Preview environment must not emit analytics even if local consent is granted');
+      assert.ok(state.blocked>=1);
+      assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+      await page.evaluate(()=>localStorage.removeItem('feya_analytics_consent_v1'));
+      report.measurement_preview_fail_closed=true;
+    });
+
+    await check('PDP keyboard flow covers gallery, configuration and modal focus without mouse-only dependency',async()=>{
+      const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
+      assert.ok(galleryEntry,'Expected at least one multi-image release product');
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(base+galleryEntry.copy.metadata.canonical_path);
+
+      const mainMedia=page.getByRole('button',{name:/Open image \d+ of \d+/});
+      await mainMedia.focus();
+      assert.equal(await mainMedia.evaluate(el=>el===document.activeElement),true);
+
+      const mainImage=mainMedia.locator('img');
+      const before=await mainImage.getAttribute('src');
+      await page.keyboard.press('ArrowRight');
+      await page.waitForFunction(before=>{
+        const button=[...document.querySelectorAll('button')].find(el=>/^Open image \d+ of \d+/.test(el.getAttribute('aria-label')||''));
+        const image=button?.querySelector('img');
+        return Boolean(image&&image.getAttribute('src')!==before);
+      },before);
+
+      await page.keyboard.press('Enter');
+      const dialog=page.getByRole('dialog',{name:/Image viewer:/});
+      await dialog.waitFor();
+      const close=page.getByRole('button',{name:'Close image viewer',exact:true});
+      assert.equal(await close.evaluate(el=>el===document.activeElement),true);
+      await page.keyboard.press('Tab');
+      assert.equal(await close.evaluate(el=>el===document.activeElement),true,'Modal Tab must remain inside the one-control dialog');
+      await page.keyboard.press('Escape');
+      await dialog.waitFor({state:'detached'});
+      assert.equal(await mainMedia.evaluate(el=>el===document.activeElement),true,'Closing dialog must restore prior focus');
+
+      const config=page.locator('button[aria-controls="product-configuration-options"]');
+      await config.focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await config.getAttribute('aria-expanded'),'true');
+      const firstOption=page.locator('#product-configuration-options button').first();
+      await page.keyboard.press('Tab');
+      assert.equal(await firstOption.evaluate(el=>el===document.activeElement),true);
+      await page.keyboard.press('Enter');
+      assert.equal(await config.getAttribute('aria-expanded'),'false');
+
+      const nav=page.locator('[data-testid="primary-nav"] a').first();
+      await nav.focus();
+      assert.equal(await nav.evaluate(el=>el===document.activeElement),true);
+      assert.ok(await page.locator('button[aria-label^="Select color"]').count()>=0);
+      assert.ok(await page.locator('button[aria-pressed]').count()>0);
+      report.closed_review_keyboard_pass=true;
+    });
+
+    await check('Phase 10 media delivery removes eager hover bytes and audits frozen font delivery',async()=>{
+      const firstPage=release.entries.slice(0,20);
+      const primarySources=new Set(firstPage.map((entry)=>String(entry.product.primary_image_url||'')).filter(Boolean));
+      const hoverEntry=firstPage.find((entry)=>{
+        const hover=String(entry.product.hover_image_url||'');
+        return hover && hover!==String(entry.product.primary_image_url||'') && !primarySources.has(hover);
+      });
+      assert.ok(hoverEntry,'Expected a first-page product with a unique hover image');
+
+      const requestedSources=[];
+      const sourceForRequest=(request)=>{
+        if(request.resourceType()!=='image')return null;
+        const url=new URL(request.url());
+        return url.pathname==='/_next/image' ? url.searchParams.get('url') : request.url();
+      };
+      const collect=(request)=>{
+        const source=sourceForRequest(request);
+        if(source)requestedSources.push(source);
+      };
+      page.on('request',collect);
+      await page.goto(base+'/shop',{waitUntil:'networkidle'});
+      const firstCardImage=page.locator('a[data-testid^="product-card-"] img').first();
+      await firstCardImage.waitFor();
+      assert.match(await firstCardImage.getAttribute('src'),/^\/_next\/image\?/);
+
+      const hoverSource=String(hoverEntry.product.hover_image_url);
+      assert.equal(requestedSources.includes(hoverSource),false,'Hidden hover media must not transfer before intent');
+
+      const hoverCard=page.locator(`a[href="${hoverEntry.copy.metadata.canonical_path}"]`).first();
+      const hoverRequest=page.waitForRequest((request)=>sourceForRequest(request)===hoverSource);
+      await hoverCard.hover();
+      await hoverRequest;
+      page.off('request',collect);
+
+      await page.goto(base+'/',{waitUntil:'networkidle'});
+      assert.equal(await page.locator('img[fetchpriority="high"]').count(),1,'Homepage must expose one high-priority LCP image');
+      const fontRequests=await page.evaluate(()=>performance.getEntriesByType('resource')
+        .map((entry)=>entry.name)
+        .filter((name)=>name.includes('fonts.googleapis.com')||name.includes('fonts.gstatic.com')));
+
+      report.phase10_media_delivery={
+        optimized_card_src:true,
+        hover_deferred_until_intent:true,
+        one_home_lcp_priority:true,
+        font_delivery:'retained_google_fonts_due_frozen_visual_contract',
+        observed_google_font_requests:fontRequests.length,
+      };
+    });
+
+    await check('Release lab asset budgets guard JavaScript and CSS regressions without claiming field CWV',async()=>{
+      const routes=['/shop',path];
+      const budgets={maxScriptBytes:2500000,maxStyleBytes:600000,maxScriptResources:48,maxStyleResources:16};
+      const observed=[];
+      for(const route of routes){
+        await page.goto(base+route,{waitUntil:'networkidle'});
+        const metrics=await page.evaluate(()=>{
+          const resources=performance.getEntriesByType('resource');
+          const size=r=>Number(r.encodedBodySize||r.transferSize||r.decodedBodySize||0);
+          const scripts=resources.filter(r=>r.initiatorType==='script'||/\/_next\/static\/.*\.js(?:\?|$)/.test(r.name));
+          const styles=resources.filter(r=>r.initiatorType==='css'||/\.css(?:\?|$)/.test(r.name));
+          return{
+            path:location.pathname+location.search,
+            scriptBytes:scripts.reduce((sum,r)=>sum+size(r),0),
+            styleBytes:styles.reduce((sum,r)=>sum+size(r),0),
+            scriptResources:new Set(scripts.map(r=>r.name)).size,
+            styleResources:new Set(styles.map(r=>r.name)).size,
+          };
+        });
+        assert.ok(metrics.scriptBytes<=budgets.maxScriptBytes,JSON.stringify({kind:'script_bytes',metrics,budgets}));
+        assert.ok(metrics.styleBytes<=budgets.maxStyleBytes,JSON.stringify({kind:'style_bytes',metrics,budgets}));
+        assert.ok(metrics.scriptResources<=budgets.maxScriptResources,JSON.stringify({kind:'script_resources',metrics,budgets}));
+        assert.ok(metrics.styleResources<=budgets.maxStyleResources,JSON.stringify({kind:'style_resources',metrics,budgets}));
+        observed.push(metrics);
+      }
+      report.release_lab_asset_budget={budgets,observed,note:'CI regression guard only; not field Core Web Vitals.'};
+    });
+
+    await check('Mistaken production/index flags cannot expose a closed release or populate sitemap',async()=>{
+      let r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
+      await stop();await start({VERCEL_ENV:'production'});
+      for(const url of ['/', '/shop',path])await assertClosed(await request(url),url);
+      r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
+      const robots=await (await request('/robots.txt')).text();assert.match(robots,/Disallow: \/(?:\r?\n|$)/);
+    });
+    await check('Controller identity independently gates real production measurement and public privacy without postal disclosure',async()=>{
+      const activation={FEYA_ANALYTICS_ENABLED:'true',FEYA_ANALYTICS_PRIVACY_READY:'true',FEYA_GA4_MEASUREMENT_ID:'G-TEST123',
+        FEYA_PUBLIC_LEGAL_IDENTITY_CONFIRMED:'false',FEYA_PUBLIC_LEGAL_NAME:'Fixture Seller',
+        FEYA_PUBLIC_LEGAL_ADDRESS_LINE1:'Fixture Postal Address',FEYA_PUBLIC_LEGAL_ADDRESS_CITY:'Fixture City',
+        FEYA_PUBLIC_LEGAL_ADDRESS_POSTAL_CODE:'00000',FEYA_PUBLIC_LEGAL_ADDRESS_COUNTRY:'US',
+        FEYA_PRIVACY_CONTROLLER_NAME:'Fixture Privacy Controller',FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL:'privacy@example.invalid'};
+      const cases=[
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'false',enabled:false,blocker:'privacy_controller_unconfirmed_or_incomplete'},
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL:'',enabled:false,blocker:'privacy_controller_unconfirmed_or_incomplete'},
+        {VERCEL_ENV:'production',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',enabled:true,blocker:null},
+        {VERCEL_ENV:'preview',FEYA_PRIVACY_CONTROLLER_CONFIRMED:'true',enabled:false,blocker:'non_production_environment'},
+      ];
+      for(const {enabled,blocker,...settings} of cases){
+        await stop();await start({...activation,...settings});
+        const response=await request('/api/measurement/context?path='+encodeURIComponent(path));
+        assert.equal(response.status(),200);const body=await response.json();
+        assert.equal(body.context.measurement_enabled,enabled);
+        assert.equal(body.context.ga4_measurement_id,enabled?'G-TEST123':null);
+        assert.equal(body.context.measurement_blocker,blocker);
+        assert.equal(JSON.stringify(body.context).includes('privacy@example.invalid'),false);
+        assert.equal(JSON.stringify(body.context).includes('Fixture Privacy Controller'),false);
+        const privacyResponse=await request('/privacy');assert.equal(privacyResponse.status(),200);
+        const html=await privacyResponse.text();assert.doesNotMatch(html,/Fixture Postal Address/);
+        if(settings.FEYA_PRIVACY_CONTROLLER_CONFIRMED==='true'&&settings.FEYA_PRIVACY_CONTROLLER_CONTACT_EMAIL!==''){
+          assert.match(html,/Fixture Privacy Controller/);assert.match(html,/privacy@example.invalid/);
+        }else assert.doesNotMatch(html,/Fixture Privacy Controller/);
+        if(enabled){
+          await page.evaluate(()=>localStorage.removeItem('feya_analytics_consent_v1'));
+          await page.goto(base+'/privacy');await page.locator('aside[aria-label="Analytics privacy choice"]').getByRole('button',{name:'Allow analytics',exact:true}).waitFor();
+          assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+          assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+          assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_landing_page_v1')),null);
+          const terms=await (await request('/terms')).text();assert.doesNotMatch(terms,/Fixture Privacy Controller/);
+        }
+      }
+      report.privacy_controller_separate_gate_pass=true;
+    });
+    report.closed_review_runtime_pass=true;report.closed_review_release_id=binding.release_id;report.closed_review_presentation_sha256=binding.presentation_sha256;
+    report.limitations.push('Closed release uses pinned real copy/media URLs and source prices, loopback source/approval fixtures, and substituted browser image bytes. No production deployment, live CDN/price/orderability/payment or indexation certification.');
+  }catch(error){
+    if(page){
+      await page.screenshot({path:join(out,'closed-review-failure.png'),fullPage:true}).catch(()=>{});
+      await writeFile(join(out,'closed-review-failure.json'),JSON.stringify({url:page.url(),error:String(error.stack||error)},null,2));
+    }
+    throw error;
+  }finally{
+    await page?.close();await outsiderContext?.close();await stop();
+    for(const key of ['NEXT_PUBLIC_SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','FEYA_INTERNAL_API_TOKEN'])if(env[key])log=log.replaceAll(env[key],'[redacted]');
+    await writeFile(join(out,'closed-review-next.log'),log);
+  }
+}
+));
+      });
       const hover=page.locator('.product-card.has-hover-media').first();
-      await hover.locator('.hover-media').waitFor({state:'attached'});
       await hover.hover();
+      await hover.locator('.hover-media').waitFor({state:'attached'});
       // Transient navigation/hydration states can remove the hovered element
       // between two animation frames. Wait for real computed opacity rather
       // than throwing TypeError when the queried element is temporarily null.
