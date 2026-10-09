@@ -38,9 +38,9 @@ type RPCResult={data:unknown;error:{message?:string;code?:string}|null};
 export type CarrierOwnerRPC={rpc:(name:string,args?:Record<string,unknown>)=>PromiseLike<RPCResult>};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const record=(v:unknown):v is Record<string,unknown>=>Boolean(v&&typeof v==='object'&&!Array.isArray(v));
-const validId=(v:unknown)=>typeof v==='string'&&UUID.test(v);
+const validId=(v:unknown):v is string=>typeof v==='string'&&UUID.test(v);
 const safeClock=(v:unknown)=>typeof v==='string'&&Number.isFinite(Date.parse(v));
-const integer=(v:unknown,min=0,max=Number.MAX_SAFE_INTEGER)=>typeof v==='number'&&Number.isSafeInteger(v)&&v>=min&&v<=max;
+const integer=(v:unknown,min=0,max=Number.MAX_SAFE_INTEGER):v is number=>typeof v==='number'&&Number.isSafeInteger(v)&&v>=min&&v<=max;
 const disallowed=(v:Record<string,unknown>)=>v.payable!==false||v.public_rates_enabled!==false||
   v.payment_enabled!==false||v.provider_session_enabled!==false;
 const err=(name:string):never=>{throw new CarrierOwnerReviewError(name)};
@@ -104,7 +104,7 @@ export function parseCarrierOwnerContext(raw:unknown):CarrierOwnerContext{
       return err('carrier_owner_review_response_invalid');
     names.add(p.shipping_profile_id);
   }
-  return raw as CarrierOwnerContext;
+  return raw as unknown as CarrierOwnerContext;
 }
 export async function readCarrierOwnerContext(client:CarrierOwnerRPC):Promise<CarrierOwnerContext>{
   let response:RPCResult;
@@ -138,5 +138,5 @@ export async function confirmOwnerParcelReview(
     ||!safeClock(r.reviewed_at)||typeof r.replayed!=='boolean'
     ||r.carrier_route_verified!==false||disallowed(r))
     return err('carrier_owner_review_response_invalid');
-  return r as CarrierOwnerReceipt;
+  return r as unknown as CarrierOwnerReceipt;
 }
