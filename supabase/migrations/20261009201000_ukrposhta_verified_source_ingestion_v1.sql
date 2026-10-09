@@ -43,9 +43,9 @@ begin
     or v_digest is null or v_digest !~ '^[0-9a-f]{64}$'
     or v_adapter is distinct from 'ukrposhta_international_20260309_v1'
     or p_capture->>'captured_at' is null
-    or p_capture->>'captured_at' !~ '^\\d{4}-\\d{2}-\\d{2}T'
+    or p_capture->>'captured_at' !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T'
     or p_capture->>'expires_at' is null
-    or p_capture->>'expires_at' !~ '^\\d{4}-\\d{2}-\\d{2}T'
+    or p_capture->>'expires_at' !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T'
   then raise exception 'ukrposhta_capture_invalid'; end if;
   -- Ukraine domestic service is not part of this international export proof.
   -- Suspension hard-deny also overrides any stale owner mapping/positive API.
