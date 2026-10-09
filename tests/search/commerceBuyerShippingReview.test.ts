@@ -28,7 +28,7 @@ test('commercial Standard and Express use owner EUR prices and priority queue, N
   assert.deepEqual(BUYER_SERVICES_REVIEW.map(x=>x.queue_priority),['regular','priority']);
   assert.deepEqual(BUYER_SERVICES_REVIEW.map(x=>x.carrier_selected_by),
     ['thefeya_at_dispatch','thefeya_at_dispatch']);
-  assert.deepEqual(BUYER_SERVICES_REVIEW.map(x=>x.transit_business_days),
+  assert.deepEqual(BUYER_SERVICES_REVIEW.map(x=>x.indicative_service_window_business_days),
     [{min:10,max:14},{min:6,max:9}]);
   assert.ok(BUYER_SERVICES_REVIEW.every(x=>x.payable===false&&x.payment_enabled===false
     &&x.public_rates_enabled===false));
@@ -100,6 +100,8 @@ test('review hub gives owner all 10 live landings plus three honest proposals',(
   for(const href of ['/checkout-review','/shipping-review','/contact-review','/shipping','/contact'])
     assert.match(source,new RegExp(href));
   assert.match(source,/Preview-домене/);
+  assert.match(source,/https:\/\/thefeya\.com\$\{href\}/);
+  assert.match(source,/<Links data=\{commercial\} live\/>/);
 });
 test('buyer-facing prototype does not request weight/dimensions, contact info, carrier product or signature',()=>{
   const sample=readFileSync('components/BuyerCheckoutReviewClient.tsx','utf8');
@@ -111,6 +113,8 @@ test('buyer-facing prototype does not request weight/dimensions, contact info, c
   assert.match(sample,/reviewServiceBreakdown/);
   assert.match(shipping,/priority in our preparation|Priority in our preparation/i);
   assert.match(shipping,/same trusted courier/i);
+  assert.doesNotMatch(shipping,/Typical transit: 10–14/);
+  assert.match(shipping,/not a guarantee of faster physical transit/);
   assert.match(shipping,/Customs|Statutory rights|statutory rights/i);
   assert.doesNotMatch(sample,/api\.novaposhta|api\.ukrposhta|Get delivery quote/);
   assert.doesNotMatch(sample,/FEYA_SELLER_ONLINE_PAYMENTS_ENABLED/);
