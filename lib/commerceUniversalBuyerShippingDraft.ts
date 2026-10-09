@@ -30,7 +30,7 @@ export function prepareUniversalBuyerShippingDraft(
     && rule.countries.length === 0 && rule.postal_prefix === null
     && (rule.standard?.amount_minor == null || rule.standard.amount_minor === FEYA_EUR_STANDARD_MINOR)
     && (rule.express?.amount_minor == null || rule.express.amount_minor === FEYA_EUR_EXPRESS_MINOR)
-  ));
+  );
 
   if (reusable && one && rule) {
     const seeded = addOwnerConfirmedEurDraft({
