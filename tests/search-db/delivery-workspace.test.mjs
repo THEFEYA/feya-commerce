@@ -32,6 +32,8 @@ before(async () => {
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008083213_commerce_delivery_approval_v1.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008160534_commerce_approved_delivery_context_v1.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008223000_commerce_approved_shipping_quote_v2.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261009160000_carrier_method_evidence_private_v1.sql', import.meta.url), 'utf8'));
+
 });
 after(async () => { await db?.close(); });
 async function service(fn, client = db) { await client.query('set role service_role'); try { return await fn(client); } finally { await client.query('reset role'); } }
@@ -382,4 +384,109 @@ test('native concurrent same-key quote writes persist one receipt and exact repl
     assert.deepEqual(outcomes.map(v => v.replayed).sort(), [false,true]);
     assert.equal(await v2Count(),2);
   } finally { await Promise.all(clients.map(c => c.end())); }
+});
+
+const carrierHealth = () => service(async c =>
+  (await c.query('select public.feya_commerce_carrier_method_health_v1() r')).rows[0].r);
+const carrierContext = (country, method='standard', parcel='ordinary', postal='10001') =>
+  service(async c => (await c.query(
+    'select public.feya_commerce_carrier_method_context_v1($1,$2,$3,$4) r',
+    [country,postal,method,parcel])).rows[0].r);
+const carrierEvidenceCount = async () =>
+  (await db.query('select count(*)::int n from public.feya_commerce_carrier_method_observations_v1')).rows[0].n;
+
+let carrierMappingId, carrierCaptureId, carrierRequestId;
+test('M2 carrier method schema is private and begins empty with all customer-facing commerce gates OFF', async () => {
+  const health=await carrierHealth();
+  assert.equal(health.contract_version,'commerce_carrier_method_context_v1');
+  assert.equal(health.private_boundary_ready,true);
+  assert.equal(health.carrier_api_connected,false);
+  assert.equal(health.carrier_mapping_approved_count,0);
+  assert.equal(health.observations_count,0);
+  assert.equal(health.public_rates_enabled,false);
+  assert.equal(health.payment_enabled,false);
+  for(const role of ['anon','authenticated']){
+    await db.query('set role '+role);
+    try {
+      for(const table of ['feya_commerce_carrier_service_mapping_reviews_v1','feya_commerce_carrier_method_observations_v1']){
+        await assert.rejects(db.query('select * from public.'+table),/permission denied/);
+        await assert.rejects(db.query('insert into public.'+table+' default values'),/permission denied/);
+      }
+      await assert.rejects(db.query("select public.feya_commerce_carrier_method_context_v1('US','10001','standard','ordinary')"),/permission denied/);
+      await assert.rejects(db.query('select public.feya_commerce_carrier_method_health_v1()'),/permission denied/);
+    } finally { await db.query('reset role'); }
+  }
+  assert.equal((await carrierContext('US')).evidence_count,0);
+});
+
+test('M2 carrier evidence reader joins exact owner-reviewed mapping to a fresh immutable nonpayable API observation', async()=>{
+  carrierMappingId=randomUUID();carrierCaptureId=randomUUID();carrierRequestId=randomUUID();
+  await service(async c=>{
+    await c.query(`insert into public.feya_commerce_carrier_service_mapping_reviews_v1
+       (mapping_revision_id,carrier,shipping_method,parcel_class,carrier_service_code,
+        reviewed_by,business_review_confirmed)
+       values ($1,'ukrposhta','standard','ordinary','PARCEL',$2,true)`,[carrierMappingId,actor]);
+    await c.query(`insert into public.feya_commerce_carrier_method_observations_v1
+       (capture_id,source_request_id,mapping_revision_id,carrier,country,postal_prefix,
+        shipping_method,parcel_class,carrier_service_code,carrier_api_result,source_digest_sha256,
+        source_adapter_version,captured_at,expires_at)
+       values ($1,$2,$3,'ukrposhta','US',null,'standard','ordinary','PARCEL',
+         'available',$4,'up_20260309',
+         clock_timestamp()-interval '3 minutes',
+         clock_timestamp()+interval '1 hour')`,
+         [carrierCaptureId,carrierRequestId,carrierMappingId,'a'.repeat(64)]);
+  });
+  const context=await carrierContext('US');
+  assert.equal(context.blocked,false);
+  assert.equal(context.evidence_count,1);
+  assert.equal(context.evidence.length,1);
+  const observation=context.evidence[0];
+  assert.equal(observation.capture_id,carrierCaptureId);
+  assert.equal(observation.mapping_revision_id,carrierMappingId);
+  assert.equal(observation.method_mapping_owner_approved,true);
+  assert.equal(observation.carrier,'ukrposhta');
+  assert.equal(observation.carrier_api_result,'available');
+  assert.equal(observation.method,'standard');
+  assert.equal(observation.country,'US');
+  assert.match(observation.expires_at,/Z$/);
+  assert.equal(context.payable,false);
+  assert.equal(context.payment_enabled,false);
+  assert.equal(context.provider_session_enabled,false);
+  assert.equal((await carrierContext('US','express')).evidence_count,0);
+  assert.equal((await carrierContext('US','standard','oversize')).evidence_count,0);
+  assert.equal((await carrierContext('AU')).evidence_count,0);
+  assert.equal((await carrierContext('RU')).blocked,true);
+  assert.deepEqual((await carrierContext('RU')).evidence,[]);
+  assert.equal(await carrierEvidenceCount(),1);
+});
+
+test('private carrier observations reject forgery, stale/future evidence and never rewrite mapping or history', async()=>{
+  const source=`insert into public.feya_commerce_carrier_method_observations_v1
+      (capture_id,source_request_id,mapping_revision_id,carrier,country,shipping_method,
+      parcel_class,carrier_service_code,carrier_api_result,source_digest_sha256,
+      source_adapter_version,captured_at,expires_at)
+      values($1,$2,$3,'ukrposhta','US',$4,'ordinary','PARCEL','available',$5,'up_20260309',
+      $6::timestamptz,$7::timestamptz)`;
+  const now=Date.now(),iso=(delta)=>new Date(now+delta).toISOString();
+  await assert.rejects(service(c=>c.query(source,
+    [randomUUID(),randomUUID(),carrierMappingId,'express','b'.repeat(64),iso(-60000),iso(3600000)])),/foreign key/);
+  await assert.rejects(service(c=>c.query(source,
+    [randomUUID(),randomUUID(),carrierMappingId,'standard','b'.repeat(64),iso(-7200000),iso(-3600000)])),/check constraint/);
+  await assert.rejects(service(c=>c.query(source,
+    [randomUUID(),randomUUID(),carrierMappingId,'standard','b'.repeat(64),iso(3600000),iso(7200000)])),/check constraint/);
+  await assert.rejects(service(c=>c.query(source,
+    [randomUUID(),carrierRequestId,carrierMappingId,'standard','b'.repeat(64),iso(-60000),iso(3600000)])),/duplicate key/);
+  assert.equal(await carrierEvidenceCount(),1);
+  await assert.rejects(db.query("update public.feya_commerce_carrier_method_observations_v1 set carrier_api_result='unavailable'"),/history_immutable/);
+  await assert.rejects(db.query('delete from public.feya_commerce_carrier_method_observations_v1'),/history_immutable/);
+  await assert.rejects(db.query("update public.feya_commerce_carrier_service_mapping_reviews_v1 set carrier_service_code='OTHER'"),/history_immutable/);
+  await assert.rejects(db.query('delete from public.feya_commerce_carrier_service_mapping_reviews_v1'),/history_immutable/);
+  assert.equal(await carrierEvidenceCount(),1);
+});
+
+test('carrier evidence permission drift marks the private boundary NOT READY',async()=>{
+  await db.query('grant select on public.feya_commerce_carrier_method_observations_v1 to authenticated');
+  try { assert.equal((await carrierHealth()).private_boundary_ready,false); }
+  finally { await db.query('revoke select on public.feya_commerce_carrier_method_observations_v1 from authenticated'); }
+  assert.equal((await carrierHealth()).private_boundary_ready,true);
 });
