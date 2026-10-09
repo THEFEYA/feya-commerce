@@ -8,7 +8,7 @@ import { isFeyaBlockedExportDestination } from './commerceShippingBlockedDestina
  * Nothing here authorizes creating orders, published rates or payments.
  */
 export const CARRIER_METHOD_EVIDENCE_CONTRACT='commerce_carrier_method_evidence_v1' as const;
-export const CARRIER_METHOD_PROOF_MAX_AGE_MS=24*60*60*1000 as const;
+export const CARRIER_METHOD_PROOF_MAX_AGE_MS=24*60*60*1000;
 export type CarrierName='ukrposhta'|'nova_post';
 export type BuyerShippingMethod='standard'|'express';
 export type ParcelClass='ordinary'|'oversize';
