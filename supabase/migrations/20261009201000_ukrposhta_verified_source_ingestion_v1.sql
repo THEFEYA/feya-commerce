@@ -22,7 +22,7 @@ begin
   if p_capture is null or jsonb_typeof(p_capture)<>'object'
     or not (p_capture ?& v_required)
     or (p_capture - v_required) <> '{}'::jsonb
-    or p_capture->>'contract_version'<>'commerce_ukrposhta_source_capture_v1'
+    or p_capture->>'contract_version' is distinct from 'commerce_ukrposhta_source_capture_v1'
     or (p_capture->>'source_request_id') is null
     or (p_capture->>'source_request_id') !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     or (p_capture->>'mapping_revision_id') is null
