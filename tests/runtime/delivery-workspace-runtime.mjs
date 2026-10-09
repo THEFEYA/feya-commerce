@@ -84,7 +84,7 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       const current = (await read()).workspace; assert.equal(current.draft.shipping_profiles[0].id, syntheticDeliveryWorkspace().shipping_profiles[0].id);
       assert.equal(current.draft.shipping_profiles[0].name, 'Доставка: переименованный профиль'); assert.deepEqual(current.draft.shipping_profiles[0].served_countries, ['US', 'AU', 'MX']);
       assert.equal(current.draft.assignments[0].canonical_product_id, ids.product);
-      const assignedProduct = current.catalog.find(p => p.canonical_product_id === ids.product);
+      const assignedProduct = (await read()).catalog.find(p => p.canonical_product_id === ids.product);
       assert.ok(assignedProduct);
       await page.getByLabel('Показывать товары').selectOption('unassigned');
       await page.getByRole('checkbox', { name: `Выбрать товар: ${assignedProduct.title}` }).check();
