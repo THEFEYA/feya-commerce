@@ -143,7 +143,7 @@ test('new owner-facing HTTP route is strictly authenticated, owner-step-up, same
  assert.match(policy,/\/api\/admin\/company\/carrier-review/);
  assert.match(env,/FEYA_COMMERCE_CARRIER_OWNER_REVIEW_ENABLED=false/);
  assert.match(component,/type="checkbox"/);
- assert.match(component,/confirmed:\\s*false/);
+ assert.match(component,/confirmed:\s*false/);
  assert.match(component,/истор|измерен|измерен/i);
  assert.doesNotMatch(component,/Merchant of Record|Start payment|checkout enabled/);
 });
