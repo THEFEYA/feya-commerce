@@ -43,18 +43,18 @@ export default function ShippingReviewPage(){
           <Truck size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
           <p className="eyebrow-gold mt-5">Standard</p>
           <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€19</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Typical transit: 10–14 business days</p>
+          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative service planning: 10–14 business days</p>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Regular order preparation. The estimate refers to time after dispatch, not total time from placing the order.
+            Regular order preparation. This is our general planning range, not a guaranteed carrier transit speed. Making time depends on the items in the order.
           </p>
         </article>
         <article className="rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.045)] p-6">
           <Clock3 size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
           <p className="eyebrow-gold mt-5">Express · Priority</p>
           <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€35</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Planning estimate: 6–9 business days</p>
+          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–9 business days</p>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Priority in our preparation and dispatch queue. We may use the same trusted courier as Standard; a faster carrier product is not guaranteed.
+            Priority in our preparation and dispatch queue. We may use the same trusted courier as Standard, so this is not a guarantee of faster physical transit.
           </p>
         </article>
       </div>
