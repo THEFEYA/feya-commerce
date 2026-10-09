@@ -90,10 +90,12 @@ function ShippingProfileEditor({ profile, update }: { profile: DraftShippingProf
     <div className={styles.grid}>
       <label className={styles.field}>Название профиля<input value={profile.name} maxLength={120} onChange={e => update({ ...profile, name: e.target.value })} /></label>
       <label className={styles.field}>Валюта<select aria-label="Валюта" value={profile.currency} onChange={e => update({ ...profile, currency: e.target.value as 'EUR' | 'USD' })}><option>EUR</option><option>USD</option></select></label>
-      <CountryCodesField label="Обслуживаемые страны, коды через запятую" value={profile.served_countries} onChange={served_countries => update({ ...profile, served_countries })} />
+      <CountryCodesField label="Страны с подтверждённой возможностью доставки (коды через запятую)" value={profile.served_countries} onChange={served_countries => update({ ...profile, served_countries })} />
       <label className={styles.field}>Максимум товаров в посылке<input type="number" min={1} max={1000} value={profile.max_units_per_parcel ?? ''} onChange={e => update({ ...profile, max_units_per_parcel: numberOrNull(e.target.value) })} /></label>
     </div>
-    <p className={styles.hint}>Базовая ставка действует только для перечисленных стран. Переименование сохраняет привязки к товарам.</p>
+    {!profile.served_countries.length
+      ? <p role="status" className={styles.error}>Список стран пуст: доставка покупателям сейчас НЕ разрешена ни в одну страну. Пустое поле НЕ означает «весь мир». Базовая ставка применяется автоматически к подтверждённым обслуживаемым направлениям после настройки покрытия перевозчика.</p>
+      : <p className={styles.hint}>Обслуживаемых направлений: {profile.served_countries.length}. Общий тариф применяется ко всем этим странам, кроме согласованных исключений. Наличие кода ещё не подтверждает реальный тариф и срок конкретного перевозчика.</p>}
     {profile.rules.map((rule, i) => {
       const set = (value: DraftShippingRule) => update({ ...profile, rules: profile.rules.map(r => r.id === rule.id ? value : r) });
       return <fieldset className={styles.fieldset} key={rule.id}><legend>Правило {i + 1}</legend>
@@ -316,7 +318,7 @@ export function DeliveryWorkspaceClient() {
             Подготовить и сохранить общую доставку: €19 / €35 + AU/MX/NZ
           </button>
         </div>
-        <p className={styles.hint}>Записывает одну новую версию черновика через защищённый вход владельца. Если есть пустой профиль Standart, использует его вместо создания второго. Сроки изготовления 207 товаров не меняются. Обслуживаемые страны кроме AU/MX/NZ и вместимость посылки не угадываем; публичные тарифы и оплата остаются выключены.</p>
+        <p className={styles.hint}>Сохранённый владельцем профиль Standart/Express будет использован повторно — без создания второго профиля и без изменения Express 6–9 рабочих дней. Суммы €19 / €35 остаются общими для подтверждённых стран; AU/MX/NZ получают согласованную надбавку €20. Доставка в остальные страны пока ожидает проверки перевозчика — пустое поле не означает все страны. Вместимость посылки и 207 сроков изготовления не меняются; тарифы и оплата остаются выключены.</p>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Технические профили и исключения по доставке</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>

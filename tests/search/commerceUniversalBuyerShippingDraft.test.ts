@@ -97,3 +97,58 @@ test('group approval errors, do not repeat 207 identical messages to owner', () 
   assert.equal(groups[0].examples.length,2);
   assert.equal(groups[1].count,1);
 });
+
+test('saved owner revision 16 preserves EUR 19/35, 6–9 express and profile ID; blank countries are not worldwide', () => {
+  const owner = syntheticDeliveryWorkspace();
+  const profile = owner.shipping_profiles[0];
+  profile.name = 'Standart/Express';
+  profile.served_countries = [];
+  profile.max_units_per_parcel = null;
+  profile.rules[0].standard!.transit = { min: 10, max: 14, unit: 'business_days' };
+  profile.rules[0].express!.transit = { min: 6, max: 9, unit: 'business_days' };
+  owner.default_shipping_profile_id = null;
+  owner.scheduling_time_zone = null;
+  owner.cutoff_local = null;
+  owner.production_profiles[0].max_units_per_order = null;
+  owner.assignments = syntheticDeliveryCatalog.map(p => ({
+    canonical_product_id: p.canonical_product_id, configuration_price_id: null,
+    shipping_profile_id: null, production_profile_id: owner.production_profiles[0].id,
+  }));
+
+  const before = structuredClone(owner);
+  const applied = prepareUniversalBuyerShippingDraft(owner, randomUUID);
+  assert.equal(applied.shipping_profiles.length, 1);
+  assert.equal(applied.shipping_profiles[0].id, profile.id);
+  assert.equal(applied.shipping_profiles[0].name, profile.name);
+  assert.equal(applied.shipping_profiles[0].rules[0].id, profile.rules[0].id);
+  assert.equal(applied.default_shipping_profile_id, profile.id);
+  assert.equal(applied.shipping_profiles[0].rules[0].standard?.amount_minor, 1900);
+  assert.equal(applied.shipping_profiles[0].rules[0].express?.amount_minor, 3500);
+  assert.deepEqual(applied.shipping_profiles[0].rules[0].express?.transit, { min: 6, max: 9, unit: 'business_days' });
+  assert.deepEqual(applied.shipping_profiles[0].served_countries, ['AU', 'MX', 'NZ']);
+  assert.deepEqual(applied.shipping_profiles[0].rules[1].countries, ['AU', 'MX', 'NZ']);
+  assert.equal(applied.shipping_profiles[0].rules[1].standard?.amount_minor, 3900);
+  assert.equal(applied.shipping_profiles[0].rules[1].express?.amount_minor, 5500);
+  assert.deepEqual(applied.shipping_profiles[0].rules[1].express?.transit, { min: 6, max: 9, unit: 'business_days' });
+  assert.deepEqual(applied.assignments, owner.assignments);
+  assert.deepEqual(applied.production_profiles, owner.production_profiles);
+  assert.equal(applied.scheduling_time_zone, null);
+  assert.equal(applied.cutoff_local, null);
+  assert.equal(applied.shipping_profiles[0].max_units_per_parcel, null);
+  assert.equal(applied.shipping_profiles[0].served_countries.includes('US'), false);
+  const again = prepareUniversalBuyerShippingDraft(applied, randomUUID);
+  assert.deepEqual(again, applied); // owner can retry without extra profile/rule
+  assert.deepEqual(owner, before);
+  assert.doesNotThrow(() => parseDeliveryWorkspace(again));
+});
+
+test('saved custom country rule is not silently replaced by a second default profile', () => {
+  const w = syntheticDeliveryWorkspace(), p = w.shipping_profiles[0];
+  p.name = 'Standart/Express';
+  p.rules.push({ id: randomUUID(), scope: 'country', countries: ['US'], postal_prefix: null,
+    standard: p.rules[0].standard, express: p.rules[0].express });
+  const updated = prepareUniversalBuyerShippingDraft(w, randomUUID);
+  assert.equal(updated.shipping_profiles.length, 1);
+  assert.equal(updated.shipping_profiles[0].rules.length, 2);
+  assert.deepEqual(updated.shipping_profiles[0].rules[1].countries, ['US']);
+});

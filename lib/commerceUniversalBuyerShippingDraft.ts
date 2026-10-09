@@ -1,5 +1,7 @@
 import type { DeliveryWorkspaceDraft, DraftShippingProfile } from './commerceDeliveryWorkspace.ts';
-import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from './commerceOwnerEurRatePreset.ts';
+import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME,
+  FEYA_EUR_STANDARD_MINOR, FEYA_EUR_EXPRESS_MINOR, FEYA_REMOTE_ZONE_SURCHARGE_MINOR,
+  FEYA_APPROVED_REMOTE_COUNTRY_CODES } from './commerceOwnerEurRatePreset.ts';
 import { normalizeRegularDeliveryWorkingWeek } from './commerceDeliveryRegularWeek.ts';
 
 /** Owner-only draft action. All regular products inherit one EUR shipping
@@ -12,37 +14,62 @@ export function prepareUniversalBuyerShippingDraft(
 ): DeliveryWorkspaceDraft {
   let next = normalizeRegularDeliveryWorkingWeek(draft);
 
-  if (!next.shipping_profiles.some(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR')) {
-    const one = next.shipping_profiles.length === 1 ? next.shipping_profiles[0] : null;
-    const emptyPlaceholder = one && one.currency === 'EUR'
-      && next.default_shipping_profile_id === null
-      && next.assignments.every(a => a.shipping_profile_id === null)
-      && one.served_countries.length === 0 && one.max_units_per_parcel === null
-      && one.rules.length === 1 && one.rules[0].scope === 'default'
-      && one.rules[0].countries.length === 0
-      && (!one.rules[0].standard || (one.rules[0].standard.amount_minor === null && one.rules[0].standard.transit === null))
-      && (!one.rules[0].express || (one.rules[0].express.amount_minor === null && one.rules[0].express.transit === null));
+  // Owner's current saved v16 profile is already called "Standart/Express",
+  // with EUR 19/35 and an explicit 6-9 business-day Express window.
+  // Never create an unwanted second profile or silently overwrite her transit.
+  const one = next.shipping_profiles.length === 1 ? next.shipping_profiles[0] : null;
+  const rule = one?.rules.find(r => r.scope === 'default') || null;
+  const allowedZone = (r: NonNullable<typeof rule>) => r.scope === 'zone'
+    && r.countries.length === FEYA_APPROVED_REMOTE_COUNTRY_CODES.length
+    && FEYA_APPROVED_REMOTE_COUNTRY_CODES.every(code => r.countries.includes(code));
+  const ownerSharedProfile = Boolean(one && ['Standart', 'Standart/Express', FEYA_EUR_BASE_PROFILE_NAME].includes(one.name));
+  const reusable = Boolean(ownerSharedProfile && one && rule && one.currency === 'EUR'
+    && (!next.default_shipping_profile_id || next.default_shipping_profile_id === one.id)
+    && !next.assignments.some(a => a.shipping_profile_id && a.shipping_profile_id !== one.id)
+    && one.rules.every(r => r === rule || allowedZone(r))
+    && rule.countries.length === 0 && rule.postal_prefix === null
+    && (rule.standard?.amount_minor == null || rule.standard.amount_minor === FEYA_EUR_STANDARD_MINOR)
+    && (rule.express?.amount_minor == null || rule.express.amount_minor === FEYA_EUR_EXPRESS_MINOR)
+  );
 
-    if (emptyPlaceholder) {
-      // Reuse the only already-saved placeholder IDs, rather than creating a
-      // confusing second "Standard" shipping profile beside the empty one.
-      const preview = addOwnerConfirmedEurDraft({
-        ...next, shipping_profiles: [], default_shipping_profile_id: null,
-      }, generateId).shipping_profiles[0];
-      const adopted: DraftShippingProfile = {
-        ...preview, id: one.id,
-        rules: preview.rules.map((rule, index) => ({ ...rule, id: index === 0 ? one.rules[0].id : rule.id })),
-      };
-      next = { ...next, shipping_profiles: [adopted], default_shipping_profile_id: adopted.id };
-    } else {
+  if (reusable && one && rule) {
+    const seeded = addOwnerConfirmedEurDraft({
+      ...next, shipping_profiles: [], default_shipping_profile_id: null,
+    }, generateId).shipping_profiles[0].rules[0];
+    const standard = rule.standard?.amount_minor === FEYA_EUR_STANDARD_MINOR
+      ? rule.standard : seeded.standard;
+    const express = rule.express?.amount_minor === FEYA_EUR_EXPRESS_MINOR
+      ? rule.express : seeded.express;
+    if (!standard || !express) return next;
+    const remoteExists = one.rules.some(r => r.scope === 'zone'
+      && r.countries.some(code => (FEYA_APPROVED_REMOTE_COUNTRY_CODES as readonly string[]).includes(code)));
+    const remote = remoteExists ? [] : [{
+      id: generateId(), scope: 'zone' as const, countries: [...FEYA_APPROVED_REMOTE_COUNTRY_CODES],
+      postal_prefix: null,
+      standard: { ...standard, amount_minor: standard.amount_minor! + FEYA_REMOTE_ZONE_SURCHARGE_MINOR },
+      express: { ...express, amount_minor: express.amount_minor! + FEYA_REMOTE_ZONE_SURCHARGE_MINOR },
+    }];
+    const patched: DraftShippingProfile = {
+      ...one, rules: [{ ...rule, standard, express },
+        ...one.rules.filter(r => r.id !== rule.id), ...remote],
+      served_countries: [...new Set([...one.served_countries, ...FEYA_APPROVED_REMOTE_COUNTRY_CODES])],
+    };
+    next = { ...next, shipping_profiles: [patched], default_shipping_profile_id: one.id };
+  } else if (ownerSharedProfile) {
+    // Do not create a duplicate default when the existing owner-named profile
+    // has special country/postal rules outside the known template.
+    return next;
+  } else {
+    // A genuinely custom or already complete profile must never be silently
+    // replaced. Legacy behavior retains exact special-profile overrides.
+    if (!next.shipping_profiles.some(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR')) {
       next = addOwnerConfirmedEurDraft(next, generateId);
     }
-  }
-
-  next = addOwnerApprovedRemoteZoneToEurDraft(next, generateId);
-  const regular = next.shipping_profiles.find(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR');
-  if (regular && next.default_shipping_profile_id === null) {
-    next = { ...next, default_shipping_profile_id: regular.id };
+    next = addOwnerApprovedRemoteZoneToEurDraft(next, generateId);
+    const regular = next.shipping_profiles.find(p => p.name === FEYA_EUR_BASE_PROFILE_NAME && p.currency === 'EUR');
+    if (regular && next.default_shipping_profile_id === null) {
+      next = { ...next, default_shipping_profile_id: regular.id };
+    }
   }
   return normalizeRegularDeliveryWorkingWeek(next);
 }
