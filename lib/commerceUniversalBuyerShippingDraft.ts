@@ -20,7 +20,8 @@ export function prepareUniversalBuyerShippingDraft(
       && one.served_countries.length === 0 && one.max_units_per_parcel === null
       && one.rules.length === 1 && one.rules[0].scope === 'default'
       && one.rules[0].countries.length === 0
-      && !one.rules[0].standard && !one.rules[0].express;
+      && (!one.rules[0].standard || (one.rules[0].standard.amount_minor === null && one.rules[0].standard.transit === null))
+      && (!one.rules[0].express || (one.rules[0].express.amount_minor === null && one.rules[0].express.transit === null));
 
     if (emptyPlaceholder) {
       // Reuse the only already-saved placeholder IDs, rather than creating a
