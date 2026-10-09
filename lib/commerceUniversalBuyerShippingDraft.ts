@@ -22,10 +22,10 @@ export function prepareUniversalBuyerShippingDraft(
   const allowedZone = (r: NonNullable<typeof rule>) => r.scope === 'zone'
     && r.countries.length === FEYA_APPROVED_REMOTE_COUNTRY_CODES.length
     && FEYA_APPROVED_REMOTE_COUNTRY_CODES.every(code => r.countries.includes(code));
-  const reusable = Boolean(one && rule && one.currency === 'EUR'
+  const ownerSharedProfile = Boolean(one && ['Standart', 'Standart/Express', FEYA_EUR_BASE_PROFILE_NAME].includes(one.name));
+  const reusable = Boolean(ownerSharedProfile && one && rule && one.currency === 'EUR'
     && (!next.default_shipping_profile_id || next.default_shipping_profile_id === one.id)
     && !next.assignments.some(a => a.shipping_profile_id && a.shipping_profile_id !== one.id)
-    && one.max_units_per_parcel === null
     && one.rules.every(r => r === rule || allowedZone(r))
     && rule.countries.length === 0 && rule.postal_prefix === null
     && (rule.standard?.amount_minor == null || rule.standard.amount_minor === FEYA_EUR_STANDARD_MINOR)
@@ -50,10 +50,15 @@ export function prepareUniversalBuyerShippingDraft(
       express: { ...express, amount_minor: express.amount_minor! + FEYA_REMOTE_ZONE_SURCHARGE_MINOR },
     }];
     const patched: DraftShippingProfile = {
-      ...one, rules: [{ ...rule, standard, express }, ...remote],
+      ...one, rules: [{ ...rule, standard, express },
+        ...one.rules.filter(r => r.id !== rule.id), ...remote],
       served_countries: [...new Set([...one.served_countries, ...FEYA_APPROVED_REMOTE_COUNTRY_CODES])],
     };
     next = { ...next, shipping_profiles: [patched], default_shipping_profile_id: one.id };
+  } else if (ownerSharedProfile) {
+    // Do not create a duplicate default when the existing owner-named profile
+    // has special country/postal rules outside the known template.
+    return next;
   } else {
     // A genuinely custom or already complete profile must never be silently
     // replaced. Legacy behavior retains exact special-profile overrides.
