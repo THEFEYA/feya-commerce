@@ -88,6 +88,7 @@ export async function readShippingCarrierCoverage(
     ||typeof d.workspace_version_id!=='string'||!UUID.test(d.workspace_version_id)
     ||!Number.isSafeInteger(d.workspace_revision)||d.workspace_revision<1
     ||typeof d.country!=='string'||!countries.has(d.country)
+    ||typeof d.postal_code!=='string'||!/^[A-Z0-9]{1,32}$/.test(d.postal_code)
     ||!['standard','express'].includes(String(d.shipping_method))
     ||typeof d.checked_at!=='string'||!Number.isFinite(Date.parse(d.checked_at))
     ||typeof d.quote_expires_at!=='string'||!Number.isFinite(Date.parse(d.quote_expires_at))
@@ -127,7 +128,7 @@ export async function readShippingCarrierCoverage(
     const evidence=c.evidence as VerifiedCarrierMethodObservation[];
     // Carrier context already came from privileged exact country/method/class
     // DB query. Pure evaluator independently revalidates every source row.
-    const proof=assessCurrentCarrierMethod(country,'',method,
+    const proof=assessCurrentCarrierMethod(country,d.postal_code as string,method,
       item.parcel_class as ParcelClass,evidence,checkedAt);
     rows.push({
       index:i+1,parcel_class:item.parcel_class as ParcelClass,
