@@ -13,6 +13,7 @@ import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBu
 import { applyUniformProductionProfile } from '@/lib/commerceDeliveryBulkDraft';
 import { normalizeRegularDeliveryWorkingWeek, equivalentDeliveryWorkspaceDraft } from '@/lib/commerceDeliveryRegularWeek';
 import { prepareUniversalBuyerShippingDraft, summarizeDeliveryApprovalIssues } from '@/lib/commerceUniversalBuyerShippingDraft';
+import { describeCarrierCountryReference } from '@/lib/commerceCarrierCountryCandidates';
 import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
@@ -319,6 +320,13 @@ export function DeliveryWorkspaceClient() {
           </button>
         </div>
         <p className={styles.hint}>Сохранённый владельцем профиль Standart/Express будет использован повторно — без создания второго профиля и без изменения Express 6–9 рабочих дней. Суммы €19 / €35 остаются общими для подтверждённых стран; AU/MX/NZ получают согласованную надбавку €20. Доставка в остальные страны пока ожидает проверки перевозчика — пустое поле не означает все страны. Вместимость посылки и 207 сроков изготовления не меняются; тарифы и оплата остаются выключены.</p>
+        <details className={styles.fieldset}>
+          <summary>Кандидаты стран: Укрпочта + Новая почта — без ручного ввода</summary>
+          <p className={styles.hint}>По опубликованным справочникам перевозчиков обнаружено {describeCarrierCountryReference().candidate_count} стран-кандидатов. Приостановленные / исключённые: {describeCarrierCountryReference().prohibited_or_suspended.length}. Отдельная проверка редких территорий: {describeCarrierCountryReference().special_route_review.length}.</p>
+          <p className={styles.hint}>Это предварительный перечень, НЕ действующая доставка: у каждой страны ещё необходимо проверить реальный маршрут из Украины, вес/коробку и наличие конкретных Standard/Express-услуг. Не включаем все коды автоматически как оплачиваемые направления.</p>
+          <p className={styles.hint}>Источник: Укрпочта, список стран 10.11.2025 + исключения 12.05.2026; Nova Post, международная доставка из Украины. РФ, Беларусь, Северная Корея и приостановленные направления исключены.</p>
+          <p className={styles.hint}>Подготовленные к проверке коды (не являются текущим allowlist): {describeCarrierCountryReference().candidate_countries.join(', ')}</p>
+        </details>
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Технические профили и исключения по доставке</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
