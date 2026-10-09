@@ -466,8 +466,22 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       assert.equal(await page.locator('a[data-testid^="product-card-"]').count(),20);
       const href=await page.locator('a[data-testid^="product-card-"]').first().getAttribute('href');assert.equal(href,release.entries[20].copy.metadata.canonical_path);
       await page.getByRole('link',{name:'Previous 20',exact:true}).click();await page.waitForURL('**/shop');
-      const hover=page.locator('.product-card.has-hover-media').first();await hover.hover();
-      await page.waitForFunction(()=>Number(getComputedStyle(document.querySelector('.product-card:hover .hover-media')).opacity)>.9);
+      await page.getByTestId('shop-page').waitFor();
+      // Swap media is inserted on ProductCard's React pointer/focus handler,
+      // not during server rendering. Wait for React event props to hydrate.
+      await page.waitForFunction(()=>{
+        const card=document.querySelector('.product-card.has-hover-media');
+        return card instanceof Element
+          && Object.keys(card).some(key=>key.startsWith('__reactProps'));
+      });
+      const hover=page.locator('.product-card.has-hover-media').first();
+      await hover.hover();
+      await hover.focus();
+      await hover.locator('.hover-media').waitFor({state:'attached'});
+      await page.waitForFunction(()=>{
+        const element=document.querySelector('.product-card:hover .hover-media');
+        return element instanceof Element && Number(getComputedStyle(element).opacity)>.9;
+      });
       await page.mouse.move(0,0);
       const colorEntry=release.entries.find(e=>e.product.canonical_color_label);
       if(colorEntry){
