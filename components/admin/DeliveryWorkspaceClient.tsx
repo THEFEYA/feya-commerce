@@ -11,7 +11,7 @@ import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, Meth
 import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
 import { applyUniformProductionProfile } from '@/lib/commerceDeliveryBulkDraft';
-import { normalizeRegularDeliveryWorkingWeek } from '@/lib/commerceDeliveryRegularWeek';
+import { normalizeRegularDeliveryWorkingWeek, equivalentDeliveryWorkspaceDraft } from '@/lib/commerceDeliveryRegularWeek';
 import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
@@ -145,7 +145,7 @@ export function DeliveryWorkspaceClient() {
   function acceptLoaded(data: LoadedWorkspace) {
     const savedDraft = data.workspace.draft || emptyDeliveryWorkspace();
     const regularDraft = normalizeRegularDeliveryWorkingWeek(savedDraft);
-    const workweekChanged = JSON.stringify(regularDraft) !== JSON.stringify(savedDraft);
+    const workweekChanged = !equivalentDeliveryWorkspaceDraft(regularDraft, savedDraft);
     setWorkspace(data.workspace); setDraft(regularDraft);
     setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(workweekChanged); setPreview(null);
     if (workweekChanged) setNotice('Рабочая неделя Пн–Пт установлена автоматически. Сохраните черновик, чтобы записать её в Supabase.');
@@ -173,14 +173,14 @@ export function DeliveryWorkspaceClient() {
   async function persistDraft(candidate: DeliveryWorkspaceDraft): Promise<boolean> {
     if (!workspace || busy) return false;
     const normalized = normalizeRegularDeliveryWorkingWeek(candidate);
-    if (!dirty && JSON.stringify(normalized) === JSON.stringify(workspace.draft)) {
+    if (!dirty && equivalentDeliveryWorkspaceDraft(normalized, workspace.draft || emptyDeliveryWorkspace())) {
       setNotice('Настройки уже сохранены в Supabase. Новая версия не требуется.');
       return true;
     }
     setBusy(true); setError(''); setNotice('');
     setDraft(normalized); setDirty(true);
     // Reuse the same immutable request on retry only for the exact same candidate.
-    if (pendingSave.current && JSON.stringify(pendingSave.current.draft) !== JSON.stringify(normalized)) {
+    if (pendingSave.current && !equivalentDeliveryWorkspaceDraft(pendingSave.current.draft, normalized)) {
       pendingSave.current = null;
     }
     pendingSave.current ||= {
