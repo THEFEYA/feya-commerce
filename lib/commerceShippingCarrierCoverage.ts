@@ -86,14 +86,14 @@ export async function readShippingCarrierCoverage(
   if(!record(d)||d.contract_version!==SHIPPING_CARRIER_COVERAGE
     ||d.shipping_quote_receipt_id!==req.shipping_quote_receipt_id
     ||typeof d.workspace_version_id!=='string'||!UUID.test(d.workspace_version_id)
-    ||!Number.isSafeInteger(d.workspace_revision)||d.workspace_revision<1
+    ||typeof d.workspace_revision!=='number'||!Number.isSafeInteger(d.workspace_revision)||d.workspace_revision<1
     ||typeof d.country!=='string'||!countries.has(d.country)
     ||typeof d.postal_code!=='string'||!/^[A-Z0-9]{1,32}$/.test(d.postal_code)
     ||!['standard','express'].includes(String(d.shipping_method))
     ||typeof d.checked_at!=='string'||!Number.isFinite(Date.parse(d.checked_at))
     ||typeof d.quote_expires_at!=='string'||!Number.isFinite(Date.parse(d.quote_expires_at))
     ||Date.parse(d.quote_expires_at)<=Date.parse(d.checked_at)
-    ||!Number.isSafeInteger(d.parcel_count)||d.parcel_count<1||d.parcel_count>100
+    ||typeof d.parcel_count!=='number'||!Number.isSafeInteger(d.parcel_count)||d.parcel_count<1||d.parcel_count>100
     ||!Array.isArray(d.parcels)||d.parcels.length!==d.parcel_count
     ||typeof d.globally_blocked!=='boolean'
     ||d.coverage_scope!=='country_product_transport_only'
