@@ -109,7 +109,7 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
               </span>
               <span className="mt-4 text-[25px] font-medium text-[#f7f3ec]">{money(option.amount_minor)}</span>
               <span className="mt-2 text-[13px] leading-5 text-[var(--bone-dim)]">
-                {option.transit_business_days.min}–{option.transit_business_days.max} business days — owner&apos;s planning estimate after dispatch
+                {option.indicative_service_window_business_days.min}–{option.indicative_service_window_business_days.max} business days · indicative service planning range
               </span>
               <span className="mt-2 text-[12px] leading-5 text-[#e0d8c7]">
                 {option.method==='express'?'Priority order preparation':'Regular preparation queue'}
@@ -117,7 +117,7 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
             </label>)}
           </div>
           <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">
-            Estimates are not a delivery guarantee. Each piece has its own making time; the total arrival estimate combines preparation and transit. A faster postal service is not promised solely by choosing Express.
+            These are broad planning ranges, not guaranteed courier transit times. Production varies by piece, so the final arrival estimate must include preparation and the destination's actual transit. Express gives priority in our queue; a faster postal service is not promised.
           </p>
         </section>
 
