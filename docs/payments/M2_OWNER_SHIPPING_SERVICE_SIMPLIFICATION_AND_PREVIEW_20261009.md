@@ -36,6 +36,10 @@ This is the newest **business intent** for shipping and takes precedence over th
 
 Baymard 2023 research, [Delivery Date not Shipping Speed](https://baymard.com/research-articles/shipping-speed-vs-delivery-date), reports that shoppers care about when the order will arrive and may treat even an estimated arrival date as a firm promise. Recommended adaptation for a complex handmade cross-border atelier: display the owner ranges initially, **clearly differentiate product manufacturing from after-dispatch transit**, and show only a conservatively computed order-to-door estimate once actual production queue/cutoff and destination data support it. Do not use an API that overstates/understates timing as a marketing truth. A range without evidence of a distinct carrier speed is **not** evidence that paying for Express speeds up physical shipment; the real paid benefit is prioritised internal preparation.
 
+### Historical Seller Online experience (not a new launch dependency)
+
+The owner's connected business Gmail contains **Seller Online support response #938828 dated 2025-04-24** to the owner's exact question about delivery to **Australia**. Their stated observed averages for shipments they had processed were **Nova Global 8–13 calendar days** versus **Ukrposhta approximately 20 calendar days** (Prime/EMS). They linked Ukrposhta's published international timing page. This is **specific to Australia and stale (2025)**, neither a current 2026 guaranteed carrier SLA nor a general cross-country transit mapping. It supports the owner's preference for Nova Post and the business decision to keep approximate store-level planning ranges rather than launching a global postcode-level ETA integration. Do not silently substitute 8–13 calendar days for the 10–14 / 6–9 **business-day owner planning ranges** or silently equate `calendar_days` and `business_days`. Revisit after a representative actual-delivered event sample exists. No customer-facing or payment code is sourced from that email.
+
 ## 4. Actions performed without touching Wave A production
 
 A **new, unlisted Vercel Preview-only three-page review experience**:
