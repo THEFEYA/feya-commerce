@@ -10,7 +10,8 @@ import type { DeliveryApprovalRequest, DeliveryApprovalState } from '@/lib/comme
 import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, MethodFields } from './DeliveryProfileFields';
 import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
-import { applyDeliveryBulkProfile } from '@/lib/commerceDeliveryBulkDraft';
+import { applyUniformProductionProfile } from '@/lib/commerceDeliveryBulkDraft';
+import { normalizeRegularDeliveryWorkingWeek, equivalentDeliveryWorkspaceDraft } from '@/lib/commerceDeliveryRegularWeek';
 import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
@@ -118,8 +119,8 @@ function ProductionProfileEditor({ profile, update }: { profile: DraftProduction
       <label className={styles.field}>Название профиля<input value={profile.name} maxLength={120} onChange={e => update({ ...profile, name: e.target.value })} /></label>
       <label className={styles.field}>Максимум товаров для этого срока в заказе<input type="number" min={1} max={1000} value={profile.max_units_per_order ?? ''} onChange={e => update({ ...profile, max_units_per_order: numberOrNull(e.target.value) })} /></label>
     </div>
-    <DurationFields label="Срок изготовления" value={profile.duration} onChange={duration => update({ ...profile, duration })} />
-    <CalendarFields label="Рабочие дни мастерской" value={profile.calendar} onChange={calendar => update({ ...profile, calendar })} />
+    <DurationFields label="Срок изготовления" fixedBusinessDays value={profile.duration} onChange={duration => update({ ...profile, duration })} />
+    <CalendarFields label="Рабочие дни мастерской" fixedWorkweek value={profile.calendar} onChange={calendar => update({ ...profile, calendar })} />
     <label className={styles.check}><input type="checkbox" checked={profile.requires_specifications} onChange={e => update({ ...profile, requires_specifications: e.target.checked })} />Начинать только после согласования индивидуальных мерок или дизайна</label>
   </details>;
 }
@@ -142,8 +143,12 @@ export function DeliveryWorkspaceClient() {
   const pendingApproval = useRef<DeliveryApprovalRequest | null>(null);
   const currentProduct = catalog.find(p => p.canonical_product_id === productId);
   function acceptLoaded(data: LoadedWorkspace) {
-    setWorkspace(data.workspace); setDraft(data.workspace.draft || emptyDeliveryWorkspace());
-    setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(false); setPreview(null);
+    const savedDraft = data.workspace.draft || emptyDeliveryWorkspace();
+    const regularDraft = normalizeRegularDeliveryWorkingWeek(savedDraft);
+    const workweekChanged = !equivalentDeliveryWorkspaceDraft(regularDraft, savedDraft);
+    setWorkspace(data.workspace); setDraft(regularDraft);
+    setCatalog(data.catalog); setCatalogMedia(data.catalog_media || []); setDirty(workweekChanged); setPreview(null);
+    if (workweekChanged) setNotice('Рабочая неделя Пн–Пт установлена автоматически. Сохраните черновик, чтобы записать её в Supabase.');
     setApprovalData({ approval_enabled: data.approval_enabled, approval: data.approval,
       catalog_sha256: data.catalog_sha256, approval_readiness: data.approval_readiness });
   }
@@ -155,7 +160,8 @@ export function DeliveryWorkspaceClient() {
     return () => controller.abort();
   }, []);
   function change(update: (value: DeliveryWorkspaceDraft) => DeliveryWorkspaceDraft) {
-    setDraft(update); setDirty(true); setPreview(null); setNotice(''); setError(''); pendingSave.current = null;
+    setDraft(d => normalizeRegularDeliveryWorkingWeek(update(d)));
+    setDirty(true); setPreview(null); setNotice(''); setError(''); pendingSave.current = null;
     pendingApproval.current = null;
   }
   async function reload() {
@@ -164,18 +170,36 @@ export function DeliveryWorkspaceClient() {
     catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
     finally { setBusy(false); }
   }
-  async function save() {
-    if (!workspace) return;
+  async function persistDraft(candidate: DeliveryWorkspaceDraft): Promise<boolean> {
+    if (!workspace || busy) return false;
+    const normalized = normalizeRegularDeliveryWorkingWeek(candidate);
+    if (!dirty && equivalentDeliveryWorkspaceDraft(normalized, workspace.draft || emptyDeliveryWorkspace())) {
+      setNotice('Настройки уже сохранены в Supabase. Новая версия не требуется.');
+      return true;
+    }
     setBusy(true); setError(''); setNotice('');
-    pendingSave.current ||= { action: 'save', request_id: crypto.randomUUID(), expected_revision: workspace.revision, draft };
+    setDraft(normalized); setDirty(true);
+    // Reuse the same immutable request on retry only for the exact same candidate.
+    if (pendingSave.current && !equivalentDeliveryWorkspaceDraft(pendingSave.current.draft, normalized)) {
+      pendingSave.current = null;
+    }
+    pendingSave.current ||= {
+      action: 'save', request_id: crypto.randomUUID(),
+      expected_revision: workspace.revision, draft: normalized,
+    };
     try {
       await api(pendingSave.current);
-      acceptLoaded(await api()); pendingSave.current = null;
-      pendingApproval.current = null;
-      setNotice('Черновик сохранён новой версией. Публичные тарифы и оплата остаются выключенными.');
-    } catch (e) { setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable'); }
-    finally { setBusy(false); }
+      const loaded = await api<LoadedWorkspace>();
+      acceptLoaded(loaded);
+      pendingSave.current = null; pendingApproval.current = null;
+      setNotice(`Сохранено в Supabase: версия ${loaded.workspace.revision}. Оплата и публичные тарифы выключены.`);
+      return true;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'delivery_workspace_unavailable');
+      return false;
+    } finally { setBusy(false); }
   }
+  async function save() { await persistDraft(draft); }
   async function approve() {
     if (!workspace?.version_id || !workspace.snapshot_sha256 || !approvalData?.approval_enabled
       || !approvalData.approval || !approvalData.catalog_sha256 || !approvalData.approval_readiness.ready || dirty) return;
@@ -203,10 +227,14 @@ export function DeliveryWorkspaceClient() {
     change(d => ({ ...d, assignments: [...d.assignments.filter(a => !(a.canonical_product_id === productId && a.configuration_price_id === (configurationId || null))),
       ...(shippingId || productionId ? [{ canonical_product_id: productId, configuration_price_id: configurationId || null, shipping_profile_id: shippingId, production_profile_id: productionId }] : [])] }));
   }
-  function bulkAssign(ids: string[], kind: 'shipping' | 'production', profileId: string) {
-    const profiles = kind === 'shipping' ? draft.shipping_profiles : draft.production_profiles;
-    if (!ids.length || !profiles.some(p => p.id === profileId)) return;
-    change(d => applyDeliveryBulkProfile(d, catalog, ids, kind, profileId));
+  async function bulkAssign(ids: string[], profileId: string): Promise<boolean> {
+    if (!ids.length || !draft.production_profiles.some(p => p.id === profileId)) return false;
+    const candidate = applyUniformProductionProfile(draft, catalog, ids, profileId);
+    if (candidate === draft && !dirty) {
+      setNotice('У выбранных товаров уже назначен этот срок. Новая версия не создавалась.');
+      return true;
+    }
+    return persistDraft(candidate);
   }
   function selectTarget(product: string, configuration: string) {
     setProductId(product); setConfigurationId(configuration);
@@ -227,7 +255,7 @@ export function DeliveryWorkspaceClient() {
     finally { setBusy(false); }
   }
   return <div className={styles.workspace} aria-busy={busy}>
-    <div className={styles.notice}>Черновики для проверки. Сохранение не меняет цены доставки на сайте. Производственные сроки требуют явного типа дней, календаря и допустимого количества товаров.</div>
+    <div className={styles.notice}>Обычные рабочие дни заданы автоматически: Пн–Пт, без субботы и воскресенья. Временные профили изготовления можно назначать и сохранять сразу по фото. Сохранённый черновик не включает публичные тарифы или оплату.</div>
     {error && <div className={styles.error} role="alert">{message(error)}<details><summary>Код причины</summary>{error}</details>
       {['authentication_required', 'owner_not_allowed'].includes(error) && <Link href="/admin/login?next=/admin/company/delivery" className="owner-button">Войти в кабинет</Link>}
     </div>}
@@ -266,20 +294,10 @@ export function DeliveryWorkspaceClient() {
         <p className={styles.hint}>Часовой пояс — время работы мастерской для расчёта сроков, не страна покупателя. Если изготовление в Украине, используйте Europe/Kyiv. Страну доставки покупатель выберет в корзине.</p>
         <div className={styles.row}>
           <button type="button" className="owner-button" onClick={() => change(d => ({ ...d, scheduling_time_zone: 'Europe/Kyiv' }))}>Часовой пояс мастерской: Украина</button>
-          <button type="button" className="owner-button" onClick={() => change(d => ({
-            ...d, dispatch_calendar: workingWeek(d.dispatch_calendar),
-            production_profiles: d.production_profiles.map(p => ({ ...p, calendar: workingWeek(p.calendar) })),
-            shipping_profiles: d.shipping_profiles.map(p => ({
-              ...p, rules: p.rules.map(rule => ({
-                ...rule,
-                standard: rule.standard ? { ...rule.standard, calendar: workingWeek(rule.standard.calendar) } : null,
-                express: rule.express ? { ...rule.express, calendar: workingWeek(rule.express.calendar) } : null,
-              })),
-            })),
-          }))}>Пн–Пт для всех календарей</button>
+
         </div>
-        <p className={styles.hint}>В режиме отдельных посылок товары одного профиля объединяются до его вместимости. Остаток создаёт ещё одну посылку с той же ставкой. Для одной посылки общее количество должно помещаться в каждый применимый профиль.</p>
-        <CalendarFields label="Дни отправки из мастерской" value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
+        <p className={styles.hint}>Пн–Пт уже применяются ко всем обычным профилям и датам. Приоритетное производство в выходные будет отдельной услугой позже. Для посылок сохраняются проверенные ограничения по вместимости.</p>
+        <CalendarFields label="Дни отправки из мастерской" fixedWorkweek value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Профили доставки</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
@@ -301,8 +319,8 @@ export function DeliveryWorkspaceClient() {
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления</h2></div>
         <div className={styles.stack}>{draft.production_profiles.map(p => <ProductionProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, production_profiles: d.production_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
-        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
-          id: crypto.randomUUID(), name: `Изготовление ${min}–${max} дней`, duration: { min, max, unit: null }, calendar: null, max_units_per_order: null, requires_specifications: false,
+        <div className="owner-actions">{[[1, 3], [3, 5], [5, 7], [7, 10]].map(([min, max]) => <button type="button" className="owner-button" key={min} disabled={draft.production_profiles.length >= 50 || draft.production_profiles.some(p => p.duration?.min === min && p.duration?.max === max)} onClick={() => change(d => ({ ...d, production_profiles: [...d.production_profiles, {
+          id: crypto.randomUUID(), name: `Изготовление ${min}–${max} рабочих дней`, duration: { min, max, unit: null }, calendar: null, max_units_per_order: null, requires_specifications: false,
         }] }))}>Добавить {min}–{max} дней</button>)}
           <button type="button" className="owner-button" disabled={draft.production_profiles.length >= 47} onClick={() => change(d => {
             const ranges = [[1, 3], [3, 5], [7, 10], [10, 14]];
@@ -315,18 +333,18 @@ export function DeliveryWorkspaceClient() {
             return { ...d, production_profiles: [...d.production_profiles, ...next] };
           })}>Добавить рабочие профили Пн–Пт (1–3, 3–5, 7–10, 10–14)</button></div>
       </section>
-      <section className="owner-section"><div className="owner-section-head"><h2>Привязки к товарам</h2></div>
+      <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления по товарам</h2></div>
         <div className={styles.grid}>
           <label className={styles.field}>Товар<select aria-label="Товар" value={productId} onChange={e => selectTarget(e.target.value, '')}><option value="">Выберите товар</option>{catalog.map(p => <option key={p.canonical_product_id} value={p.canonical_product_id}>{p.title}</option>)}</select></label>
           <label className={styles.field}>Конфигурация<select aria-label="Конфигурация" value={configurationId} onChange={e => selectTarget(productId, e.target.value)} disabled={!currentProduct}><option value="">Весь товар</option>{currentProduct?.configurations.map(c => <option key={c.configuration_price_id} value={c.configuration_price_id}>{c.name}</option>)}</select></label>
           <ProfileSelect label="Профиль доставки для привязки" value={shippingId} profiles={draft.shipping_profiles} onChange={setShippingId} />
           <ProfileSelect label="Профиль изготовления для привязки" value={productionId} profiles={draft.production_profiles} onChange={setProductionId} />
         </div>
-        <p className={styles.hint}>Затронуто конфигураций: {currentProduct ? configurationId ? 1 : currentProduct.configurations.length : 0}. Точная конфигурация важнее настройки товара; незаданные поля наследуются отдельно.</p>
+        <p className={styles.hint}>Индивидуальная настройка для редких крупных коробок или отдельной конфигурации. Для обычного изготовления назначайте товары по фотографиям ниже. Клиент сам выберет Standard/Express на этапе заказа. Конфигураций: {currentProduct ? configurationId ? 1 : currentProduct.configurations.length : 0}.</p>
         <div className="owner-actions"><button type="button" className="owner-button" disabled={!currentProduct} onClick={assign}>Сохранить привязку в черновике</button><button type="button" className="owner-button" disabled={!currentProduct || lines.length >= 20} onClick={addLine}>Добавить выбранное в тестовый заказ</button></div>
         <DeliveryBulkAssignments catalog={catalog} media={catalogMedia}
-          shippingProfiles={draft.shipping_profiles} productionProfiles={draft.production_profiles}
-          onApply={bulkAssign} />
+          assignments={draft.assignments} productionProfiles={draft.production_profiles}
+          onApplyAndSave={bulkAssign} />
         {draft.assignments.length > 0 && <div className={styles.scroll}><table className={styles.table}><thead><tr><th>Товар / конфигурация</th><th>Доставка</th><th>Изготовление</th><th>Действие</th></tr></thead><tbody>{draft.assignments.map(a => {
           const p = catalog.find(x => x.canonical_product_id === a.canonical_product_id);
           return <tr key={`${a.canonical_product_id}:${a.configuration_price_id}`}><td>{p?.title || 'Товар недоступен'}<br/>{a.configuration_price_id ? p?.configurations.find(c => c.configuration_price_id === a.configuration_price_id)?.name || 'Конфигурация недоступна' : 'Весь товар'}</td>

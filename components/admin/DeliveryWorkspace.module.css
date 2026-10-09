@@ -27,7 +27,7 @@
 .bulkArea { display: grid; gap: 14px; border: 1px solid rgba(216,220,218,.24); border-radius: 12px; padding: 16px; min-width: 0; margin: 14px 0 6px; }
 .bulkArea h3 { margin: 0; font-size: 16px; font-weight: 650; }
 .bulkGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 9px; max-height: 450px; min-height: 100px; overflow-y: auto; overscroll-behavior: contain; padding: 4px; border: 1px solid rgba(216,220,218,.16); border-radius: 8px; }
-.bulkCard { display: grid; grid-template-columns: 18px minmax(0,1fr); grid-template-rows: 112px auto; gap: 5px 8px; border: 1px solid rgba(216,220,218,.22); border-radius: 8px; padding: 8px; cursor: pointer; min-width: 0; align-content: start; }
+.bulkCard { display: grid; grid-template-columns: 18px minmax(0,1fr); grid-template-rows: 112px auto auto; gap: 5px 8px; border: 1px solid rgba(216,220,218,.22); border-radius: 8px; padding: 8px; cursor: pointer; min-width: 0; align-content: start; }
 .bulkCard[data-selected="true"] { border-color: #d4b26a; background: rgba(212,178,106,.06); }
 .bulkCard:focus-within { outline: 2px solid #d4b26a; outline-offset: 1px; }
 .bulkCard input { grid-column: 1; grid-row: 1; align-self: start; width: 17px; height: 17px; accent-color: #d4b26a; }
@@ -35,3 +35,7 @@
 .bulkImage img { width: 100%; height: 100%; object-fit: contain; }
 .bulkCardText { grid-column: 1 / -1; grid-row: 2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; line-height: 1.4; font-size: 12px; }
 @media (max-width: 720px) { .bulkArea { padding: 11px; } .bulkGrid { grid-template-columns: repeat(2,minmax(0,1fr)); max-height: 380px; } }
+
+.bulkCardStatus { grid-column: 1 / -1; grid-row: 3; font-size: 11px; line-height: 1.4; color: #d4b26a; overflow-wrap: anywhere; }
+.bulkAction { display: flex; justify-content: flex-start; align-items: end; padding-bottom: 2px; }
+.bulkAction button { min-height: 42px; max-width: 100%; }
