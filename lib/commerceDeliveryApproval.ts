@@ -1,4 +1,5 @@
 import { parseDeliveryWorkspace, validateDeliveryAssignments, type DeliveryCatalogProduct, type DeliveryWorkspaceDraft } from './commerceDeliveryWorkspace.ts';
+import { isFeyaBlockedExportDestination } from './commerceShippingBlockedDestinations.ts';
 
 export const DELIVERY_APPROVAL_CONTRACT = 'commerce_delivery_approval_v1';
 export const DELIVERY_READINESS_CONTRACT = 'commerce_delivery_approval_readiness_v1';
@@ -78,6 +79,12 @@ export function deliveryApprovalReadiness(raw: unknown, catalog: DeliveryCatalog
       }
     }
     for (const country of profile.served_countries) {
+      // An audited, versioned owner draft may predate a new carrier suspension.
+      // This must be a release blocker even if rate rules match otherwise.
+      if (isFeyaBlockedExportDestination(country)) {
+        add('delivery_country_blocked', `${subject} · ${country}`, profile.id + ':blocked:' + country);
+        continue;
+      }
       const base = profile.rules.filter(r => r.scope === 'default' || r.scope !== 'postal_prefix' && r.countries.includes(country))
         .sort((a, b) => ({ country: 2, zone: 1, default: 0, postal_prefix: -1 }[b.scope] - { country: 2, zone: 1, default: 0, postal_prefix: -1 }[a.scope]))[0];
       if (!base || !base.standard && !base.express) add('delivery_country_rate_required', `${subject} · ${country}`, profile.id + ':' + country);

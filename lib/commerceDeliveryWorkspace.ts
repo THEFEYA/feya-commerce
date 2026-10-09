@@ -1,4 +1,5 @@
 import { calculateCommerceDeliveryEstimate, type DeliveryCalendar, type DeliveryDayRange, type CommerceDeliveryEstimate } from './commerceDeliveryEstimate.ts';
+import { isFeyaBlockedExportDestination } from './commerceShippingBlockedDestinations.ts';
 
 /** Owner drafts only. No field in this contract can enable public rates or payment. */
 export const DELIVERY_WORKSPACE_CONTRACT = 'commerce_delivery_workspace_draft_v1';
@@ -179,6 +180,9 @@ function selectedProfile(d: DeliveryWorkspaceDraft, line: DeliveryPreviewLine, k
   return exact?.[key] ?? product?.[key] ?? (kind === 'shipping' ? d.default_shipping_profile_id : d.default_production_profile_id);
 }
 function ruleFor(profile: DraftShippingProfile, request: DeliveryPreviewRequest) {
+  // Owner/carrier suspension is an absolute deny even if legacy draft data
+  // mistakenly contains this ISO code as a served country.
+  if (isFeyaBlockedExportDestination(request.country)) fail('delivery_country_blocked');
   if (!profile.served_countries.includes(request.country)) fail('delivery_country_not_served');
   const postal = request.postal_code.toUpperCase().replace(/[ -]/g, '');
   const prefixRules = profile.rules.filter(r => r.scope === 'postal_prefix' && r.countries.includes(request.country));

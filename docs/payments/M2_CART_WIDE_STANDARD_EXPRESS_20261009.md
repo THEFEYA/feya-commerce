@@ -1,5 +1,6 @@
 # M2 — one cart-wide shipping method for the approved product catalog
 
+**Additional owner confirmation 2026-10-09:** [Versioned EUR €5 additional-distinct-listing handling and Ukrposhta/Nova Poshta coverage](M2_CARRIER_EUR_HANDLING_POLICY_20261009.md). €5 is charged once per additional canonical listing in an order, NOT per configuration/item/parcel, and is still nonpayable until checkout/tax binding. The actual saved workspace is now revision 16 and owner Express transit 6–9 business days; earlier rev15 and 7–10 transit here are historical checkpoints.\n\n
 2026-10-09 Human Owner confirmation after saved revision 15.
 
 ## Verified saved state (read-only Supabase)
