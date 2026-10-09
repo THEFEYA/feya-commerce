@@ -115,7 +115,10 @@ export default function PrivacyPage(){
               <p>For the enabled Seller Online ordering/payment flow, information necessary to process, resell, deliver or support the transaction may be shared with {SELLER_ONLINE_PROVIDER.legalName} under the terms and privacy practices applicable to that service.</p>
               <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
             </>:<>
-              <p>Online checkout and payment processing are not active in the current catalog storefront. Seller Online is not presented as an active transaction party until the integration and required disclosure for thefeya.com are explicitly confirmed and enabled.</p>
+              <p>Online checkout and payment processing are not active in the current catalog storefront. No customer order is sent to a payment partner through an active TheFEYA checkout at this stage.</p>
+              <p>For the planned custom-site payment service, {SELLER_ONLINE_PROVIDER.legalName} is the designated authorized payment recipient and logistics partner, subject to onboarding and activation. When the service becomes active, transaction and delivery information needed to fulfil an order may be shared with the partner under the applicable checkout notice and privacy terms. This does not make it TheFEYA&apos;s confirmed legal seller or manufacturer.</p>
+              <p>Payment &amp; shipping operator contact: {SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+              <p>Payment partner email: <a className="text-bone underline underline-offset-4 hover:text-white" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a>.</p>
             </>}
           </div>
         </article>
