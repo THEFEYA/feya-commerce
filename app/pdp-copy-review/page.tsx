@@ -1,5 +1,4 @@
-export const instant=false;
-export const dynamic='force-dynamic';
+export const instant = false;
 
 import type {Metadata} from 'next';
 import Link from 'next/link';
