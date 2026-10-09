@@ -2,7 +2,12 @@ export const SELLER_ONLINE_PROVIDER = {
   providerCode: 'seller-online',
   legalName: 'Seller-Online LLC',
   legalJurisdiction: 'Pennsylvania, United States',
-  publicRoleDescription: 'buyer, reseller, shipper and direct payment recipient',
+  publicRoleDescription: 'authorized payment recipient, payment processing and logistics partner, distributor/reseller',
+  officialConfirmationDate: '2026-10-09',
+  officialIntegration: 'API v2',
+  connectionApplicationUrl: 'https://my.seller-online.com/connect/other',
+  apiDocumentationUrl: 'https://api.seller-online.com/swagger-ui/',
+  approvedCheckoutDisclosure: 'Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.',
   merchantOfRecordConfirmed: false,
   contactAddress: {
     line1: '635 Somers Ave',

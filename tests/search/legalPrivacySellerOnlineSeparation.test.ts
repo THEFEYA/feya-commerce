@@ -34,7 +34,9 @@ test('Seller Online disclosure requires explicit role confirmation in addition t
   assert.match(provider,/FEYA_SELLER_ONLINE_ROLE_CONFIRMED/);
   assert.match(provider,/FEYA_SELLER_ONLINE_PAYMENTS_ENABLED/);
   assert.match(provider,/merchantOfRecordConfirmed: false/);
-  assert.match(provider,/buyer, reseller, shipper and direct payment recipient/);
+  assert.match(provider,/authorized payment recipient, payment processing and logistics partner/);
+  assert.match(provider,/officialConfirmationDate: '2026-10-09'/);
+  assert.match(provider,/approvedCheckoutDisclosure:/);
 });
 
 test('homepage footer exposes OAuth-required privacy and terms links without reopening checkout',()=>{
