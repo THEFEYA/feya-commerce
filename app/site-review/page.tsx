@@ -39,9 +39,10 @@ const proposals=[
   ['Контакты — новый дизайн','/contact-review','Адаптивные контакты, ссылки помощи и корректное представление Seller Online. Не опубликовано на основном сайте.'],
 ] as const;
 
-function Links({data}:{data:readonly (readonly [string,string,string?])[]}){
+function Links({data,live=false}:{data:readonly (readonly [string,string,string?])[];live?:boolean}){
   return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-    {data.map(([name,href,description])=><Link key={href} href={href}
+    {data.map(([name,href,description])=><Link key={href} href={live?`https://thefeya.com${href}`:href}
+      target={live?'_blank':undefined} rel={live?'noopener noreferrer':undefined}
       className="group flex min-w-0 items-start justify-between gap-4 rounded-[12px] border border-[rgba(216,214,211,.16)] bg-[rgba(255,255,255,.025)] p-5 transition-colors hover:border-[rgba(212,178,106,.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]">
       <span className="min-w-0">
         <span className="block text-[16px] font-medium text-[#f7f3ec] group-hover:text-[#e8ca87]">{name}</span>
@@ -62,7 +63,7 @@ export default function OwnerSiteReviewPage(){
         Проверка магазина
       </h1>
       <p className="mt-5 max-w-3xl text-[15px] leading-7 text-[var(--bone-dim)]">
-        Открой страницы по очереди на компьютере и телефоне. Первые два раздела ведут на существующий сайт и его реальные коллекции; проекты корзины, доставки и контактов ниже — отдельные, неопубликованные концепции для согласования.
+        Открой страницы по очереди на компьютере и телефоне. Первые два раздела открывают действующий thefeya.com в новой вкладке; проекты корзины, доставки и контактов ниже — отдельные, неопубликованные концепции для согласования.
       </p>
     </section>
 
@@ -82,7 +83,7 @@ export default function OwnerSiteReviewPage(){
           <div><h2 className="text-[25px] font-medium text-[#f7f3ec]">10 коммерческих посадочных страниц</h2>
             <p className="mt-1 text-[13px] leading-6 text-[var(--bone-dim)]">Кликни в каждую коллекцию и посмотри реальные товары, которые в неё входят. Это действующие страницы Wave A.</p></div>
         </div>
-        <Links data={commercial}/>
+        <Links data={commercial} live/>
       </div>
 
       <div className="mt-14">
@@ -91,7 +92,7 @@ export default function OwnerSiteReviewPage(){
           <div><h2 className="text-[25px] font-medium text-[#f7f3ec]">Остальные страницы магазина</h2>
             <p className="mt-1 text-[13px] leading-6 text-[var(--bone-dim)]">Каталог, текущие юридические разделы, размеры и поддержка. Текущая /cart остаётся закрыта до реальной оплаты.</p></div>
         </div>
-        <Links data={current}/>
+        <Links data={current} live/>
       </div>
 
       <div className="mt-14">
