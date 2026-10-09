@@ -1,3 +1,5 @@
+export const instant = false;
+
 import type {Metadata} from 'next';
 import {notFound} from 'next/navigation';
 import {ContactExperience2026} from '@/components/ContactExperience2026';
