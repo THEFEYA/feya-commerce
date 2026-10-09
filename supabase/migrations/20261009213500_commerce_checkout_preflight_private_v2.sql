@@ -83,11 +83,11 @@ begin
     then raise exception 'checkout_preflight_request_invalid'; end if;
   if jsonb_typeof(p_request->'destination') is distinct from 'object'
     or not(p_request->'destination' ?& v_addr_required)
-    or (p_request->'destination'-v_addr_required)<>'{}'::jsonb
+    or ((p_request->'destination')-v_addr_required)<>'{}'::jsonb
     or p_request#>>'{destination,contract_version}' is distinct from 'commerce_checkout_destination_v2'
     or jsonb_typeof(p_request->'policy_acknowledgement') is distinct from 'object'
     or not(p_request->'policy_acknowledgement' ?& array['accepted','bundle_sha256'])
-    or (p_request->'policy_acknowledgement'-array['accepted','bundle_sha256'])<>'{}'::jsonb
+    or ((p_request->'policy_acknowledgement')-array['accepted','bundle_sha256'])<>'{}'::jsonb
     or p_request#>'{policy_acknowledgement,accepted}' is distinct from 'true'::jsonb
     or coalesce(p_request#>>'{policy_acknowledgement,bundle_sha256}','') !~ '^[0-9a-f]{64}$'
     then raise exception 'checkout_preflight_policy_or_address_invalid'; end if;
