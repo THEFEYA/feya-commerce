@@ -32,3 +32,15 @@ export function normalizeRegularDeliveryWorkingWeek(draft: DeliveryWorkspaceDraf
     })),
   };
 }
+
+
+/** Supabase JSONB returns sorted object keys and can differ from JSX draft
+ * insertion order. A key-order-sensitive JSON.stringify would incorrectly
+ * mark an actually saved revision "unsaved" and block date preview/approval. */
+export function equivalentDeliveryWorkspaceDraft(a: DeliveryWorkspaceDraft, b: DeliveryWorkspaceDraft): boolean {
+  const stable = (value: unknown) => JSON.stringify(value, (_key, current: unknown) => {
+    if (!current || typeof current !== 'object' || Array.isArray(current)) return current;
+    return Object.fromEntries(Object.entries(current).sort(([left], [right]) => left.localeCompare(right)));
+  });
+  return stable(a) === stable(b);
+}
