@@ -50,6 +50,7 @@ before(async () => {
   `);
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009213500_commerce_checkout_preflight_private_v2.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009221000_commerce_carrier_parcel_coverage_v1.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261009224500_commerce_carrier_owner_review_v1.sql', import.meta.url), 'utf8'));
 
 });
 after(async () => { await db?.close(); });
@@ -746,6 +747,14 @@ test('native concurrent same-key private preflight persists exactly once', {skip
   }finally{await Promise.all(clients.map(c=>c.end()));}
 });
 
+const saveOwnerParcelReview=(payload,actorId=actor,client=db)=>service(async c=>
+  (await c.query(
+    'select public.feya_commerce_confirm_owner_parcel_review_v1($1::jsonb,$2::uuid) r',
+    [JSON.stringify(payload),actorId])).rows[0].r,client);
+const ownerCarrierReviewContext=(client=db)=>service(async c=>
+  (await c.query('select public.feya_commerce_owner_carrier_review_context_v1() r')).rows[0].r,client);
+let ownerParcelRequest;
+
 /* Post PR103 / #91: owner versioned parcel class vs unexpired source-only
  * carrier method; NEVER a paid shipping or actual dimensional guarantee. */
 const privateParcelCoverage = (quoteId,client=db)=>service(async c=>
@@ -796,14 +805,21 @@ test('immutable owner profile review can scope a current source method but canno
     [v2Receipt.shipping_quote_receipt_id])).rows[0];
   const ids=row.details.parcels[0].shipping_profile_ids;
   assert.equal(ids.length,1);
-  const reviewId=randomUUID();
-  await service(c=>c.query(`insert into public.feya_commerce_shipping_parcel_profile_reviews_v1(
-     review_id,workspace_version_id,workspace_revision,shipping_profile_id,
-     parcel_class,max_units_per_parcel,envelope_weight_grams,
-     envelope_length_mm,envelope_width_mm,envelope_height_mm,
-     packaging_evidence_sha256,packaging_reference,reviewed_by,business_review_confirmed)
-     values($1,$2,$3,$4,'ordinary',2,1600,450,340,180,$5,'SYNTHETIC LOCAL QA review',$6,true)`,
-    [reviewId,row.workspace_version_id,row.workspace_revision,ids[0],'a'.repeat(64),actor]));
+  ownerParcelRequest={
+    request_id:randomUUID(),
+    workspace_version_id:row.workspace_version_id,
+    workspace_revision:row.workspace_revision,
+    shipping_profile_id:ids[0],
+    parcel_class:'ordinary',max_units_per_parcel:2,
+    envelope_weight_grams:1600,envelope_length_mm:450,
+    envelope_width_mm:340,envelope_height_mm:180,
+    packaging_reference:'SYNTHETIC LOCAL QA review',
+    business_review_confirmed:true,
+  };
+  const receipt=await saveOwnerParcelReview(ownerParcelRequest);
+  assert.equal(receipt.replayed,false);
+  assert.equal(receipt.payable,false);
+  assert.equal(receipt.carrier_route_verified,false);
   assert.equal(await parcelReviewCount(),1);
   const cov=await privateParcelCoverage(v2Receipt.shipping_quote_receipt_id);
   assert.equal(cov.parcels[0].status,'country_product_source_check');
@@ -843,4 +859,92 @@ test('old/fake quote and invalid table role boundary cannot create coverage auth
   try{assert.equal((await privateParcelHealth()).private_boundary_ready,false);}
   finally{await db.query('revoke select on public.feya_commerce_shipping_parcel_profile_reviews_v1 from authenticated');}
   assert.equal((await privateParcelHealth()).private_boundary_ready,true);
+});
+
+test('Owner parcel context shows current approved exact profiles and remains nonpayable',async()=>{
+  const x=await ownerCarrierReviewContext();
+  assert.equal(x.contract_version,'commerce_carrier_owner_review_context_v1');
+  assert.equal(x.status,'approved_workspace');
+  assert.equal(x.saved_draft_revision>0,true);
+  assert.ok(Array.isArray(x.profiles)&&x.profiles.length>=1);
+  const selected=x.profiles.find(p=>p.shipping_profile_id===ownerParcelRequest.shipping_profile_id);
+  assert.ok(selected);
+  assert.equal(selected.owner_review.parcel_class,'ordinary');
+  assert.equal(selected.owner_review.max_units_per_parcel,2);
+  assert.equal(selected.owner_review.packaging_reference,'SYNTHETIC LOCAL QA review');
+  assert.ok(x.source_observation_count>=1);
+  assert.equal(x.payable,false);
+  assert.equal(x.payment_enabled,false);
+  assert.equal(x.public_rates_enabled,false);
+  assert.equal(x.provider_session_enabled,false);
+});
+test('Owner reviewed parcel attestation is bound to actor and request ID; exact retry never creates another review',async()=>{
+  const first=await saveOwnerParcelReview(ownerParcelRequest);
+  assert.equal(first.replayed,true);
+  assert.equal(first.review_id,ownerParcelRequest.request_id);
+  assert.equal(first.carrier_route_verified,false);
+  for(const forged of [
+    {...ownerParcelRequest,envelope_weight_grams:2000},
+    {...ownerParcelRequest,parcel_class:'oversize'},
+    {...ownerParcelRequest,packaging_reference:'SYNTHETIC Other review'},
+  ]){
+    await assert.rejects(saveOwnerParcelReview(forged),/carrier_owner_review_request_conflict/);
+  }
+  await assert.rejects(saveOwnerParcelReview(ownerParcelRequest,otherActor),
+    /carrier_owner_review_request_conflict/);
+  const one=(await db.query('select count(*)::int n from public.feya_commerce_shipping_parcel_profile_reviews_v1')).rows[0].n;
+  assert.equal(one,1);
+});
+test('Owner parcel reviewer rejects client actor, guessed dimensions, mismatched capacity and a second review of same profile',async()=>{
+  const good={...ownerParcelRequest,request_id:randomUUID()};
+  for(const bad of [
+    {...good,reviewed_by:actor},
+    {...good,carrier_route_verified:true},
+    {...good,business_review_confirmed:false},
+    {...good,max_units_per_parcel:3},
+    {...good,envelope_weight_grams:0},
+    {...good,envelope_length_mm:0},
+    {...good,envelope_width_mm:5001},
+    {...good,packaging_reference:'guess'},
+  ]){
+    await assert.rejects(saveOwnerParcelReview(bad),
+      /carrier_owner_review_(request_invalid|package_invalid|profile_mismatch)/);
+  }
+  await assert.rejects(saveOwnerParcelReview(good),
+    /carrier_owner_review_already_confirmed/);
+});
+test('Owner carrier RPCs reject anon/authenticated and current head disappearance closes new approval',async()=>{
+  for(const role of ['anon','authenticated']){
+    await db.query('set role '+role);
+    try{
+      await assert.rejects(db.query('select public.feya_commerce_owner_carrier_review_context_v1()'),
+        /permission denied/);
+      await assert.rejects(db.query(
+        'select public.feya_commerce_confirm_owner_parcel_review_v1($1::jsonb,$2)',
+        [JSON.stringify(ownerParcelRequest),actor]),/permission denied/);
+    }finally{await db.query('reset role');}
+  }
+  const head=(await db.query(
+    "select approval_id,revision from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'")).rows[0];
+  await db.query("delete from public.feya_commerce_delivery_approval_head_v1 where workspace_key='thefeya'");
+  try{
+    const x=await ownerCarrierReviewContext();
+    assert.equal(x.status,'awaiting_delivery_approval');
+    assert.deepEqual(x.profiles,[]);
+    await assert.rejects(saveOwnerParcelReview({...ownerParcelRequest,request_id:randomUUID()}),
+      /carrier_owner_review_approval_required/);
+  }finally{
+    await db.query(
+      "insert into public.feya_commerce_delivery_approval_head_v1(workspace_key,approval_id,revision) values('thefeya',$1,$2)",
+      [head.approval_id,head.revision]);
+  }
+});
+test('Native PostgreSQL duplicate owner attestation calls replay immutable original only', {skip:!nativeURL},async()=>{
+  const clients=await Promise.all([connect(),connect()]);
+  try{
+    const outputs=await Promise.all(clients.map(c=>saveOwnerParcelReview(ownerParcelRequest,actor,c)));
+    assert.deepEqual(outputs.map(x=>x.replayed),[true,true]);
+    assert.equal(outputs[0].review_id,outputs[1].review_id);
+    assert.equal(outputs[0].payable,false);
+  }finally{await Promise.all(clients.map(c=>c.end()));}
 });
