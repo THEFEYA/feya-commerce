@@ -10,7 +10,8 @@ import type { DeliveryApprovalRequest, DeliveryApprovalState } from '@/lib/comme
 import { CalendarFields, CountryOptions, CountryCodesField, DurationFields, MethodFields } from './DeliveryProfileFields';
 import styles from './DeliveryWorkspace.module.css';
 import { DeliveryBulkAssignments, type DeliveryCatalogMedia } from './DeliveryBulkAssignments';
-import { applyDeliveryBulkProfile } from '@/lib/commerceDeliveryBulkDraft';
+import { applyUniformProductionProfile } from '@/lib/commerceDeliveryBulkDraft';
+import { normalizeRegularDeliveryWorkingWeek } from '@/lib/commerceDeliveryRegularWeek';
 import { addOwnerConfirmedEurDraft, addOwnerApprovedRemoteZoneToEurDraft, FEYA_EUR_BASE_PROFILE_NAME } from '@/lib/commerceOwnerEurRatePreset';
 
 const endpoint = '/api/admin/company/delivery-workspace';
@@ -118,8 +119,8 @@ function ProductionProfileEditor({ profile, update }: { profile: DraftProduction
       <label className={styles.field}>Название профиля<input value={profile.name} maxLength={120} onChange={e => update({ ...profile, name: e.target.value })} /></label>
       <label className={styles.field}>Максимум товаров для этого срока в заказе<input type="number" min={1} max={1000} value={profile.max_units_per_order ?? ''} onChange={e => update({ ...profile, max_units_per_order: numberOrNull(e.target.value) })} /></label>
     </div>
-    <DurationFields label="Срок изготовления" value={profile.duration} onChange={duration => update({ ...profile, duration })} />
-    <CalendarFields label="Рабочие дни мастерской" value={profile.calendar} onChange={calendar => update({ ...profile, calendar })} />
+    <DurationFields label="Срок изготовления" fixedBusinessDays value={profile.duration} onChange={duration => update({ ...profile, duration })} />
+    <CalendarFields label="Рабочие дни мастерской" fixedWorkweek value={profile.calendar} onChange={calendar => update({ ...profile, calendar })} />
     <label className={styles.check}><input type="checkbox" checked={profile.requires_specifications} onChange={e => update({ ...profile, requires_specifications: e.target.checked })} />Начинать только после согласования индивидуальных мерок или дизайна</label>
   </details>;
 }
@@ -278,8 +279,8 @@ export function DeliveryWorkspaceClient() {
             })),
           }))}>Пн–Пт для всех календарей</button>
         </div>
-        <p className={styles.hint}>В режиме отдельных посылок товары одного профиля объединяются до его вместимости. Остаток создаёт ещё одну посылку с той же ставкой. Для одной посылки общее количество должно помещаться в каждый применимый профиль.</p>
-        <CalendarFields label="Дни отправки из мастерской" value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
+        <p className={styles.hint}>Пн–Пт уже применяются ко всем обычным профилям и датам. Приоритетное производство в выходные будет отдельной услугой позже. Для посылок сохраняются проверенные ограничения по вместимости.</p>
+        <CalendarFields label="Дни отправки из мастерской" fixedWorkweek value={draft.dispatch_calendar} onChange={v => change(d => ({ ...d, dispatch_calendar: v }))} />
       </section>
       <section className="owner-section"><div className="owner-section-head"><h2>Профили доставки</h2></div>
         <div className={styles.stack}>{draft.shipping_profiles.map(p => <ShippingProfileEditor key={p.id} profile={p} update={value => change(d => ({ ...d, shipping_profiles: d.shipping_profiles.map(x => x.id === p.id ? value : x) }))} />)}</div>
@@ -315,18 +316,18 @@ export function DeliveryWorkspaceClient() {
             return { ...d, production_profiles: [...d.production_profiles, ...next] };
           })}>Добавить рабочие профили Пн–Пт (1–3, 3–5, 7–10, 10–14)</button></div>
       </section>
-      <section className="owner-section"><div className="owner-section-head"><h2>Привязки к товарам</h2></div>
+      <section className="owner-section"><div className="owner-section-head"><h2>Сроки изготовления по товарам</h2></div>
         <div className={styles.grid}>
           <label className={styles.field}>Товар<select aria-label="Товар" value={productId} onChange={e => selectTarget(e.target.value, '')}><option value="">Выберите товар</option>{catalog.map(p => <option key={p.canonical_product_id} value={p.canonical_product_id}>{p.title}</option>)}</select></label>
           <label className={styles.field}>Конфигурация<select aria-label="Конфигурация" value={configurationId} onChange={e => selectTarget(productId, e.target.value)} disabled={!currentProduct}><option value="">Весь товар</option>{currentProduct?.configurations.map(c => <option key={c.configuration_price_id} value={c.configuration_price_id}>{c.name}</option>)}</select></label>
           <ProfileSelect label="Профиль доставки для привязки" value={shippingId} profiles={draft.shipping_profiles} onChange={setShippingId} />
           <ProfileSelect label="Профиль изготовления для привязки" value={productionId} profiles={draft.production_profiles} onChange={setProductionId} />
         </div>
-        <p className={styles.hint}>Затронуто конфигураций: {currentProduct ? configurationId ? 1 : currentProduct.configurations.length : 0}. Точная конфигурация важнее настройки товара; незаданные поля наследуются отдельно.</p>
+        <p className={styles.hint}>Индивидуальная настройка для редких крупных коробок или отдельной конфигурации. Для обычного изготовления назначайте товары по фотографиям ниже. Клиент сам выберет Standard/Express на этапе заказа. Конфигураций: {currentProduct ? configurationId ? 1 : currentProduct.configurations.length : 0}.</p>
         <div className="owner-actions"><button type="button" className="owner-button" disabled={!currentProduct} onClick={assign}>Сохранить привязку в черновике</button><button type="button" className="owner-button" disabled={!currentProduct || lines.length >= 20} onClick={addLine}>Добавить выбранное в тестовый заказ</button></div>
         <DeliveryBulkAssignments catalog={catalog} media={catalogMedia}
-          shippingProfiles={draft.shipping_profiles} productionProfiles={draft.production_profiles}
-          onApply={bulkAssign} />
+          assignments={draft.assignments} productionProfiles={draft.production_profiles}
+          onApplyAndSave={bulkAssign} />
         {draft.assignments.length > 0 && <div className={styles.scroll}><table className={styles.table}><thead><tr><th>Товар / конфигурация</th><th>Доставка</th><th>Изготовление</th><th>Действие</th></tr></thead><tbody>{draft.assignments.map(a => {
           const p = catalog.find(x => x.canonical_product_id === a.canonical_product_id);
           return <tr key={`${a.canonical_product_id}:${a.configuration_price_id}`}><td>{p?.title || 'Товар недоступен'}<br/>{a.configuration_price_id ? p?.configurations.find(c => c.configuration_price_id === a.configuration_price_id)?.name || 'Конфигурация недоступна' : 'Весь товар'}</td>
