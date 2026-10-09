@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { syntheticDeliveryWorkspace } from '../fixtures/commerceDeliveryWorkspace.ts';
 import { emptyDeliveryWorkspace, parseDeliveryWorkspace } from '../../lib/commerceDeliveryWorkspace.ts';
-import { normalizeRegularDeliveryWorkingWeek, standardWeekCalendar } from '../../lib/commerceDeliveryRegularWeek.ts';
+import { normalizeRegularDeliveryWorkingWeek, standardWeekCalendar, equivalentDeliveryWorkspaceDraft } from '../../lib/commerceDeliveryRegularWeek.ts';
 
 test('normal owner delivery dates always use weekdays and keep explicit holidays, even if older draft had weekends', () => {
   const d = syntheticDeliveryWorkspace();
@@ -41,4 +41,15 @@ test('priority manufacturing weekend option does not exist in normal draft', () 
   assert.ok(n.production_profiles.every(p => p.calendar?.working_weekdays.every(d => d >= 1 && d <= 5)));
   assert.ok(!('priority_manufacturing_enabled' in n));
   assert.ok(!('payment_enabled' in n));
+});
+
+test('PostgreSQL JSONB key order does not turn saved manufacturing selections into dirty work', () => {
+  const draft = normalizeRegularDeliveryWorkingWeek(syntheticDeliveryWorkspace());
+  const reversed = JSON.parse(JSON.stringify(draft, (_key, value) =>
+    value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.fromEntries(Object.entries(value).reverse()) : value));
+  assert.notEqual(JSON.stringify(draft), JSON.stringify(reversed));
+  assert.equal(equivalentDeliveryWorkspaceDraft(draft, reversed), true);
+  reversed.production_profiles[0].calendar.working_weekdays = [1, 2, 3, 4, 5, 6];
+  assert.equal(equivalentDeliveryWorkspaceDraft(draft, reversed), false);
 });
