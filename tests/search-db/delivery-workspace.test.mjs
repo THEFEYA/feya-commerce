@@ -38,14 +38,14 @@ before(async () => {
   // Production resolves its genuine versioned business-truth policy bundle.
   await db.exec(`
     create or replace function public.feya_commerce_checkout_policy_bundle_v1()
-    returns jsonb language sql stable set search_path='' as $
+    returns jsonb language sql stable set search_path='' as $fixture_policy$
       select jsonb_build_object(
         'contract_version','checkout_policy_bundle_v1',
         'bundle_sha256',repeat('a',64),
         'explicit_checkbox_required',true,
         'routes',jsonb_build_object('terms','/terms','returns','/returns','shipping','/shipping')
       );
-    $;
+    $fixture_policy$;
     grant execute on function public.feya_commerce_checkout_policy_bundle_v1() to service_role;
   `);
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009213500_commerce_checkout_preflight_private_v2.sql', import.meta.url), 'utf8'));
