@@ -48,16 +48,18 @@ export class CheckoutPreflightError extends Error {
 }
 
 export function parseCheckoutPreflightV2Request(raw:unknown):CheckoutPreflightV2Request{
-  if(!record(raw)||Object.keys(raw).sort().join(',')!==
-    'contract_version,destination,policy_acknowledgement,request_id,shipping_quote_receipt_id'
-    ||raw.contract_version!==CHECKOUT_PREFLIGHT_V2
-    ||typeof raw.request_id!=='string'||!UUID.test(raw.request_id)
-    ||typeof raw.shipping_quote_receipt_id!=='string'||!UUID.test(raw.shipping_quote_receipt_id)
-    ||!record(raw.policy_acknowledgement)
-    ||Object.keys(raw.policy_acknowledgement).sort().join(',')!=='accepted,bundle_sha256'
-    ||raw.policy_acknowledgement.accepted!==true
-    ||typeof raw.policy_acknowledgement.bundle_sha256!=='string'
-    ||!SHA.test(raw.policy_acknowledgement.bundle_sha256))invalid();
+  if(!record(raw))return invalid();
+  if(Object.keys(raw).sort().join(',')!==
+      'contract_version,destination,policy_acknowledgement,request_id,shipping_quote_receipt_id'
+    ||raw.contract_version!==CHECKOUT_PREFLIGHT_V2)return invalid();
+  const requestId=raw.request_id,quoteId=raw.shipping_quote_receipt_id,ack=raw.policy_acknowledgement;
+  if(typeof requestId!=='string'||!UUID.test(requestId)
+    ||typeof quoteId!=='string'||!UUID.test(quoteId)
+    ||!record(ack)
+    ||Object.keys(ack).sort().join(',')!=='accepted,bundle_sha256'
+  )return invalid();
+  const accepted=ack.accepted,bundleHash=ack.bundle_sha256;
+  if(accepted!==true||typeof bundleHash!=='string'||!SHA.test(bundleHash))return invalid();
   let destination:CheckoutDestinationV2;
   try{destination=normalizeCheckoutDestinationV2(raw.destination);}
   catch{return invalid();}
@@ -65,10 +67,10 @@ export function parseCheckoutPreflightV2Request(raw:unknown):CheckoutPreflightV2
     throw new CheckoutPreflightError('checkout_preflight_destination_unserved',422);
   return {
     contract_version:CHECKOUT_PREFLIGHT_V2,
-    request_id:raw.request_id,
-    shipping_quote_receipt_id:raw.shipping_quote_receipt_id,
+    request_id:requestId,
+    shipping_quote_receipt_id:quoteId,
     destination,
-    policy_acknowledgement:{accepted:true,bundle_sha256:raw.policy_acknowledgement.bundle_sha256},
+    policy_acknowledgement:{accepted:true,bundle_sha256:bundleHash},
   };
 }
 
