@@ -33,6 +33,7 @@ before(async () => {
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008160534_commerce_approved_delivery_context_v1.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261008223000_commerce_approved_shipping_quote_v2.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../supabase/migrations/20261009160000_carrier_method_evidence_private_v1.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../supabase/migrations/20261009201000_ukrposhta_verified_source_ingestion_v1.sql', import.meta.url), 'utf8'));
 
 });
 after(async () => { await db?.close(); });
@@ -490,3 +491,100 @@ test('carrier evidence permission drift marks the private boundary NOT READY',as
   finally { await db.query('revoke select on public.feya_commerce_carrier_method_observations_v1 from authenticated'); }
   assert.equal((await carrierHealth()).private_boundary_ready,true);
 });
+
+/** PR #96: only the genuine server-side source capture adapter may invoke this
+ * private RPC after a separately approved owner service mapping exists. It
+ * never opens actual Standard/Express quotes, orders or buyer-facing rates. */
+const saveUkrposhtaSource=(payload,client=db)=>service(async c=>
+  (await c.query('select public.feya_commerce_record_ukrposhta_availability_v1($1::jsonb) r',
+    [JSON.stringify(payload)])).rows[0].r,client);
+const newUkrposhtaSource=(mappingId,requestId=randomUUID())=>({
+  contract_version:'commerce_ukrposhta_source_capture_v1',
+  source_request_id:requestId,mapping_revision_id:mappingId,
+  country:'US',carrier_product:'PARCEL',transport_type:'AVIA',
+  carrier_api_result:'available',source_digest_sha256:'f'.repeat(64),
+  source_adapter_version:'ukrposhta_international_20260309_v1',
+  captured_at:new Date(Date.now()-1000).toISOString(),
+  expires_at:new Date(Date.now()+50*60000).toISOString(),
+});
+let ukrposhtaOwnerMapping,ukrposhtaRequest,ukrposhtaReceipt;
+test('Ukrposhta source RPC is service-only, disabled for anonymous/authenticated and requires owner-reviewed mapping',async()=>{
+  for(const role of ['anon','authenticated']){
+    await db.query('set role '+role);
+    try { await assert.rejects(db.query(
+      "select public.feya_commerce_record_ukrposhta_availability_v1('{}'::jsonb)"),
+      /permission denied/); }
+    finally { await db.query('reset role'); }
+  }
+  const missing=newUkrposhtaSource(randomUUID());
+  await assert.rejects(saveUkrposhtaSource(missing),/ukrposhta_capture_mapping_not_reviewed/);
+  assert.equal(await carrierEvidenceCount(),1);
+  ukrposhtaOwnerMapping=randomUUID();
+  await service(c=>c.query(`insert into public.feya_commerce_carrier_service_mapping_reviews_v1
+    (mapping_revision_id,carrier,shipping_method,parcel_class,carrier_service_code,
+      reviewed_by,business_review_confirmed)
+    values($1,'ukrposhta','standard','ordinary','PARCEL_AVIA',$2,true)`,
+    [ukrposhtaOwnerMapping,actor]));
+});
+test('validated current source creates immutable exact owner-mapped evidence; 2nd use replays',async()=>{
+  ukrposhtaRequest=newUkrposhtaSource(ukrposhtaOwnerMapping);
+  ukrposhtaReceipt=await saveUkrposhtaSource(ukrposhtaRequest);
+  assert.equal(ukrposhtaReceipt.contract_version,'commerce_ukrposhta_source_receipt_v1');
+  assert.equal(ukrposhtaReceipt.country,'US');
+  assert.equal(ukrposhtaReceipt.carrier_service_code,'PARCEL_AVIA');
+  assert.equal(ukrposhtaReceipt.carrier_api_result,'available');
+  assert.equal(ukrposhtaReceipt.method_mapping_owner_approved,true);
+  assert.equal(ukrposhtaReceipt.replayed,false);
+  assert.equal(ukrposhtaReceipt.expired,false);
+  assert.equal(ukrposhtaReceipt.payable,false);
+  assert.equal(ukrposhtaReceipt.public_rates_enabled,false);
+  assert.equal(ukrposhtaReceipt.payment_enabled,false);
+  assert.equal(ukrposhtaReceipt.provider_session_enabled,false);
+  const again=await saveUkrposhtaSource(ukrposhtaRequest);
+  assert.equal(again.replayed,true);
+  assert.equal(again.capture_id,ukrposhtaReceipt.capture_id);
+  assert.equal(await carrierEvidenceCount(),2);
+  const rows=(await carrierContext('US')).evidence;
+  assert.ok(rows.some(x=>x.capture_id===ukrposhtaReceipt.capture_id));
+  assert.equal(rows.every(x=>x.method_mapping_owner_approved===true),true);
+});
+test('Ukrposhta mapping cannot be inferred from EMS, another transport, express or unrelated UUID',async()=>{
+  const other=newUkrposhtaSource(ukrposhtaOwnerMapping);
+  for(const bad of [
+    {...other,carrier_product:'EMS'},
+    {...other,transport_type:'GROUND'},
+    {...other,mapping_revision_id:carrierMappingId}, // Legacy PARCEL not PARCEL_AVIA
+    {...other,mapping_revision_id:randomUUID()},
+  ])await assert.rejects(saveUkrposhtaSource(bad),/ukrposhta_capture_mapping_not_reviewed/);
+  assert.equal(await carrierEvidenceCount(),2);
+});
+test('Ukrposhta source cannot auto-grant suspended route, accept browser fields or stale/forged proof',async()=>{
+  const req=newUkrposhtaSource(ukrposhtaOwnerMapping);
+  for(const blocked of ['RU','BY','KP','IR','UA']){
+    await assert.rejects(saveUkrposhtaSource({...req,country:blocked}),/ukrposhta_capture_destination_blocked/);
+  }
+  for(const bad of [
+    {...req,amount_minor:1900},
+    {...req,method_mapping_owner_approved:true},
+    {...req,source_digest_sha256:'not-sha'},
+    {...req,source_adapter_version:'mock'},
+    {...req,captured_at:new Date(Date.now()-20*60000).toISOString()},
+    {...req,captured_at:new Date(Date.now()+20*60000).toISOString()},
+    {...req,expires_at:new Date(Date.now()-1000).toISOString()},
+    {...req,expires_at:new Date(Date.now()+25*3600000).toISOString()},
+  ])await assert.rejects(saveUkrposhtaSource(bad),/ukrposhta_capture_(invalid|stale_or_future)/);
+  await assert.rejects(saveUkrposhtaSource({
+    ...ukrposhtaRequest,carrier_api_result:'unavailable',
+  }),/ukrposhta_capture_replay_conflict/);
+  assert.equal(await carrierEvidenceCount(),2);
+});
+test('native parallel identical private source writes are atomic and no second capture exists',
+  {skip:!nativeURL},async()=>{
+    const one=newUkrposhtaSource(ukrposhtaOwnerMapping),clients=await Promise.all([connect(),connect()]);
+    try{
+      const both=await Promise.all(clients.map(c=>saveUkrposhtaSource(one,c)));
+      assert.equal(both[0].capture_id,both[1].capture_id);
+      assert.deepEqual(both.map(x=>x.replayed).sort(),[false,true]);
+      assert.equal(await carrierEvidenceCount(),3);
+    } finally { await Promise.all(clients.map(c=>c.end())); }
+  });
