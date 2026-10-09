@@ -187,6 +187,49 @@ export async function verifyDeliveryWorkspaceRuntime({ db, browser, ownerPage, e
       assert.ok(layout.scroll <= layout.width, JSON.stringify(layout));
       assert.deepEqual(errors, []);
     });
+    await check('Owner saves one universal EUR shipping profile for all products, preserving production and approval gates', async () => {
+      const previous = await read();
+      const draft = previous.workspace.draft;
+      const initialShipping = draft.shipping_profiles[0];
+      const plain = {
+        ...draft, shipping_profiles: [{
+          ...initialShipping, name: 'Standart', currency: 'EUR',
+          served_countries: [], max_units_per_parcel: null,
+          rules: [{ ...initialShipping.rules[0], scope: 'default', countries: [], postal_prefix: null,
+            standard: { amount_minor: null, transit: null, calendar: {working_weekdays:[1,2,3,4,5],holidays:[]} }, express: null }],
+        }],
+        default_shipping_profile_id: null,
+        assignments: draft.assignments.map(a => ({ ...a, shipping_profile_id: null }))
+          .filter(a => a.production_profile_id !== null),
+      };
+      const setup = await post({ action: 'save', request_id: randomUUID(),
+        expected_revision: previous.workspace.revision, draft: plain });
+      assert.equal(setup.status, 200, JSON.stringify(setup.body).slice(0, 250));
+      const preserved = (await read()).workspace;
+      await page.setViewportSize({width:1360,height:900});
+      await page.reload();
+      await page.getByRole('button', { name: 'Подготовить и сохранить общую доставку: €19 / €35 + AU/MX/NZ' }).click();
+      await page.getByText(/Сохранено в Supabase: версия \d+\. Оплата и публичные тарифы выключены\./).waitFor();
+      const saved = (await read()).workspace;
+      assert.equal(saved.revision, preserved.revision + 1);
+      assert.equal(saved.draft.shipping_profiles.length, 1);
+      assert.equal(saved.draft.shipping_profiles[0].id, initialShipping.id);
+      assert.equal(saved.draft.default_shipping_profile_id, initialShipping.id);
+      assert.equal(saved.draft.shipping_profiles[0].rules[0].standard.amount_minor, 1900);
+      assert.equal(saved.draft.shipping_profiles[0].rules[0].express.amount_minor, 3500);
+      const remote = saved.draft.shipping_profiles[0].rules.find(x => x.scope === 'zone');
+      assert.deepEqual(remote.countries, ['AU', 'MX', 'NZ']);
+      assert.equal(remote.standard.amount_minor, 3900);
+      assert.equal(remote.express.amount_minor, 5500);
+      assert.deepEqual(saved.draft.assignments, preserved.draft.assignments);
+      assert.deepEqual(saved.draft.production_profiles, preserved.draft.production_profiles);
+      assert.equal(saved.draft.shipping_profiles[0].max_units_per_parcel, null);
+      assert.equal(saved.payment_enabled, false);
+      assert.equal(saved.public_rates_enabled, false);
+      const revision = saved.revision;
+      await page.getByRole('button', { name: 'Подготовить и сохранить общую доставку: €19 / €35 + AU/MX/NZ' }).click();
+      assert.equal((await read()).workspace.revision, revision); // same owner action should not spam versions
+    });
     await page.close();
     report.delivery_workspace_runtime_pass = true; report.delivery_workspace_draft_only = true;
     report.delivery_workspace_private_approval_pass = true;
