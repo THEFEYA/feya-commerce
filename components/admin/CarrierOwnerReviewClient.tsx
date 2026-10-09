@@ -41,9 +41,11 @@ const whole=(text:string,max:number)=>/^[0-9]+$/.test(text.trim())&&
   Number.isSafeInteger(Number(text))&&Number(text)>=1&&Number(text)<=max;
 
 function EnvelopeReviewForm({
-  profile,onSaved,
+  profile,workspaceVersionId,workspaceRevision,onSaved,
 }:{
-  profile:CarrierOwnerProfile;onSaved:(input:CarrierOwnerParcelRequest)=>Promise<void>;
+  profile:CarrierOwnerProfile;
+  workspaceVersionId:string;workspaceRevision:number;
+  onSaved:(input:CarrierOwnerParcelRequest)=>Promise<void>;
 }){
   const [form,setForm]=useState<Measurements>(blank);
   const [busy,setBusy]=useState(false);
@@ -72,9 +74,25 @@ function EnvelopeReviewForm({
     if(!measured||busy)return;
     setBusy(true);setError('');
     try{
-      const req=pending.current;
-      if(!req)throw Error('carrier_owner_review_request_invalid');
+      // Create a stable ID before any network call; exact retries after a
+      // timeout reuse it, edits immediately clear the cached request.
+      const req=pending.current??{
+        request_id:crypto.randomUUID(),
+        workspace_version_id:workspaceVersionId,
+        workspace_revision:workspaceRevision,
+        shipping_profile_id:profile.shipping_profile_id,
+        parcel_class:form.parcel_class as 'ordinary'|'oversize',
+        max_units_per_parcel:profile.max_units_per_parcel as number,
+        envelope_weight_grams:Number(form.weight),
+        envelope_length_mm:Number(form.length),
+        envelope_width_mm:Number(form.width),
+        envelope_height_mm:Number(form.height),
+        packaging_reference:form.reference.trim(),
+        business_review_confirmed:true as const,
+      };
+      pending.current=req;
       await onSaved(req);
+      pending.current=null;
       setForm(blank());
     }catch(e){
       const code=e instanceof Error?e.message:'carrier_owner_review_unavailable';
@@ -112,25 +130,7 @@ function EnvelopeReviewForm({
     </label>
     <div className={styles.row}>
       <button type="submit" className="owner-button" disabled={!measured||busy||profile.max_units_per_parcel===null}
-        onClick={()=>{
-          if(!measured||busy||pending.current)return;
-          // This exact request ID survives a network timeout and is never
-          // reused with edited quantities, dimensions or source reference.
-          pending.current={
-            request_id:crypto.randomUUID(),
-            workspace_version_id:(document.getElementById('carrier-owner-approved-version') as HTMLInputElement)?.value||'',
-            workspace_revision:Number((document.getElementById('carrier-owner-approved-revision') as HTMLInputElement)?.value||0),
-            shipping_profile_id:profile.shipping_profile_id,
-            parcel_class:form.parcel_class as 'ordinary'|'oversize',
-            max_units_per_parcel:profile.max_units_per_parcel as number,
-            envelope_weight_grams:Number(form.weight),
-            envelope_length_mm:Number(form.length),
-            envelope_width_mm:Number(form.width),
-            envelope_height_mm:Number(form.height),
-            packaging_reference:form.reference.trim(),
-            business_review_confirmed:true,
-          };
-        }}>{busy?'Сохраняю…':'Подтвердить измеренный профиль'}</button>
+>{busy?'Сохраняю…':'Подтвердить измеренный профиль'}</button>
     </div>
     {error&&<p className={styles.error} role="alert">{error}</p>}
   </form>;
@@ -167,13 +167,12 @@ export function CarrierOwnerReviewClient(){
       {context.status==='awaiting_delivery_approval'
         ?<p className={styles.notice}>Сохранённая версия правил доставки: №{context.saved_draft_revision}. Утверждённой версии ещё нет. Сначала проверь и утверди её в блоке выше; подставлять класс и размеры всем товарам автоматически нельзя.</p>
         :<>
-          <input id="carrier-owner-approved-version" type="hidden" value={context.approved_workspace_version_id||''} readOnly/>
-          <input id="carrier-owner-approved-revision" type="hidden" value={context.approved_workspace_revision||0} readOnly/>
           <p className={styles.hint}>Текущая утверждённая версия: {context.approved_workspace_revision}. Измерения будут навсегда привязаны только к ней; следующая версия требует новой проверки.</p>
           <div className={styles.stack}>
             {context.profiles.map(p=><div key={p.shipping_profile_id} className={styles.fieldset}>
               <h3>{p.name}</h3>
-              <EnvelopeReviewForm profile={p} onSaved={save}/>
+              <EnvelopeReviewForm profile={p} workspaceVersionId={context.approved_workspace_version_id!}
+                workspaceRevision={context.approved_workspace_revision!} onSaved={save}/>
             </div>)}
           </div>
         </>}
