@@ -95,13 +95,19 @@ export default function TermsPage(){
           </div>
         </article>
 
-        {sellerOnlineEnabled?<article className="rounded-xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-6 lg:p-7 lg:col-span-2">
-          <h2 className="text-bone text-xl">Seller Online transaction service</h2>
+        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7 lg:col-span-2">
+          <h2 className="text-bone text-xl">Payment processing & shipping partner</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            <p>For the enabled Seller Online checkout flow, {SELLER_ONLINE_PROVIDER.legalName} may act as buyer, reseller, shipper and direct payment recipient under the terms applicable to that service. TheFEYA does not label Seller Online as “merchant of record” unless that exact role is separately confirmed for thefeya.com.</p>
-            <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+            {sellerOnlineEnabled ? <>
+              <p>{SELLER_ONLINE_PROVIDER.approvedCheckoutDisclosure}</p>
+              <p>Seller-Online LLC is the authorized payment recipient and logistics partner for the enabled flow. TheFEYA does not identify it as Merchant of Record.</p>
+            </> : <>
+              <p>TheFEYA plans to connect Seller-Online LLC as its payment recipient, processing and logistics partner using API v2. The connection and payment service are not yet activated: this catalog does not accept online payments.</p>
+              <p>Information about the intended partner is published for connection review and transparency, not as confirmation of a completed payment integration.</p>
+            </>}
+            <p>{SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
           </div>
-        </article>:null}
+        </article>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
