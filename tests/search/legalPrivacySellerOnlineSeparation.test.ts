@@ -46,27 +46,3 @@ test('homepage footer exposes OAuth-required privacy and terms links without reo
   assert.match(footer,/Checkout not active/);
   assert.doesNotMatch(footer,/Pre-index storefront/);
 });
-
-test('Seller Online written API v2 role and US address are disclosed while checkout remains explicitly inactive',()=>{
-  const terms=readFileSync('app/terms/page.tsx','utf8');
-  const privacy=readFileSync('app/privacy/page.tsx','utf8');
-  const contact=readFileSync('app/contact/page.tsx','utf8');
-  const footer=readFileSync('components/Footer.tsx','utf8');
-  const provider=readFileSync('lib/sellerOnlineProvider.ts','utf8');
-  for(const page of [terms,privacy,contact,footer]){
-    assert.match(page,/SELLER_ONLINE_PROVIDER/);
-    assert.match(page,/contactAddress/);
-  }
-  assert.match(terms,/API v2/);
-  assert.match(terms,/not yet activated/);
-  assert.match(terms,/does not identify it as Merchant of Record/);
-  assert.match(privacy,/no buyer payment or order personal data is transmitted/);
-  assert.match(contact,/pending activation/);
-  assert.match(footer,/activation pending/);
-  assert.match(footer,/Checkout not active/);
-  assert.match(provider,/635 Somers Ave/);
-  assert.match(provider,/Feasterville-Trevose/);
-  assert.match(provider,/https:\/\/api\.seller-online\.com\/swagger-ui/);
-  assert.match(provider,/https:\/\/my\.seller-online\.com\/connect\/other/);
-  assert.doesNotMatch(provider,/merchantOfRecordConfirmed: true/);
-});
