@@ -5,12 +5,14 @@
  * accepts server-provided Vercel environment metadata, never URL/headers.
  */
 export const OWNER_UNIFIED_PREVIEW_BRANCH='work/owner-unified-storefront-review-20261010' as const;
+// Second exact owner-approved candidate: never a generic wildcard/Production enablement.
+export const OWNER_VISUAL_V2_REVIEW_BRANCH='work/owner-visual-commercial-review-v2-20261010' as const;
 export const OWNER_UNIFIED_PREVIEW_PROJECT='prj_ePIymo4sUG33wrRjHBxWrSlaxPID' as const;
 
 export function isOwnerUnifiedStorefrontPreview(env:Record<string,string|undefined>):boolean{
   return env.VERCEL==='1'
     &&env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID===OWNER_UNIFIED_PREVIEW_PROJECT
-    &&env.VERCEL_GIT_COMMIT_REF===OWNER_UNIFIED_PREVIEW_BRANCH
+    &&(env.VERCEL_GIT_COMMIT_REF===OWNER_UNIFIED_PREVIEW_BRANCH || env.VERCEL_GIT_COMMIT_REF===OWNER_VISUAL_V2_REVIEW_BRANCH)
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
 }

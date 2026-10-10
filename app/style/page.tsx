@@ -38,10 +38,10 @@ async function StyleHubBody(){
 export default function StyleHubPage(){
   return <main className="visual-commerce-shell relative min-h-screen">
     <Suspense fallback={null}><Header/></Suspense>
-    <section className="container-feya pt-36 pb-8 lg:pt-44 lg:pb-10">
+    <section className="container-feya pt-32 pb-8 sm:pt-36 lg:pt-40 lg:pb-10">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-4">Style</div>
-        <h1 className="visual-display text-[clamp(46px,6vw,82px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Start from the mood.</h1>
+        <h1 className="visual-display text-[clamp(36px,4.4vw,60px)] font-medium leading-[1.04] tracking-[-.045em] text-[#f7f3ec]">Start from the mood.</h1>
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#aaa2a0]">Choose a visual direction, then refine the pieces without turning every style into a separate search page.</p>
       </div>
       <Suspense fallback={<div className="min-h-[620px]" aria-busy="true"/>}><StyleHubBody/></Suspense>

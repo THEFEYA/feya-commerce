@@ -255,7 +255,7 @@ export function Header() {
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
-          Express DHL · Worldwide shipping · Made to order in our atelier
+          Original TheFEYA designs · Handmade to order
         </div>
       </div>
 
@@ -266,7 +266,7 @@ export function Header() {
         </Link>
 
         <nav aria-label="Main" className="hidden lg:block" data-testid="primary-nav">
-          <ul className="flex items-center gap-5 xl:gap-7">
+          <ul className="flex items-center gap-3 xl:gap-5">
             {primaryNavigation.map((item) => {
               const active = navIsActive(pathname, item.href, item.code);
               const hasPanel = 'panel' in item && Boolean(item.panel);
@@ -288,7 +288,7 @@ export function Header() {
                     onMouseLeave={() => {
                       if (hasPanel) schedulePanelClose();
                     }}
-                    className={`relative py-3 text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
+                    className={`relative whitespace-nowrap py-3 text-[10px] tracking-[0.16em] xl:text-[11px] xl:tracking-[0.20em] uppercase font-medium transition-colors duration-300 ${
                       active || expanded
                         ? 'text-white nav-active-glow'
                         : 'text-[#C8C2B5] hover:text-white'
