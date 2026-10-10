@@ -1,0 +1,18 @@
+/* Exact owner Preview only: preserves frozen ProductDetailClient, all
+ * configuration/price/gallery markup and Search Release v12/noindex.
+ * The parent wrapper is deliberately absent in public Production.
+ */
+.owner-pdp-polish-v2 [data-testid="product-page"] > #description {
+  padding-bottom: clamp(3rem, 5vw, 5rem);
+}
+.owner-pdp-polish-v2 [data-testid="product-page"] > #reviews {
+  padding-top: clamp(2.5rem, 4vw, 4rem);
+  padding-bottom: clamp(2.5rem, 4vw, 4rem);
+}
+.owner-pdp-polish-v2 [data-testid="product-page"] > #reviews + section {
+  padding-top: clamp(3rem, 5vw, 5rem);
+  padding-bottom: clamp(3rem, 5vw, 5rem);
+}
+.owner-pdp-polish-v2 [data-testid="product-page"] > section#description article {
+  max-width: 68ch;
+}
