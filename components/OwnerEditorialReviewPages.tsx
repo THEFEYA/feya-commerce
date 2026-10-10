@@ -23,44 +23,67 @@ function Frame({eyebrow,title,description,children}:{eyebrow:string;title:string
 }
 
 export function OwnerAboutReview(){
-  return <Frame eyebrow="TheFEYA · Independent designer atelier" title="About TheFEYA"
-    description="We believe what you wear can express who you are — boldly, unmistakably and entirely on your own terms.">
-    <section className="rounded-[18px] border border-[rgba(212,178,106,.26)] bg-[radial-gradient(ellipse_at_top_right,rgba(212,178,106,.09),rgba(255,255,255,.015)_55%)] p-7 sm:p-10" aria-labelledby="feya-mission">
-      <p className="eyebrow-gold">Our mission</p>
-      <h2 id="feya-mission" className="visual-display mt-4 max-w-4xl text-[clamp(26px,3vw,41px)] leading-[1.15] text-[#f7f3ec]">
-        Be seen. Be remembered. Be yourself.
-      </h2>
-      <p className={copy+' max-w-3xl'}>
-        Our mission is to help performers, festival-goers, artists and confident individuals express their identity through distinctive clothing.
-        Whether your stage is a performance, a festival or a photo shoot, we create pieces that bring your own personality into focus.
-        The attention may follow — the expression starts with you.
-      </p>
+  const features=[
+    {title:'A signature look',Icon:Star,body:'TheFEYA has its own visual language: bold silhouettes, sculptural details and designs made to be noticed. Every product has its own documented materials, parts and available options.'},
+    {title:'Crafted in our workshop',Icon:Scissors,body:'Our team prepares designs by hand, typically in 3–5 working days depending on complexity. We can discuss selected changes to fit, color or details while preserving the character of our original design.'},
+    {title:'Real pieces, honest imagery',Icon:Camera,body:'Some creative campaigns include AI-assisted or highly stylized images. The selected option and product description determine what you receive. Available real production photos can be requested from our studio.'},
+    {title:'Here for your ideas',Icon:HeartHandshake,body:'We help you understand fit, combinations and care, so you can choose a look confidently. Questions or small custom adjustments are welcome — contact our studio before ordering.'},
+  ] as const;
+  return <main className="visual-commerce-shell relative min-h-screen">
+    <Header/>
+    <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
+      <div className="overflow-hidden rounded-[22px] border border-[rgba(212,178,106,.22)] bg-[radial-gradient(ellipse_at_top_right,rgba(212,178,106,.11),rgba(255,255,255,.018)_60%)]">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,.92fr)]">
+          <div className="px-6 pb-8 pt-7 sm:px-9 sm:pt-10 lg:px-11 lg:pb-11">
+            <p className="eyebrow-gold mb-4">Independent designer atelier · TheFEYA</p>
+            <h1 className="visual-display text-[clamp(34px,4.2vw,55px)] leading-[1.05] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>
+            <p className="mt-6 text-[15px] leading-7 text-[#d6cec4]">
+              We are an independent creative team specializing in handmade statement outfits for stages, festivals, performances and fashion photography.
+              Our workshop brings together original design ideas and hands-on production, with pieces designed to make an unforgettable visual impression.
+            </p>
+            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
+              From shoulder armor and sculptural accessories to expressive bodysuits and coordinated looks, TheFEYA has developed a recognizable design character.
+              Our pieces reach people in different countries who want something more personal than ordinary event wear.
+              Every creation begins with our studio's aesthetic, then can be adjusted within the options supported by the design.
+            </p>
+            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
+              We care about the person behind each costume. Our goal is not only to make something visually striking, but to help you feel confident and happy with what you choose.
+            </p>
+          </div>
+          <div className="flex flex-col justify-center border-t border-[rgba(212,178,106,.20)] bg-[rgba(10,9,13,.28)] px-6 py-8 sm:px-9 lg:border-l lg:border-t-0 lg:px-10">
+            <p className="eyebrow-gold">Our mission</p>
+            <h2 className="visual-display mt-5 text-[clamp(30px,3.2vw,43px)] leading-[1.12] text-[#f7f3ec]">Be seen. Be remembered. Be yourself.</h2>
+            <p className="mt-6 text-[15px] leading-7 text-[#d4cbc0]">
+              We believe clothing is a way of expressing your individuality. A distinctive look can tell your story before you say a word —
+              on stage, in the crowd or in front of the camera.
+            </p>
+            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
+              We create original stage and festival pieces to help performers, artists and anyone with a bold vision bring their own identity forward.
+              Your expression is what makes the look memorable.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
-    <div className="mt-5 grid gap-4 lg:grid-cols-2">
-      <article className={card}><Star size={23} className="text-[#d4b26a]" aria-hidden="true"/>
-        <h2 className={heading+' mt-5'}>A recognizable design language</h2>
-        <p className={copy}>Sculptural silhouettes, reflective impact and coordinated statement pieces are part of our original TheFEYA design world.
-        We design for strong visual character, not everyday uniformity. Each product page specifies its actual materials, components and selectable configurations.</p>
-      </article>
-      <article className={card}><Scissors size={23} className="text-[#d4b26a]" aria-hidden="true"/>
-        <h2 className={heading+' mt-5'}>Handmade, with room for your ideas</h2>
-        <p className={copy}>Pieces are typically prepared to order in around 3–5 working days; individual designs may need more time.
-        We can discuss adjustments to fit, approved colors or details where a design allows. We specialize in our own creative direction rather than unrestricted made-from-a-sketch manufacturing.
-        <Link href="/contact" className="ml-1 text-[#e1c27a] underline underline-offset-4">Ask our studio</Link> before ordering.</p>
-      </article>
-      <article className={card}><Camera size={23} className="text-[#d4b26a]" aria-hidden="true"/>
-        <h2 className={heading+' mt-5'}>Our imagery, explained</h2>
-        <p className={copy}>Some campaign images are stylized or AI-assisted creative presentations. A concept image does not establish the exact contents of a product.
-        Always check each listing’s real configuration, included pieces and materials. If you would like to see workshop or unstyled product photos, ask us; we can share available real images for that design on request.</p>
-      </article>
-      <article className={card}><HeartHandshake size={23} className="text-[#d4b26a]" aria-hidden="true"/>
-        <h2 className={heading+' mt-5'}>Designed for your expression</h2>
-        <p className={copy}>We want you to feel assured when choosing a look. Our team can help explain sizes, combinations and practical care before you place an order.
-        Transparent product information matters as much as the finished visual effect.</p>
-      </article>
-    </div>
-    <div className="mt-7 flex flex-wrap gap-3"><Link href="/shop" className="btn-chrome">Explore our designs</Link><Link href="/contact" className="btn-ghost">Talk to TheFEYA</Link></div>
-  </Frame>;
+
+    <section className="container-feya pb-14 lg:pb-20" aria-label="Our design and studio">
+      <div className="grid gap-4 md:grid-cols-2">
+        {features.map(({title,Icon,body})=><article key={title}
+          className="rounded-[18px] border border-white/[.14] bg-[linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.011))] p-6 sm:p-8">
+          <span className="flex h-[66px] w-[66px] items-center justify-center rounded-[19px] border border-[rgba(212,178,106,.30)] bg-[radial-gradient(circle_at_30%_15%,rgba(212,178,106,.15),rgba(212,178,106,.03))] text-[#dfbf79]">
+            <Icon size={36} strokeWidth={1.45} aria-hidden="true"/>
+          </span>
+          <h2 className="mt-6 text-[clamp(20px,2.1vw,25px)] font-medium text-[#f7f3ec]">{title}</h2>
+          <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">{body}</p>
+        </article>)}
+      </div>
+      <div className="mt-7 flex flex-wrap gap-3">
+        <Link href="/shop" className="btn-chrome">Explore our designs</Link>
+        <Link href="/contact" className="btn-ghost">Contact our studio</Link>
+      </div>
+    </section>
+    <Footer/>
+  </main>;
 }
 
 const policySections=[
