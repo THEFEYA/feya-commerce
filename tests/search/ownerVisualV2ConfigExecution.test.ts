@@ -14,7 +14,7 @@ test('real Next config routes normal menu URLs to changed owner pages on exact V
     const {default:config}=await import('../../next.config.ts');
     const rules=await config.rewrites?.();
     assert.ok(rules && !Array.isArray(rules));
-    const before=rules.beforeFiles;
+    const before=rules.beforeFiles ?? [];
     assert.deepEqual(before.map(({source,destination})=>[source,destination]),[
       ['/events-performance','/events-performance-review'],
       ['/style','/style-review'],
