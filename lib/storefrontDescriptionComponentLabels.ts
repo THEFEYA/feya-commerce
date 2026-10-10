@@ -1,30 +1,15 @@
-import type {StorefrontProduct} from './types.ts';
-import {storefrontIncludedOptions} from './storefrontIncludedOptions.ts';
-import {
-  resolveStorefrontSellableOffer,
-  sellableOfferIncludedLabels,
-} from './storefrontSellableOffer.ts';
+import type {StorefrontProduct} from './types';
 
-/**
- * Describes the physical pieces inside the SELECTED configuration, not the
- * grouped units by which customers can purchase those pieces.
- *
- * Exact seller-v4 offer component members are the only authority here. For
- * example the right selector can retain "Top + Skirt" as one payable bundle
- * while the left approved Description lists "Top" and "Skirt" separately.
- *
- * This helper does not edit source SEO drafts, option labels, configuration
- * IDs, quantities, merchandise prices, data schema, or Search v12 release pins.
- * Unknown/held facts retain the existing fail-closed public behavior.
+/** Opt-in flag is created ONLY by the authenticated five-product owner Preview.
+ * Never persisted in Product Truth, copied into a purchase/quote, or sourced
+ * from URL params; public PDPs keep their byte-for-byte frozen renderer and
+ * current grouped purchase-unit presentation until a governed Phase13 release.
  */
-export function storefrontDescriptionComponentLabels(
+export const OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG =
+  '__feya_owner_approved_pdp_components_preview_v1' as const;
+
+export function withOwnerApprovedComponentReview(
   product:StorefrontProduct,
-  activeConfiguration?:Record<string,unknown>|null,
-):string[]{
-  const offer=resolveStorefrontSellableOffer(product);
-  if(offer.status==='ready'&&offer.source_available){
-    const exact=sellableOfferIncludedLabels(offer,activeConfiguration);
-    if(exact.length>0)return exact;
-  }
-  return storefrontIncludedOptions(product,activeConfiguration);
+):StorefrontProduct{
+  return {...product,[OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG]:true};
 }
