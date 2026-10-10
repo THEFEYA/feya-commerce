@@ -85,8 +85,8 @@ export default function UnifiedOwnerVisualReviewPage(){
       <h2 className="mt-2 text-[clamp(23px,2.6vw,32px)] text-[#f7f3ec]">Коллекции, доставка и контакты</h2>
       <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {([
-          {href:'/events-performance',label:'Events & Performance · 4 крупные карточки',text:'Размер и нижняя полоса названий как на главной, без перекрытия фотографий.'},
-          {href:'/style',label:'Style · большие визуальные плитки',text:'Четыре крупных изображения в ряд и стрелки прокрутки.'},
+          {href:'/events-performance-review',label:'Events & Performance · 4 крупные карточки',text:'Размер и нижняя полоса названий как на главной, без перекрытия фотографий.'},
+          {href:'/style-review',label:'Style · большие визуальные плитки',text:'Четыре крупных изображения в ряд и стрелки прокрутки.'},
           {href:'/about-review',label:'О бренде · миссия и прозрачность фотографий',text:'Самовыражение, авторский стиль, мастерская и честная подача AI-образов.'},
           {href:'/returns-review',label:'Возврат и решения проблем',text:'Спокойная политика без отказа от обязательных прав покупателей.'},
           {href:'/size-guide-review',label:'Размерная таблица',text:'Настоящие мужские и женские размеры, регулировка и индивидуальная посадка.'},

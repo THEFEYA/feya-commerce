@@ -35,10 +35,10 @@ async function EventHubBody(){
 export default function EventsPerformancePage(){
   return <main className="visual-commerce-shell relative min-h-screen">
     <Suspense fallback={null}><Header/></Suspense>
-    <section className="container-feya pt-32 pb-8 sm:pt-36 lg:pt-40 lg:pb-10">
+    <section className="container-feya pt-36 pb-8 lg:pt-44 lg:pb-10">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-4">Events & Performance</div>
-        <h1 className="visual-display text-[clamp(36px,4.4vw,60px)] font-medium leading-[1.04] tracking-[-.045em] text-[#f7f3ec]">Dress for where you are going.</h1>
+        <h1 className="visual-display text-[clamp(46px,6vw,82px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Dress for where you are going.</h1>
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#aaa2a0]">Start with the occasion, then move straight into pieces you can refine by product type, color and fit.</p>
       </div>
       <Suspense fallback={<div className="min-h-[620px]" aria-busy="true"/>}><EventHubBody/></Suspense>
