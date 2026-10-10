@@ -42,4 +42,6 @@ test('owner preview caps product heading and removes unsupported global DHL clai
   assert.match(global,/display:none!important/);
   assert.match(readFileSync('app/template.tsx','utf8'),/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
   assert.match(readFileSync('lib/thefeyaSeoDoctrine.ts','utf8'),/6–10 business days after dispatch/);
+  assert.match(readFileSync('lib/thefeyaSeoDoctrine.ts','utf8'),/Express shipping usually takes 7–10 business days/);
+  assert.match(readFileSync('next.config.ts','utf8'),/NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW: visualV2Preview \? '1' : '0'/);
 });
