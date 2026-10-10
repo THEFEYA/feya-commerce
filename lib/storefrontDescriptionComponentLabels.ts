@@ -11,5 +11,7 @@ export const OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG =
 export function withOwnerApprovedComponentReview(
   product:StorefrontProduct,
 ):StorefrontProduct{
-  return {...product,[OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG]:true};
+  const presentation={...product} as StorefrontProduct & Record<string,unknown>;
+  presentation[OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG]=true;
+  return presentation;
 }
