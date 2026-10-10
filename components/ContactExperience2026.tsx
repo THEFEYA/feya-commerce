@@ -6,6 +6,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 import {CopySupportEmailButton} from '@/components/CopySupportEmailButton';
+import {OwnerContactFormPreview} from '@/components/OwnerContactFormPreview';
 
 const contactEmail='manager.feya@gmail.com';
 const supportPhone='+380636556288';
@@ -104,6 +105,31 @@ export function ContactExperience2026(){
       </div>
     </section>
 
+    <section className="container-feya pb-10" aria-labelledby="workshop-locations-heading">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <article className="rounded-xl border border-white/[.12] bg-white/[.018] p-6">
+          <p className="eyebrow-gold">TheFEYA studio · Ukraine</p>
+          <h2 id="workshop-locations-heading" className="mt-3 text-[21px] text-[#f7f3ec]">Our production roots</h2>
+          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">Our handmade designs are prepared in Ukraine. The owner has proposed a Kyiv showroom reference at Kharkivske shose 19; its current business identity, opening hours and public Google Maps listing must be confirmed before displaying a shop map or visit invitation.</p>
+          <p className="mt-3 text-[12px] text-[#d4b26a]">Map and real showroom photographs · pending business verification</p>
+        </article>
+        <article className="rounded-xl border border-white/[.12] bg-white/[.018] p-6">
+          <p className="eyebrow-gold">United States · partner logistics</p>
+          <h2 className="mt-3 text-[21px] text-[#f7f3ec]">Shipping with flexibility</h2>
+          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">Local US dispatch may be possible for a particular ready-made piece only when the exact design, size, color and verified partner stock match the order. Otherwise the studio arranges production and international delivery. This preview is not a promise of US inventory or a public showroom.</p>
+          <p className="mt-3 text-[12px] text-[#d4b26a]">Stock and US dispatch capability · confirmation required</p>
+        </article>
+      </div>
+    </section>
+    <section className="container-feya pb-10" aria-labelledby="contact-message-heading">
+      <div className="rounded-[16px] border border-[rgba(216,214,211,.15)] bg-[rgba(255,255,255,.025)] p-6 sm:p-8">
+        <p className="eyebrow-gold">A note to the studio</p>
+        <h2 id="contact-message-heading" className="mt-3 text-[clamp(22px,2.7vw,30px)] text-[#f7f3ec]">Tell us about your idea.</h2>
+        <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">Questions about sizes, photos, design details or an order? Write to our team.</p>
+        <OwnerContactFormPreview/>
+      </div>
+    </section>
+
     <section className="container-feya pb-16 lg:pb-24" aria-labelledby="payment-operator-heading">
       <div className="rounded-xl border border-[rgba(216,214,211,.09)] bg-[rgba(255,255,255,.012)] px-5 py-6 sm:p-7">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,.94fr)_minmax(0,1.06fr)]">
@@ -137,7 +163,7 @@ export function ContactExperience2026(){
       <div className="mt-6 flex flex-wrap items-center gap-5 text-[12px] text-[var(--bone-dim)]">
         <Link href="/privacy" className="underline decoration-[rgba(216,214,211,.4)] underline-offset-4 hover:text-[#f7f3ec]">Privacy Policy</Link>
         <Link href="/terms" className="underline decoration-[rgba(216,214,211,.4)] underline-offset-4 hover:text-[#f7f3ec]">Terms of Use</Link>
-        <span>Direct email and messaging only — no contact form or automatic marketing signup.</span>
+        <span>Email-based enquiry preview; no hosted form submission or automatic marketing signup.</span>
       </div>
     </section>
     <Footer/>

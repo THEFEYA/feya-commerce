@@ -63,7 +63,7 @@ export default function ShippingReviewPage(){
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
           <h2 className="text-[22px] font-medium text-[#f7f3ec]">One delivery choice per order</h2>
           <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Choose one Standard or Express service for the whole order. Orders containing two or more different designs may require additional packing space; this adds €5 for each additional distinct product listing. Different sizes, options or quantities within one listing do not create an extra charge.
+            Select Standard Shipping or Express Shipping for your order. When an order contains two or more different product listings, additional packaging space can be needed for the larger parcel: €5 for each extra distinct listing beyond the first. Extra options or quantities of the same listing never trigger this charge.
           </p>
           <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
             Some destinations, including Australia, Mexico and New Zealand, can require an additional €20 per eligible parcel. Any applicable amount must be displayed before payment.
@@ -81,22 +81,22 @@ export default function ShippingReviewPage(){
         </article>
 
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Estimated arrival, not a deadline</h2>
+          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Delivery estimates & tracking</h2>
           <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Production time and international transit are separate. Customs, holidays and destination-specific conditions may change the estimate. Please contact us before ordering for a fixed event date.
+            Preparation and transit depend on the design, route, holidays, carrier schedules, customs processing and unexpected disruptions. Our published time ranges are estimates, not courier-guaranteed dates. Let us know if you have a specific occasion deadline, so we can explain the available choices.
           </p>
           <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Delivery estimates do not remove statutory rights for missing, delayed, defective or non-conforming orders.
+            We provide the available tracking reference after dispatch and help investigate missing or damaged shipments with the carrier. TheFEYA remains responsible for delivery obligations where required by law.
           </p>
         </article>
 
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Payment and import duties</h2>
+          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Payment & customs</h2>
           <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Available payment methods and the final order total will be shown during checkout when online payments are activated. Customs duties or import-related charges, where applicable, are explained before ordering.
+            Available payment methods and the accurate order total will appear in checkout after payment activation. For international shipments, we prepare accurate customs information and classifications to avoid preventable issues. Your destination's customs authority determines any applicable import duties or taxes, which are not guaranteed to be zero or minimal.
           </p>
           <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Online checkout is not active at this stage. Contact our team if you need help with an existing order.
+            If you need a different payment method or have questions about duties, our studio can explain the current options. Checkout remains unavailable until Seller Online, seller identity, destination and taxes are verified.
           </p>
         </article>
       </div>
@@ -107,18 +107,18 @@ export default function ShippingReviewPage(){
           <div>
             <h2 className="text-[18px] font-medium text-[#f7f3ec]">Clear information before ordering</h2>
             <p className="mt-2 max-w-3xl text-[14px] leading-7 text-[var(--bone-dim)]">
-              A final checkout will state the available destination, chosen service, product configuration, charges and relevant store policies before you submit payment. We do not promise an exact event arrival date unless we have agreed to it for that order.
+              A final checkout will state the available destination, chosen service, product configuration, charges and relevant store policies before you submit payment. If the address is incorrect and a new delivery is required, additional costs may arise where permitted by applicable law. We help investigate carrier issues rather than leaving you to resolve them alone.
             </p>
           </div>
         </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/checkout-review" className="btn-chrome inline-flex items-center gap-2">
+        <Link href="/cart" className="btn-chrome inline-flex items-center gap-2">
           Preview the bag <ArrowRight size={16} aria-hidden="true"/>
         </Link>
-        <Link href="/returns" className="btn-ghost">Returns & Exchanges</Link>
-        <Link href="/contact" className="btn-ghost">Contact TheFEYA</Link>
+        <Link href="/returns-review" className="btn-ghost">Returns & Exchanges</Link>
+        <Link href="/contact-review" className="btn-ghost">Contact TheFEYA</Link>
       </div>
     </section>
     <Footer/>
