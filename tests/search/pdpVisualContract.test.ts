@@ -72,7 +72,12 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   assert.ok(source.includes('href={`/collections/${collection.slug}`}'));
   assert.ok(source.includes('readProductLandingLinks'));
   assert.ok(source.includes('const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);'));
-  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce}'));
+  // Owner-approved Phase13 changes only *data*, never PDP component/layout.
+  // Newly published verified copy may render while Add to Cart stays usable.
+  // Review-only copy still disables shopping interactions as before.
+  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy}'));
+  assert.ok(source.includes('approved?.status===\'published\''));
+  assert.ok(source.includes('releaseRobotsForPath(path)'));
 });
 
 test('hybrid PDP keeps the purchase reminder sweep while approved SEO copy is projected', () => {

@@ -5,10 +5,12 @@ import { approvedContentReviewMode, selectApprovedStorefrontCopy } from './seoAp
 import type { ApprovedCopyPayload } from './seoApprovedContentProjection';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import type { ApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
+import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
 
 type Result =
   | { status: 'disabled' | 'blocked'; copy: null; offerSnapshot: null }
-  | { status: 'review'; copy: ApprovedCopyPayload; offerSnapshot: ApprovedOfferSnapshot | null };
+  | { status: 'review'; copy: ApprovedCopyPayload; offerSnapshot: ApprovedOfferSnapshot | null }
+  | { status: 'published'; copy: ApprovedCopyPayload; offerSnapshot: null };
 const DRAFT_SELECT = 'id,canonical_product_id,status,review_status,archived_at,updated_at,source_decision_id,seo_title,h1,meta_description,intro,manual_focus_snapshot,product_truth_snapshot,agent_output_snapshot';
 const blocked = (): Result => ({ status: 'blocked', copy: null, offerSnapshot: null });
 
@@ -40,7 +42,15 @@ function approvedOfferSnapshot(draft: Record<string, any>): ApprovedOfferSnapsho
  * There is no public service-role reader or shared cross-user data cache. */
 export async function readApprovedStorefrontCopy(product: { canonical_product_id?: string | null; product_slug?: string | null }): Promise<Result> {
   const mode = approvedContentReviewMode(process.env, manifest.version);
-  if (mode === 'disabled') return { status: 'disabled', copy: null, offerSnapshot: null };
+  if (mode === 'disabled') {
+    // Independently gated Phase13 publication path. Fail-closed on every
+    // mutable source/date/hash/URL disagreement. No public draft can ever be
+    // substituted for the immutable owner-reviewed 207-product pin.
+    const published = await readExactPublicApprovedPdpCopy(String(product.product_slug||''));
+    return published && published.canonical_product_id===product.canonical_product_id
+      ? {status:'published',copy:published.copy,offerSnapshot:null}
+      : {status:'disabled',copy:null,offerSnapshot:null};
+  }
   if (mode === 'blocked') return blocked();
   const matches = manifest.entries.filter(row => row.canonical_product_id === product.canonical_product_id
     && row.url_path === `/shop/${product.product_slug}`);

@@ -22,6 +22,8 @@ import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServ
 import { absoluteSiteUrl } from '@/lib/siteConfig';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
+import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
+import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
 
 type PageProps = { params: Promise<{ slug: string }> };
 function canonicalProductUrl(slug: string) {
@@ -99,14 +101,17 @@ const getPresentation = cache(async (slug: string) => {
   try {
     const result = await readCachedStorefrontProductPresentation(slug);
     const approved = result.product ? await readApprovedStorefrontCopy(result.product) : null;
-    const projectedProduct = hybridVisualPreview && result.product && approved?.status === 'review'
-      ? projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)
-      : result.product;
+    const projectedProduct = approved?.status==='published' && result.product
+      ? withOwnerApprovedComponentReview(result.product)
+      : hybridVisualPreview && result.product && approved?.status==='review'
+        ? projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)
+        : result.product;
     return {
       ...result,
       product: projectedProduct,
       approvedCopy: approved?.copy ?? null,
       approvedOfferSnapshot: approved?.status === 'review' ? approved.offerSnapshot : null,
+      approvedPublicCopy: approved?.status==='published',
       copyBlocked: approved?.status === 'blocked',
     };
   } catch {
@@ -151,9 +156,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const [metadata,robots]=await Promise.all([
+  const [metadata,robots,sourcePinnedCopy]=await Promise.all([
     readCachedStorefrontProductMetadataV1(slug),
     releaseRobotsForPath(path),
+    readExactPublicApprovedPdpCopy(slug),
   ]);
 
   if(!metadata){
@@ -164,14 +170,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const title=sourcePinnedCopy?.copy.metadata.title||metadata.title;
+  const description=sourcePinnedCopy?.copy.metadata.description||metadata.description;
   return{
     robots,
-    title:metadata.title,
-    description:metadata.description,
+    title,
+    description,
     alternates:{canonical:path},
     openGraph:{
-      title:metadata.title,
-      description:metadata.description,
+      title,
+      description,
       url:path,
       type:'website',
       images:metadata.images.slice(0,4),
@@ -193,7 +201,7 @@ function ProductRouteFallback() {
 
 async function ResolvedProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const { product, related, error, approvedCopy, copyBlocked, productCollections: cachedProductCollections } = await getPresentation(slug);
+  const { product, related, error, approvedCopy, approvedPublicCopy, copyBlocked, productCollections: cachedProductCollections } = await getPresentation(slug);
   if (copyBlocked) notFound();
   if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
@@ -211,7 +219,7 @@ async function ResolvedProductPage({ params }: PageProps) {
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
-    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce} />
+    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
