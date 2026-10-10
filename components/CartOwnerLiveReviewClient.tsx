@@ -50,6 +50,13 @@ export function CartOwnerLiveReviewClient(){
   const [form,setForm]=useState<ContactForm>(blank);
   const [acceptedTerms,setAcceptedTerms]=useState(false);
   const [marketingConsent,setMarketingConsent]=useState(false);
+  // Visual selection only: optional services and coupons have no approved EUR pricing.
+  const [extras,setExtras]=useState<string[]>([]);
+  const [giftMessage,setGiftMessage]=useState('');
+  const [fitCharts,setFitCharts]=useState<Record<string,string>>({});
+  const [coupon,setCoupon]=useState('');
+  const [couponNotice,setCouponNotice]=useState(false);
+  const toggleExtra=(id:string)=>setExtras(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
 
   useEffect(()=>{
     const sync=()=>{
@@ -103,7 +110,7 @@ export function CartOwnerLiveReviewClient(){
   return <div className="container-feya pt-32 pb-20 sm:pt-36 lg:pt-40 lg:pb-28">
     <header className="max-w-4xl">
       <p className="eyebrow-gold">TheFEYA · Owner Preview · Real selected items</p>
-      <h1 className="visual-display mt-4 text-[clamp(38px,4.5vw,62px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">
+      <h1 className="visual-display mt-4 text-[clamp(34px,4vw,54px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">
         Your bag
       </h1>
       <p className="mt-4 max-w-3xl text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -157,6 +164,17 @@ export function CartOwnerLiveReviewClient(){
                 <p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
                   {item.config} · {item.color} · {item.size}
                 </p>
+                <label className="mt-3 flex max-w-xs flex-col gap-1 text-[11px] text-[var(--bone-dim)]">
+                  Fit reference for this piece
+                  <select className={fieldStyle+' !min-h-9 !py-1.5 !text-[12px]'}
+                    value={fitCharts[item.id]||''} onChange={e=>setFitCharts(prev=>({...prev,[item.id]:e.target.value}))}>
+                    <option value="">Choose fit reference</option>
+                    <option value="women">Women's-fit size chart</option>
+                    <option value="men">Men's-fit size chart</option>
+                    <option value="advice">Ask TheFEYA for fit advice</option>
+                  </select>
+                  <span>Based on body measurements and intended garment fit. <Link href="/size-guide-review" className="underline text-[#d4b26a]">Size charts</Link>.</span>
+                </label>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <div className="flex h-10 items-center rounded-lg border border-[rgba(216,214,211,.23)]">
                     <button type="button" aria-label={`Decrease quantity of ${item.title}`}
@@ -202,7 +220,7 @@ export function CartOwnerLiveReviewClient(){
                 <input type="radio" name="owner-cart-shipping" value={choice} checked={method===choice}
                   onChange={()=>setMethod(choice)} className="h-[18px] w-[18px] accent-[#d4b26a]"/>
                 {choice==='express'?<Clock3 size={17} className="text-[#d4b26a]"/>:<Truck size={17} className="text-[#d4b26a]"/>}
-                <strong className="text-[17px] text-[#f7f3ec]">{choice==='express'?'Express':'Standard'}</strong>
+                <strong className="text-[17px] text-[#f7f3ec]">{choice==='express'?'Express Shipping':'Standard Shipping'}</strong>
               </span>
               <span className="mt-3 text-[24px] text-[#f7f3ec]">{currency(choice==='express'?3500:1900)}</span>
               <span className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
@@ -215,6 +233,33 @@ export function CartOwnerLiveReviewClient(){
             Typical production is 3–5 business days, depending on the pieces ordered.
             Dates are estimates, not event-date guarantees. We choose a suitable shipping carrier.
           </p>
+        </section>
+
+        <section className={cardStyle} aria-labelledby="owner-cart-extras-title">
+          <p className="eyebrow-gold">Optional finishing touches · preview</p>
+          <h2 id="owner-cart-extras-title" className="mt-3 text-[22px] font-medium text-[#f7f3ec]">Make it yours</h2>
+          <p className="mt-2 text-[12px] leading-6 text-[var(--bone-dim)]">
+            These are visual proposals only. Suggested USD reference amounts are not confirmed EUR checkout prices.
+            Selections are not transmitted and <strong>are not added to the subtotal</strong>.
+          </p>
+          <div className="mt-5 space-y-3">
+            {([
+              {id:'measurement',label:'Made-to-measure adjustment',price:'$15 proposed',detail:'A manager would contact you to confirm measurements and availability.'},
+              {id:'card',label:'Personal gift message card',price:'$10 proposed',detail:'Your own short message for the recipient.'},
+              {id:'box',label:'Gift box',price:'$25 proposed',detail:'Subject to item/package suitability and destination.'},
+            ] as const).map(extra=><label key={extra.id} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[.12] p-4">
+              <input type="checkbox" checked={extras.includes(extra.id)} onChange={()=>toggleExtra(extra.id)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#d4b26a]"/>
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap justify-between gap-2 text-[14px] text-[#f7f3ec]"><span>{extra.label}</span><span className="text-[#e4c87d]">{extra.price}</span></span>
+                <span className="mt-1 block text-[12px] leading-5 text-[var(--bone-dim)]">{extra.detail}</span>
+              </span>
+            </label>)}
+            {extras.includes('card')&&<label className={labelStyle}>Proposed gift-card message
+              <textarea className={fieldStyle} rows={3} value={giftMessage} maxLength={250}
+                onChange={e=>setGiftMessage(e.target.value)} placeholder="Your message (preview only)"/>
+            </label>}
+          </div>
         </section>
 
         <section className={cardStyle} aria-labelledby="owner-cart-address-title">
@@ -285,8 +330,8 @@ export function CartOwnerLiveReviewClient(){
                 <input type="checkbox" checked={acceptedTerms} onChange={e=>setAcceptedTerms(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
                 <span>I have read the <Link className="underline underline-offset-4" href="/terms">terms</Link>,
-                  {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
-                  {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
+                  {' '}<Link className="underline underline-offset-4" href="/returns-review">returns</Link> and
+                  {' '}<Link className="underline underline-offset-4" href="/shipping-review">shipping policy</Link>.</span>
               </label>
               <p className="text-[11px] leading-5 text-[var(--bone-dim)]">
                 Necessary customer data would be used only to fulfill a real order, subject to our
@@ -299,7 +344,7 @@ export function CartOwnerLiveReviewClient(){
                 <span>Optional: I would like to receive TheFEYA news and offers by email.</span>
               </label>
               <p className="text-[11px] leading-5 text-[var(--bone-dim)]">
-                Newsletter consent is optional and unchecked by default. No subscription is stored or submitted here.
+                Newsletter consent is optional and unchecked by default. An optional customer account or 10% welcome coupon would require real promotion rules, unsubscribe controls and a separate customer choice. No subscription is stored or submitted here.
               </p>
             </div>
           </form>
@@ -316,21 +361,36 @@ export function CartOwnerLiveReviewClient(){
           </p>
           <div className="mt-6 space-y-3 text-[13px]">
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Selected merchandise</span>
+              <span>Merchandise subtotal</span>
               <span className="text-[#f7f3ec]">{currency(totals.merchandise_subtotal_minor)}</span>
             </div>
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>{method==='express'?'Express priority':'Standard'} service</span>
+              <span>{method==='express'?'Express Shipping':'Standard Shipping'}</span>
               <span className="text-[#f7f3ec]">{currency(totals.shipping_minor)}</span>
             </div>
             {totals.show_handling_fee&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Additional packaging for multiple items</span>
+              <span>Additional packaging for a larger parcel</span>
               <span className="text-[#f7f3ec]">{currency(totals.handling_minor)}</span>
             </div>}
+            <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Discounts</span><span className="text-[#f7f3ec]">Not applied</span>
+            </div>
+          </div>
+          <div className="mt-5 rounded-xl border border-white/[.11] p-4">
+            <label htmlFor="preview-coupon" className="block text-[12px] font-medium text-[#f7f3ec]">Have a coupon code?</label>
+            <div className="mt-2 flex gap-2">
+              <input id="preview-coupon" value={coupon} onChange={e=>{setCoupon(e.target.value.slice(0,48));setCouponNotice(false);}}
+                className={fieldStyle+' min-w-0 flex-1'} placeholder="Enter code"/>
+              <button type="button" onClick={()=>setCouponNotice(true)}
+                className="min-h-11 rounded-lg border border-[rgba(212,178,106,.4)] px-4 text-[13px] text-[#e4c87d]">Apply</button>
+            </div>
+            <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]" role="status">
+              {couponNotice?'Coupon validation is not active here — no discount was deducted.':'Live coupons must be validated on the server; preview input does not change your subtotal.'}
+            </p>
           </div>
           <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
             <div className="flex items-start justify-between gap-3">
-              <span className="text-[13px] leading-6 text-[#f7f3ec]">Estimate before taxes</span>
+              <span className="text-[13px] leading-6 text-[#f7f3ec]">Estimated order subtotal (before tax)</span>
               <strong className="text-[26px] font-medium text-[#e4c87d]">{currency(totals.illustrative_before_tax_minor)}</strong>
             </div>
             <p className="mt-3 text-[11px] leading-6 text-[var(--bone-dim)]">
@@ -361,7 +421,7 @@ export function CartOwnerLiveReviewClient(){
             <Link className="inline-flex min-h-11 items-center text-[var(--bone-dim)] underline underline-offset-4" href="/contact">Contact support</Link>
           </div>
           <p className="mt-4 text-[11px] leading-5 text-[var(--bone-dim)]">
-            Different options or multiple quantities of ONE listing never cause a packaging surcharge.
+            Packaging charges apply only to additional distinct canonical products, never different options, colors, sizes or quantities from the same listing.
           </p>
         </section>
       </aside>
