@@ -23,10 +23,10 @@ export default function ProductReviewLayout({children}:{children:ReactNode}){
         Compare sizes and configurations, learn about delivery or ask the studio for available real product photographs.
       </p>
       <nav aria-label="Product support" className="mt-5 flex flex-wrap gap-3 text-[12px]">
-        <Link href="/size-guide-review" className="btn-ghost">Size guide</Link>
-        <Link href="/shipping-review" className="btn-ghost">Shipping</Link>
-        <Link href="/returns-review" className="btn-ghost">Returns</Link>
-        <Link href="/contact-review" className="btn-chrome">Contact our studio</Link>
+        <Link href="/size-guide" className="btn-ghost">Size guide</Link>
+        <Link href="/shipping" className="btn-ghost">Shipping</Link>
+        <Link href="/returns" className="btn-ghost">Returns</Link>
+        <Link href="/contact" className="btn-chrome">Contact our studio</Link>
       </nav>
     </section>
     <Footer/>

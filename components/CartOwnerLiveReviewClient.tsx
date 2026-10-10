@@ -175,7 +175,7 @@ export function CartOwnerLiveReviewClient(){
                     <option value="men">Men's-fit size chart</option>
                     <option value="advice">Ask TheFEYA for fit advice</option>
                   </select>
-                  <span>Based on body measurements and intended garment fit. <Link href="/size-guide-review" className="underline text-[#d4b26a]">Size charts</Link>.</span>
+                  <span>Based on body measurements and intended garment fit. <Link href="/size-guide" className="underline text-[#d4b26a]">Size charts</Link>.</span>
                 </label>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <div className="flex h-10 items-center rounded-lg border border-[rgba(216,214,211,.23)]">
@@ -332,8 +332,8 @@ export function CartOwnerLiveReviewClient(){
                 <input type="checkbox" checked={acceptedTerms} onChange={e=>setAcceptedTerms(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
                 <span>I have read the <Link className="underline underline-offset-4" href="/terms">terms</Link>,
-                  {' '}<Link className="underline underline-offset-4" href="/returns-review">returns</Link> and
-                  {' '}<Link className="underline underline-offset-4" href="/shipping-review">shipping policy</Link>.</span>
+                  {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
+                  {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
               <p className="text-[11px] leading-5 text-[var(--bone-dim)]">
                 Necessary customer data would be used only to fulfill a real order, subject to our

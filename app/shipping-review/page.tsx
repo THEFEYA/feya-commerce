@@ -117,8 +117,8 @@ export default function ShippingReviewPage(){
         <Link href="/cart" className="btn-chrome inline-flex items-center gap-2">
           Preview the bag <ArrowRight size={16} aria-hidden="true"/>
         </Link>
-        <Link href="/returns-review" className="btn-ghost">Returns & Exchanges</Link>
-        <Link href="/contact-review" className="btn-ghost">Contact TheFEYA</Link>
+        <Link href="/returns" className="btn-ghost">Returns & Exchanges</Link>
+        <Link href="/contact" className="btn-ghost">Contact TheFEYA</Link>
       </div>
     </section>
     <Footer/>

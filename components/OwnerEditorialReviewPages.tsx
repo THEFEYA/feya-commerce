@@ -46,7 +46,7 @@ export function OwnerAboutReview(){
         <h2 className={heading+' mt-5'}>Handmade, with room for your ideas</h2>
         <p className={copy}>Pieces are typically prepared to order in around 3–5 working days; individual designs may need more time.
         We can discuss adjustments to fit, approved colors or details where a design allows. We specialize in our own creative direction rather than unrestricted made-from-a-sketch manufacturing.
-        <Link href="/contact-review" className="ml-1 text-[#e1c27a] underline underline-offset-4">Ask our studio</Link> before ordering.</p>
+        <Link href="/contact" className="ml-1 text-[#e1c27a] underline underline-offset-4">Ask our studio</Link> before ordering.</p>
       </article>
       <article className={card}><Camera size={23} className="text-[#d4b26a]" aria-hidden="true"/>
         <h2 className={heading+' mt-5'}>Our imagery, explained</h2>
@@ -59,7 +59,7 @@ export function OwnerAboutReview(){
         Transparent product information matters as much as the finished visual effect.</p>
       </article>
     </div>
-    <div className="mt-7 flex flex-wrap gap-3"><Link href="/shop" className="btn-chrome">Explore our designs</Link><Link href="/contact-review" className="btn-ghost">Talk to TheFEYA</Link></div>
+    <div className="mt-7 flex flex-wrap gap-3"><Link href="/shop" className="btn-chrome">Explore our designs</Link><Link href="/contact" className="btn-ghost">Talk to TheFEYA</Link></div>
   </Frame>;
 }
 
@@ -98,7 +98,7 @@ export function OwnerReturnsReview(){
         {section.body.map(p=><p className={copy} key={p}>{p}</p>)}
       </article>)}
     </div>
-    <div className="mt-7 flex flex-wrap gap-3"><Link href="/contact-review" className="btn-chrome">Ask for assistance</Link><Link href="/shipping-review" className="btn-ghost">Shipping information</Link></div>
+    <div className="mt-7 flex flex-wrap gap-3"><Link href="/contact" className="btn-chrome">Ask for assistance</Link><Link href="/shipping" className="btn-ghost">Shipping information</Link></div>
     <p className="mt-5 text-[12px] leading-6 text-[var(--bone-dim)]">Owner policy proposal for legal review before public publication; regional consumer rights and contracting trader identity must be checked before enabling paid checkout.</p>
   </Frame>;
 }
@@ -139,7 +139,7 @@ export function OwnerSizeGuideReview(){
         <p className={copy}>Need a non-standard fit? Ask about the made-to-measure service when choosing options in the cart. A manager will contact you to confirm the measurements and which products qualify.
         This is a proposed optional paid add-on; the final EUR price, eligibility and measurement workflow must be approved before checkout can charge for it.</p>
       </section>
-      <div className="flex flex-wrap gap-3"><Link href="/shop" className="btn-chrome">Shop designs</Link><Link href="/contact-review" className="btn-ghost"><Mail size={15} className="mr-2 inline"/>Ask about your fit</Link></div>
+      <div className="flex flex-wrap gap-3"><Link href="/shop" className="btn-chrome">Shop designs</Link><Link href="/contact" className="btn-ghost"><Mail size={15} className="mr-2 inline"/>Ask about your fit</Link></div>
       <p className="text-[12px] leading-6 text-[var(--bone-dim)]">Chart sourced from the owner’s legacy FEYA women's/men's graphic (20 Nov 2024). Before production publication, reconfirm that these measurements still match the active approved sizing policy for every applicable item.</p>
     </div>
   </Frame>;

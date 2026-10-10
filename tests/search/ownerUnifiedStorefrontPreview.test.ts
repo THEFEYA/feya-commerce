@@ -80,7 +80,7 @@ test('the unified owner page is NOINDEX, 404 except exact branch, and has all in
  assert.match(source,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
  assert.match(source,/if\(!isOwnerUnifiedStorefrontPreview\(process\.env\)\)notFound\(\)/);
  assert.match(source,/PDP_COPY_REVIEW_SAMPLES\.map/);
- for(const route of ['/cart','/pdp-copy-review','/collections-review','/shipping-review','/contact-review','/events-performance-review','/style-review','/about-review','/returns-review','/size-guide-review']){
+ for(const route of ['/cart','/pdp-copy-review','/collections-review','/shipping','/contact','/events-performance','/style','/about','/returns','/size-guide']){
    assert.ok(source.includes(route),route);
  }
  assert.match(source,/href=\{'\/shop\/\'\+p\.slug\}/);
