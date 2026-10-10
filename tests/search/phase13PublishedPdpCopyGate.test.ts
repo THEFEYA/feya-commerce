@@ -51,10 +51,23 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
     FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:'approved-2026-10-10',
   };
   const correct=cohort;
+  const ownerPreview={
+    VERCEL:'1',VERCEL_ENV:'preview',
+    VERCEL_PROJECT_ID:'prj_ePIymo4sUG33wrRjHBxWrSlaxPID',
+    VERCEL_GIT_COMMIT_REF:'work/phase13-approved-pdp-public-read-gate-20261010',
+  };
+  assert.equal(phase13PublicPdpCopyEnabled(ownerPreview,correct),true);
+  for(const bad of [
+    {VERCEL_PROJECT_ID:'another-project'},
+    {VERCEL_GIT_COMMIT_REF:'main'},
+    {VERCEL_GIT_COMMIT_REF:'work/another-branch'},
+    {FEYA_OWNER_PREVIEW_DISABLED:'true'},
+    {VERCEL_ENV:'production'},
+  ])assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,...bad},correct),false);
   assert.equal(phase13PublicPdpCopyEnabled(valid,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({},correct),false);
   for(const invalid of [
-   {VERCEL:'0'}, {VERCEL_ENV:'preview'}, {VERCEL_ENV:'development'},
+   {VERCEL:'0'}, {VERCEL_ENV:'development'},
    {FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:'off'},
    {FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:'approved-catalog-20260924-v1'},
    {FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:'false'},
