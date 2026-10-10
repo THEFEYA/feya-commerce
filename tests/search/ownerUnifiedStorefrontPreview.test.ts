@@ -5,6 +5,7 @@ import {
   isOwnerUnifiedStorefrontPreview,
   OWNER_UNIFIED_PREVIEW_BRANCH,
   OWNER_UNIFIED_PREVIEW_PROJECT,
+  OWNER_VISUAL_V2_REVIEW_BRANCH,
 } from '../../lib/ownerUnifiedStorefrontPreview.ts';
 import {isOwnerRealCartReviewDeployment} from '../../lib/commerceOwnerCartReview.ts';
 import {isPdpCopyReviewDeployment,PDP_COPY_REVIEW_SAMPLES} from '../../config/pdpCopyReviewSamples.ts';
@@ -30,6 +31,21 @@ test('one exact owner-authenticated Vercel SSO preview branch unlocks EVERY revi
   assert.equal(OWNER_UNIFIED_PREVIEW_BRANCH,'work/owner-unified-storefront-review-20261010');
   assert.equal(OWNER_UNIFIED_PREVIEW_PROJECT,'prj_ePIymo4sUG33wrRjHBxWrSlaxPID');
   assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,false);
+});
+test('v2 owner visual proposal is limited to one exact authenticated preview branch, never Production',()=>{
+  const env={...good,VERCEL_GIT_COMMIT_REF:OWNER_VISUAL_V2_REVIEW_BRANCH};
+  assert.equal(OWNER_VISUAL_V2_REVIEW_BRANCH,'work/owner-visual-commercial-review-v2-20261010');
+  assert.equal(isOwnerUnifiedStorefrontPreview(env),true);
+  assert.equal(isOwnerRealCartReviewDeployment(env),true);
+  assert.equal(isPdpCopyReviewDeployment(env),true);
+  assert.equal(phase13PublicPdpCopyEnabled(env,corpus),true);
+  for(const bad of [
+    {VERCEL:'0'},{VERCEL_ENV:'production'},{VERCEL_PROJECT_ID:'foreign'},
+    {VERCEL_GIT_COMMIT_REF:'owner-visual-review-v2'},
+    {FEYA_OWNER_PREVIEW_DISABLED:'true'},
+  ]){
+    assert.equal(isOwnerUnifiedStorefrontPreview({...env,...bad}),false,JSON.stringify(bad));
+  }
 });
 test('no ordinary URL/other branch/production/development/user header can reveal live bag, approved copy or review hub',()=>{
   for(const bad of [
@@ -64,7 +80,7 @@ test('the unified owner page is NOINDEX, 404 except exact branch, and has all in
  assert.match(source,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
  assert.match(source,/if\(!isOwnerUnifiedStorefrontPreview\(process\.env\)\)notFound\(\)/);
  assert.match(source,/PDP_COPY_REVIEW_SAMPLES\.map/);
- for(const route of ['/cart','/pdp-copy-review','/collections-review','/shipping-review','/contact-review','/checkout-review']){
+ for(const route of ['/cart','/pdp-copy-review','/collections-review','/shipping-review','/contact-review','/events-performance-review','/style-review','/about-review','/returns-review','/size-guide-review']){
    assert.ok(source.includes(route),route);
  }
  assert.match(source,/href=\{'\/shop\/\'\+p\.slug\}/);
@@ -97,7 +113,7 @@ test('cart storage stays one same-origin key and no private address is saved by 
  assert.match(pdp,/feya_visual_cart_v1/);
  assert.match(realCart,/OWNER_CART_STORAGE_KEY/);
  assert.match(realCart,/totals\.show_handling_fee&&/);
- assert.match(realCart,/Additional packaging for multiple items/);
+ assert.match(realCart,/Additional packaging for a larger parcel/);
  // The protected review totals contract, not the JSX, is the authority
  // that explicitly says a final amount due is unresolved.
  assert.match(parser,/amount_due_minor:null/);
