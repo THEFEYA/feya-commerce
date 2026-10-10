@@ -31,7 +31,7 @@ export function OwnerAboutReview(){
   ] as const;
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-28 pb-6 sm:pt-32 lg:pt-32">
+    <section className="container-feya pt-28 pb-11 sm:pt-32 lg:pt-32 lg:pb-12">
       <div className="w-full">
         <p className="eyebrow-gold">Independent designer atelier · TheFEYA</p>
         <h1 className="visual-display mt-4 text-[clamp(34px,4.1vw,54px)] leading-[1.08] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>

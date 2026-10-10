@@ -47,9 +47,9 @@ export default function ShippingReviewPage(){
             <IconSpot><Scissors size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
             <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Handmade for you</h2>
           </div>
-          <p className="mt-3 text-[30px] font-medium leading-tight text-[#f7f3ec]">3–5 days</p>
-          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">Production</p>
-          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
+          <p className="mt-3 w-full text-center text-[30px] font-medium leading-tight text-[#f7f3ec]">3–5 days</p>
+          <p className="mt-1 text-center text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">Production</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
             Typical production is 3–5 business days. Time varies by design and order complexity, before dispatch.
           </p>
         </article>
@@ -58,9 +58,9 @@ export default function ShippingReviewPage(){
             <IconSpot><Truck size={29} strokeWidth={1.4} aria-hidden="true"/></IconSpot>
             <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Standard Shipping</h2>
           </div>
-          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€19</p>
-          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">10–14 working days</p>
-          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
+          <p className="mt-3 w-full text-center text-[32px] font-medium leading-tight text-[#f7f3ec]">€19</p>
+          <p className="mt-1 text-center text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">10–14 working days</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
             A convenient option for most orders, with regular preparation and tracked delivery.
           </p>
         </article>
@@ -69,9 +69,9 @@ export default function ShippingReviewPage(){
             <IconSpot><Plane size={30} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
             <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Express Shipping</h2>
           </div>
-          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€35</p>
-          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">6–9 working days · Priority preparation</p>
-          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
+          <p className="mt-3 w-full text-center text-[32px] font-medium leading-tight text-[#f7f3ec]">€35</p>
+          <p className="mt-1 text-center text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">6–9 working days · Priority preparation</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
             Our priority option for time-sensitive orders moves preparation ahead in the dispatch queue.
           </p>
         </article>

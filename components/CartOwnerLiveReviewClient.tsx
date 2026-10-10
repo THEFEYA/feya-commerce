@@ -229,7 +229,7 @@ export function CartOwnerLiveReviewClient(){
               </span>
               <span className="mt-3 text-[24px] text-[#f7f3ec]">{currency(choice==='express'?3500:1900)}</span>
               <span className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
-                {choice==='express'?'6–9':'10–14'} business days · indicative planning estimate
+                {choice==='express'?'6–9':'10–14'} business days
               </span>
               <span className="mt-2 text-[12px] text-[#e5d2a2]">{choice==='express'?'Priority order preparation':'Regular preparation'}</span>
             </label>)}

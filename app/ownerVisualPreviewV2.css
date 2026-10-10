@@ -88,3 +88,18 @@
 .owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(7) > div {
   padding: 1.25rem 1.5rem!important;
 }
+
+/* V6: stable parent/sibling selectors eliminate large gaps on ALL collection
+ * landings regardless of the optional preview banner and SEO module count. */
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:has(.visual-commerce-embedded) {
+  padding-bottom: .5rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) .visual-commerce-embedded > section {
+  padding-bottom: .5rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:has(.visual-commerce-embedded) + section {
+  padding-bottom: 1rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:has(.visual-commerce-embedded) + section + section {
+  padding-bottom: 1.25rem!important;
+}
