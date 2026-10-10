@@ -43,7 +43,10 @@ test('Contact design uses real customer support, canonical provider metadata and
   assert.doesNotMatch(component,/Helpful links|helpLinks|Find an answer/);
   assert.doesNotMatch(component,/https:\/\/(?:www\.)?(?:instagram|facebook|pinterest)\.com/);
   assert.doesNotMatch(component,/<iframe|Google Maps iframe/);
-  assert.match(component,/border-\[rgba\(216,214,211,.09\)\]/);
+  // The commercial operator remains identifiable without a distracting card.
+  assert.match(component,/payment-operator-heading/);
+  assert.match(component,/op\.legalName/);
+  assert.doesNotMatch(component,/rounded-xl border border-\[rgba\(216,214,211,.09\)\]/);
 });
 
 test('Copy Email interaction reports only actual clipboard success, no forms, tracking or faux manager signup',()=>{

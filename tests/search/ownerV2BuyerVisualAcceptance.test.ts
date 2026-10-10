@@ -144,3 +144,37 @@ test('owner V5 Contact reduces top whitespace, Google Maps height, and newslette
  assert.match(newsletter,/lg:px-8 lg:py-6/);
  assert.match(newsletter,/type="checkbox" checked=\{consent\}/);
 });
+
+test('owner V6 all collection landings compact Show More -> Related -> Before through semantic sibling CSS',()=>{
+ const css=read('app/ownerVisualPreviewV2.css');
+ assert.ok(css.includes('> section:has(.visual-commerce-embedded) + section'));
+ assert.ok(css.includes('> section:has(.visual-commerce-embedded) + section + section'));
+ assert.ok(css.includes('.visual-commerce-embedded > section'));
+});
+test('owner V6 Style tiles render before one catalogue read, no empty suspense wall',()=>{
+ const src=read('app/style-review/page.tsx');
+ assert.ok(src.indexOf('OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}')<src.indexOf('<Suspense fallback={<CatalogLoading/>}>'));
+ assert.ok(src.includes('const products=await readStyleHubProducts();'));
+ assert.ok(!src.includes('readStyleTileAvailability'));
+ assert.ok(!src.includes('min-h-[550px]'));
+ assert.ok(src.includes('Loading styles and pieces'));
+ assert.ok(src.includes('robots:{index:false,follow:false'));
+});
+test('owner V6 improves delivery scannability, About breathing room and low-emphasis Contact footer',()=>{
+ const cart=read('components/CartOwnerLiveReviewClient.tsx');
+ const about=read('components/OwnerEditorialReviewPages.tsx');
+ const shipping=read('app/shipping-review/page.tsx');
+ const contact=read('components/ContactExperience2026.tsx');
+ assert.ok(!cart.includes('indicative planning estimate'));
+ assert.ok(cart.includes('Delivery times are approximate'));
+ const intro=about.slice(about.indexOf('export function OwnerAboutReview()'),about.indexOf('const policySections=['));
+ assert.ok(intro.includes('pt-28 pb-11'));
+ assert.ok(intro.includes('lg:pb-12'));
+ for(const value of ['3–5 days','€19','€35'])assert.ok(shipping.includes(value));
+ assert.ok(shipping.includes('w-full text-center text-[30px]'));
+ assert.ok(shipping.includes('w-full text-center text-[32px]'));
+ assert.ok(shipping.includes('text-center text-[14px]'));
+ assert.ok(contact.includes('<Icon size={22}'));
+ assert.ok(contact.includes('payment-operator-heading'));
+ assert.ok(!contact.includes('rounded-xl border border-[rgba(216,214,211,.09)]'));
+});
