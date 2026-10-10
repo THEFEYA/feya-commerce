@@ -92,7 +92,7 @@ test('published content only reaches the current PDP props; existing review and 
   assert.match(server,/if \(mode === 'blocked'\) return blocked\(\)/);
   assert.match(server,/getAdminServiceClient\(\)/);
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
-  assert.match(page,/const \{product,approvedCopy,copyBlocked\}=await getPresentation\(slug\)/);
+  assert.match(page,/approvedPublicCopy, copyBlocked/);
   // Runtime exact result is request-cache backed and public robots are not
   // mutated to index with a newer copy release.
   assert.match(page,/readCachedStorefrontProductMetadataV1\(slug\)/);
