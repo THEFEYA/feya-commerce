@@ -8,6 +8,7 @@ import {ArrowUpRight} from 'lucide-react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {COLLECTION_DIRECTORY_GROUPS} from '@/config/discoveryHubs';
+import {isOwnerUnifiedStorefrontPreview} from '@/lib/ownerUnifiedStorefrontPreview';
 
 /** OWNER ONLY — no alteration of the indexed collections hub and no new
  * navigation entry, sitemap URL, product membership or public Search v12 owner.
@@ -25,7 +26,8 @@ function enabled(){
     &&process.env.VERCEL_ENV==='preview'
     &&process.env.VERCEL_PROJECT_ID===PROJECT
     &&process.env.VERCEL_GIT_COMMIT_REF===BRANCH
-    &&process.env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+    &&process.env.FEYA_OWNER_PREVIEW_DISABLED!=='true'
+    ||isOwnerUnifiedStorefrontPreview(process.env);
 }
 
 export default function CollectionsHomeScalePreview(){
