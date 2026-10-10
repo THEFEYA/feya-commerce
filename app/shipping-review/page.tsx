@@ -23,7 +23,7 @@ export default function ShippingReviewPage(){
     <Header/>
     <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-44 lg:pb-14">
       <p className="eyebrow-gold mb-4">TheFEYA · Shipping review</p>
-      <h1 className="visual-display max-w-4xl text-[clamp(44px,6vw,84px)] font-medium leading-[.97] tracking-[-.045em] text-[#f7f3ec]">Shipping & Delivery</h1>
+      <h1 className="visual-display max-w-4xl text-[clamp(38px,4.8vw,66px)] font-medium leading-[.97] tracking-[-.045em] text-[#f7f3ec]">Shipping & Delivery</h1>
       <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[var(--bone-dim)]">
         Made to order, prepared in our workshop, then shipped internationally. Choose how urgently you need your order prepared; we will select the suitable courier.
       </p>
@@ -36,7 +36,7 @@ export default function ShippingReviewPage(){
           <p className="eyebrow-gold mt-5">Made for you</p>
           <h2 className="mt-3 text-[27px] font-medium text-[#f7f3ec]">Production first</h2>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Timing depends on the design and options you choose. Your order is prepared before the parcel is handed to a shipping carrier.
+            Typical production is 3–5 business days, depending on the design, materials and order complexity. Preparation time is separate from international transit.
           </p>
         </article>
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6">
@@ -54,7 +54,7 @@ export default function ShippingReviewPage(){
           <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€35</h2>
           <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–9 business days</p>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Priority in our preparation and dispatch queue. We may use the same trusted courier as Standard, so this is not a guarantee of faster physical transit.
+            A priority option for time-sensitive orders: we give your order extra attention in the preparation and dispatch queue. The stated timing is an estimate, not a guaranteed arrival date.
           </p>
         </article>
       </div>
@@ -63,7 +63,7 @@ export default function ShippingReviewPage(){
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
           <h2 className="text-[22px] font-medium text-[#f7f3ec]">One delivery choice per order</h2>
           <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Standard or Express is selected once for your whole bag. Each additional distinct product listing adds €5 for packaging and handling, even if it has different sizes or quantities.
+            Choose one Standard or Express service for the whole order. Orders containing two or more different designs may require additional packing space; this adds €5 for each additional distinct product listing. Different sizes, options or quantities within one listing do not create an extra charge.
           </p>
           <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
             Some destinations, including Australia, Mexico and New Zealand, can require an additional €20 per eligible parcel. Any applicable amount must be displayed before payment.
