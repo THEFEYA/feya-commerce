@@ -12,10 +12,15 @@ export function phase13PublicPdpCopyEnabled(
   env:Record<string,string|undefined>,
   pinned:{version:string;count:number;sourceCount:number;suppressedCount:number},
 ):boolean{
-  return env.VERCEL==='1'
-    &&env.VERCEL_ENV==='production'
+  const exactOwnerBranch=env.VERCEL_ENV==='preview'
+    &&env.VERCEL_PROJECT_ID==='prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
+    &&env.VERCEL_GIT_COMMIT_REF==='work/phase13-approved-pdp-public-read-gate-20261010'
+    &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+  const explicitPublic=env.VERCEL_ENV==='production'
     &&env.FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE===PHASE13_PDP_COPY_PUBLIC_RELEASE
-    &&env.FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF==='approved-2026-10-10'
+    &&env.FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF==='approved-2026-10-10';
+  return env.VERCEL==='1'
+    &&(exactOwnerBranch||explicitPublic)
     &&pinned.version==='approved-catalog-20260924-v1'
     &&pinned.count===PHASE13_REQUIRED_PIN_COUNT
     &&pinned.sourceCount===PHASE13_APPROVED_SOURCE_ROW_COUNT
