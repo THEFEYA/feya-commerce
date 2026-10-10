@@ -8,14 +8,25 @@ import {approvedCopyHash,type ApprovedCopyPayload} from '@/lib/seoApprovedConten
 import {
   phase13PublicPdpCopyEnabled,
   PHASE13_SOURCE_RELEASE,
+  PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID,
 } from '@/lib/phase13PdpCopyReleaseGate';
 
 type Row=Record<string,unknown>;
 const row=(v:unknown):v is Row=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const SHA=/^[0-9a-f]{64}$/;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const sourcePins=new Map(manifest.entries.map(x=>[x.url_path,x] as const));
-const corpus={version:manifest.version,count:manifest.entries.length};
+// The 2026-09-24 owner launch decision explicitly SUPPRESSED one duplicate:
+ // 208 approved historical review drafts -> exactly 207 live storefront PDPs.
+ // This source must never enter a public content read by accident.
+const livePins=manifest.entries.filter(
+  x=>x.canonical_product_id!==PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID
+);
+const sourcePins=new Map(livePins.map(x=>[x.url_path,x] as const));
+const corpus={
+  version:manifest.version,count:livePins.length,
+  sourceCount:manifest.entries.length,
+  suppressedCount:manifest.entries.length-livePins.length,
+};
 
 /** READ-ONLY. Reconstruct only a current, exactly pinned and still approved
  * existing four-block original text. Never select a later draft, synthesize
