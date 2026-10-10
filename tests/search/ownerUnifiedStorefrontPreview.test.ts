@@ -98,7 +98,12 @@ test('cart storage stays one same-origin key and no private address is saved by 
  assert.match(realCart,/OWNER_CART_STORAGE_KEY/);
  assert.match(realCart,/totals\.show_handling_fee&&/);
  assert.match(realCart,/Additional packaging for multiple items/);
- assert.match(realCart,/amount_due_minor/);
+ // The protected review totals contract, not the JSX, is the authority
+ // that explicitly says a final amount due is unresolved.
+ assert.match(parser,/amount_due_minor:null/);
+ assert.match(parser,/payable:false,payment_enabled:false,provider_session_enabled:false/);
+ assert.match(realCart,/Checkout not active/);
+ assert.match(realCart,/final payable amount cannot be calculated/i);
  assert.doesNotMatch(realCart,/fetch\(|sendBeacon\(|FormData\(/);
  assert.doesNotMatch(realCart,/localStorage\.setItem\([^\n]*email/);
 });
