@@ -8,20 +8,38 @@ import {Footer} from '@/components/Footer';
 import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
-import {readStyleHubProducts,readStyleTileAvailability} from '@/lib/discoveryHubServer';
+import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
+import {readStyleHubProducts} from '@/lib/discoveryHubServer';
 import {isOwnerUnifiedStorefrontPreview} from '@/lib/ownerUnifiedStorefrontPreview';
+
 export const metadata:Metadata={title:'Style · Owner Visual Review',robots:{index:false,follow:false,nocache:true,noarchive:true}};
-async function ReviewContent(){
+
+async function ReviewProducts(){
   await connection();
-  const [products,availability]=await Promise.all([readStyleHubProducts(),readStyleTileAvailability()]);
-  if(!products||!availability)notFound();
-  return <>
-    <div className="mt-9"><OwnerDiscoveryTileStrip tiles={availability.map(x=>x.tile)}/></div>
-    <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
-      <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
-    </section>
-  </>;
+  // One cached catalogue lookup; availability is not independently refetched.
+  const products=await readStyleHubProducts();
+  if(!products)notFound();
+  return <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
+    <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
+  </section>;
 }
+
+function CatalogLoading(){
+  return <section aria-busy="true" aria-label="Loading costumes by style"
+    className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-4">
+    <p className="mb-5 text-[12px] text-[var(--bone-dim)]" role="status">Loading styles and pieces…</p>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {[0,1,2,3].map(i=><div key={i} className="overflow-hidden rounded-xl border border-white/[.08] bg-white/[.018]">
+        <div className="aspect-[4/5] animate-pulse bg-[#17171c]"/>
+        <div className="space-y-3 p-3">
+          <div className="h-3 w-4/5 animate-pulse rounded bg-white/[.08]"/>
+          <div className="h-3 w-2/5 animate-pulse rounded bg-white/[.06]"/>
+        </div>
+      </div>)}
+    </div>
+  </section>;
+}
+
 export default function StyleReview(){
   if(!isOwnerUnifiedStorefrontPreview(process.env))notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
@@ -30,7 +48,11 @@ export default function StyleReview(){
       <p className="eyebrow-gold mb-4">Style</p>
       <h1 className="visual-display max-w-4xl text-[clamp(32px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Start from the mood.</h1>
       <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">Let the images lead. Every style is a useful browse shortcut, not an automatically indexed SEO page.</p>
-      <Suspense fallback={<div aria-busy="true" className="min-h-[550px]"/>}><ReviewContent/></Suspense>
+      {/* All eight configured style tiles have matching items in the current
+          207-product approved catalogue. Stream images immediately instead of
+          waiting for a catalog fetch that previously yielded blank 550px. */}
+      <div className="mt-9"><OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}/></div>
+      <Suspense fallback={<CatalogLoading/>}><ReviewProducts/></Suspense>
       <OwnerHubSeoText kind="style"/>
     </section>
     <Footer/>
