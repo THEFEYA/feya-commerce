@@ -2,7 +2,7 @@
 
 import {useMemo,useState} from 'react';
 import Link from 'next/link';
-import {ArrowRight,Check,ChevronRight,LockKeyhole,Package,ShieldCheck,Truck} from 'lucide-react';
+import {ArrowRight,Check,ChevronRight,Clock3,LockKeyhole,Package,ShieldCheck,Truck} from 'lucide-react';
 import {BUYER_SERVICES_REVIEW,reviewServiceBreakdown,type BuyerService}
   from '@/lib/commerceBuyerServiceReview';
 
@@ -96,7 +96,7 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
             <h2 id="choose-service" className="text-[25px] font-medium tracking-tight text-[#f7f3ec]">Delivery preference</h2>
           </div>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            TheFEYA chooses the actual shipping carrier. Express gives your order priority in the preparation and dispatch queue; it does not require a different courier.
+            Choose the delivery preference that suits your plans. Express orders receive priority in our preparation and dispatch queue.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {BUYER_SERVICES_REVIEW.map(option=><label key={option.method}
@@ -104,6 +104,9 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
               <span className="flex items-center gap-2">
                 <input type="radio" name="sample-shipping" checked={method===option.method}
                   onChange={()=>setMethod(option.method)} className="h-[17px] w-[17px] accent-[#d4b26a]"/>
+                {option.method==='express'
+                  ?<Clock3 size={18} strokeWidth={1.7} className="shrink-0 text-[#d4b26a]" aria-hidden="true"/>
+                  :<Truck size={18} strokeWidth={1.7} className="shrink-0 text-[#d4b26a]" aria-hidden="true"/>}
                 <span className="text-[17px] font-medium text-[#f7f3ec]">{option.label}</span>
                 {option.method==='express'&&<span className="ml-auto text-[10px] font-medium uppercase tracking-[.07em] text-[#e8ca87]">Priority</span>}
               </span>
@@ -117,7 +120,7 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
             </label>)}
           </div>
           <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">
-            These are broad planning ranges, not guaranteed courier transit times. Production varies by piece, so the final arrival estimate must include preparation and the destination's actual transit. Express gives priority in our queue; a faster postal service is not promised.
+            These are planning estimates, not guaranteed arrival dates. Production varies by design, and international transport and customs may affect the timing. Contact our team before ordering for a fixed event deadline.
           </p>
         </section>
 
@@ -167,10 +170,10 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
               <span>{method==='express'?'Express priority':'Standard'} service</span>
               <span className="text-[#f7f3ec]">{breakdown?money(breakdown.shipping_minor):'—'}</span>
             </div>
-            <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Additional distinct listings</span>
-              <span className="text-[#f7f3ec]">{breakdown?money(breakdown.handling_minor):'—'}</span>
-            </div>
+            {Boolean(breakdown&&breakdown.distinct_listing_count>1)&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Additional packaging for multiple items</span>
+              <span className="text-[#f7f3ec]">{money(breakdown!.handling_minor)}</span>
+            </div>}
             {Boolean(breakdown?.remote_example_minor)&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
               <span>Remote-zone example (one parcel)</span><span className="text-[#f7f3ec]">{money(breakdown!.remote_example_minor)}</span>
             </div>}
