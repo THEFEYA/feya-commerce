@@ -11,13 +11,21 @@ export function OwnerNewsletterSignupPreview(){
   const [email,setEmail]=useState('');
   const [consent,setConsent]=useState(false);
   const [notice,setNotice]=useState(false);
-  return <div className="rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.09),rgba(255,255,255,.014)_70%)] p-6 sm:p-8 lg:p-10">
-    <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,.96fr)]">
+  return <div className="rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.09),rgba(255,255,255,.014)_70%)] px-5 py-5 sm:px-7 sm:py-6 lg:px-8 lg:py-6">
+    <div className="grid items-center gap-5 lg:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)] lg:gap-8">
       <div>
-        <Mail size={29} strokeWidth={1.45} className="text-[#d4b26a]" aria-hidden="true"/>
-        <p className="eyebrow-gold mt-5">From the studio</p>
-        <h2 id="newsletter-title" className="mt-3 text-[clamp(24px,3vw,34px)] font-medium text-[#f7f3ec]">Be first to discover what’s next.</h2>
-        <p className="mt-3 max-w-xl text-[14px] leading-7 text-[var(--bone-dim)]">New collections, special offers and creative updates from TheFEYA, delivered to your inbox.</p>
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.05)] text-[#d4b26a]">
+            <Mail size={23} strokeWidth={1.5} aria-hidden="true"/>
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow-gold">From the studio</p>
+            <h2 id="newsletter-title" className="mt-1.5 text-[clamp(22px,2.5vw,28px)] font-medium leading-tight text-[#f7f3ec]">Be first to discover what’s next.</h2>
+          </div>
+        </div>
+        <p className="mt-2 text-[13px] leading-6 text-[var(--bone-dim)]">
+          New collections, special offers and creative updates from TheFEYA, delivered to your inbox.
+        </p>
       </div>
       <form className="space-y-3" onSubmit={e=>{e.preventDefault();setNotice(true);}}>
         <label htmlFor="feya-newsletter-email" className="block text-[12px] text-[#e1dace]">Your email address</label>

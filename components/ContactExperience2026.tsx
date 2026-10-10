@@ -24,7 +24,7 @@ export function ContactExperience2026(){
   const op=SELLER_ONLINE_PROVIDER;
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-8 sm:pt-36 lg:pt-40 lg:pb-10">
+    <section className="container-feya pt-24 pb-7 sm:pt-28 lg:pt-28 lg:pb-9">
       <div className="max-w-4xl">
         <p className="eyebrow-gold mb-4">TheFEYA · Get in touch</p>
         <h1 className="visual-display text-[clamp(34px,4vw,54px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Contact</h1>

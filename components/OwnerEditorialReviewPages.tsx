@@ -32,14 +32,14 @@ export function OwnerAboutReview(){
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-28 pb-6 sm:pt-32 lg:pt-32">
-      <div className="rounded-[20px] border border-[rgba(212,178,106,.22)] bg-[radial-gradient(ellipse_at_top_right,rgba(212,178,106,.095),rgba(255,255,255,.014)_65%)] p-7 sm:p-9 lg:p-11">
+      <div className="w-full">
         <p className="eyebrow-gold">Independent designer atelier · TheFEYA</p>
         <h1 className="visual-display mt-4 text-[clamp(34px,4.1vw,54px)] leading-[1.08] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>
         <div className="mt-5 space-y-4 text-[15px] leading-7 text-[#d5cdc2]">
           <p>We are an independent creative team specializing in handmade statement outfits for stages, festivals, performances and fashion photography. Our workshop brings together original design and hands-on production, creating distinctive pieces with a recognizable TheFEYA aesthetic.</p>
           <p>From sculptural shoulder armor and accessories to expressive bodysuits and coordinated looks, each design starts with our studio's own creative direction. Our pieces reach performers, festival-goers and artists in different countries. We care about the people who wear them and aim to help every customer feel confident and happy with their choice.</p>
         </div>
-        <div className="mt-7 border-t border-[rgba(212,178,106,.18)] pt-6">
+        <div className="mt-7 border-t border-[rgba(212,178,106,.26)] pt-6">
           <p className="eyebrow-gold">Our mission</p>
           <h2 className="visual-display mt-3 text-[clamp(25px,3.2vw,39px)] leading-[1.15] text-[#f7f3ec]">Be seen. Be remembered. Be yourself.</h2>
           <p className="mt-4 text-[15px] leading-7 text-[#d5cdc2]">

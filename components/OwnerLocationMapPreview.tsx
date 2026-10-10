@@ -20,7 +20,7 @@ export function OwnerLocationMapPreview({location}:{location:keyof typeof LOCATI
   const external='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(data.query);
   const embed='https://www.google.com/maps?q='+encodeURIComponent(data.query)+'&output=embed';
   return <div className="mt-4" aria-label={data.label}>
-    <div className="relative aspect-[4/3] min-h-[225px] overflow-hidden rounded-xl border border-white/[.16] bg-[radial-gradient(ellipse_at_center,rgba(70,70,80,.27),rgba(16,16,20,.98))]">
+    <div className="relative aspect-[16/9] min-h-[205px] overflow-hidden rounded-xl border border-white/[.16] bg-[radial-gradient(ellipse_at_center,rgba(70,70,80,.27),rgba(16,16,20,.98))]">
       {loaded?<iframe title={data.label+' — interactive Google Maps'}
         src={embed} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen className="absolute inset-0 h-full w-full border-0"

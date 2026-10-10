@@ -340,7 +340,7 @@ export function CartOwnerLiveReviewClient(){
                 value={form.order_comment} onChange={e=>change('order_comment',e.target.value)}
                 placeholder="Sizing details, event date or other requests"/>
             </label>
-            <div className="space-y-4 rounded-xl border border-[rgba(216,214,211,.13)] p-4">
+            <div className="space-y-3 rounded-xl border border-[rgba(216,214,211,.13)] p-4">
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#e7e1d6]">
                 <input type="checkbox" checked={acceptedTerms} onChange={e=>setAcceptedTerms(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
@@ -348,9 +348,6 @@ export function CartOwnerLiveReviewClient(){
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
-              <p className="text-[12px] leading-5 text-[var(--bone-dim)]">
-                Your information is handled in accordance with our <Link className="underline" href="/privacy">Privacy Policy</Link>.
-              </p>
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
                 <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>

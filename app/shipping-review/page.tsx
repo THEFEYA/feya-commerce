@@ -29,7 +29,7 @@ export default function ShippingReviewPage(){
   if(process.env.VERCEL_ENV!=='preview'&&process.env.NODE_ENV==='production')notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-9 sm:pt-36 lg:pt-40 lg:pb-11">
+    <section className="container-feya pt-24 pb-7 sm:pt-28 lg:pt-28 lg:pb-9">
       <p className="eyebrow-gold mb-4">TheFEYA · Shipping & care</p>
       <h1 className="visual-display max-w-4xl text-[clamp(31px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">
         Shipping & Delivery
@@ -40,38 +40,38 @@ export default function ShippingReviewPage(){
       </p>
     </section>
 
-    <section className="container-feya pb-14 lg:pb-20" aria-label="Shipping information">
+    <section className="container-feya pb-12 lg:pb-16" aria-label="Shipping information">
       <div className="grid gap-4 lg:grid-cols-3">
-        <article className={box+' p-6 sm:p-7'}>
+        <article className={box+' px-5 py-5 sm:px-6 sm:py-5'}>
           <div className="flex items-center gap-4">
             <IconSpot><Scissors size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
-            <p className="text-[14px] font-medium tracking-[.12em] text-[#e0bd76]">Handmade for you</p>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Handmade for you</h2>
           </div>
-          <h2 className="mt-4 text-[34px] font-medium text-[#f7f3ec]">3–5 days</h2>
-          <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">Production</p>
-          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+          <p className="mt-3 text-[30px] font-medium leading-tight text-[#f7f3ec]">3–5 days</p>
+          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">Production</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
             Typical production is 3–5 business days. Time varies by design and order complexity, before dispatch.
           </p>
         </article>
-        <article className={box+' p-6 sm:p-7'}>
+        <article className={box+' px-5 py-5 sm:px-6 sm:py-5'}>
           <div className="flex items-center gap-4">
             <IconSpot><Truck size={29} strokeWidth={1.4} aria-hidden="true"/></IconSpot>
-            <p className="text-[14px] font-medium tracking-[.12em] text-[#e0bd76]">Standard Shipping</p>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Standard Shipping</h2>
           </div>
-          <h2 className="mt-4 text-[37px] font-medium text-[#f7f3ec]">€19</h2>
-          <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">10–14 working days</p>
-          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€19</p>
+          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">10–14 working days</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
             A convenient option for most orders, with regular preparation and tracked delivery.
           </p>
         </article>
-        <article className="rounded-[18px] border border-[rgba(212,178,106,.40)] bg-[linear-gradient(145deg,rgba(212,178,106,.10),rgba(255,255,255,.015))] p-6 sm:p-7">
+        <article className="rounded-[18px] border border-[rgba(212,178,106,.40)] bg-[linear-gradient(145deg,rgba(212,178,106,.10),rgba(255,255,255,.015))] px-5 py-5 sm:px-6 sm:py-5">
           <div className="flex items-center gap-4">
             <IconSpot><Plane size={30} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
-            <p className="text-[14px] font-medium tracking-[.10em] text-[#e0bd76]">Express Shipping · Priority</p>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Express Shipping</h2>
           </div>
-          <h2 className="mt-4 text-[37px] font-medium text-[#f7f3ec]">€35</h2>
-          <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">6–9 working days</p>
-          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€35</p>
+          <p className="mt-1 text-[13px] font-medium text-[#d5cec4]">6–9 working days · Priority preparation</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#a8a19a] sm:text-[14px]">
             Our priority option for time-sensitive orders moves preparation ahead in the dispatch queue.
           </p>
         </article>

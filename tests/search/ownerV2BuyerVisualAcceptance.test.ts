@@ -103,3 +103,44 @@ test('Product OS page and card remain frozen while the scoped PDP error boundary
  assert.match(fallback,/reset\(\)/);
  assert.match(fallback,/We couldn’t open this item/);
 });
+
+test('owner V5 cart legal consents remain independent without repeated privacy filler',()=>{
+ const src=read('components/CartOwnerLiveReviewClient.tsx');
+ assert.match(src,/I have read the /);
+ assert.match(src,/marketingConsent/);
+ assert.match(src,/Optional: I would like to receive TheFEYA news/);
+ assert.doesNotMatch(src,/Your information is handled in accordance with our/);
+});
+test('owner V5 About hero uses page canvas while keeping horizontal mission separator',()=>{
+ const src=read('components/OwnerEditorialReviewPages.tsx');
+ const start=src.indexOf('export function OwnerAboutReview()');
+ const end=src.indexOf('const policySections=[',start);
+ const about=src.slice(start,end);
+ assert.match(about,/<div className="w-full">/);
+ assert.match(about,/border-t border-\[rgba\(212,178,106,.26\)\]/);
+ assert.doesNotMatch(about,/rounded-\[20px\] border border-\[rgba\(212,178,106,.22\)\]/);
+ assert.match(about,/Be seen\. Be remembered\. Be yourself/);
+});
+test('owner V5 shipping reduces card heights and puts proper titles over restrained prices',()=>{
+ const src=read('app/shipping-review/page.tsx');
+ for(const name of ['Handmade for you','Standard Shipping','Express Shipping']){
+   assert.ok(src.includes('>'+name+'</h2>'),name);
+ }
+ assert.match(src,/px-5 py-5 sm:px-6 sm:py-5/);
+ assert.match(src,/text-\[30px\]/);
+ assert.match(src,/text-\[32px\]/);
+ assert.match(src,/pt-24 pb-7 sm:pt-28 lg:pt-28/);
+ assert.match(src,/6–9 working days/);
+});
+test('owner V5 Contact reduces top whitespace, Google Maps height, and newsletter vertical stack',()=>{
+ const contact=read('components/ContactExperience2026.tsx');
+ const map=read('components/OwnerLocationMapPreview.tsx');
+ const newsletter=read('components/OwnerNewsletterSignupPreview.tsx');
+ assert.match(contact,/pt-24 pb-7 sm:pt-28 lg:pt-28/);
+ assert.match(map,/aspect-\[16\/9\]/);
+ assert.match(map,/min-h-\[205px\]/);
+ assert.match(newsletter,/minmax\(0,.82fr\)_minmax\(0,1.18fr\)/);
+ assert.match(newsletter,/<Mail size=\{23\}/);
+ assert.match(newsletter,/lg:px-8 lg:py-6/);
+ assert.match(newsletter,/type="checkbox" checked=\{consent\}/);
+});
