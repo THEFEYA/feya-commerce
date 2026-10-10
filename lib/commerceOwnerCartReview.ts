@@ -1,5 +1,6 @@
 import {DELIVERY_COUNTRIES} from './commerceDeliveryWorkspace.ts';
 import {isFeyaBlockedExportDestination} from './commerceShippingBlockedDestinations.ts';
+import {isOwnerUnifiedStorefrontPreview} from './ownerUnifiedStorefrontPreview.ts';
 
 export const OWNER_CART_REVIEW_CONTRACT='feya_owner_real_cart_review_v1' as const;
 export const OWNER_CART_STORAGE_KEY='feya_visual_cart_v1' as const;
@@ -23,10 +24,13 @@ const safeImage=(v:unknown)=>{
 };
 
 export function isOwnerRealCartReviewDeployment(env:Record<string,string|undefined>):boolean{
-  return env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
+  const originalOwnerReview=env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID===OWNER_CART_REVIEW_PROJECT
     &&env.VERCEL_GIT_COMMIT_REF===OWNER_CART_REVIEW_BRANCH
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+  // A second EXACT Vercel-owner branch consolidates previews on one browser
+  // origin. Public Production continues to display disabled nonpayable bag.
+  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env);
 }
 
 export type OwnerCartPreviewItem={

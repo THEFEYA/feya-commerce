@@ -1,3 +1,5 @@
+import {isOwnerUnifiedStorefrontPreview} from './ownerUnifiedStorefrontPreview.ts';
+
 /** Separate future publication contract, never authorizes the 2026-09-24
  * authenticated-only review manifest by itself. Enabled only on a deliberately
  * configured Production deployment after full owner/release approval.
@@ -19,7 +21,8 @@ export function phase13PublicPdpCopyEnabled(
   const exactOwnerBranch=env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID==='prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
     &&env.VERCEL_GIT_COMMIT_REF==='work/phase13-approved-pdp-public-read-gate-20261010'
-    &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+    &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true'
+    ||isOwnerUnifiedStorefrontPreview(env);
   const explicitPublic=PHASE13_PRODUCTION_PUBLISH_AUTHORIZED
     &&env.VERCEL_ENV==='production'
     &&env.FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE===PHASE13_PDP_COPY_PUBLIC_RELEASE
