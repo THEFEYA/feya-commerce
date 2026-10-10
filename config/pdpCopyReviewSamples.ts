@@ -1,3 +1,5 @@
+import {isOwnerUnifiedStorefrontPreview} from '../lib/ownerUnifiedStorefrontPreview.ts';
+
 /** Owner-selected representative products from the exact approved 207-PDP binding corpus.
  * Never substitute a nearby/latest SEO draft when an immutable pin changes.
  * Samples are not a shopping shortlist or a new published collection.
@@ -41,9 +43,10 @@ export function pdpCopyReviewSample(slug:string){
 export function isPdpCopyReviewDeployment(env:Record<string,string|undefined>){
   // Vercel's authenticated Deployment Protection is the externally enforced
   // owner boundary. No request header or query parameter can enable it.
-  return env.VERCEL==='1'
+  const originalPdpReview=env.VERCEL==='1'
     &&env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID==='prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
     &&env.VERCEL_GIT_COMMIT_REF===PDP_COPY_REVIEW_BRANCH
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+  return originalPdpReview||isOwnerUnifiedStorefrontPreview(env);
 }
