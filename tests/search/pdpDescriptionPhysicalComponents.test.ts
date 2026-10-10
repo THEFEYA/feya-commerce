@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {storefrontDescriptionComponentLabels as description} from '../../lib/storefrontDescriptionComponentLabels.ts';
+import {withOwnerApprovedComponentReview,OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG} from '../../lib/storefrontDescriptionComponentLabels.ts';
 import {storefrontIncludedOptions as purchase} from '../../lib/storefrontIncludedOptions.ts';
 import {resolveStorefrontSellableOffer as offer} from '../../lib/storefrontSellableOffer.ts';
 
 const id=(suffix:string)=>'00000000-0000-4000-8000-'+suffix.padStart(12,'0');
+const description=(product:any,config?:Record<string,unknown>)=>purchase(withOwnerApprovedComponentReview(product),config);
 const atomic=(configuration_id:string,public_label:string,component_code:string)=>({
   configuration_id,public_label,component_code,is_full_set:false,is_bundle:false,
 });
@@ -84,7 +85,7 @@ test('multiple current shop groups split into physical items without inventing o
   const cfg=product.configurations[3];
   assert.equal(offer(product).status,'ready');
   assert.deepEqual(description(product,cfg),['Shoulders','Top','Skirt','Panties']);
-  assert.deepEqual(purchase(product,cfg),['Shoulders','Panties','Top + Skirt']);
+  assert.deepEqual(purchase(product,cfg),['Shoulders','Top + Skirt','Panties']);
   assert.equal(product.configurations.length,4);
 });
 
@@ -105,15 +106,18 @@ test('unknown or held composition never invents a split from title or sales mark
   assert.deepEqual(description(noCurrentOffer),purchase(noCurrentOffer));
 });
 
-test('only the left approved description projection uses atomic components, live fallback and right selector remain as before',()=>{
+test('frozen PDP source and public SKU defaults are untouched; only owner after-preview opts in',()=>{
   const pdp=readFileSync('components/ProductDetailClient.tsx','utf8');
-  assert.match(pdp,/const includedLines = draftBlocks\.length/);
-  assert.match(pdp,/\? storefrontDescriptionComponentLabels\(p, activeConfig\)/);
-  assert.match(pdp,/: storefrontIncludedOptions\(p, activeConfig\)/);
-  assert.match(pdp,/draftBlocks\.length\s*\? <GeneratedDescription/);
+  const helper=readFileSync('lib/storefrontIncludedOptions.ts','utf8');
+  const route=readFileSync('app/pdp-copy-review/[slug]/page.tsx','utf8');
+  assert.match(pdp,/const includedLines = storefrontIncludedOptions\(p, activeConfig\)/);
+  assert.doesNotMatch(pdp,/storefrontDescriptionComponentLabels/);
   assert.match(pdp,/rightPdpPanel\.map/);
   assert.match(pdp,/sortedOptions\(p\)/);
-  const helper=readFileSync('lib/storefrontDescriptionComponentLabels.ts','utf8');
-  assert.match(helper,/sellableOfferIncludedLabels\(offer,activeConfiguration\)/);
+  assert.match(helper,/sellableOfferIncludedLabels\(currentOffer,activeConfiguration\)/);
+  assert.match(helper,/OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG/);
+  assert.match(route,/withOwnerApprovedComponentReview\(source\.product\)/);
+  assert.match(route,/comparisonMode\?withOwnerApprovedComponentReview/);
+  assert.equal(OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG,'__feya_owner_approved_pdp_components_preview_v1');
   assert.doesNotMatch(helper,/\.update\(|\.insert\(|\.upsert\(/);
 });
