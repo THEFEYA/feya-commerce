@@ -27,10 +27,14 @@ test('the historical review-only source cannot silently switch on a public or in
   assert.equal(cohort.suppressedCount,1);
   assert.ok(pins.entries.some(x=>x.canonical_product_id===PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID));
   assert.ok(!livePins.some(x=>x.canonical_product_id===PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID));
-  assert.equal(new Set(pins.entries.map(x=>x.canonical_product_id)).size,207);
-  assert.equal(new Set(pins.entries.map(x=>x.draft_id)).size,207);
-  assert.equal(new Set(pins.entries.map(x=>x.url_path)).size,207);
-  assert.equal(new Set(pins.entries.map(x=>x.seo_page_id)).size,207);
+  assert.equal(new Set(pins.entries.map(x=>x.canonical_product_id)).size,208);
+  assert.equal(new Set(livePins.map(x=>x.canonical_product_id)).size,207);
+  assert.equal(new Set(pins.entries.map(x=>x.draft_id)).size,208);
+  assert.equal(new Set(livePins.map(x=>x.draft_id)).size,207);
+  assert.equal(new Set(pins.entries.map(x=>x.url_path)).size,208);
+  assert.equal(new Set(livePins.map(x=>x.url_path)).size,207);
+  assert.equal(new Set(pins.entries.map(x=>x.seo_page_id)).size,208);
+  assert.equal(new Set(livePins.map(x=>x.seo_page_id)).size,207);
   assert.equal(PHASE13_SOURCE_RELEASE,'feya-review-207-20260924');
   for(const row of pins.entries){
     assert.match(row.canonical_product_id,/^[0-9a-f-]{36}$/);
