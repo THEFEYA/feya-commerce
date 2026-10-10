@@ -4,6 +4,8 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {CartOwnerLiveReviewClient} from '@/components/CartOwnerLiveReviewClient';
+import {isOwnerRealCartReviewDeployment} from '@/lib/commerceOwnerCartReview';
 
 export const metadata:Metadata={
   title:'Bag | TheFEYA',
@@ -13,6 +15,16 @@ export const metadata:Metadata={
 };
 
 export default function CartPage(){
+  // Only one explicitly protected Vercel owner-review deployment may render
+  // actual PDP-selected local browser cart lines. All public/production sites
+  // preserve the existing intentionally disabled prelaunch cart exactly.
+  if(isOwnerRealCartReviewDeployment(process.env)){
+    return <main className="visual-commerce-shell relative min-h-screen">
+      <Header/>
+      <CartOwnerLiveReviewClient/>
+      <Footer/>
+    </main>;
+  }
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-16 lg:pt-44 lg:pb-24">
