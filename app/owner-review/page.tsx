@@ -85,10 +85,15 @@ export default function UnifiedOwnerVisualReviewPage(){
       <h2 className="mt-2 text-[clamp(23px,2.6vw,32px)] text-[#f7f3ec]">Коллекции, доставка и контакты</h2>
       <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {([
+          {href:'/events-performance',label:'Events & Performance · 4 крупные карточки',text:'Размер и нижняя полоса названий как на главной, без перекрытия фотографий.'},
+          {href:'/style',label:'Style · большие визуальные плитки',text:'Четыре крупных изображения в ряд и стрелки прокрутки.'},
+          {href:'/about-review',label:'О бренде · миссия и прозрачность фотографий',text:'Самовыражение, авторский стиль, мастерская и честная подача AI-образов.'},
+          {href:'/returns-review',label:'Возврат и решения проблем',text:'Спокойная политика без отказа от обязательных прав покупателей.'},
+          {href:'/size-guide-review',label:'Размерная таблица',text:'Настоящие мужские и женские размеры, регулировка и индивидуальная посадка.'},
           {href:'/collections-review',label:'Большие плитки коллекций',text:'Крупнее изображения, короткие подписи, описание под фото.'},
           {href:'/shipping-review',label:'Доставка',text:'Меньший заголовок, 3–5 дней изготовления, €19/€35 и приоритет Express.'},
           {href:'/contact-review',label:'Контакты и соцсети',text:'Копирование почты, WhatsApp и спокойное оформление Seller Online.'},
-          {href:'/checkout-review',label:'Макет корзины',text:'Макет расположения блоков; настоящие товары проверяй выше в /cart.'},
+          {href:'/cart',label:'Корзина с реальными выбранными вариантами',text:'Не использовать старый демонстрационный сценарий 1/2/3 листинга.'},
         ] as const).map(item=><Link key={item.href} href={item.href} className={card}>
           <LayoutGrid size={21} className="text-[#d4b26a]" aria-hidden="true"/>
           <span className="mt-3 block text-[17px] font-medium text-[#f7f3ec]">{item.label}</span>
