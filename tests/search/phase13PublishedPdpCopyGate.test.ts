@@ -7,6 +7,7 @@ import {
  PHASE13_PDP_COPY_PUBLIC_RELEASE,PHASE13_SOURCE_RELEASE,
  PHASE13_REQUIRED_PIN_COUNT,
  PHASE13_APPROVED_SOURCE_ROW_COUNT,PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID,
+ PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,
 } from '../../lib/phase13PdpCopyReleaseGate.ts';
 
 const pins=JSON.parse(readFileSync('config/approved-content-review-bindings.json','utf8')) as {
@@ -64,7 +65,10 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
     {FEYA_OWNER_PREVIEW_DISABLED:'true'},
     {VERCEL_ENV:'production'},
   ])assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,...bad},correct),false);
-  assert.equal(phase13PublicPdpCopyEnabled(valid,correct),true);
+  // Even exact Vercel secrets CANNOT enable production until a separately
+  // reviewed release PR changes the Git-owned production authorization.
+  assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,false);
+  assert.equal(phase13PublicPdpCopyEnabled(valid,correct),false);
   assert.equal(phase13PublicPdpCopyEnabled({},correct),false);
   for(const invalid of [
    {VERCEL:'0'}, {VERCEL_ENV:'development'},
