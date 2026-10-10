@@ -8,7 +8,7 @@ export function OwnerHubSeoText({kind}:{kind:'events'|'style'}){
   const events=kind==='events';
   return <section className="border-t border-white/[.10] pb-8 pt-6 sm:pt-7"
     aria-label={events?'About our event outfits':'About our costume styles'}>
-    <div className="mx-auto w-full max-w-[1100px]">
+    <div className="w-full min-w-0">
       <p className="eyebrow-gold">TheFEYA · {events?'Dressing for the occasion':'Style inspiration'}</p>
       <details className="group mt-4">
         <summary aria-label={events?'Expand or collapse information about event outfits':'Expand or collapse information about styles'}
@@ -17,7 +17,7 @@ export function OwnerHubSeoText({kind}:{kind:'events'|'style'}){
             <h2 className="text-[clamp(22px,2.7vw,32px)] font-medium leading-tight tracking-[-.02em] text-[#f7f3ec]">
               {events?'Make every occasion your own':'Find the look that feels like you'}
             </h2>
-            <p className="mt-3 max-w-5xl text-[14px] leading-7 text-[var(--bone-dim)]">
+            <p className="mt-3 w-full text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px]">
               {events
                 ? 'Explore handmade festival outfits, rave looks and performance costumes from TheFEYA. Discover complete statement designs or choose the individual pieces that express your style.'
                 : 'Explore original costume styles from futuristic and sci-fi to glam, fantasy, goth and punk. Use the visual categories to find your direction, then choose the right piece, size and finish.'}
@@ -28,7 +28,7 @@ export function OwnerHubSeoText({kind}:{kind:'events'|'style'}){
           </span>
           <span className="sr-only">More information</span>
         </summary>
-        <div className="mt-6 grid gap-5 border-t border-white/[.08] pt-6 text-[14px] leading-7 text-[var(--bone-dim)] lg:grid-cols-2 lg:gap-x-10">
+        <div className="mt-5 grid gap-4 border-t border-white/[.08] pt-5 text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px] lg:grid-cols-2 lg:gap-x-8">
           {events?<>
             <p>Festival and rave outfits allow you to build a look around the occasion, from a dramatic bodysuit to sculptural shoulders, skirts, masks and smaller accents. For Burning Man-inspired styling, our catalog includes bold forms for creative desert looks. Performers and stage artists can explore designs suited to visually distinctive live shows, photoshoots and music videos.</p>
             <p>Each product is an individual TheFEYA design. Some images show a styled full look, while the available purchasing options may let you choose a separate piece, a combination or a complete set. Consult each product description for the exact contents, material, sizing, colors and production estimate rather than relying on the category photo alone.</p>

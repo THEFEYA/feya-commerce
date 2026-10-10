@@ -122,7 +122,7 @@ export function CartOwnerLiveReviewClient(){
   }
   function toggleCustomFit(id:string){setCustomFitIds(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);}
 
-  return <div className="container-feya pt-32 pb-20 sm:pt-36 lg:pt-40 lg:pb-28">
+  return <div className="container-feya pt-24 pb-16 sm:pt-28 lg:pt-28 lg:pb-20">
     <header className="max-w-4xl">
       <p className="eyebrow-gold">TheFEYA · Your order</p>
       <h1 className="visual-display mt-4 text-[clamp(30px,3.7vw,46px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">
@@ -143,7 +143,7 @@ export function CartOwnerLiveReviewClient(){
     </p>}
     {storageIssue&&<p className="mt-3 text-[12px] text-amber-100" role="alert">{storageIssue}</p>}
 
-    <div className="mt-8 grid gap-7 xl:grid-cols-[minmax(0,1.24fr)_minmax(340px,.76fr)] xl:gap-9">
+    <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.24fr)_minmax(340px,.76fr)] xl:gap-7">
       <div className="min-w-0 space-y-6">
         <section className={cardStyle} aria-labelledby="owner-cart-lines-title">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -162,14 +162,14 @@ export function CartOwnerLiveReviewClient(){
             {items.map(item=><article key={item.id}
               className="flex gap-4 py-5 first:pt-0 sm:gap-5" aria-label={item.title}>
               <Link href={`/shop/${item.slug}`}
-                className="h-[128px] w-[98px] shrink-0 overflow-hidden rounded-lg bg-[#19191d] sm:h-[152px] sm:w-[118px]">
+                className="h-[138px] w-[106px] shrink-0 overflow-hidden rounded-lg bg-[#19191d] sm:h-[172px] sm:w-[136px]">
                 {item.image?
                   // eslint-disable-next-line @next/next/no-img-element
                   <img alt="" src={item.image} loading="lazy" className="h-full w-full object-cover"/>:null}
               </Link>
               <div className="flex min-w-0 flex-1 flex-col">
                 <Link href={`/shop/${item.slug}`}
-                  className="block text-[15px] leading-6 text-[#f7f3ec] hover:text-[#e8ca87] sm:text-[17px]">
+                  className="block text-[16px] leading-6 text-[#f7f3ec] hover:text-[#e8ca87] sm:text-[18px]">
                   {item.title}
                 </Link>
                 <p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
@@ -206,7 +206,7 @@ export function CartOwnerLiveReviewClient(){
                   <Link className="text-[12px] text-[#d4b26a] underline underline-offset-4"
                     href={`/shop/${item.slug}`}>Edit options</Link>
                 </div>
-                <p className="mt-auto pt-4 text-right text-[16px] font-medium text-[#f7f3ec]">
+                <p className="mt-auto pt-2 text-right text-[17px] font-medium text-[#f7f3ec]">
                   {currency(Math.round(item.price*100)*item.qty)}
                 </p>
               </div>
@@ -239,38 +239,43 @@ export function CartOwnerLiveReviewClient(){
           </p>
         </section>
 
-        <section className={cardStyle} aria-labelledby="owner-cart-extras-title">
-          <p className="eyebrow-gold">Personalise your order</p>
-          <h2 id="owner-cart-extras-title" className="mt-3 text-[22px] font-medium text-[#f7f3ec]">Make it yours</h2>
-          <div className="mt-5 space-y-3">
-            {items.length>0&&<div className="rounded-xl border border-white/[.12] p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <strong className="text-[14px] text-[#f7f3ec]">Made to your measurements</strong>
-                <span className="text-[14px] text-[#e4c87d]">+€15 per piece</span>
+        <section className={cardStyle+' !p-4 sm:!p-5'} aria-labelledby="owner-cart-extras-title">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="owner-cart-extras-title" className="text-[21px] font-medium text-[#f7f3ec]">Make it yours</h2>
+            <span className="text-[11px] text-[var(--bone-dim)]">Optional extras</span>
+          </div>
+          <div className="mt-3 space-y-2">
+            {items.length>0&&<div className="rounded-lg border border-white/[.12] px-3 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <strong className="text-[13px] font-medium text-[#f7f3ec]">Made to your measurements</strong>
+                <span className="text-[13px] text-[#e4c87d]">+€15 per piece</span>
               </div>
-              <p className="mt-1 text-[12px] text-[var(--bone-dim)]">We will contact you to confirm the measurements.</p>
-              <div className="mt-3 space-y-2">
-                {items.map(item=><label key={item.id} className="flex min-h-9 cursor-pointer items-center gap-2 text-[13px] text-[#d8d0c6]">
+              <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements.</p>
+              <div className="mt-2 grid gap-x-3 gap-y-1 sm:grid-cols-2">
+                {items.map(item=><label key={item.id}
+                  className="flex min-h-8 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
                   <input type="checkbox" checked={customFitIds.includes(item.id)}
-                    onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 accent-[#d4b26a]"/>
-                  <span className="min-w-0 flex-1">{item.title} · {item.config}</span>
+                    onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
+                  <span className="min-w-0 flex-1 truncate" title={item.title}>{item.title}</span>
                 </label>)}
               </div>
             </div>}
-            {([
-              {id:'card',label:'Gift message card',price:'€10',detail:'Add a personal note.'},
-              {id:'box',label:'Gift box',price:'€25',detail:'Gift packaging for your order.'},
-            ] as const).map(extra=><label key={extra.id} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[.12] p-4">
-              <input type="checkbox" checked={extras.includes(extra.id)} onChange={()=>toggleExtra(extra.id)}
-                className="mt-1 h-4 w-4 shrink-0 accent-[#d4b26a]"/>
-              <span className="min-w-0 flex-1">
-                <span className="flex flex-wrap justify-between gap-2 text-[14px] text-[#f7f3ec]"><span>{extra.label}</span><span className="text-[#e4c87d]">{extra.price}</span></span>
-                <span className="mt-1 block text-[12px] leading-5 text-[var(--bone-dim)]">{extra.detail}</span>
-              </span>
-            </label>)}
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([
+                {id:'card',label:'Gift message card',price:'€10'},
+                {id:'box',label:'Gift box',price:'€25'},
+              ] as const).map(extra=><label key={extra.id}
+                className="flex min-h-12 cursor-pointer items-center gap-2 rounded-lg border border-white/[.12] px-3 py-2">
+                <input type="checkbox" checked={extras.includes(extra.id)} onChange={()=>toggleExtra(extra.id)}
+                  className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
+                <span className="min-w-0 flex-1 text-[13px] text-[#f7f3ec]">{extra.label}</span>
+                <span className="text-[13px] text-[#e4c87d]">{extra.price}</span>
+              </label>)}
+            </div>
             {extras.includes('card')&&<label className={labelStyle}>Your gift message
-              <textarea className={fieldStyle} rows={3} value={giftMessage} maxLength={250}
-                onChange={e=>setGiftMessage(e.target.value)} placeholder="Write your personal note"/>
+              <textarea className={fieldStyle+' min-h-[72px]'} rows={2} value={giftMessage}
+                maxLength={250} onChange={e=>setGiftMessage(e.target.value)}
+                placeholder="Write your personal note"/>
             </label>}
           </div>
         </section>

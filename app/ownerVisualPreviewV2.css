@@ -29,3 +29,62 @@
 .owner-visual-v2-root .owner-hub-products [data-testid="shop-page"] > section:last-of-type{
   padding-bottom: 1rem!important;
 }
+
+/* Owner-only compact collection experience. No changes to frozen public
+ * collection data, canonical/meta, Product Truth or content membership. */
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(1) {
+  padding-top: 7.25rem!important;
+  padding-bottom: .75rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) {
+  padding-bottom: 1.5rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) > div.max-w-4xl {
+  max-width: 100%!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) p {
+  max-width: none!important;
+  margin-top: 1rem!important;
+  column-gap: 2.5rem;
+}
+@media(min-width:960px){
+  .owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) p {
+    column-count: 2;
+  }
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) h1 {
+  font-size: clamp(36px,4.3vw,57px)!important;
+  line-height:1.05!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(2) div[aria-label="Collection themes"] {
+  margin-top: 1.25rem!important;
+}
+/* This historic technical preview banner is not a customer-facing element.
+ * Keep audit information in the gated Owner Review route, not here. */
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(3):has(> div > span.text-bone) {
+  display: none!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(4) {
+  padding-bottom: 1.25rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(4) article {
+  padding: 1.1rem 1.4rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(5) {
+  padding-bottom: 1.25rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) .visual-commerce-embedded > section {
+  padding-bottom: .75rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) .visual-commerce-embedded button.btn-ghost {
+  /* Keep "Show 20 more" comfortably reachable but not separated by a void. */
+  min-height: 2.75rem;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(6),
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(7) {
+  padding-bottom: 1.25rem!important;
+}
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(6) > div,
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:nth-of-type(7) > div {
+  padding: 1.25rem 1.5rem!important;
+}
