@@ -172,3 +172,15 @@ test('per-product radio Men/Women replaced redundant fit-chart dropdown',()=>{
  assert.match(src,/Made-to-measure for this piece/);
  assert.match(src,/illustrativeTotal/);
 });
+
+test('buyer-facing owner cart has one concise estimate and no operational disclaimers',()=>{
+ const src=readFileSync('components/CartOwnerLiveReviewClient.tsx','utf8');
+ assert.match(src,/Estimated order total/);
+ assert.match(src,/Made to your measurements/);
+ assert.match(src,/customFitIds\.includes\(item\.id\)/);
+ assert.doesNotMatch(src,/before tax|not a trusted server quote|Seller Online and final delivery checks|Additional shipping region unverified/i);
+ assert.doesNotMatch(src,/Newsletter consent is optional and unchecked/);
+ assert.match(src,/Checkout not active/);
+ assert.match(src,/ownerCartVisualTotals/);
+ assert.match(src,/ownerCartPreviewExtraEstimate/);
+});
