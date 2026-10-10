@@ -70,6 +70,8 @@ export function CartOwnerLiveReviewClient(){
   },[]);
 
   const totals=useMemo(()=>ownerCartVisualTotals(items,method),[items,method]);
+  const regularBeforeSale=items.reduce((n,item)=>n+Math.round((item.compare_at_unit_price_amount??item.price)*100)*item.qty,0);
+  const saleSavings=Math.max(0,regularBeforeSale-totals.merchandise_subtotal_minor);
   const addressRegions=ownerCartAddressRegions(form.country);
   const fulfilled=Boolean(
     form.first_name.trim()&&form.last_name.trim()&&
@@ -372,8 +374,16 @@ export function CartOwnerLiveReviewClient(){
               <span>Additional packaging for a larger parcel</span>
               <span className="text-[#f7f3ec]">{currency(totals.handling_minor)}</span>
             </div>}
+            {saleSavings>0&&<>
+              <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+                <span>Original merchandise value</span><s>{currency(regularBeforeSale)}</s>
+              </div>
+              <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+                <span>Included sale savings</span><span className="text-[#e4c87d]">−{currency(saleSavings)}</span>
+              </div>
+            </>}
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Discounts</span><span className="text-[#f7f3ec]">Not applied</span>
+              <span>Coupon discount</span><span className="text-[#f7f3ec]">Not applied</span>
             </div>
           </div>
           <div className="mt-5 rounded-xl border border-white/[.11] p-4">

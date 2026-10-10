@@ -39,6 +39,8 @@ export type OwnerCartPreviewItem={
   slug:string;title:string;image:string;config:string;
   size:string;color:string;qty:number;price:number;currency:'EUR';
   configuration_id:string|null;
+  // Display comparison only, never authoritative discount/checkout money.
+  compare_at_unit_price_amount:number|null;
   price_contract_version:string|null;
   price_confidence_status:string|null;
 };
@@ -82,6 +84,12 @@ export function parseOwnerCartStorage(raw:unknown):{
       image:safeImage(v.image),config:v.config.trim(),size:v.size.trim(),
       color:v.color.trim(),qty:v.qty,price:unitMinor/100,currency:'EUR',
       configuration_id:v.configuration_id??null,
+      compare_at_unit_price_amount:
+        typeof v.compare_at_price_amount==='number'
+        &&Number.isFinite(v.compare_at_price_amount)
+        &&v.compare_at_price_amount>rawPrice
+        &&v.compare_at_price_amount<=50_000
+          ?Math.round(v.compare_at_price_amount*100)/100:null,
       price_contract_version:short(v.price_contract_version,80)?v.price_contract_version:null,
       price_confidence_status:short(v.price_confidence_status,80)?v.price_confidence_status:null,
     });
