@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {
   OWNER_CART_STORAGE_KEY,OWNER_CART_COUNTRIES,OWNER_CART_REGIONS,
   isOwnerRealCartReviewDeployment,ownerCartAddressRegions,
-  ownerCartVisualTotals,parseOwnerCartStorage,
+  ownerCartVisualTotals,ownerCartPreviewExtraEstimate,parseOwnerCartStorage,
 } from '../../lib/commerceOwnerCartReview.ts';
 
 const A='0403df9f-3ff9-498d-b3d9-69ad64b3dd4c';
@@ -147,4 +147,28 @@ test('preview UX never transmits customer PII, real payment or newsletter signup
   assert.match(src,/\/privacy/);
   assert.match(src,/Change|Edit options/);
   assert.doesNotMatch(src,/fetch\(|sendBeacon\(|FormData\(|subscribe\(|localStorage\.setItem\([^\n]*email/);
+});
+
+test('EUR proposals increase only the illustrative cart, never the payable amount',()=>{
+  const a=parseOwnerCartStorage([line(A,c1)]).items[0];
+  const b=parseOwnerCartStorage([line(B,c2,{id:`${B}-${c2}-M-Gold`})]).items[0];
+  const two=[a,b];
+  const extra=ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:[a.id],giftCard:true,giftBox:true,destination:'US'});
+  assert.equal(extra.total_extra_minor,5000);
+  assert.equal(extra.made_to_measure_minor,1500);
+  assert.equal(extra.gift_card_minor,1000);
+  assert.equal(extra.gift_box_minor,2500);
+  assert.equal(extra.final_payable_amount_minor,null);
+  assert.equal(extra.proposals_not_approved_for_payment,true);
+  assert.equal(ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:[],giftCard:false,giftBox:false,destination:'AU'}).remote_example_minor,2000);
+  assert.throws(()=>ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:['wrong'],giftCard:true,giftBox:false,destination:'US'}),/owner_preview_extra_line_invalid/);
+  assert.equal(ownerCartPreviewExtraEstimate([],{madeToMeasureItemIds:[],giftCard:true,giftBox:true,destination:'AU'}).total_extra_minor,0);
+});
+test('per-product radio Men/Women replaced redundant fit-chart dropdown',()=>{
+ const src=readFileSync('components/CartOwnerLiveReviewClient.tsx','utf8');
+ assert.match(src,/wearerByItem\[item\.id\]/);
+ assert.match(src,/name=\{'owner-wearer-'\+item\.id\}/);
+ assert.doesNotMatch(src,/Fit reference for this piece/);
+ assert.match(src,/Made-to-measure for this piece/);
+ assert.match(src,/illustrativeTotal/);
 });
