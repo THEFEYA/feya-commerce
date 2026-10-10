@@ -6,12 +6,15 @@ import {
  phase13PublicPdpCopyEnabled,
  PHASE13_PDP_COPY_PUBLIC_RELEASE,PHASE13_SOURCE_RELEASE,
  PHASE13_REQUIRED_PIN_COUNT,
+ PHASE13_APPROVED_SOURCE_ROW_COUNT,PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID,
 } from '../../lib/phase13PdpCopyReleaseGate.ts';
 
 const pins=JSON.parse(readFileSync('config/approved-content-review-bindings.json','utf8')) as {
  version:string;mode:string;can_publish:boolean;can_index:boolean;
  entries:Array<{canonical_product_id:string;seo_page_id:string;draft_id:string;url_path:string;content_sha256:string;draft_updated_at:string}>;
 };
+const livePins=pins.entries.filter(x=>x.canonical_product_id!==PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID);
+const cohort={version:pins.version,count:livePins.length,sourceCount:pins.entries.length,suppressedCount:pins.entries.length-livePins.length};
 const gitBlobSha=(input:Buffer)=>createHash('sha1')
  .update(Buffer.from(`blob ${input.length}\0`)).update(input).digest('hex');
 
@@ -19,7 +22,11 @@ test('the historical review-only source cannot silently switch on a public or in
   assert.equal(pins.mode,'authenticated_review_only');
   assert.equal(pins.can_publish,false);
   assert.equal(pins.can_index,false);
-  assert.equal(pins.entries.length,PHASE13_REQUIRED_PIN_COUNT);
+  assert.equal(pins.entries.length,PHASE13_APPROVED_SOURCE_ROW_COUNT);
+  assert.equal(livePins.length,PHASE13_REQUIRED_PIN_COUNT);
+  assert.equal(cohort.suppressedCount,1);
+  assert.ok(pins.entries.some(x=>x.canonical_product_id===PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID));
+  assert.ok(!livePins.some(x=>x.canonical_product_id===PHASE13_OWNER_SUPPRESSED_DUPLICATE_ID));
   assert.equal(new Set(pins.entries.map(x=>x.canonical_product_id)).size,207);
   assert.equal(new Set(pins.entries.map(x=>x.draft_id)).size,207);
   assert.equal(new Set(pins.entries.map(x=>x.url_path)).size,207);
@@ -39,7 +46,7 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
     FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:PHASE13_PDP_COPY_PUBLIC_RELEASE,
     FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:'approved-2026-10-10',
   };
-  const correct={version:pins.version,count:pins.entries.length};
+  const correct=cohort;
   assert.equal(phase13PublicPdpCopyEnabled(valid,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({},correct),false);
   for(const invalid of [
@@ -49,7 +56,8 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
    {FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:'false'},
   ])assert.equal(phase13PublicPdpCopyEnabled({...valid,...invalid},correct),false);
   for(const invalid of [
-   {version:'unknown',count:207},{version:pins.version,count:206},{version:pins.version,count:208},
+   {...cohort,version:'unknown'},{...cohort,count:206},{...cohort,count:208},
+   {...cohort,sourceCount:207},{...cohort,suppressedCount:0},
   ])assert.equal(phase13PublicPdpCopyEnabled(valid,invalid),false);
 });
 test('new source is strictly server-only, always selects pinned DRAFT, PAGE and current BINDING, verifies all details',()=>{
