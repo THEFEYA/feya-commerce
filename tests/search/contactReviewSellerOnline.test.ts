@@ -31,9 +31,28 @@ test('Contact design uses real customer support, canonical provider metadata and
   assert.match(component,/online checkout|Online payments/i);
   assert.match(component,/href="\/privacy"/);
   assert.match(component,/href="\/terms"/);
-  assert.match(component,/href:\x27\/returns\x27/);
-  assert.match(component,/href:\x27\/shipping\x27/);
   assert.match(provider,/merchantOfRecordConfirmed: false/);
   assert.doesNotMatch(component,/Merchant of Record|is our legal seller|guaranteed response|24\/7/i);
   assert.match(component,/focus-visible/);
+  assert.match(component,/CopySupportEmailButton/);
+  assert.match(component,/socialReview/);
+  assert.match(component,/Account links pending owner verification/);
+  assert.match(component,/Instagram/);
+  assert.match(component,/Facebook/);
+  assert.match(component,/Pinterest/);
+  assert.doesNotMatch(component,/Helpful links|helpLinks|Find an answer/);
+  assert.doesNotMatch(component,/https:\/\/(?:www\.)?(?:instagram|facebook|pinterest)\.com/);
+  assert.doesNotMatch(component,/<iframe|Google Maps iframe/);
+  assert.match(component,/border-\[rgba\(216,214,211,.09\)\]/);
+});
+
+test('Copy Email interaction reports only actual clipboard success, no forms, tracking or faux manager signup',()=>{
+  const client=readFileSync('components/CopySupportEmailButton.tsx','utf8');
+  assert.match(client,/^'use client';/);
+  assert.match(client,/navigator\.clipboard\?\.writeText/);
+  assert.match(client,/await navigator\.clipboard\.writeText\(email\)/);
+  assert.match(client,/setStatus\('copied'\)/);
+  assert.match(client,/setStatus\('unavailable'\)/);
+  assert.match(client,/aria-live="polite"/);
+  assert.doesNotMatch(client,/fetch\(|localStorage|subscription|newsletter/i);
 });
