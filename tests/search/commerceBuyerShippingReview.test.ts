@@ -120,7 +120,7 @@ test('buyer-facing prototype does not request weight/dimensions, contact info, c
   assert.doesNotMatch(shipping,/same trusted courier|same courier as standard/i);
   assert.match(shipping,/Typical production is 3–5 business days/);
   assert.match(shipping,/additional packing space/);
-  assert.match(shipping,/text-\\[clamp\\(38px,4\\.8vw,66px\\)\\]/);
+  assert.match(shipping,/text-\[clamp\(38px,4\.8vw,66px\)\]/);
   assert.doesNotMatch(shipping,/Typical transit: 10–14/);
   assert.match(shipping,/estimate, not a guaranteed arrival date/);
   assert.match(shipping,/Customs|Statutory rights|statutory rights/i);
