@@ -34,7 +34,7 @@ export function OwnerNewsletterSignupPreview(){
           <span>I agree to receive TheFEYA emails and can unsubscribe at any time. <Link href="/privacy" className="underline underline-offset-4">Privacy Policy</Link>.</span>
         </label>
         {notice&&<p role="status" className="text-[12px] leading-5 text-[#d0b779]">Email subscriptions are being prepared. Nothing has been stored or sent yet.</p>}
-        <p className="text-[11px] leading-5 text-[#a8a097]">Email subscriptions open when our mailing service is connected.</p>
+
       </form>
     </div>
   </div>;

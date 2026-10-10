@@ -36,8 +36,8 @@ export function OwnerContactFormPreview(){
     </label>
     <button type="submit" className="btn-chrome inline-flex w-fit items-center gap-2"><Mail size={16}/> Open your email to send <Send size={14}/></button>
     <p className="text-[12px] leading-6 text-[var(--bone-dim)]" role="status">
-      {prepared?'Your email application was requested. You must press Send there; no message has been confirmed as received.':
-      'Temporary working fallback: opens your own email application with the message prepared. This is not a hosted send form; we receive nothing until you send the email. We do not save data on the preview site.'}
+      {prepared?'Your email app was opened. Send the message there to reach our team.':
+      'Your message opens in your email app for you to send.'}
     </p>
   </form>;
 }

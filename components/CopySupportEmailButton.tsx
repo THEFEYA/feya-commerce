@@ -23,7 +23,7 @@ export function CopySupportEmailButton({email,label='email address'}:Props){
       {status==='copied'?<Check size={18} aria-hidden="true"/>:<Copy size={18} aria-hidden="true"/>}
     </button>
     <span aria-live="polite" className="sr-only">
-      {status==='unavailable'?'Copy unavailable. Use the email link instead.':status==='copied'?'Copied '+label+' to clipboard.':''}
+      {status==='unavailable'?'Copy unavailable. Use the contact link instead.':status==='copied'?'Copied '+label+' to clipboard.':''}
     </span>
   </span>;
 }
