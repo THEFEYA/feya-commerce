@@ -63,10 +63,10 @@ test('Style and Events hub SEO is responsive continuous SSR text, one arrow disc
 test('owner cart is compact and photos larger without losing multiple-item lists',()=>{
   const source=read('components/CartOwnerLiveReviewClient.tsx');
   assert.match(source,/lg:pt-28/);
-  assert.match(source,/sm:h-\\[172px\\] sm:w-\\[136px\\]/);
+  assert.ok(source.includes('sm:h-[172px] sm:w-[136px]'));
   assert.match(source,/aria-labelledby="owner-cart-extras-title"/);
   assert.match(source,/sm:grid-cols-2/);
-  assert.match(source,/customFitIds.includes\\(item.id\\)/);
+  assert.ok(source.includes('customFitIds.includes(item.id)'));
   assert.match(source,/Gift message card/);
   assert.match(source,/Gift box/);
 });
@@ -74,9 +74,9 @@ test('owner cart is compact and photos larger without losing multiple-item lists
 test('only the protected owner style sheet compacts collection whitespace and expands collection intro',()=>{
   const css=read('app/ownerVisualPreviewV2.css');
   assert.match(css,/column-count: 2/);
-  assert.match(css,/nav\\[aria-label="Breadcrumb"\\]/);
-  assert.match(css,/section:nth-of-type\\(5\\)/);
-  assert.match(css,/section:nth-of-type\\(6\\)/);
+  assert.ok(css.includes('nav[aria-label="Breadcrumb"]'));
+  assert.ok(css.includes('section:nth-of-type(5)'));
+  assert.ok(css.includes('section:nth-of-type(6)'));
 });
 
 test('owner visual About and Shipping headings align with compact icons instead of stacked spacers',()=>{
