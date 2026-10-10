@@ -27,7 +27,7 @@ test('Newsletter is honest: independent opt-in, no pretend subscription or data 
   assert.doesNotMatch(src,/fetch\(|localStorage|subscribeEmail\(|sessionStorage/);
 });
 
-test('About combines actual studio story with mission, modern consistent 36px icons, no inline studio link',()=>{
+test('About combines actual studio story with mission, modern inline 29px icons, no inline studio link',()=>{
   const src=read('components/OwnerEditorialReviewPages.tsx');
   const start=src.indexOf('export function OwnerAboutReview()');
   const end=src.indexOf('const policySections=[',start);
@@ -47,7 +47,8 @@ test('Style and Events hub SEO is responsive continuous SSR text, one arrow disc
   assert.match(src,/<details className="group/);
   assert.match(src,/<summary aria-label=/);
   assert.match(src,/<ChevronDown size=\{23\}/);
-  assert.match(src,/max-w-\[1100px\]/);
+  assert.ok(!src.includes('max-w-[1100px]'));
+  assert.ok(src.includes('w-full min-w-0'));
   assert.doesNotMatch(src,/rounded-xl border/);
   assert.doesNotMatch(src,/Read more about/);
   for(const path of ['app/style-review/page.tsx','app/events-performance-review/page.tsx']){
