@@ -85,7 +85,7 @@ export const THEFEYA_APPROVED_FULFILLMENT_COPY = {
   // semantically intact except on the owner-only versioned visual Preview.
   // No public offer/delivery SLA is changed by this conditional copy.
   express: process.env.NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW === '1'
-    ? 'Express shipping is estimated at 6–10 business days after dispatch; actual transit depends on the destination and carrier.'
+    ? 'Express shipping is estimated at 6–9 business days after dispatch; actual transit depends on the destination and carrier.'
     : 'Express shipping usually takes 7–10 business days.',
 } as const;
 

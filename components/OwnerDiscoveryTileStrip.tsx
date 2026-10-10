@@ -15,7 +15,7 @@ export function OwnerDiscoveryTileStrip({tiles}:{tiles:readonly DiscoveryHubTile
     left:direction*Math.max(260,Math.round((track.current?.clientWidth||800)*.77)),
     behavior:'smooth',
   });
-  return <section aria-label="Explore by collection or style" className="pb-5">
+  return <section aria-label="Explore by collection or style" className="pb-1">
     <div ref={track} className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tiles.map(tile=><Link key={tile.code} href={tile.href}
         aria-label={tile.label}

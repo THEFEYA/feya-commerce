@@ -5,6 +5,7 @@ import {connection} from 'next/server';
 import {notFound} from 'next/navigation';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
 import {readStyleHubProducts,readStyleTileAvailability} from '@/lib/discoveryHubServer';
@@ -16,7 +17,7 @@ async function ReviewContent(){
   if(!products||!availability)notFound();
   return <>
     <div className="mt-9"><OwnerDiscoveryTileStrip tiles={availability.map(x=>x.tile)}/></div>
-    <section className="mt-6 border-t border-white/[.08] pb-16 pt-4">
+    <section className="mt-1 border-t border-white/[.08] pb-16 pt-3">
       <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
     </section>
   </>;
@@ -30,6 +31,7 @@ export default function StyleReview(){
       <h1 className="visual-display max-w-4xl text-[clamp(32px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Start from the mood.</h1>
       <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">Let the images lead. Every style is a useful browse shortcut, not an automatically indexed SEO page.</p>
       <Suspense fallback={<div aria-busy="true" className="min-h-[550px]"/>}><ReviewContent/></Suspense>
+      <OwnerHubSeoText kind="style"/>
     </section>
     <Footer/>
   </main>;

@@ -52,7 +52,7 @@ export default function ShippingReviewPage(){
           <Clock3 size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
           <p className="eyebrow-gold mt-5">Express Shipping · Priority</p>
           <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€35</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–10 business days</p>
+          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–9 business days</p>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
             A priority option for time-sensitive orders: we give your order extra attention in the preparation and dispatch queue. The stated timing is an estimate, not a guaranteed arrival date.
           </p>

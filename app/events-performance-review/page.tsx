@@ -5,6 +5,7 @@ import {connection} from 'next/server';
 import {notFound} from 'next/navigation';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
 import {EVENTS_PERFORMANCE_HUB_TILES} from '@/config/discoveryHubs';
@@ -15,7 +16,7 @@ async function ReviewProducts(){
   await connection();
   const products=await readEventsPerformanceHubProducts();
   if(!products)notFound();
-  return <section className="mt-6 border-t border-white/[.08] pb-16 pt-4">
+  return <section className="mt-1 border-t border-white/[.08] pb-16 pt-3">
     <DiscoveryHubProducts products={products}/>
   </section>;
 }
@@ -29,6 +30,7 @@ export default function EventsPerformanceReview(){
       <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">Find a look for your next event, then shop the original pieces below.</p>
       <div className="mt-9"><OwnerDiscoveryTileStrip tiles={EVENTS_PERFORMANCE_HUB_TILES}/></div>
       <Suspense fallback={<div aria-busy="true" className="min-h-[500px]"/>}><ReviewProducts/></Suspense>
+      <OwnerHubSeoText kind="events"/>
     </section>
     <Footer/>
   </main>;
