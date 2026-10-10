@@ -20,7 +20,7 @@ const box='rounded-[18px] border border-white/[.14] bg-[linear-gradient(150deg,r
 const smallTitle='text-[20px] sm:text-[22px] font-medium tracking-[-.02em] text-[#f7f3ec]';
 
 function IconSpot({children}:{children:React.ReactNode}){
-  return <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[18px] border border-[rgba(212,178,106,.26)] bg-[radial-gradient(circle_at_30%_20%,rgba(212,178,106,.14),rgba(212,178,106,.03))] text-[#dfbf79]">
+  return <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(212,178,106,.26)] bg-[radial-gradient(circle_at_30%_20%,rgba(212,178,106,.14),rgba(212,178,106,.03))] text-[#dfbf79]">
     {children}
   </span>;
 }
@@ -43,27 +43,33 @@ export default function ShippingReviewPage(){
     <section className="container-feya pb-14 lg:pb-20" aria-label="Shipping information">
       <div className="grid gap-4 lg:grid-cols-3">
         <article className={box+' p-6 sm:p-7'}>
-          <IconSpot><Scissors size={35} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
-          <p className="eyebrow-gold mt-6">Handmade for you</p>
-          <h2 className="mt-3 text-[34px] font-medium text-[#f7f3ec]">3–5 days</h2>
+          <div className="flex items-center gap-4">
+            <IconSpot><Scissors size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+            <p className="text-[14px] font-medium tracking-[.12em] text-[#e0bd76]">Handmade for you</p>
+          </div>
+          <h2 className="mt-4 text-[34px] font-medium text-[#f7f3ec]">3–5 days</h2>
           <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">Production</p>
           <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
             Typical production is 3–5 business days. Time varies by design and order complexity, before dispatch.
           </p>
         </article>
         <article className={box+' p-6 sm:p-7'}>
-          <IconSpot><Truck size={38} strokeWidth={1.4} aria-hidden="true"/></IconSpot>
-          <p className="eyebrow-gold mt-6">Standard Shipping</p>
-          <h2 className="mt-3 text-[37px] font-medium text-[#f7f3ec]">€19</h2>
+          <div className="flex items-center gap-4">
+            <IconSpot><Truck size={29} strokeWidth={1.4} aria-hidden="true"/></IconSpot>
+            <p className="text-[14px] font-medium tracking-[.12em] text-[#e0bd76]">Standard Shipping</p>
+          </div>
+          <h2 className="mt-4 text-[37px] font-medium text-[#f7f3ec]">€19</h2>
           <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">10–14 working days</p>
           <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
             A convenient option for most orders, with regular preparation and tracked delivery.
           </p>
         </article>
         <article className="rounded-[18px] border border-[rgba(212,178,106,.40)] bg-[linear-gradient(145deg,rgba(212,178,106,.10),rgba(255,255,255,.015))] p-6 sm:p-7">
-          <IconSpot><Plane size={37} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
-          <p className="eyebrow-gold mt-6">Express Shipping · Priority</p>
-          <h2 className="mt-3 text-[37px] font-medium text-[#f7f3ec]">€35</h2>
+          <div className="flex items-center gap-4">
+            <IconSpot><Plane size={30} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+            <p className="text-[14px] font-medium tracking-[.10em] text-[#e0bd76]">Express Shipping · Priority</p>
+          </div>
+          <h2 className="mt-4 text-[37px] font-medium text-[#f7f3ec]">€35</h2>
           <p className="mt-2 text-[14px] font-medium text-[#e3dfd6]">6–9 working days</p>
           <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
             Our priority option for time-sensitive orders moves preparation ahead in the dispatch queue.
@@ -73,7 +79,7 @@ export default function ShippingReviewPage(){
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
-          <IconSpot><Boxes size={33} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <IconSpot><Boxes size={27} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>
             <h2 className={smallTitle}>Your parcel & delivery price</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -86,7 +92,7 @@ export default function ShippingReviewPage(){
           </div>
         </article>
         <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
-          <IconSpot><Route size={34} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <IconSpot><Route size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>
             <h2 className={smallTitle}>A reliable courier for your route</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -99,7 +105,7 @@ export default function ShippingReviewPage(){
           </div>
         </article>
         <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
-          <IconSpot><ScanLine size={34} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <IconSpot><ScanLine size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>
             <h2 className={smallTitle}>Tracking & personal support</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -112,7 +118,7 @@ export default function ShippingReviewPage(){
           </div>
         </article>
         <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
-          <IconSpot><FileCheck2 size={33} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <IconSpot><FileCheck2 size={28} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>
             <h2 className={smallTitle}>Documents & customs</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -128,7 +134,7 @@ export default function ShippingReviewPage(){
       </div>
 
       <div className="mt-5 flex items-start gap-4 rounded-[16px] border border-[rgba(212,178,106,.23)] bg-[rgba(212,178,106,.035)] p-5 sm:p-6">
-        <IconSpot><ShieldCheck size={31} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+        <IconSpot><ShieldCheck size={27} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
         <div>
           <h2 className="text-[18px] font-medium text-[#f7f3ec]">Every order matters to us</h2>
           <p className="mt-2 max-w-4xl text-[14px] leading-7 text-[var(--bone-dim)]">

@@ -31,37 +31,21 @@ export function OwnerAboutReview(){
   ] as const;
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
-      <div className="overflow-hidden rounded-[22px] border border-[rgba(212,178,106,.22)] bg-[radial-gradient(ellipse_at_top_right,rgba(212,178,106,.11),rgba(255,255,255,.018)_60%)]">
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,.92fr)]">
-          <div className="px-6 pb-8 pt-7 sm:px-9 sm:pt-10 lg:px-11 lg:pb-11">
-            <p className="eyebrow-gold mb-4">Independent designer atelier · TheFEYA</p>
-            <h1 className="visual-display text-[clamp(34px,4.2vw,55px)] leading-[1.05] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>
-            <p className="mt-6 text-[15px] leading-7 text-[#d6cec4]">
-              We are an independent creative team specializing in handmade statement outfits for stages, festivals, performances and fashion photography.
-              Our workshop brings together original design ideas and hands-on production, with pieces designed to make an unforgettable visual impression.
-            </p>
-            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
-              From shoulder armor and sculptural accessories to expressive bodysuits and coordinated looks, TheFEYA has developed a recognizable design character.
-              Our pieces reach people in different countries who want something more personal than ordinary event wear.
-              Every creation begins with our studio's aesthetic, then can be adjusted within the options supported by the design.
-            </p>
-            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
-              We care about the person behind each costume. Our goal is not only to make something visually striking, but to help you feel confident and happy with what you choose.
-            </p>
-          </div>
-          <div className="flex flex-col justify-center border-t border-[rgba(212,178,106,.20)] bg-[rgba(10,9,13,.28)] px-6 py-8 sm:px-9 lg:border-l lg:border-t-0 lg:px-10">
-            <p className="eyebrow-gold">Our mission</p>
-            <h2 className="visual-display mt-5 text-[clamp(30px,3.2vw,43px)] leading-[1.12] text-[#f7f3ec]">Be seen. Be remembered. Be yourself.</h2>
-            <p className="mt-6 text-[15px] leading-7 text-[#d4cbc0]">
-              We believe clothing is a way of expressing your individuality. A distinctive look can tell your story before you say a word —
-              on stage, in the crowd or in front of the camera.
-            </p>
-            <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
-              We create original stage and festival pieces to help performers, artists and anyone with a bold vision bring their own identity forward.
-              Your expression is what makes the look memorable.
-            </p>
-          </div>
+    <section className="container-feya pt-28 pb-6 sm:pt-32 lg:pt-32">
+      <div className="rounded-[20px] border border-[rgba(212,178,106,.22)] bg-[radial-gradient(ellipse_at_top_right,rgba(212,178,106,.095),rgba(255,255,255,.014)_65%)] p-7 sm:p-9 lg:p-11">
+        <p className="eyebrow-gold">Independent designer atelier · TheFEYA</p>
+        <h1 className="visual-display mt-4 text-[clamp(34px,4.1vw,54px)] leading-[1.08] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>
+        <div className="mt-5 space-y-4 text-[15px] leading-7 text-[#d5cdc2]">
+          <p>We are an independent creative team specializing in handmade statement outfits for stages, festivals, performances and fashion photography. Our workshop brings together original design and hands-on production, creating distinctive pieces with a recognizable TheFEYA aesthetic.</p>
+          <p>From sculptural shoulder armor and accessories to expressive bodysuits and coordinated looks, each design starts with our studio's own creative direction. Our pieces reach performers, festival-goers and artists in different countries. We care about the people who wear them and aim to help every customer feel confident and happy with their choice.</p>
+        </div>
+        <div className="mt-7 border-t border-[rgba(212,178,106,.18)] pt-6">
+          <p className="eyebrow-gold">Our mission</p>
+          <h2 className="visual-display mt-3 text-[clamp(25px,3.2vw,39px)] leading-[1.15] text-[#f7f3ec]">Be seen. Be remembered. Be yourself.</h2>
+          <p className="mt-4 text-[15px] leading-7 text-[#d5cdc2]">
+            We believe clothing is a way to express individuality. The right look can tell your story before you say a word — on stage, at a festival or in front of the camera.
+            Our original pieces help you bring your own visual identity forward. Your expression is what makes the look memorable.
+          </p>
         </div>
       </div>
     </section>
@@ -69,12 +53,14 @@ export function OwnerAboutReview(){
     <section className="container-feya pb-14 lg:pb-20" aria-label="Our design and studio">
       <div className="grid gap-4 md:grid-cols-2">
         {features.map(({title,Icon,body})=><article key={title}
-          className="rounded-[18px] border border-white/[.14] bg-[linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.011))] p-6 sm:p-8">
-          <span className="flex h-[66px] w-[66px] items-center justify-center rounded-[19px] border border-[rgba(212,178,106,.30)] bg-[radial-gradient(circle_at_30%_15%,rgba(212,178,106,.15),rgba(212,178,106,.03))] text-[#dfbf79]">
-            <Icon size={36} strokeWidth={1.45} aria-hidden="true"/>
-          </span>
-          <h2 className="mt-6 text-[clamp(20px,2.1vw,25px)] font-medium text-[#f7f3ec]">{title}</h2>
-          <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">{body}</p>
+          className="rounded-[18px] border border-white/[.14] bg-[linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.011))] p-5 sm:p-6">
+          <div className="flex items-center gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(212,178,106,.30)] bg-[radial-gradient(circle_at_30%_15%,rgba(212,178,106,.13),rgba(212,178,106,.02))] text-[#dfbf79]">
+              <Icon size={29} strokeWidth={1.5} aria-hidden="true"/>
+            </span>
+            <h2 className="text-[clamp(18px,2vw,23px)] font-medium leading-tight text-[#f7f3ec]">{title}</h2>
+          </div>
+          <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px]">{body}</p>
         </article>)}
       </div>
       <div className="mt-7 flex flex-wrap gap-3">

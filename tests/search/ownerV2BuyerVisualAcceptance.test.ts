@@ -36,8 +36,9 @@ test('About combines actual studio story with mission, modern consistent 36px ic
   assert.match(about,/About TheFEYA/);
   assert.match(about,/Our mission/);
   assert.match(about,/creative team specializing in handmade/);
-  assert.match(about,/lg:grid-cols-\[minmax\(0,1.08fr\)_minmax\(0,.92fr\)\]/);
-  assert.match(about,/<Icon size=\{36\}/);
+  assert.match(about,/Our mission/);
+  assert.doesNotMatch(about,/lg:grid-cols-\[minmax\(0,1.08fr\)_minmax\(0,.92fr\)\]/);
+  assert.match(about,/<Icon size=\{29\}/);
   assert.doesNotMatch(about,/>Ask our studio<\/Link>/);
 });
 
@@ -75,4 +76,16 @@ test('only the protected owner style sheet compacts collection whitespace and ex
   assert.match(css,/nav\\[aria-label="Breadcrumb"\\]/);
   assert.match(css,/section:nth-of-type\\(5\\)/);
   assert.match(css,/section:nth-of-type\\(6\\)/);
+});
+
+test('owner visual About and Shipping headings align with compact icons instead of stacked spacers',()=>{
+  const about=read('components/OwnerEditorialReviewPages.tsx');
+  const shipping=read('app/shipping-review/page.tsx');
+  assert.match(about,/flex items-center gap-4/);
+  assert.match(about,/h-14 w-14/);
+  assert.doesNotMatch(about,/mt-6 text-\[clamp\(20px,2.1vw,25px\)\]/);
+  assert.match(shipping,/Handmade for you/);
+  assert.match(shipping,/flex items-center gap-4/);
+  assert.doesNotMatch(shipping,/eyebrow-gold mt-6">Handmade for you/);
+  assert.match(shipping,/6–9 working days/);
 });
