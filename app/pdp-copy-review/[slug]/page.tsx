@@ -7,6 +7,7 @@ import {Header} from '@/components/Header';
 import {ProductDetailClient} from '@/components/ProductDetailClient';
 import {PDP_COPY_REVIEW_SAMPLES,isPdpCopyReviewDeployment,pdpCopyReviewSample} from '@/config/pdpCopyReviewSamples';
 import {readPinnedPdpOwnerCopy} from '@/lib/pdpPinnedApprovedCopyReviewServer';
+import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
 
 type Props={
   params:Promise<{slug:string}>;
@@ -72,10 +73,13 @@ export default async function PinnedPdpCopyReviewPage({params,searchParams}:Prop
         </p>
       </div>
     </section>
-    {/* This IS the frozen existing PDP renderer. Only its `draft` prop differs
+    {/* This IS the frozen existing PDP renderer. The approved draft and a private
+        data-only marker select the factual composition list in the left description,
+        WITHOUT modifying the renderer or the right grouped purchase options.
+        Only the approved copy/physical component presentation differs
         between before and after. The checkout itself remains separately OFF. */}
     <ProductDetailClient
-      product={source.product}
+      product={comparisonMode?withOwnerApprovedComponentReview(source.product):source.product}
       related={[]}
       draft={comparisonMode?source.approvedCopy.draft:null}
       previewMode={false}
