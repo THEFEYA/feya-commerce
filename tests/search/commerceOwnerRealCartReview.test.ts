@@ -144,7 +144,11 @@ test('preview UX never transmits customer PII, real payment or newsletter signup
   assert.match(src,/acceptedTerms,setAcceptedTerms/);
   assert.match(src,/aria-disabled="true" disabled/);
   assert.match(src,/Checkout not active/);
-  assert.match(src,/\/privacy/);
+  // Privacy remains directly linked in the global Footer, without adding a
+  // redundant explanatory paragraph between the two cart checkboxes.
+  const footer=readFileSync('components/Footer.tsx','utf8');
+  assert.match(footer,/href="\/privacy"/);
+  assert.doesNotMatch(src,/Your information is handled in accordance with our/);
   assert.match(src,/Change|Edit options/);
   assert.doesNotMatch(src,/fetch\(|sendBeacon\(|FormData\(|subscribe\(|localStorage\.setItem\([^\n]*email/);
 });
