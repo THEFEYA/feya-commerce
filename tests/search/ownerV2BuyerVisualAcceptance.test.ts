@@ -90,16 +90,15 @@ test('owner visual About and Shipping headings align with compact icons instead 
   assert.match(shipping,/6–9 working days/);
 });
 
-test('PDP recovery only engages on the authenticated owner visual branch and never changes public SEO pins',()=>{
+test('Product OS page and card remain frozen while the scoped PDP error boundary permits bounded retry',()=>{
  const page=read('app/shop/[slug]/page.tsx');
  const card=read('components/ProductCard.tsx');
- const error=read('app/shop/[slug]/error.tsx');
- assert.match(page,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
- assert.match(page,/ownerV2RequestPresentation/);
+ const fallback=read('app/shop/[slug]/error.tsx');
  assert.match(page,/readCachedStorefrontProductMetadataV1/);
- assert.match(card,/NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW !== '1'/);
- assert.match(error,/window\.sessionStorage\.getItem/);
- assert.match(error,/15000/);
- assert.match(error,/reset\(\)/);
- assert.match(error,/We couldn’t open this item/);
+ assert.match(page,/readCachedStorefrontProductPresentation/);
+ assert.match(card,/router.prefetch\(href\)/);
+ assert.match(fallback,/window\.sessionStorage\.getItem/);
+ assert.match(fallback,/15000/);
+ assert.match(fallback,/reset\(\)/);
+ assert.match(fallback,/We couldn’t open this item/);
 });

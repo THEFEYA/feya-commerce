@@ -110,10 +110,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const href = `/shop/${slug}`;
   const requestIntent = () => {
     if (hasHoverMedia) setHoverRequested(true);
-    // On the exact owner V2 preview, skip speculative RSC hover prefetch.
-    // The first navigation uses the same request-scoped PDP/head projection;
-    // production keeps its pre-existing prefetch behavior.
-    if (process.env.NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW !== '1' && !prefetched.current) {
+    if (!prefetched.current) {
       prefetched.current = true;
       router.prefetch(href);
     }
