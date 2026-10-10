@@ -93,7 +93,7 @@ test('pinned-copy source reader may not choose latest SEO draft or leak source t
   assert.doesNotMatch(source,/(?:\bupsert\s*\(|\.update\s*\(|\.insert\s*\()/);
 });
 
-test('before and after have the SAME frozen ProductDetailClient; approved draft is the only difference',()=>{
+test('before and after have SAME frozen ProductDetailClient; after additionally shows atomic included members',()=>{
   const route=readFileSync('app/pdp-copy-review/[slug]/page.tsx','utf8');
   const index=readFileSync('app/pdp-copy-review/page.tsx','utf8');
   for(const source of [route,index]){
@@ -102,7 +102,7 @@ test('before and after have the SAME frozen ProductDetailClient; approved draft 
     assert.match(source,/notFound\(\)/);
   }
   assert.match(route,/<ProductDetailClient/);
-  assert.match(route,/product=\{source\.product\}/);
+  assert.match(route,/product=\\{comparisonMode\\?withOwnerApprovedComponentReview\\(source\\.product\\):source\\.product\\}/);
   assert.match(route,/draft=\{comparisonMode\?source\.approvedCopy\.draft:null\}/);
   assert.match(route,/previewMode=\{false\}/);
   assert.match(index,/mode=before/);
