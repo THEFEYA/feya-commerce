@@ -13,7 +13,7 @@ function Frame({eyebrow,title,description,children}:{eyebrow:string;title:string
     <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
       <div className="max-w-4xl">
         <p className="eyebrow-gold mb-4">{eyebrow}</p>
-        <h1 className="visual-display text-[clamp(36px,4.4vw,60px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">{title}</h1>
+        <h1 className="visual-display text-[clamp(31px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">{title}</h1>
         <p className="mt-5 max-w-3xl text-[15px] leading-7 text-[var(--bone-dim)]">{description}</p>
       </div>
     </section>

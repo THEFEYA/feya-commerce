@@ -1,0 +1,29 @@
+/* Only the branch-gated root template wraps the preview, never Production. */
+.owner-visual-v2-root [data-testid="site-header"] > div:first-child{
+  display:none!important; /* old/unverified "Express DHL · Worldwide shipping" */
+}
+.owner-visual-v2-root [data-testid="primary-nav"] > ul{
+  column-gap:clamp(.45rem,.9vw,.9rem);
+}
+.owner-visual-v2-root [data-testid="primary-nav"] a[id^="primary-nav-link"]{
+  letter-spacing:.12em!important;
+  font-size:10px!important;
+  white-space:nowrap;
+}
+.owner-visual-v2-root [data-testid="primary-nav"] button[aria-controls^="nav-panel-"]{
+  width:28px;
+  min-width:28px;
+  margin-left:-8px;
+  margin-right:-8px;
+}
+@media(min-width:1024px) and (max-width:1230px){
+  .owner-visual-v2-root [data-testid="primary-nav"] > ul{column-gap:.3rem}
+  .owner-visual-v2-root [data-testid="primary-nav"] a[id^="primary-nav-link"]{
+    letter-spacing:.075em!important;
+    font-size:9px!important;
+  }
+  .owner-visual-v2-root [data-testid="primary-nav"] button[aria-controls^="nav-panel-"]{
+    width:22px;
+    min-width:22px;
+  }
+}

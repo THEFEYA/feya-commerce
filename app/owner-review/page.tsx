@@ -22,7 +22,7 @@ export default function UnifiedOwnerVisualReviewPage(){
     <Header/>
     <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
       <p className="eyebrow-gold">TheFEYA · Private owner review</p>
-      <h1 className="visual-display mt-5 max-w-4xl text-[clamp(35px,4.6vw,61px)] leading-[1.02] tracking-[-.035em] text-[#f7f3ec]">
+      <h1 className="visual-display mt-5 max-w-4xl text-[clamp(31px,3.8vw,50px)] leading-[1.02] tracking-[-.035em] text-[#f7f3ec]">
         Проверка магазина перед запуском
       </h1>
       <p className="mt-5 max-w-3xl text-[15px] leading-7 text-[var(--bone-dim)]">

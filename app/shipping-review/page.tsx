@@ -23,7 +23,7 @@ export default function ShippingReviewPage(){
     <Header/>
     <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-44 lg:pb-14">
       <p className="eyebrow-gold mb-4">TheFEYA · Shipping review</p>
-      <h1 className="visual-display max-w-4xl text-[clamp(36px,4.4vw,58px)] font-medium leading-[.97] tracking-[-.045em] text-[#f7f3ec]">Shipping & Delivery</h1>
+      <h1 className="visual-display max-w-4xl text-[clamp(31px,3.8vw,50px)] font-medium leading-[.97] tracking-[-.045em] text-[#f7f3ec]">Shipping & Delivery</h1>
       <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[var(--bone-dim)]">
         Made to order, prepared in our workshop, then shipped internationally. Choose how urgently you need your order prepared; we will select the suitable courier.
       </p>
@@ -52,7 +52,7 @@ export default function ShippingReviewPage(){
           <Clock3 size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
           <p className="eyebrow-gold mt-5">Express Shipping · Priority</p>
           <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€35</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–9 business days</p>
+          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–10 business days</p>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
             A priority option for time-sensitive orders: we give your order extra attention in the preparation and dispatch queue. The stated timing is an estimate, not a guaranteed arrival date.
           </p>

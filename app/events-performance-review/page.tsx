@@ -25,7 +25,7 @@ export default function EventsPerformanceReview(){
     <Header/>
     <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
       <p className="eyebrow-gold mb-4">Events & Performance</p>
-      <h1 className="visual-display max-w-4xl text-[clamp(36px,4.4vw,60px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Dress for where you are going.</h1>
+      <h1 className="visual-display max-w-4xl text-[clamp(32px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Dress for where you are going.</h1>
       <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">Find a look for your next event, then shop the original pieces below.</p>
       <div className="mt-9"><OwnerDiscoveryTileStrip tiles={EVENTS_PERFORMANCE_HUB_TILES}/></div>
       <Suspense fallback={<div aria-busy="true" className="min-h-[500px]"/>}><ReviewProducts/></Suspense>

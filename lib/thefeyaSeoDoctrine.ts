@@ -81,7 +81,7 @@ function rightPanelBlock(block_key: string, heading: string, lines: readonly str
 export const THEFEYA_APPROVED_FULFILLMENT_COPY = {
   production: 'Production usually takes 3–5 days.',
   standard: 'Standard international shipping usually takes 10–14 business days.',
-  express: 'Express shipping usually takes 7–10 business days.',
+  express: 'Express shipping is estimated at 6–10 business days after dispatch; actual transit depends on the destination and carrier.',
 } as const;
 
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [

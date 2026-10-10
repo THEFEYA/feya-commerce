@@ -112,7 +112,7 @@ export function CartOwnerLiveReviewClient(){
   return <div className="container-feya pt-32 pb-20 sm:pt-36 lg:pt-40 lg:pb-28">
     <header className="max-w-4xl">
       <p className="eyebrow-gold">TheFEYA · Owner Preview · Real selected items</p>
-      <h1 className="visual-display mt-4 text-[clamp(34px,4vw,54px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">
+      <h1 className="visual-display mt-4 text-[clamp(30px,3.7vw,46px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">
         Your bag
       </h1>
       <p className="mt-4 max-w-3xl text-[14px] leading-7 text-[var(--bone-dim)]">
@@ -226,7 +226,7 @@ export function CartOwnerLiveReviewClient(){
               </span>
               <span className="mt-3 text-[24px] text-[#f7f3ec]">{currency(choice==='express'?3500:1900)}</span>
               <span className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
-                {choice==='express'?'6–9':'10–14'} business days · indicative planning estimate
+                {choice==='express'?'6–10':'10–14'} business days · indicative planning estimate
               </span>
               <span className="mt-2 text-[12px] text-[#e5d2a2]">{choice==='express'?'Priority order preparation':'Regular preparation'}</span>
             </label>)}

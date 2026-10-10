@@ -22,12 +22,9 @@ export function OwnerDiscoveryTileStrip({tiles}:{tiles:readonly DiscoveryHubTile
         className="visual-hover-sheen group relative block aspect-[4/5] min-w-0 shrink-0 basis-[77vw] snap-start overflow-hidden rounded-[13px] border border-[rgba(216,181,109,.15)] bg-[#111117] transition-[border-color,box-shadow] duration-300 hover:border-[rgba(216,181,109,.4)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a] sm:basis-[43vw] lg:basis-[calc((100%-36px)/4)]">
         {tile.imageUrl?<Image src={tile.imageUrl} alt={tile.imageAlt} fill sizes="(max-width:639px) 77vw, (max-width:1023px) 43vw, 24vw" loading="lazy"
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]"/>:<div className="absolute inset-0 bg-[#1c1b21]"/>}
-        <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#080809] via-[rgba(8,8,9,.86)] to-transparent px-4 pb-4 pt-9">
-          <span className="block text-[9px] uppercase tracking-[.16em] text-[#d4b26a]">{tile.eyebrow}</span>
-          <span className="mt-1 flex items-end justify-between gap-3">
-            <span className="font-tall text-[clamp(23px,2.2vw,32px)] leading-tight text-[#f7f3ec]">{tile.label}</span>
-            <ArrowUpRight size={15} className="mb-1 shrink-0 text-[#d4b26a]" aria-hidden="true"/>
-          </span>
+        <div className="absolute inset-x-0 bottom-0 z-10 flex min-h-[68px] items-center justify-between gap-3 bg-[rgba(11,10,13,.88)] px-4 py-3 backdrop-blur-sm">
+          <span className="font-tall text-[clamp(23px,2vw,28px)] leading-tight text-[#f7f3ec]">{tile.label}</span>
+          <ArrowUpRight size={15} className="shrink-0 text-[#d4b26a]" aria-hidden="true"/>
         </div>
         <span className="sr-only">{tile.description}</span>
       </Link>)}

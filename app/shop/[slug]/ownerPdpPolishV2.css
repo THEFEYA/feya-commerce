@@ -16,3 +16,12 @@
 .owner-pdp-polish-v2 [data-testid="product-page"] > section#description article {
   max-width: 68ch;
 }
+
+/* The original right-hand purchase controls and text stay untouched.
+ * A review-only CSS cap makes product H1 readable without altering SEO H1.
+ */
+.owner-pdp-polish-v2 [data-testid="product-page"] h1 {
+  font-size: clamp(25px, 2.25vw, 34px) !important;
+  line-height: 1.13 !important;
+  letter-spacing: .005em !important;
+}
