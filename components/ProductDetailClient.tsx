@@ -31,6 +31,7 @@ import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
+import { storefrontDescriptionComponentLabels } from '@/lib/storefrontDescriptionComponentLabels';
 import {
   resolveStorefrontSellableOffer,
   sellableOfferAvailabilitySentence,
@@ -168,7 +169,12 @@ export function ProductDetailClient({
       ))
     : [];
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
-  const includedLines = storefrontIncludedOptions(p, activeConfig);
+  // Left copy lists genuine physical pieces individually, even if right-hand
+  // selector sells some of those pieces as a combined option. Retain current
+  // fallback on published PDPs until the owner approves Phase13 copy release.
+  const includedLines = draftBlocks.length
+    ? storefrontDescriptionComponentLabels(p, activeConfig)
+    : storefrontIncludedOptions(p, activeConfig);
   const sellableOffer = useMemo(() => resolveStorefrontSellableOffer(p), [p]);
   const coupleIncludedGroups = sellableOfferCoupleIncludedGroups(sellableOffer);
   const availabilitySentence = sellableOfferAvailabilitySentence(sellableOffer);
