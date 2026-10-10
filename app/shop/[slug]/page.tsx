@@ -21,6 +21,7 @@ import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { absoluteSiteUrl } from '@/lib/siteConfig';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
 import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
@@ -121,7 +122,13 @@ const getPresentation = cache(async (slug: string) => {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const path=`/shop/${slug}`;
-  const protectedReviewMetadata = isHybridVisualPreviewDeployment(process.env)
+  // The exact SSO owner visual branch must reuse getPresentation() for both
+  // <head> and PDP body. Avoid a second independent metadata read model that
+  // can fail during client navigation before the cached product loads.
+  const ownerV2RequestPresentation=isOwnerUnifiedStorefrontPreview(process.env)
+    &&process.env.VERCEL_GIT_COMMIT_REF===OWNER_VISUAL_V2_REVIEW_BRANCH;
+  const protectedReviewMetadata = ownerV2RequestPresentation
+    || isHybridVisualPreviewDeployment(process.env)
     || closedReviewRequested(process.env)
     || approvedContentReviewMode(process.env, approvedContentManifest.version) !== 'disabled';
 
