@@ -2,7 +2,9 @@ import type { StorefrontProduct } from './types';
 import {
   resolveStorefrontSellableOffer,
   sellableOfferPurchaseUnitLabels,
+  sellableOfferIncludedLabels,
 } from './storefrontSellableOffer.ts';
+import {OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG} from './storefrontDescriptionComponentLabels.ts';
 
 type EvidenceRow = Record<string, unknown>;
 
@@ -17,6 +19,17 @@ export function storefrontIncludedOptions(
 ) {
   const currentOffer = resolveStorefrontSellableOffer(product);
   if (currentOffer.source_available) {
+    // This review-only marker is applied at the exact owner-approved
+    // five-product Preview route, never in public Product Truth. It changes
+    // ONLY the left composition list, not the right selectable purchase units,
+    // existing option IDs, member mappings or approved SEO text.
+    const showPhysicalMembers = (product as Record<string, unknown>)[
+      OWNER_APPROVED_LEFT_COMPONENT_REVIEW_FLAG
+    ] === true;
+    if (showPhysicalMembers && currentOffer.status === 'ready') {
+      const physical = sellableOfferIncludedLabels(currentOffer,activeConfiguration);
+      if(physical.length)return physical;
+    }
     return sellableOfferPurchaseUnitLabels(currentOffer, activeConfiguration);
   }
 
