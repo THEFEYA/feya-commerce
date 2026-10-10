@@ -137,7 +137,7 @@ test('preview UX never transmits customer PII, real payment or newsletter signup
   assert.match(src,/parseOwnerCartStorage/);
   assert.match(src,/ownerCartVisualTotals/);
   assert.match(src,/totals\.show_handling_fee&&/);
-  assert.match(src,/Additional packaging for multiple items/);
+  assert.match(src,/Additional packaging for a larger parcel/);
   assert.match(src,/No payments or orders are accepted/);
   assert.match(src,/never saved/);
   assert.match(src,/marketingConsent,setMarketingConsent/);

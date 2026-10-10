@@ -112,15 +112,15 @@ test('buyer-facing prototype does not request weight/dimensions, contact info, c
   assert.match(sample,/type="button" disabled aria-disabled="true"/);
   assert.match(sample,/reviewServiceBreakdown/);
   assert.match(sample,/breakdown&&breakdown\.distinct_listing_count>1/);
-  assert.match(sample,/Additional packaging for multiple items/);
+  assert.match(sample,/Additional packaging for a larger parcel/);
   assert.doesNotMatch(sample,/Additional distinct listings/);
   assert.match(sample,/<Clock3 size=\{18\}/);
   assert.match(sample,/<Truck size=\{18\}/);
   assert.match(shipping,/priority option for time-sensitive orders|preparation and dispatch queue/i);
   assert.doesNotMatch(shipping,/same trusted courier|same courier as standard/i);
   assert.match(shipping,/Typical production is 3–5 business days/);
-  assert.match(shipping,/additional packing space/);
-  assert.match(shipping,/text-\[clamp\(38px,4\.8vw,66px\)\]/);
+  assert.match(shipping,/additional packaging space/);
+  assert.match(shipping,/text-\[clamp\(36px,4\.4vw,58px\)\]/);
   assert.doesNotMatch(shipping,/Typical transit: 10–14/);
   assert.match(shipping,/estimate, not a guaranteed arrival date/);
   assert.match(shipping,/Customs|Statutory rights|statutory rights/i);

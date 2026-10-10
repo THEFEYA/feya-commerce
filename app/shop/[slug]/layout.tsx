@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import type {ReactNode} from 'react';
 import {Footer} from '@/components/Footer';
