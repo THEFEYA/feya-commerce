@@ -116,7 +116,7 @@ test('buyer-facing prototype does not request weight/dimensions, contact info, c
   assert.doesNotMatch(sample,/Additional distinct listings/);
   assert.match(sample,/<Clock3 size=\{18\}/);
   assert.match(sample,/<Truck size=\{18\}/);
-  assert.match(shipping,/priority in our preparation|Priority in our preparation/i);
+  assert.match(shipping,/priority option for time-sensitive orders|preparation and dispatch queue/i);
   assert.doesNotMatch(shipping,/same trusted courier|same courier as standard/i);
   assert.match(shipping,/Typical production is 3–5 business days/);
   assert.match(shipping,/additional packing space/);
