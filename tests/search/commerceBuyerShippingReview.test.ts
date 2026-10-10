@@ -127,3 +127,14 @@ test('buyer-facing prototype does not request weight/dimensions, contact info, c
   assert.doesNotMatch(sample,/api\.novaposhta|api\.ukrposhta|Get delivery quote/);
   assert.doesNotMatch(sample,/FEYA_SELLER_ONLINE_PAYMENTS_ENABLED/);
 });
+
+test('owner shipping review uses large semantic icons and honest customer-first labels',()=>{
+ const src=readFileSync('app/shipping-review/page.tsx','utf8');
+ for(const icon of ['Scissors','Truck','Plane','Boxes','Route','ScanLine','FileCheck2']){
+   assert.match(src,new RegExp('<'+icon+' size='));
+ }
+ assert.match(src,/Nova Poshta/);
+ assert.match(src,/6–9 working days/);
+ assert.doesNotMatch(src,/Seller Online, seller identity, destination and taxes/);
+ assert.match(src,/accurate/);
+});

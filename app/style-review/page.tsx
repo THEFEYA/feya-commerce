@@ -17,7 +17,7 @@ async function ReviewContent(){
   if(!products||!availability)notFound();
   return <>
     <div className="mt-9"><OwnerDiscoveryTileStrip tiles={availability.map(x=>x.tile)}/></div>
-    <section className="mt-1 border-t border-white/[.08] pb-16 pt-3">
+    <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
       <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
     </section>
   </>;

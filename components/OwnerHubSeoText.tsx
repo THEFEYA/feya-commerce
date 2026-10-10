@@ -1,35 +1,44 @@
 import Link from 'next/link';
+import {ChevronDown} from 'lucide-react';
 
-/** Human-first content with real SSR markup, not a crawler-only keyword wall.
- * Hub routes remain under their current Search Release indexation policy.
- * This is only the protected owner's content proposal.
+/** Buyer-first SSR content. No SEO keyword wall, no crawler-only hidden markup.
+ * Review route current release noindex rules are unchanged.
  */
 export function OwnerHubSeoText({kind}:{kind:'events'|'style'}){
   const events=kind==='events';
-  return <section className="mt-9 border-t border-white/[.10] pt-8 pb-8" aria-label={events?'More about event outfits':'More about costume styles'}>
-    <div className="mx-auto max-w-4xl">
-      <p className="eyebrow-gold">TheFEYA · {events?'Events & Performance':'Style discovery'}</p>
-      <h2 className="mt-3 text-[clamp(22px,2.6vw,31px)] font-medium text-[#f7f3ec]">
-        {events?'Find the right outfit for your moment':'Explore the design direction that feels like you'}
-      </h2>
-      <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
-        {events
-          ? 'Explore original stage, festival and performance outfits, from complete statement looks to individual costume pieces that can be combined around your plans.'
-          : 'Explore TheFEYA costumes by visual character: futuristic, cyberpunk-inspired, glam, sci-fi, post-apocalyptic, fantasy, goth and punk. Choose a mood first, then refine by the piece, material or color you want.'}
-      </p>
-      <details className="group mt-5 rounded-xl border border-white/[.14] bg-white/[.018] px-5 py-4">
-        <summary className="cursor-pointer select-none text-[13px] font-medium text-[#e3cf9d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]">
-          {events?'Read more about event and stage outfits':'Read more about styling your outfit'}
+  return <section className="border-t border-white/[.10] pb-8 pt-6 sm:pt-7"
+    aria-label={events?'About our event outfits':'About our costume styles'}>
+    <div className="mx-auto w-full max-w-[1100px]">
+      <p className="eyebrow-gold">TheFEYA · {events?'Dressing for the occasion':'Style inspiration'}</p>
+      <details className="group mt-4">
+        <summary aria-label={events?'Expand or collapse information about event outfits':'Expand or collapse information about styles'}
+          className="flex cursor-pointer list-none items-start justify-between gap-6 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#d4b26a] [&::-webkit-details-marker]:hidden">
+          <div className="min-w-0">
+            <h2 className="text-[clamp(22px,2.7vw,32px)] font-medium leading-tight tracking-[-.02em] text-[#f7f3ec]">
+              {events?'Make every occasion your own':'Find the look that feels like you'}
+            </h2>
+            <p className="mt-3 max-w-5xl text-[14px] leading-7 text-[var(--bone-dim)]">
+              {events
+                ? 'Explore handmade festival outfits, rave looks and performance costumes from TheFEYA. Discover complete statement designs or choose the individual pieces that express your style.'
+                : 'Explore original costume styles from futuristic and sci-fi to glam, fantasy, goth and punk. Use the visual categories to find your direction, then choose the right piece, size and finish.'}
+            </p>
+          </div>
+          <span className="mt-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[.20] text-[#d7b974] transition-colors group-hover:border-[#d4b26a]">
+            <ChevronDown size={23} strokeWidth={1.65} className="transition-transform duration-200 group-open:rotate-180" aria-hidden="true"/>
+          </span>
+          <span className="sr-only">More information</span>
         </summary>
-        <div className="mt-5 space-y-4 text-[14px] leading-7 text-[var(--bone-dim)]">
+        <div className="mt-6 grid gap-5 border-t border-white/[.08] pt-6 text-[14px] leading-7 text-[var(--bone-dim)] lg:grid-cols-2 lg:gap-x-10">
           {events?<>
-            <p>Different occasions call for different kinds of statement wear. Festival and rave looks may combine a dramatic bodysuit, shoulder pieces, accessories and an expressive skirt. Burning Man outfits can favor sculptural silhouettes for a desert-event setting; stage and performance costumes are often chosen for their visual presence in photography, video and live shows.</p>
-            <p>Start with the occasion, then open an individual product page to confirm what is actually included. Some photographs show an entire styled outfit while the purchasing options allow separate pieces or a full set. Materials, sizes, permitted colors and production timing always belong to the specific listing, rather than being assumed from the category image.</p>
-            <p>Explore our <Link href="/collections/festival-outfits" className="underline text-[#e0c37d]">Festival Outfits</Link>, <Link href="/collections/rave-outfits" className="underline text-[#e0c37d]">Rave Outfits</Link> or <Link href="/collections/performance-costumes" className="underline text-[#e0c37d]">Stage & Performance</Link> collections, then narrow your choice by actual design and configuration.</p>
+            <p>Festival and rave outfits allow you to build a look around the occasion, from a dramatic bodysuit to sculptural shoulders, skirts, masks and smaller accents. For Burning Man-inspired styling, our catalog includes bold forms for creative desert looks. Performers and stage artists can explore designs suited to visually distinctive live shows, photoshoots and music videos.</p>
+            <p>Each product is an individual TheFEYA design. Some images show a styled full look, while the available purchasing options may let you choose a separate piece, a combination or a complete set. Consult each product description for the exact contents, material, sizing, colors and production estimate rather than relying on the category photo alone.</p>
+            <p>Choose a starting point from our <Link href="/collections/festival-outfits" className="text-[#e0c37d] underline underline-offset-4">Festival Outfits</Link>, <Link href="/collections/rave-outfits" className="text-[#e0c37d] underline underline-offset-4">Rave Outfits</Link>, <Link href="/collections/burning-man-outfits" className="text-[#e0c37d] underline underline-offset-4">Burning Man Looks</Link> and <Link href="/collections/performance-costumes" className="text-[#e0c37d] underline underline-offset-4">Stage & Performance</Link> collections.</p>
+            <p>Find pieces that match your actual event, then refine the catalog by product type, color and fit. We specialize in memorable handmade performance and festival designs that help you express your own visual identity.</p>
           </>:<>
-            <p>Futuristic and sci-fi styling can emphasize metallic shapes, clean symmetry and sculptural detail, while cyberpunk-inspired outfits take on a sharper, more industrial mood. Glam and show-oriented looks may lean toward expressive decorative pieces. Goth, punk and post-apocalyptic directions each suggest a different aesthetic, but no style label changes the physical contents of a product.</p>
-            <p>Use the style tiles above as visual browsing shortcuts, not a promise that every piece in a scene is sold together. When you choose a product, read its individual description, available sizes, materials and configurations. A coordinated appearance may be available as individual accessories, combined options or a full set depending on the listing.</p>
-            <p>Our style catalog is intended to help you discover an original TheFEYA design that reflects your own aesthetic. For inspiration by practical occasion, explore <Link href="/events-performance" className="underline text-[#e0c37d]">Events & Performance</Link>; if you already know which piece you want, return to <Link href="/shop" className="underline text-[#e0c37d]">Shop by piece</Link>.</p>
+            <p>For a futuristic mood, explore metallic effects and sculptural construction. Cyberpunk-inspired designs can suggest a sharper, more industrial visual character, while sci-fi pieces draw on imaginative silhouettes. Glam looks, fantasy accents, gothic styling and punk elements offer different ways to put together a standout costume.</p>
+            <p>These directions are browsing filters, not promises about the material or available parts of a particular outfit. TheFEYA products may be purchased as separate pieces, grouped configurations or a full set where the listing explicitly supports them. Always check the individual product options and photos before choosing.</p>
+            <p>Start with a design style and refine by your preferred body piece, color or occasion. For festival or stage-specific inspiration, browse <Link href="/events-performance" className="text-[#e0c37d] underline underline-offset-4">Events & Performance</Link>. If you already know what you need, <Link href="/shop" className="text-[#e0c37d] underline underline-offset-4">shop all costumes and accessories</Link>.</p>
+            <p>Our original outfits are designed for creative expression — from photoshoots and live performances to festivals and distinctive personal looks. Each look begins with the way you want to express yourself.</p>
           </>}
         </div>
       </details>

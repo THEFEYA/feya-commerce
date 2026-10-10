@@ -23,3 +23,9 @@
     font-size:clamp(30px,8vw,38px)!important;
   }
 }
+
+/* The embedded catalog already has its own bottom padding. This applies
+ * only inside our exact owner review hub, not the customer shop or home. */
+.owner-visual-v2-root .owner-hub-products [data-testid="shop-page"] > section:last-of-type{
+  padding-bottom: 1rem!important;
+}

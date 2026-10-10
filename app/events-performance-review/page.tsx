@@ -16,7 +16,7 @@ async function ReviewProducts(){
   await connection();
   const products=await readEventsPerformanceHubProducts();
   if(!products)notFound();
-  return <section className="mt-1 border-t border-white/[.08] pb-16 pt-3">
+  return <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
     <DiscoveryHubProducts products={products}/>
   </section>;
 }

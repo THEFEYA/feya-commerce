@@ -77,7 +77,7 @@ export default function ShippingReviewPage(){
           <div>
             <h2 className={smallTitle}>Your parcel & delivery price</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
-              Additional packaging space costs €5 for each different product listing beyond the first.
+              Orders with more than one different product listing may need additional packaging space: €5 for each different listing beyond the first.
               Multiple sizes, pieces or quantities within the same listing do not add this charge.
             </p>
             <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
