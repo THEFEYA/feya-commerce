@@ -101,33 +101,33 @@ export function ContactExperience2026(){
       </div>
     </section>
 
-    <section className="container-feya pb-11 lg:pb-16" aria-labelledby="newsletter-title">
+    <section className="container-feya pb-4 lg:pb-5" aria-labelledby="newsletter-title">
       <OwnerNewsletterSignupPreview/>
-      <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-white/[.10] pt-6">
+      <div className="mt-4 flex flex-wrap items-center gap-5 border-t border-white/[.10] pt-4">
         <span className="text-[11px] uppercase tracking-[.16em] text-[#a9a19a]">Follow TheFEYA</span>
         {socialReview.map(({id,label,Icon})=><span key={id} aria-label={label}
-          className="inline-flex items-center gap-2 text-[12px] text-[#a69e95]" title={label}>
-          <Icon size={17} strokeWidth={1.6} aria-hidden="true"/>{label}
+          className="inline-flex items-center gap-2 text-[12px] text-[#aaa39a]" title={label}>
+          <Icon size={22} strokeWidth={1.7} aria-hidden="true"/>{label}
         </span>)}
       </div>
     </section>
 
-    <section className="container-feya pb-12 lg:pb-16" aria-labelledby="payment-operator-heading">
-      <div className="rounded-xl border border-[rgba(216,214,211,.09)] bg-[rgba(255,255,255,.008)] px-5 py-5 sm:px-7">
+    <section className="container-feya pb-5 lg:pb-6" aria-labelledby="payment-operator-heading">
+      <div className="px-0 py-1">
         <div className="grid gap-4 lg:grid-cols-2">
           <div>
-            <h2 id="payment-operator-heading" className="text-[11px] font-medium tracking-[.10em] text-[#aaa197]">Payment & shipping partner details</h2>
-            <p className="mt-2 text-[12px] leading-6 text-[#a79f96]">
+            <h2 id="payment-operator-heading" className="text-[11px] font-medium tracking-[.10em] text-[#938d85]">Payment & shipping partner details</h2>
+            <p className="mt-2 text-[12px] leading-6 text-[#918a82]">
               {op.legalName} is a designated payment and logistics partner for planned online checkout. Online payments on thefeya.com are not active yet.
             </p>
-            <p className="mt-1 text-[11px] leading-5 text-[#a79f96]">Partner details are provided for transparency and are not the contact for product support or confirmation of the legal seller.</p>
+            <p className="mt-1 text-[11px] leading-5 text-[#918a82]">Partner details are provided for transparency and are not the contact for product support or confirmation of the legal seller.</p>
           </div>
-          <div className="text-[12px] leading-6 text-[#a79f96]">
+          <div className="text-[12px] leading-6 text-[#918a82]">
             <p>{op.legalName}, {op.contactAddress.line1}, {op.contactAddress.city}, {op.contactAddress.region} {op.contactAddress.postalCode}, {op.contactAddress.country}</p>
             <p className="break-all">{op.usOfficeEmail} · {op.usOfficePhone}</p>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap gap-5 text-[12px] text-[#a79f96]">
+        <div className="mt-2 flex flex-wrap gap-5 text-[12px] text-[#918a82]">
           <Link href="/privacy" className="underline underline-offset-4 hover:text-white">Privacy Policy</Link>
           <Link href="/terms" className="underline underline-offset-4 hover:text-white">Terms of Use</Link>
         </div>
