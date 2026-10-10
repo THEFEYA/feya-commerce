@@ -102,7 +102,7 @@ test('before and after have SAME frozen ProductDetailClient; after additionally 
     assert.match(source,/notFound\(\)/);
   }
   assert.match(route,/<ProductDetailClient/);
-  assert.match(route,/product=\\{comparisonMode\\?withOwnerApprovedComponentReview\\(source\\.product\\):source\\.product\\}/);
+  assert.match(route,/product=\{comparisonMode\?withOwnerApprovedComponentReview\(source\.product\):source\.product\}/);
   assert.match(route,/draft=\{comparisonMode\?source\.approvedCopy\.draft:null\}/);
   assert.match(route,/previewMode=\{false\}/);
   assert.match(index,/mode=before/);
