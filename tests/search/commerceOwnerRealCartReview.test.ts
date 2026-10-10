@@ -169,7 +169,7 @@ test('per-product radio Men/Women replaced redundant fit-chart dropdown',()=>{
  assert.match(src,/wearerByItem\[item\.id\]/);
  assert.match(src,/name=\{'owner-wearer-'\+item\.id\}/);
  assert.doesNotMatch(src,/Fit reference for this piece/);
- assert.match(src,/Made-to-measure for this piece/);
+ assert.match(src,/Made to your measurements/);
  assert.match(src,/illustrativeTotal/);
 });
 

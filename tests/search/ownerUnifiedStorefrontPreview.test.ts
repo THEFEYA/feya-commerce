@@ -119,7 +119,8 @@ test('cart storage stays one same-origin key and no private address is saved by 
  assert.match(parser,/amount_due_minor:null/);
  assert.match(parser,/payable:false,payment_enabled:false,provider_session_enabled:false/);
  assert.match(realCart,/Checkout not active/);
- assert.match(realCart,/final payable amount cannot be calculated/i);
+ assert.match(realCart,/Estimated order total/);
+ assert.doesNotMatch(realCart,/final payable amount cannot be calculated/i);
  assert.doesNotMatch(realCart,/fetch\(|sendBeacon\(|FormData\(/);
  assert.doesNotMatch(realCart,/localStorage\.setItem\([^\n]*email/);
 });
