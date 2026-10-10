@@ -56,3 +56,20 @@ test('Copy Email interaction reports only actual clipboard success, no forms, tr
   assert.match(client,/aria-live="polite"/);
   assert.doesNotMatch(client,/fetch\(|localStorage|subscription|newsletter/i);
 });
+
+test('two evidence-backed map locations load Google Maps only on visitor click',()=>{
+  const contact=readFileSync('components/ContactExperience2026.tsx','utf8');
+  const map=readFileSync('components/OwnerLocationMapPreview.tsx','utf8');
+  const clipboard=readFileSync('components/CopySupportEmailButton.tsx','utf8');
+  assert.match(contact,/OwnerLocationMapPreview location="kyiv"/);
+  assert.match(contact,/OwnerLocationMapPreview location="us-warehouse"/);
+  assert.match(contact,/635 Somers Ave, Feasterville-Trevose, PA 19053/);
+  assert.match(contact,/Харківське шосе, 19/);
+  assert.match(map,/setLoaded\(true\)/);
+  assert.match(map,/loaded\?<iframe/);
+  assert.match(map,/allowFullScreen/);
+  assert.match(map,/www\.google\.com\/maps/);
+  assert.doesNotMatch(map,/useEffect\(/);
+  assert.match(clipboard,/aria-label=/);
+  assert.doesNotMatch(clipboard,/Copy email'|Copy email\}/);
+});
