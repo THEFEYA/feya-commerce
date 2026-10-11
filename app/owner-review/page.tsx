@@ -20,7 +20,7 @@ export default function UnifiedOwnerVisualReviewPage(){
   if(!isOwnerUnifiedStorefrontPreview(process.env))notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
+    <section className="container-feya pt-20 pb-10 sm:pt-24 lg:pt-24">
       <p className="eyebrow-gold">TheFEYA · Private owner review</p>
       <h1 className="visual-display mt-5 max-w-4xl text-[clamp(31px,3.8vw,50px)] leading-[1.02] tracking-[-.035em] text-[#f7f3ec]">
         Проверка магазина перед запуском

@@ -138,3 +138,15 @@ test('owner shipping review uses large semantic icons and honest customer-first 
  assert.doesNotMatch(src,/Seller Online, seller identity, destination and taxes/);
  assert.match(src,/accurate/);
 });
+
+test('Seller Online payment/shipping operator is found on Shipping, not Contact, while legal details stay available',()=>{
+ const shipping=readFileSync('app/shipping-review/page.tsx','utf8');
+ const partner=readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8');
+ const contact=readFileSync('components/ContactExperience2026.tsx','utf8');
+ assert.match(shipping,/<OwnerSellerOnlinePartnerDetails\/>/);
+ assert.match(partner,/SELLER_ONLINE_PROVIDER/);
+ assert.match(partner,/Payment & shipping partner details/);
+ assert.match(partner,/href="\/privacy"/);
+ assert.match(partner,/href="\/terms"/);
+ assert.doesNotMatch(contact,/payment-operator-heading/);
+});

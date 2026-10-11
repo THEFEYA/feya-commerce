@@ -111,24 +111,47 @@
   padding-top: 4rem!important;
 }
 
-/* Owner-supplied approved mark. Keep the original Header logo-link footprint
- * and screenreader labels; the existing SVG children are still accessible.
- * The asset has a black matte, composited over the dark header with screen
- * blending rather than incorrectly painting a black rectangle. */
+/* New owner-approved logo: TRUE ALPHA transparency, no black background,
+ * no screen-blend and no change to the original Header layout or hit area.
+ * Slight increase in visible logo size using absolute visual overlay only. */
 .owner-visual-v2-root [data-testid="logo-link"] {
-  position:relative;
+  position: relative;
 }
 .owner-visual-v2-root [data-testid="logo-link"] > svg {
-  opacity:0;
+  opacity: 0;
 }
 .owner-visual-v2-root [data-testid="logo-link"]::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  background-image:url('/thefeya-approved-logo.webp');
-  background-position:center;
-  background-size:contain;
-  background-repeat:no-repeat;
-  pointer-events:none;
-  mix-blend-mode:screen;
+  content: '';
+  position: absolute;
+  inset: -3px -5px;
+  background: url('/thefeya-approved-logo-transparent.webp') center / contain no-repeat;
+  pointer-events: none;
+  transform: scale(1.10);
+  transform-origin: center;
+}
+@media(max-width:639px) {
+  .owner-visual-v2-root [data-testid="logo-link"]::after {
+    left: 0;
+    right: -13px;
+  }
+}
+
+/* One global first-section baseline, benchmarked against the approved Contact
+ * page. This CSS runs ONLY inside the SSO-gated owner review template.
+ * Home's photography-led hero, PDP gallery and Header are intentionally exempt. */
+.owner-visual-v2-root {
+  --feya-owner-intro-top: 5rem;
+}
+@media(min-width:640px) {
+  .owner-visual-v2-root { --feya-owner-intro-top: 6rem; }
+}
+.owner-visual-v2-root main.visual-commerce-shell > section.container-feya:first-of-type:has(> div.max-w-4xl h1.visual-display),
+.owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section.container-feya:first-of-type {
+  padding-top: var(--feya-owner-intro-top)!important;
+}
+.owner-visual-v2-root [data-testid="shop-page"]:not(.visual-commerce-embedded) {
+  padding-top: 0!important;
+}
+.owner-visual-v2-root [data-testid="shop-page"]:not(.visual-commerce-embedded) > section:first-of-type {
+  padding-top: var(--feya-owner-intro-top)!important;
 }

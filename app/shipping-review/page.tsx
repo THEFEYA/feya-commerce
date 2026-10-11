@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {OwnerSellerOnlinePartnerDetails} from '@/components/OwnerSellerOnlinePartnerDetails';
 
 export const metadata:Metadata={
   title:'TheFEYA · Shipping Policy Review',
@@ -29,7 +30,7 @@ export default function ShippingReviewPage(){
   if(process.env.VERCEL_ENV!=='preview'&&process.env.NODE_ENV==='production')notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-24 pb-7 sm:pt-28 lg:pt-28 lg:pb-9">
+    <section className="container-feya pt-20 pb-7 sm:pt-24 lg:pt-24 lg:pb-9">
       <p className="eyebrow-gold mb-4">TheFEYA · Shipping & care</p>
       <h1 className="visual-display max-w-4xl text-[clamp(31px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">
         Shipping & Delivery
@@ -149,6 +150,7 @@ export default function ShippingReviewPage(){
         <Link href="/returns" className="btn-ghost">Returns & Exchanges</Link>
       </div>
     </section>
+    <OwnerSellerOnlinePartnerDetails/>
     <Footer/>
   </main>;
 }

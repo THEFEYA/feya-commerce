@@ -73,7 +73,7 @@ export default function ShopPage(props: ShopPageProps) {
 function ShopRouteFallback() {
   return <main className="relative min-h-screen">
     <Suspense fallback={null}><Header /></Suspense>
-    <section className="container-feya pt-24 pb-4" aria-label="TheFEYA catalog">
+    <section className="container-feya pt-20 pb-4 sm:pt-24" aria-label="TheFEYA catalog">
       <p className="mb-3 text-[10px] uppercase tracking-[.18em] text-[#aaa2a0]">TheFEYA catalog</p>
       <h1 className="visual-display text-[clamp(34px,4.2vw,56px)] leading-tight text-[#f7f3ec]">Find your piece.</h1>
       <p className="mt-3 text-[14px] text-[var(--bone-dim)]">Discover original TheFEYA costume pieces and complete looks.</p>

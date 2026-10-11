@@ -44,8 +44,9 @@ test('Contact design uses real customer support, canonical provider metadata and
   assert.doesNotMatch(component,/https:\/\/(?:www\.)?(?:instagram|facebook|pinterest)\.com/);
   assert.doesNotMatch(component,/<iframe|Google Maps iframe/);
   // The commercial operator remains identifiable without a distracting card.
-  assert.match(component,/payment-operator-heading/);
-  assert.match(component,/op\.legalName/);
+  assert.doesNotMatch(component,/payment-operator-heading/);
+  assert.match(readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8'),/payment-operator-heading/);
+  assert.match(readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8'),/op\.legalName/);
   assert.doesNotMatch(component,/rounded-xl border border-\[rgba\(216,214,211,.09\)\]/);
 });
 

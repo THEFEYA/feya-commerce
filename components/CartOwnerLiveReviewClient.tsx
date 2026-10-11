@@ -122,7 +122,7 @@ export function CartOwnerLiveReviewClient(){
   }
   function toggleCustomFit(id:string){setCustomFitIds(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);}
 
-  return <div className="container-feya pt-24 pb-16 sm:pt-28 lg:pt-28 lg:pb-20">
+  return <div className="container-feya pt-20 pb-16 sm:pt-24 lg:pt-24 lg:pb-20">
     <header className="max-w-4xl">
       <p className="eyebrow-gold">TheFEYA · Your order</p>
       <h1 className="visual-display mt-4 text-[clamp(30px,3.7vw,46px)] font-medium leading-[1.03] tracking-[-.035em] text-[#f7f3ec]">

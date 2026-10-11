@@ -168,7 +168,7 @@ test('owner V6 improves delivery scannability, About breathing room and low-emph
  assert.ok(!cart.includes('indicative planning estimate'));
  assert.ok(cart.includes('Delivery times are approximate'));
  const intro=about.slice(about.indexOf('export function OwnerAboutReview()'),about.indexOf('const policySections=['));
- assert.ok(intro.includes('pt-28 pb-11'));
+ assert.ok(intro.includes('pt-20 pb-11'));
  assert.ok(intro.includes('lg:pb-12'));
  for(const value of ['3–5 days','€19','€35'])assert.ok(shipping.includes(value));
  assert.ok(shipping.includes('mt-3 text-[30px]'));
@@ -330,4 +330,37 @@ test('V8 noindex shop has immediate real-looking loading UI, same exact filters 
  assert.match(shop,/SHOP_PAGE_SIZE/);
  assert.match(cfg,/source: '\/shop', destination: '\/shop-v8-review'/);
  assert.match(main,/readCachedApprovedStorefrontCatalogV1/);
+});
+
+test('V9 owner hero baseline is unified across customer information routes and leaves nav/photo heroes untouched',()=>{
+ const css=read('app/ownerVisualPreviewV2.css');
+ const about=read('components/OwnerEditorialReviewPages.tsx');
+ const shipping=read('app/shipping-review/page.tsx');
+ const events=read('app/events-performance-review/page.tsx');
+ const style=read('app/style-review/page.tsx');
+ const cart=read('components/CartOwnerLiveReviewClient.tsx');
+ const review=read('app/owner-review/page.tsx');
+ const shop=read('app/shop-v8-review/page.tsx');
+ for(const s of [about,shipping,events,style,cart,review]){
+   assert.match(s,/pt-20/);
+   assert.match(s,/sm:pt-24/);
+ }
+ assert.match(shop,/pt-20 pb-4 sm:pt-24/);
+ assert.match(css,/--feya-owner-intro-top: 5rem/);
+ assert.match(css,/--feya-owner-intro-top: 6rem/);
+ assert.match(css,/shop-page.*:not\(\.visual-commerce-embedded\)/);
+ assert.match(css,/thefeya-approved-logo-transparent\.webp/);
+ assert.doesNotMatch(css,/mix-blend-mode:screen/);
+});
+test('V9 Seller Online details are moved to end of Shipping before Footer, not duplicated on Contact',()=>{
+ const contact=read('components/ContactExperience2026.tsx');
+ const shipping=read('app/shipping-review/page.tsx');
+ const partner=read('components/OwnerSellerOnlinePartnerDetails.tsx');
+ assert.doesNotMatch(contact,/payment-operator-heading|SELLER_ONLINE_PROVIDER|OwnerSellerOnlinePartnerDetails/);
+ assert.match(shipping,/<OwnerSellerOnlinePartnerDetails\/>\s*<Footer\/>/);
+ assert.match(partner,/SELLER_ONLINE_PROVIDER/);
+ assert.match(partner,/payment-operator-heading/);
+ assert.match(partner,/op\.legalName/);
+ assert.match(partner,/href="\/privacy"/);
+ assert.match(partner,/href="\/terms"/);
 });

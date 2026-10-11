@@ -10,7 +10,7 @@ const copy='mt-3 text-[14px] sm:text-[15px] leading-7 text-[var(--bone-dim)]';
 function Frame({eyebrow,title,description,children}:{eyebrow:string;title:string;description:string;children:React.ReactNode}){
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-40">
+    <section className="container-feya pt-20 pb-10 sm:pt-24 lg:pt-24">
       <div className="max-w-4xl">
         <p className="eyebrow-gold mb-4">{eyebrow}</p>
         <h1 className="visual-display text-[clamp(31px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">{title}</h1>
@@ -31,7 +31,7 @@ export function OwnerAboutReview(){
   ] as const;
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-28 pb-11 sm:pt-32 lg:pt-32 lg:pb-12">
+    <section className="container-feya pt-20 pb-11 sm:pt-24 lg:pt-24 lg:pb-12">
       <div className="w-full">
         <p className="eyebrow-gold">Independent designer atelier · TheFEYA</p>
         <h1 className="visual-display mt-4 text-[clamp(34px,4.1vw,54px)] leading-[1.08] tracking-[-.035em] text-[#f7f3ec]">About TheFEYA</h1>
