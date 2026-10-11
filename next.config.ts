@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
     const preview = visualV2Preview;
     return {
       beforeFiles: preview ? [
+        {source: '/shop', destination: '/shop-v8-review'},
         {source: '/events-performance', destination: '/events-performance-review'},
         {source: '/style', destination: '/style-review'},
         {source: '/about', destination: '/about-review'},

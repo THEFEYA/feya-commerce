@@ -16,6 +16,7 @@ test('real Next config routes normal menu URLs to changed owner pages on exact V
     assert.ok(rules && !Array.isArray(rules));
     const before=rules.beforeFiles ?? [];
     assert.deepEqual(before.map(({source,destination})=>[source,destination]),[
+      ['/shop','/shop-v8-review'],
       ['/events-performance','/events-performance-review'],
       ['/style','/style-review'],
       ['/about','/about-review'],

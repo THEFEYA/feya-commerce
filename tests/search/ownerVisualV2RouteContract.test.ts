@@ -10,6 +10,7 @@ test('normal navigation URLs show review pages only on the exact protected previ
   assert.match(cfg,/VERCEL_ENV === 'preview'/);
   assert.match(cfg,/VERCEL_GIT_COMMIT_REF === 'work\/owner-visual-commercial-review-v2-20261010'/);
   for(const [route,dest] of Object.entries({
+    '/shop':'/shop-v8-review',
     '/events-performance':'/events-performance-review',
     '/style':'/style-review',
     '/about':'/about-review',

@@ -312,3 +312,22 @@ test('V8 canonical ten owner landing directory stays frozen while only extra car
  assert.match(owner,/OWNER_STYLE_HUB_TILES/);
  assert.doesNotMatch(owner,/COLLECTION_DIRECTORY_GROUPS/);
 });
+
+test('V8 noindex shop has immediate real-looking loading UI, same exact filters and gated approved shared cache',()=>{
+ const shop=read('app/shop-v8-review/page.tsx');
+ const main=read('app/shop/page.tsx');
+ const cfg=read('next.config.ts');
+ assert.match(shop,/if\(!isOwnerUnifiedStorefrontPreview\(process\.env\)\)notFound\(\)/);
+ assert.match(shop,/readClosedReviewPresentation/);
+ assert.match(shop,/await readOwnerRemoteCatalogPreviewV1\(\)/);
+ assert.match(shop,/await readCachedApprovedStorefrontCatalogV1\(\)/);
+ assert.match(shop,/owner_shop_catalog_timing/);
+ assert.match(shop,/OwnerHubCatalogSkeleton/);
+ assert.match(shop,/title: 'Shop'/);
+ assert.match(shop,/robots: \{ index:false, follow:false \}/);
+ assert.match(shop,/parseShopNavigation/);
+ assert.match(shop,/shopNavigationNeedsNormalization/);
+ assert.match(shop,/SHOP_PAGE_SIZE/);
+ assert.match(cfg,/source: '\/shop', destination: '\/shop-v8-review'/);
+ assert.match(main,/readCachedApprovedStorefrontCatalogV1/);
+});
