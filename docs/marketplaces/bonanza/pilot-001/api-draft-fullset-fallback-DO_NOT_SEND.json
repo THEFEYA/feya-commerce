@@ -1,0 +1,95 @@
+{
+  "export_type": "BONANZA_DRAFT_FULL_SET_ONLY_FALLBACK_NOT_AUTHORIZED",
+  "enabled_for_upload": false,
+  "schema": "bonanza_addFixedPriceItemRequest_preview_v1",
+  "pilot": "TF-4367470907",
+  "source_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+  "source_etsy_id": "4367470907",
+  "source_approved_hash": "afaab677670d8cb765ef12e8aa4a3d5d4d39a5676e81c67ae361edef88a9671f",
+  "selection_decisions": {
+    "category_id": 53369,
+    "category_leaf_confirmed": false,
+    "variation_axes_confirmed": false,
+    "category_traits_confirmed": false,
+    "quantities_enabled": false,
+    "shipping_enabled": false,
+    "has_bonanza_api_credentials": false,
+    "has_verified_seller_token": false
+  },
+  "risks": [
+    "CATEGORY_TRAITS_UNVERIFIED",
+    "API_ACCOUNT_NOT_CONNECTED",
+    "SELLER_TOKEN_NOT_CONNECTED",
+    "QUANTITY_ZERO_NO_SALES",
+    "SHIPPING_NOT_CONFIGURED",
+    "OLD_INCOMPLETE_LISTINGS_UNCHANGED",
+    "FULLSET_PRICE_GUARD",
+    "FALLBACK_MUST_NOT_BE_USED_UNTIL_CATEGORY_TRAITS_FAIL_AND_OWNER_APPROVES"
+  ],
+  "original_variants": [
+    {
+      "source_variant_id": "ad180ff5-524a-5a89-9bb0-c42c046c2bdb",
+      "label": "Garters",
+      "price_usd": 96.5
+    },
+    {
+      "source_variant_id": "7ab9a1ce-8902-52d7-8861-df90eb543a8e",
+      "label": "Panties",
+      "price_usd": 96.5
+    },
+    {
+      "source_variant_id": "ad48b187-48e6-5908-a992-5642202be2e0",
+      "label": "Skirt",
+      "price_usd": 115.81
+    },
+    {
+      "source_variant_id": "77b4f907-712b-50d9-80dc-43905d985295",
+      "label": "Top",
+      "price_usd": 130.28
+    },
+    {
+      "source_variant_id": "66a4f994-2288-50e5-915d-b5f8eb762f6d",
+      "label": "Top + Skirt",
+      "price_usd": 175.46
+    },
+    {
+      "source_variant_id": "033fb477-75de-536d-b274-2af398d1a810",
+      "label": "Full Set",
+      "price_usd": 295.09
+    }
+  ],
+  "allowed_colorways": [
+    "Gold",
+    "Silver"
+  ],
+  "request_preview": {
+    "addFixedPriceItemRequest": {
+      "item": {
+        "title": "Silver Metallic Festival Costume — Complete Full Set",
+        "primaryCategory": {
+          "categoryId": 53369
+        },
+        "description": "A silver festival costume for women drawn to cosmic and cyberpunk fashion, with a sci-fi mood for rave nights and photoshoots.<br><br>About the design<br>Round chest panels and sweeping curves give the design a distinctly space-age character. Open areas around the waist and hip contrast with the broad silver panels. This metallic festival outfit has a smooth, glossy surface with a polished metal-inspired finish. Visible buckle straps add a utilitarian detail to the otherwise rounded design.<br><br>Choose exactly what you want to purchase<br>Select one configuration: Garters, Panties, Skirt, Top, Top + Skirt, or Full Set. The price shown for your selected configuration is the total price of that option. Pieces not included in the selected configuration are not included in your order.<br><br>Available colorways<br>Gold or Silver. Both choices are offered at the same price for a given configuration.<br><br>Materials<br>Handmade using vegan leather with a metallic reflective finish. Material is not a separate purchasing option for this product.<br><br>Who it is for<br>Women choosing a cosmic look for a music festival.<br>Rave-goers choosing cyberpunk clothing for a night of electronic music.<br>Photographers planning a sci-fi fashion shoot with a female model.<br>Costume stylists creating a futuristic look for a desert photoshoot.<br><br>Made to order. If you need sizing details, please contact the seller before purchasing.<br><br>This particular fallback listing offers the FULL SET ONLY. Individual pieces are not sold through this fallback listing.",
+        "price": 295.09,
+        "quantity": 0,
+        "obo": false,
+        "externalProductId": "THEFEYA-4367470907-FULLSET-PILOT",
+        "sku": "TF-4367470907-FULLSET",
+        "pictureDetails": {
+          "pictureURL": [
+            "https://i.etsystatic.com/54033853/r/il/c27048/7236051841/il_fullxfull.7236051841_f214.jpg",
+            "https://i.etsystatic.com/54033853/r/il/409c40/7188072088/il_fullxfull.7188072088_bkxl.jpg",
+            "https://i.etsystatic.com/54033853/r/il/709895/7236051845/il_fullxfull.7236051845_5wgg.jpg",
+            "https://i.etsystatic.com/54033853/r/il/d2dfd8/7236052379/il_fullxfull.7236052379_fbyx.jpg"
+          ]
+        },
+        "allowForSale": false
+      }
+    }
+  },
+  "expected_ack": {
+    "source_product_count": 1,
+    "variation_row_count": 0,
+    "default_item_price_usd": 295.09
+  }
+}
