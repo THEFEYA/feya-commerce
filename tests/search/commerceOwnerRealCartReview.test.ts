@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {
   OWNER_CART_STORAGE_KEY,OWNER_CART_COUNTRIES,OWNER_CART_REGIONS,
   isOwnerRealCartReviewDeployment,ownerCartAddressRegions,
-  ownerCartVisualTotals,parseOwnerCartStorage,
+  ownerCartVisualTotals,ownerCartPreviewExtraEstimate,parseOwnerCartStorage,
 } from '../../lib/commerceOwnerCartReview.ts';
 
 const A='0403df9f-3ff9-498d-b3d9-69ad64b3dd4c';
@@ -137,14 +137,54 @@ test('preview UX never transmits customer PII, real payment or newsletter signup
   assert.match(src,/parseOwnerCartStorage/);
   assert.match(src,/ownerCartVisualTotals/);
   assert.match(src,/totals\.show_handling_fee&&/);
-  assert.match(src,/Additional packaging for multiple items/);
+  assert.match(src,/Additional packaging for a larger parcel/);
   assert.match(src,/No payments or orders are accepted/);
   assert.match(src,/never saved/);
   assert.match(src,/marketingConsent,setMarketingConsent/);
   assert.match(src,/acceptedTerms,setAcceptedTerms/);
   assert.match(src,/aria-disabled="true" disabled/);
   assert.match(src,/Checkout not active/);
-  assert.match(src,/\/privacy/);
+  // Privacy remains directly linked in the global Footer, without adding a
+  // redundant explanatory paragraph between the two cart checkboxes.
+  const footer=readFileSync('components/Footer.tsx','utf8');
+  assert.match(footer,/href="\/privacy"/);
+  assert.doesNotMatch(src,/Your information is handled in accordance with our/);
   assert.match(src,/Change|Edit options/);
   assert.doesNotMatch(src,/fetch\(|sendBeacon\(|FormData\(|subscribe\(|localStorage\.setItem\([^\n]*email/);
+});
+
+test('EUR proposals increase only the illustrative cart, never the payable amount',()=>{
+  const a=parseOwnerCartStorage([line(A,c1)]).items[0];
+  const b=parseOwnerCartStorage([line(B,c2,{id:`${B}-${c2}-M-Gold`})]).items[0];
+  const two=[a,b];
+  const extra=ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:[a.id],giftCard:true,giftBox:true,destination:'US'});
+  assert.equal(extra.total_extra_minor,5000);
+  assert.equal(extra.made_to_measure_minor,1500);
+  assert.equal(extra.gift_card_minor,1000);
+  assert.equal(extra.gift_box_minor,2500);
+  assert.equal(extra.final_payable_amount_minor,null);
+  assert.equal(extra.proposals_not_approved_for_payment,true);
+  assert.equal(ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:[],giftCard:false,giftBox:false,destination:'AU'}).remote_example_minor,2000);
+  assert.throws(()=>ownerCartPreviewExtraEstimate(two,{madeToMeasureItemIds:['wrong'],giftCard:true,giftBox:false,destination:'US'}),/owner_preview_extra_line_invalid/);
+  assert.equal(ownerCartPreviewExtraEstimate([],{madeToMeasureItemIds:[],giftCard:true,giftBox:true,destination:'AU'}).total_extra_minor,0);
+});
+test('per-product radio Men/Women replaced redundant fit-chart dropdown',()=>{
+ const src=readFileSync('components/CartOwnerLiveReviewClient.tsx','utf8');
+ assert.match(src,/wearerByItem\[item\.id\]/);
+ assert.match(src,/name=\{'owner-wearer-'\+item\.id\}/);
+ assert.doesNotMatch(src,/Fit reference for this piece/);
+ assert.match(src,/Made to your measurements/);
+ assert.match(src,/illustrativeTotal/);
+});
+
+test('buyer-facing owner cart has one concise estimate and no operational disclaimers',()=>{
+ const src=readFileSync('components/CartOwnerLiveReviewClient.tsx','utf8');
+ assert.match(src,/Estimated order total/);
+ assert.match(src,/Made to your measurements/);
+ assert.match(src,/customFitIds\.includes\(item\.id\)/);
+ assert.doesNotMatch(src,/before tax|not a trusted server quote|Seller Online and final delivery checks|Additional shipping region unverified/i);
+ assert.doesNotMatch(src,/Newsletter consent is optional and unchecked/);
+ assert.match(src,/Checkout not active/);
+ assert.match(src,/ownerCartVisualTotals/);
+ assert.match(src,/ownerCartPreviewExtraEstimate/);
 });

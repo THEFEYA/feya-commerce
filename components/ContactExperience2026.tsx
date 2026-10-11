@@ -1,145 +1,115 @@
-import Link from 'next/link';
 import {
   ArrowUpRight,Mail,MessageCircle,Phone,Instagram,Facebook,Pin,
+  MapPinned,Send,ShieldCheck,
 } from 'lucide-react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
-import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 import {CopySupportEmailButton} from '@/components/CopySupportEmailButton';
+import {OwnerLocationMapPreview} from '@/components/OwnerLocationMapPreview';
+import {OwnerContactFormPreview} from '@/components/OwnerContactFormPreview';
+import {OwnerNewsletterSignupPreview} from '@/components/OwnerNewsletterSignupPreview';
 
 const contactEmail='manager.feya@gmail.com';
 const supportPhone='+380636556288';
-
-/** Owner-authorized CONTACT-only visual revision in protected PREVIEW.
- * The approved LIVE /contact & its ACTIVE v12 source pin are not modified.
- * These accounts have no confirmed URLs yet: they are strictly visual
- * placeholders, intentionally non-clickable to avoid false social links.
- */
 const socialReview=[
-  {id:'instagram-1',label:'Instagram 1',Icon:Instagram},
-  {id:'instagram-2',label:'Instagram 2',Icon:Instagram},
-  {id:'instagram-3',label:'Instagram 3',Icon:Instagram},
+  {id:'instagram-1',label:'Instagram',Icon:Instagram},
   {id:'facebook',label:'Facebook',Icon:Facebook},
   {id:'pinterest',label:'Pinterest',Icon:Pin},
 ] as const;
+// Account links pending owner verification: show real platform icons, no fake URLs.
 
-/** This page will NOT be made public until owner visual review and separate
- * governed Phase13 content/legal pin migration. No map without verified
- * registered company place; no public social URL without owner source.
- */
 export function ContactExperience2026(){
-  const op=SELLER_ONLINE_PROVIDER;
-  return <main className="visual-commerce-shell relative min-h-screen">
+  return <main data-testid="owner-contact-preview" className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-8 sm:pt-36 lg:pt-40 lg:pb-10">
-      <div className="max-w-3xl">
+    <section className="container-feya pt-20 pb-7 sm:pt-24 lg:pt-24 lg:pb-9">
+      <div className="max-w-4xl">
         <p className="eyebrow-gold mb-4">TheFEYA · Get in touch</p>
-        <h1 className="visual-display text-[clamp(40px,4.4vw,62px)] font-medium leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">
-          Contact
-        </h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">
-          Questions about a design, your fit or an order? Our studio is here to help.
+        <h1 className="visual-display text-[clamp(34px,4vw,54px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Contact</h1>
+        <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">
+          Questions about a design, your size or your order? We would love to hear from you.
         </p>
       </div>
     </section>
 
-    <section className="container-feya pb-9 lg:pb-12" aria-labelledby="thefeya-support-heading">
-      <div className="rounded-[16px] border border-[rgba(216,214,211,.18)] bg-[rgba(255,255,255,.035)] p-6 sm:p-8 lg:p-10">
-        <p className="eyebrow-gold">TheFEYA support</p>
-        <h2 id="thefeya-support-heading" className="mt-3 text-[clamp(23px,2.7vw,32px)] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">
-          Tell us how we can help.
-        </h2>
-        <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[var(--bone-dim)]">
-          Product details, sizes and measurements, existing orders, and after-sales support — reach TheFEYA directly.
-        </p>
+    <section className="container-feya pb-10 lg:pb-14" aria-label="Contact TheFEYA">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:items-stretch">
+        <div className="rounded-[18px] border border-[rgba(216,214,211,.16)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.055),rgba(255,255,255,.018)_60%)] p-6 sm:p-8">
+          <p className="eyebrow-gold">TheFEYA support</p>
+          <h2 className="mt-3 text-[clamp(23px,2.7vw,31px)] font-medium text-[#f7f3ec]">We are here to help.</h2>
+          <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">Our studio can help you choose a design, confirm details or answer a question about an existing order.</p>
 
-        <div className="mt-7 grid gap-4 lg:grid-cols-2">
-          <div className="min-w-0 rounded-xl border border-[rgba(212,178,106,.19)] bg-[rgba(7,7,10,.42)] p-5 sm:p-6">
-            <p className="eyebrow-gold flex items-center gap-2"><Mail size={16} aria-hidden="true"/> Email the studio</p>
-            <a href={`mailto:${contactEmail}`} className="group mt-4 flex min-w-0 items-start gap-2 text-[15px] text-[#f7f3ec] underline decoration-[rgba(212,178,106,.5)] underline-offset-4 hover:decoration-[#d4b26a] sm:text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]">
-              <span className="min-w-0 flex-1 break-all">{contactEmail}</span>
-              <ArrowUpRight size={17} className="shrink-0 text-[#d4b26a]" aria-hidden="true"/>
-            </a>
-            <div className="mt-5"><CopySupportEmailButton email={contactEmail}/></div>
-          </div>
-
-          <div className="min-w-0 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(7,7,10,.38)] p-5 sm:p-6">
-            <p className="eyebrow-gold flex items-center gap-2"><Phone size={16} aria-hidden="true"/> Phone & messaging</p>
-            <a href={`tel:${supportPhone}`} className="mt-4 inline-flex items-center gap-2 text-[17px] text-[#f7f3ec] hover:text-[#e8ca87] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]">
-              +380 63 655 62 88 <ArrowUpRight size={16} className="text-[#d4b26a]" aria-hidden="true"/>
-            </a>
-            <div className="mt-4">
-              <a href="https://wa.me/380636556288" target="_blank" rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.065)] px-4 text-[14px] text-[#f7f3ec] hover:border-[#d4b26a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]">
-                <MessageCircle size={17} aria-hidden="true"/> Message on WhatsApp <ArrowUpRight size={14} aria-hidden="true"/>
-                <span className="sr-only">(opens in a new tab)</span>
+          <div className="mt-8 space-y-6">
+            <div>
+              <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.16em] text-[#d9b873]"><Mail size={18} aria-hidden="true"/> Email the studio</p>
+              <div className="mt-2 flex min-w-0 items-center gap-1">
+                <a href={`mailto:${contactEmail}`} className="min-w-0 break-all text-[15px] text-[#f7f3ec] underline decoration-[rgba(212,178,106,.35)] underline-offset-4 hover:text-[#e3cb93] sm:text-[16px]">{contactEmail}</a>
+                <CopySupportEmailButton email={contactEmail}/>
+              </div>
+            </div>
+            <div>
+              <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.16em] text-[#d9b873]"><Phone size={18} aria-hidden="true"/> Phone & messaging</p>
+              <div className="mt-2 flex items-center gap-1">
+                <a href={`tel:${supportPhone}`} className="text-[16px] text-[#f7f3ec] hover:text-[#e3cb93]">+380 63 655 62 88</a>
+                <CopySupportEmailButton email={supportPhone} label="phone number"/>
+              </div>
+              <a href="https://wa.me/380636556288" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.065)] px-5 text-[13px] font-medium text-[#f7f3ec] hover:border-[#d4b26a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d4b26a]">
+                <MessageCircle size={18} aria-hidden="true"/> WhatsApp <ArrowUpRight size={15} aria-hidden="true"/>
               </a>
             </div>
-            <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">
-              The same contact number can be used for Viber and Telegram. Direct app links will be added only after verification.
-            </p>
+          </div>
+          <div className="mt-4 border-t border-white/[.10] pt-4" aria-label="Contact and social media">
+          <div className="mt-1" aria-label="TheFEYA social profiles">
+            <span className="text-[11px] uppercase tracking-[.16em] text-[#aaa39a]">Follow TheFEYA</span>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
+              {socialReview.map(({id,label,Icon})=><span key={id} aria-label={label}
+                className="inline-flex items-center gap-2 text-[12px] text-[#c5bdb3]" title={label}>
+                <Icon size={22} strokeWidth={1.7} aria-hidden="true"/>{label}
+              </span>)}
+            </div>
+          </div>
           </div>
         </div>
-        <p className="mt-5 text-[12px] leading-6 text-[var(--bone-dim)]">
-          For an existing order, include your order number. For a product question, sending the product link helps us answer accurately.
-        </p>
-      </div>
-    </section>
 
-    <section className="container-feya pb-10" aria-labelledby="thefeya-social-heading">
-      <div className="border-t border-[rgba(216,214,211,.11)] pt-7">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="eyebrow-gold">TheFEYA community</p>
-            <h2 id="thefeya-social-heading" className="mt-2 text-[21px] font-medium text-[#f7f3ec]">Follow our creations</h2>
+        <div className="rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[rgba(255,255,255,.027)] p-6 sm:p-8" aria-labelledby="contact-message-heading">
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d4b26a]/20 bg-[#d4b26a]/[.075] text-[#d4b26a]"><Send size={24} strokeWidth={1.5} aria-hidden="true"/></div>
+            <div>
+              <p className="eyebrow-gold">Your message</p>
+              <h2 id="contact-message-heading" className="mt-2 text-[clamp(22px,2.4vw,29px)] font-medium text-[#f7f3ec]">Ask us a question.</h2>
+            </div>
           </div>
-          <p className="text-[11px] leading-5 text-[var(--bone-dim)]">Account links pending owner verification · visual preview only</p>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2.5" aria-label="Social platform icons proposed for owner review">
-          {socialReview.map(({id,label,Icon})=><span key={id}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[rgba(216,214,211,.16)] bg-[rgba(255,255,255,.018)] px-4 text-[13px] text-[#c9c3bb]">
-            <Icon size={16} strokeWidth={1.6} aria-hidden="true"/> {label}
-          </span>)}
+          <OwnerContactFormPreview/>
         </div>
       </div>
     </section>
 
-    <section className="container-feya pb-16 lg:pb-24" aria-labelledby="payment-operator-heading">
-      <div className="rounded-xl border border-[rgba(216,214,211,.09)] bg-[rgba(255,255,255,.012)] px-5 py-6 sm:p-7">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,.94fr)_minmax(0,1.06fr)]">
-          <div>
-            <h2 id="payment-operator-heading" className="text-[12px] font-medium uppercase tracking-[.14em] text-[#a49c93]">
-              Payment and shipping operator · planned integration
-            </h2>
-            <p className="mt-2 text-[13px] leading-6 text-[#a8a19b]">
-              {op.legalName} is TheFEYA’s designated payment recipient and logistics partner
-              for planned online checkout. Online payments on thefeya.com are not active yet.
-            </p>
-            <p className="mt-2 text-[12px] leading-5 text-[#99918c]">
-              Partner details are provided for transparency. This is not the product support contact,
-              manufacturer identity or a confirmation of TheFEYA’s legal seller.
-            </p>
-          </div>
-          <div className="space-y-1.5 text-[12px] leading-6 text-[#a8a19b]">
-            <p className="font-medium text-[#c7bfb5]">Partner US postal contact</p>
-            <address className="not-italic">
-              {op.legalName}, {op.contactAddress.line1},
-              {' '}{op.contactAddress.city}, {op.contactAddress.region} {op.contactAddress.postalCode},
-              {' '}{op.contactAddress.country}
-            </address>
-            <p>
-              <a href={`mailto:${op.usOfficeEmail}`} className="break-all underline decoration-[rgba(216,214,211,.35)] underline-offset-4 hover:text-[#f7f3ec]">{op.usOfficeEmail}</a>
-              {' · '}<a href="tel:+12678009048" className="hover:underline">{op.usOfficePhone}</a>
-            </p>
-          </div>
-        </div>
+    <section className="container-feya pb-12 lg:pb-16" aria-label="Where we work">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div><p className="eyebrow-gold">Studio & logistics</p><h2 className="mt-2 text-[clamp(22px,2.7vw,31px)] font-medium text-[#f7f3ec]">Explore our locations</h2></div>
+        <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">Explore interactive Google Maps, or open each verified location directly.</p>
       </div>
-      <div className="mt-6 flex flex-wrap items-center gap-5 text-[12px] text-[var(--bone-dim)]">
-        <Link href="/privacy" className="underline decoration-[rgba(216,214,211,.4)] underline-offset-4 hover:text-[#f7f3ec]">Privacy Policy</Link>
-        <Link href="/terms" className="underline decoration-[rgba(216,214,211,.4)] underline-offset-4 hover:text-[#f7f3ec]">Terms of Use</Link>
-        <span>Direct email and messaging only — no contact form or automatic marketing signup.</span>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+        <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">
+          <div className="flex items-center gap-2 text-[#d4b26a]"><MapPinned size={22} aria-hidden="true"/><span className="text-[10px] uppercase tracking-[.16em]">Ukraine · showroom reference</span></div>
+          <h3 className="mt-3 text-[21px] text-[#f7f3ec]">Фея-Портупея</h3>
+          <p className="mt-1 text-[13px] text-[var(--bone-dim)]">Харківське шосе, 19, Київ, Україна</p>
+          <OwnerLocationMapPreview location="kyiv"/>
+          <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please contact TheFEYA before planning a visit. The current public listing and visiting hours still require confirmation.</p>
+        </article>
+        <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">
+          <div className="flex items-center gap-2 text-[#d4b26a]"><MapPinned size={22} aria-hidden="true"/><span className="text-[10px] uppercase tracking-[.16em]">United States · partner warehouse</span></div>
+          <h3 className="mt-3 text-[21px] text-[#f7f3ec]">US fulfillment partner</h3>
+          <p className="mt-1 text-[13px] text-[var(--bone-dim)]">635 Somers Ave, Feasterville-Trevose, PA 19053, USA</p>
+          <OwnerLocationMapPreview location="us-warehouse"/>
+          <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Partner fulfillment address, not a TheFEYA showroom. Any US-based dispatch depends on exact verified product availability.</p>
+        </article>
       </div>
     </section>
+
+    <section className="container-feya pb-4 lg:pb-5" aria-labelledby="newsletter-title">
+      <OwnerNewsletterSignupPreview/>
+    </section>
+
     <Footer/>
   </main>;
 }

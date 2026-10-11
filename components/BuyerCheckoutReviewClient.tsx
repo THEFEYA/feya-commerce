@@ -171,7 +171,7 @@ export function BuyerCheckoutReviewClient({products,catalogAvailable}:Props){
               <span className="text-[#f7f3ec]">{breakdown?money(breakdown.shipping_minor):'—'}</span>
             </div>
             {Boolean(breakdown&&breakdown.distinct_listing_count>1)&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Additional packaging for multiple items</span>
+              <span>Additional packaging for a larger parcel</span>
               <span className="text-[#f7f3ec]">{money(breakdown!.handling_minor)}</span>
             </div>}
             {Boolean(breakdown?.remote_example_minor)&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">

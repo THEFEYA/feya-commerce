@@ -1,7 +1,8 @@
 export const instant = false;
 
 import type {Metadata} from 'next';
-import {notFound} from 'next/navigation';
+import {notFound,redirect} from 'next/navigation';
+import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {BuyerCheckoutReviewClient,type CheckoutVisualReviewProduct} from '@/components/BuyerCheckoutReviewClient';
@@ -40,6 +41,9 @@ async function approvedCardSamples():Promise<CheckoutVisualReviewProduct[]>{
 }
 
 export default async function CheckoutReviewPage(){
+  // V2 uses the real same-origin PDP-selected bag, not static 1/2/3 sample listings.
+  if(isOwnerUnifiedStorefrontPreview(process.env) &&
+    process.env.VERCEL_GIT_COMMIT_REF===OWNER_VISUAL_V2_REVIEW_BRANCH)redirect('/cart');
   if(process.env.VERCEL_ENV!=='preview'&&process.env.NODE_ENV==='production')notFound();
   const products=await approvedCardSamples();
   return <main className="visual-commerce-shell relative min-h-screen">

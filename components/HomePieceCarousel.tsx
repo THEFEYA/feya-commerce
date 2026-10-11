@@ -31,11 +31,11 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
 
     const timer = window.setInterval(() => {
       const rail = railRef.current;
-      if (!rail) return;
+      if (!rail || document.visibilityState !== 'visible') return;
 
       const nearEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 32;
       if (nearEnd) {
-        rail.scrollTo({ left: 0, behavior: 'smooth' });
+        rail.scrollTo({ left: 0, behavior: 'auto' });
       } else {
         move(1);
       }
@@ -50,7 +50,9 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
+      onBlurCapture={(event) => {if(!event.currentTarget.contains(event.relatedTarget as Node|null))setPaused(false);}}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
     >
       <div
         ref={railRef}

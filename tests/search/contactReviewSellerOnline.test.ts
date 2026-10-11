@@ -26,11 +26,13 @@ test('Contact design uses real customer support, canonical provider metadata and
   const provider=readFileSync('lib/sellerOnlineProvider.ts','utf8');
   assert.match(component,/manager\.feya@gmail\.com/);
   assert.match(component,/380636556288/);
-  assert.match(component,/SELLER_ONLINE_PROVIDER/);
-  assert.match(component,/op\.contactAddress\.postalCode/);
-  assert.match(component,/online checkout|Online payments/i);
-  assert.match(component,/href="\/privacy"/);
-  assert.match(component,/href="\/terms"/);
+  const partner=readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8');
+  assert.doesNotMatch(component,/SELLER_ONLINE_PROVIDER/);
+  assert.match(partner,/SELLER_ONLINE_PROVIDER/);
+  assert.match(partner,/op\.contactAddress\.postalCode/);
+  assert.match(partner,/online checkout|Online payments/i);
+  assert.match(partner,/href="\/privacy"/);
+  assert.match(partner,/href="\/terms"/);
   assert.match(provider,/merchantOfRecordConfirmed: false/);
   assert.doesNotMatch(component,/Merchant of Record|is our legal seller|guaranteed response|24\/7/i);
   assert.match(component,/focus-visible/);
@@ -43,7 +45,11 @@ test('Contact design uses real customer support, canonical provider metadata and
   assert.doesNotMatch(component,/Helpful links|helpLinks|Find an answer/);
   assert.doesNotMatch(component,/https:\/\/(?:www\.)?(?:instagram|facebook|pinterest)\.com/);
   assert.doesNotMatch(component,/<iframe|Google Maps iframe/);
-  assert.match(component,/border-\[rgba\(216,214,211,.09\)\]/);
+  // The commercial operator remains identifiable without a distracting card.
+  assert.doesNotMatch(component,/payment-operator-heading/);
+  assert.match(readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8'),/payment-operator-heading/);
+  assert.match(readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8'),/op\.legalName/);
+  assert.doesNotMatch(component,/rounded-xl border border-\[rgba\(216,214,211,.09\)\]/);
 });
 
 test('Copy Email interaction reports only actual clipboard success, no forms, tracking or faux manager signup',()=>{
@@ -55,4 +61,31 @@ test('Copy Email interaction reports only actual clipboard success, no forms, tr
   assert.match(client,/setStatus\('unavailable'\)/);
   assert.match(client,/aria-live="polite"/);
   assert.doesNotMatch(client,/fetch\(|localStorage|subscription|newsletter/i);
+});
+
+test('two evidence-backed map locations load Google Maps only on visitor click',()=>{
+  const contact=readFileSync('components/ContactExperience2026.tsx','utf8');
+  const map=readFileSync('components/OwnerLocationMapPreview.tsx','utf8');
+  const clipboard=readFileSync('components/CopySupportEmailButton.tsx','utf8');
+  assert.match(contact,/OwnerLocationMapPreview location="kyiv"/);
+  assert.match(contact,/OwnerLocationMapPreview location="us-warehouse"/);
+  assert.match(contact,/635 Somers Ave, Feasterville-Trevose, PA 19053/);
+  assert.match(contact,/Харківське шосе, 19/);
+  assert.match(map,/setLoaded\(true\)/);
+  assert.match(map,/loaded\?<iframe/);
+  assert.match(map,/allowFullScreen/);
+  assert.match(map,/www\.google\.com\/maps/);
+  assert.doesNotMatch(map,/useEffect\(/);
+  assert.match(clipboard,/aria-label=/);
+  assert.doesNotMatch(clipboard,/Copy email'|Copy email\}/);
+});
+
+test('Google Maps business entries are now verified by place ID and live in protected preview',()=>{
+ const map=readFileSync('components/OwnerLocationMapPreview.tsx','utf8');
+ assert.match(map,/placeId:'ChIJBWr-l83F1EARiaqJ10nf3mA'/);
+ assert.match(map,/placeId:'ChIJQZawTZytxokRn5f9xm8D7xg'/);
+ assert.match(map,/query_place_id/);
+ assert.match(map,/const \[loaded,setLoaded\]=useState\(process\.env\.NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW==='1'\)/);
+ assert.match(map,/src=\{embed\}/);
+ assert.match(map,/loaded\?<iframe/);
 });

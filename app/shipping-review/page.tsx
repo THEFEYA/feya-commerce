@@ -3,124 +3,154 @@ export const instant = false;
 import type {Metadata} from 'next';
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
-import {ArrowRight,Clock3,Package,ShieldCheck,Truck} from 'lucide-react';
+import {
+  Scissors,Truck,Plane,Boxes,Route,ScanLine,FileCheck2,
+  ShieldCheck,ArrowRight,MapPin,
+} from 'lucide-react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {OwnerSellerOnlinePartnerDetails} from '@/components/OwnerSellerOnlinePartnerDetails';
 
-/** Vercel-preview-only proposed SHIPPING COPY for owner review.
- * The existing ACTIVE Search v12 /shipping source stays byte-for-byte frozen
- * until a separately governed versioned content migration is approved.
- */
 export const metadata:Metadata={
   title:'TheFEYA · Shipping Policy Review',
-  description:'Unlisted proposed shipping presentation; no public rate activation.',
+  description:'Private visual preview of TheFEYA delivery, production, shipping costs and customs guidance.',
   robots:{index:false,follow:false,nocache:true,noarchive:true},
 };
+
+const box='rounded-[18px] border border-white/[.14] bg-[linear-gradient(150deg,rgba(255,255,255,.04),rgba(255,255,255,.012))]';
+const smallTitle='text-[20px] sm:text-[22px] font-medium tracking-[-.02em] text-[#f7f3ec]';
+
+function IconSpot({children}:{children:React.ReactNode}){
+  return <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(212,178,106,.26)] bg-[radial-gradient(circle_at_30%_20%,rgba(212,178,106,.14),rgba(212,178,106,.03))] text-[#dfbf79]">
+    {children}
+  </span>;
+}
 
 export default function ShippingReviewPage(){
   if(process.env.VERCEL_ENV!=='preview'&&process.env.NODE_ENV==='production')notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-32 pb-10 sm:pt-36 lg:pt-44 lg:pb-14">
-      <p className="eyebrow-gold mb-4">TheFEYA · Shipping review</p>
-      <h1 className="visual-display max-w-4xl text-[clamp(38px,4.8vw,66px)] font-medium leading-[.97] tracking-[-.045em] text-[#f7f3ec]">Shipping & Delivery</h1>
-      <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[var(--bone-dim)]">
-        Made to order, prepared in our workshop, then shipped internationally. Choose how urgently you need your order prepared; we will select the suitable courier.
+    <section className="container-feya pt-20 pb-7 sm:pt-24 lg:pt-24 lg:pb-9">
+      <p className="eyebrow-gold mb-4">TheFEYA · Shipping & care</p>
+      <h1 className="visual-display max-w-4xl text-[clamp(31px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">
+        Shipping & Delivery
+      </h1>
+      <p className="mt-5 max-w-3xl text-[15px] leading-7 text-[var(--bone-dim)]">
+        Your look is prepared in our workshop, carefully packed and sent to your destination.
+        Choose the shipping option that suits your plans.
       </p>
     </section>
 
-    <section className="container-feya pb-16 lg:pb-24" aria-label="Shipping information">
+    <section className="container-feya pb-12 lg:pb-16" aria-label="Shipping information">
       <div className="grid gap-4 lg:grid-cols-3">
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6">
-          <Package size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
-          <p className="eyebrow-gold mt-5">Made for you</p>
-          <h2 className="mt-3 text-[27px] font-medium text-[#f7f3ec]">Production first</h2>
-          <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Typical production is 3–5 business days, depending on the design, materials and order complexity. Preparation time is separate from international transit.
+        <article className={box+' px-5 py-5 sm:px-6 sm:py-5'}>
+          <div className="flex items-center gap-4">
+            <IconSpot><Scissors size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Handmade for you</h2>
+          </div>
+          <p className="mt-3 text-[30px] font-medium leading-tight text-[#f7f3ec]">3–5 days</p>
+          <p className="mt-1 text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">Production</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
+            Typical production is 3–5 business days. Time varies by design and order complexity, before dispatch.
           </p>
         </article>
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6">
-          <Truck size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
-          <p className="eyebrow-gold mt-5">Standard</p>
-          <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€19</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative service planning: 10–14 business days</p>
-          <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Regular order preparation. This is our general planning range, not a guaranteed carrier transit speed. Making time depends on the items in the order.
+        <article className={box+' px-5 py-5 sm:px-6 sm:py-5'}>
+          <div className="flex items-center gap-4">
+            <IconSpot><Truck size={29} strokeWidth={1.4} aria-hidden="true"/></IconSpot>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Standard Shipping</h2>
+          </div>
+          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€19</p>
+          <p className="mt-1 text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">10–14 working days</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
+            A convenient option for most orders, with regular preparation and tracked delivery.
           </p>
         </article>
-        <article className="rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.045)] p-6">
-          <Clock3 size={22} strokeWidth={1.6} className="text-[#d4b26a]" aria-hidden="true"/>
-          <p className="eyebrow-gold mt-5">Express · Priority</p>
-          <h2 className="mt-3 text-[35px] font-medium text-[#f7f3ec]">€35</h2>
-          <p className="mt-2 text-[14px] text-[#f7f3ec]">Indicative priority planning: 6–9 business days</p>
-          <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">
-            A priority option for time-sensitive orders: we give your order extra attention in the preparation and dispatch queue. The stated timing is an estimate, not a guaranteed arrival date.
-          </p>
-        </article>
-      </div>
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">One delivery choice per order</h2>
-          <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Choose one Standard or Express service for the whole order. Orders containing two or more different designs may require additional packing space; this adds €5 for each additional distinct product listing. Different sizes, options or quantities within one listing do not create an extra charge.
-          </p>
-          <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Some destinations, including Australia, Mexico and New Zealand, can require an additional €20 per eligible parcel. Any applicable amount must be displayed before payment.
-          </p>
-        </article>
-
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">We choose the courier</h2>
-          <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            TheFEYA selects the carrier when preparing your parcel. We normally prefer Nova Post and can use another appropriate carrier if needed. You do not need to enter package size or weight.
-          </p>
-          <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Shipping is offered only to destinations we can actually serve from Ukraine. Availability is checked for the destination before an order can be paid.
-          </p>
-        </article>
-
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Estimated arrival, not a deadline</h2>
-          <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Production time and international transit are separate. Customs, holidays and destination-specific conditions may change the estimate. Please contact us before ordering for a fixed event date.
-          </p>
-          <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Delivery estimates do not remove statutory rights for missing, delayed, defective or non-conforming orders.
-          </p>
-        </article>
-
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-8">
-          <h2 className="text-[22px] font-medium text-[#f7f3ec]">Payment and import duties</h2>
-          <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            Available payment methods and the final order total will be shown during checkout when online payments are activated. Customs duties or import-related charges, where applicable, are explained before ordering.
-          </p>
-          <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">
-            Online checkout is not active at this stage. Contact our team if you need help with an existing order.
+        <article className="rounded-[18px] border border-[rgba(212,178,106,.40)] bg-[linear-gradient(145deg,rgba(212,178,106,.10),rgba(255,255,255,.015))] px-5 py-5 sm:px-6 sm:py-5">
+          <div className="flex items-center gap-4">
+            <IconSpot><Plane size={30} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+            <h2 className="text-[20px] sm:text-[22px] font-medium tracking-[-.02em] leading-tight text-[#f7f3ec]">Express Shipping</h2>
+          </div>
+          <p className="mt-3 text-[32px] font-medium leading-tight text-[#f7f3ec]">€35</p>
+          <p className="mt-1 text-[14px] font-medium text-[#c9c2b9] sm:text-[15px]">6–9 working days · Priority preparation</p>
+          <p className="mt-2 text-[13px] leading-6 text-[#9d968e]">
+            Our priority option for time-sensitive orders moves preparation ahead in the dispatch queue.
           </p>
         </article>
       </div>
 
-      <div className="mt-6 rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.045)] p-6 sm:p-7">
-        <div className="flex items-start gap-3">
-          <ShieldCheck size={21} strokeWidth={1.6} className="mt-1 shrink-0 text-[#d4b26a]" aria-hidden="true"/>
+      <div data-testid="shipping-secondary-cards" className="mt-5 grid min-w-0 gap-4 md:grid-cols-2">
+        <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
+          <IconSpot><Boxes size={27} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>
-            <h2 className="text-[18px] font-medium text-[#f7f3ec]">Clear information before ordering</h2>
-            <p className="mt-2 max-w-3xl text-[14px] leading-7 text-[var(--bone-dim)]">
-              A final checkout will state the available destination, chosen service, product configuration, charges and relevant store policies before you submit payment. We do not promise an exact event arrival date unless we have agreed to it for that order.
+            <h2 className={smallTitle}>Your parcel & delivery price</h2>
+            <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+              Orders with more than one different product listing may need additional packaging space: €5 for each different listing beyond the first.
+              Multiple sizes, pieces or quantities within the same listing do not add this charge.
+            </p>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
+              A €20 remote-region delivery surcharge may apply to eligible destinations where verified; any such charge is shown before payment.
             </p>
           </div>
-        </div>
+        </article>
+        <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
+          <IconSpot><Route size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <div>
+            <h2 className={smallTitle}>A reliable courier for your route</h2>
+            <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+              We regularly work with Nova Poshta (Нова пошта), an established Ukrainian delivery company.
+              Our studio can select another suitable carrier for your destination or discuss a specific preference with you.
+            </p>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
+              Please provide your correct address, telephone and email so your courier can reach you when needed.
+            </p>
+          </div>
+        </article>
+        <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
+          <IconSpot><ScanLine size={29} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <div>
+            <h2 className={smallTitle}>Tracking & personal support</h2>
+            <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+              We share your tracking number after dispatch and help you follow the shipment to delivery.
+              Our team stays available if you need help with courier communication or delivery updates.
+            </p>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
+              Travel time is an estimate, not a guaranteed arrival date. Courier timetables, public holidays and customs clearance affect the route.
+            </p>
+          </div>
+        </article>
+        <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
+          <IconSpot><FileCheck2 size={28} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+          <div>
+            <h2 className={smallTitle}>Documents & customs</h2>
+            <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
+              We prepare the required export documents and Customs declarations carefully, using accurate
+              descriptions and any lawful tariff reductions that apply. We work to keep import costs as low as legally possible.
+            </p>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
+              If a destination authority assesses import duties or local taxes, the recipient pays them where applicable.
+              Keep an eye on courier emails after customs clearance in case confirmation is requested.
+            </p>
+          </div>
+        </article>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/checkout-review" className="btn-chrome inline-flex items-center gap-2">
-          Preview the bag <ArrowRight size={16} aria-hidden="true"/>
-        </Link>
+      <div className="mt-5 flex items-start gap-4 rounded-[16px] border border-[rgba(212,178,106,.23)] bg-[rgba(212,178,106,.035)] p-5 sm:p-6">
+        <IconSpot><ShieldCheck size={27} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
+        <div>
+          <h2 className="text-[18px] font-medium text-[#f7f3ec]">Every order matters to us</h2>
+          <p className="mt-2 max-w-4xl text-[14px] leading-7 text-[var(--bone-dim)]">
+            We take care of preparing your shipment and the paperwork, and remain in touch throughout delivery.
+            Let us know if you need assistance with a change of destination, a particular shipping request or tracking.
+          </p>
+        </div>
+      </div>
+      <div className="mt-7 flex flex-wrap gap-3">
+        <Link href="/cart" className="btn-chrome inline-flex items-center gap-2">View your bag <ArrowRight size={16} aria-hidden="true"/></Link>
+        <Link href="/contact" className="btn-ghost inline-flex items-center gap-2"><MapPin size={15} aria-hidden="true"/>Contact us</Link>
         <Link href="/returns" className="btn-ghost">Returns & Exchanges</Link>
-        <Link href="/contact" className="btn-ghost">Contact TheFEYA</Link>
       </div>
     </section>
+    <OwnerSellerOnlinePartnerDetails/>
     <Footer/>
   </main>;
 }
