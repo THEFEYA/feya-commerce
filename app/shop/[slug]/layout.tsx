@@ -5,6 +5,7 @@ import type {ReactNode} from 'react';
 import {Footer} from '@/components/Footer';
 import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import './ownerPdpPolishV2.css';
+import {OwnerPdpMobileInfoToggle} from '@/components/OwnerPdpMobileInfoToggle';
 
 /** Owner-only presentation wrapper. The original ProductDetailClient + source
  * pins + right-side price/options/media remain byte-frozen; production output
@@ -16,6 +17,7 @@ export default function ProductReviewLayout({children}:{children:ReactNode}){
   if(!review)return children;
   return <div className="owner-pdp-polish-v2">
     {children}
+    <OwnerPdpMobileInfoToggle/>
     <section className="container-feya border-t border-white/[.10] py-10 lg:py-14" aria-labelledby="pdp-support-title">
       <p className="eyebrow-gold">TheFEYA · Customer care</p>
       <h2 id="pdp-support-title" className="mt-3 text-[clamp(22px,2.6vw,32px)] text-[#f7f3ec]">Questions before you choose?</h2>

@@ -6,7 +6,7 @@ import {ChevronDown} from 'lucide-react';
  * /shop remains NOINDEX; type-specific owners remain the original collections.
  */
 export function OwnerShopSeoText(){
-  const anchor='text-[#e0c37d] underline underline-offset-4 hover:text-[#f7f3ec]';
+  const anchor='font-medium text-[#ddc181] transition-colors hover:text-[#f6deb0] focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]';
   return <section className="container-feya pb-8 sm:pb-10" aria-labelledby="shop-collection-guide-title">
     <div className="border-t border-white/[.10] pt-6 sm:pt-7">
       <p className="eyebrow-gold">TheFEYA · Shop by piece</p>

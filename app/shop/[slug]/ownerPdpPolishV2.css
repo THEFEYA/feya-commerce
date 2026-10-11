@@ -25,3 +25,77 @@
   line-height: 1.13 !important;
   letter-spacing: .005em !important;
 }
+
+/* Mobile PDP information disclosure; the approved ProductDetailClient source,
+ * its unchanged desktop right panel and product-specific lines remain intact.
+ * AdditionalInformation trigger is portaled into the real right panel. */
+@media (max-width: 1023px) {
+  .owner-pdp-polish-v2 [data-testid="product-page"] #description > div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(216,214,211,.12);
+  }
+  .owner-pdp-polish-v2 [data-testid="product-page"] #description > div:nth-child(2) > div {
+    display: none;
+  }
+  .owner-pdp-polish-v2 [data-testid="product-page"] #description > div:nth-child(2):has(> .owner-mobile-pdp-info-trigger[aria-expanded="true"]) > div {
+    display: block;
+  }
+  .owner-mobile-pdp-info-trigger {
+    order: -1;
+    display: flex;
+    width: 100%;
+    min-height: 46px;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem .15rem;
+    text-align: left;
+    color: #e1cfac;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 14px;
+    letter-spacing: .015em;
+  }
+  .owner-mobile-pdp-info-trigger:focus-visible {
+    outline: 2px solid #d4b26a;
+    outline-offset: 3px;
+  }
+  .owner-mobile-pdp-info-trigger svg {
+    flex-shrink: 0;
+    transition: transform .2s ease;
+  }
+  .owner-mobile-pdp-info-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .owner-pdp-polish-v2 > section[aria-labelledby="pdp-support-title"] {
+    padding-top: 2.3rem !important;
+    padding-bottom: 2.3rem !important;
+  }
+  .owner-pdp-polish-v2 > section[aria-labelledby="pdp-support-title"] nav[aria-label="Product support"] {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: .55rem;
+    margin-top: 1rem;
+    font-size: 11px;
+  }
+  .owner-pdp-polish-v2 > section[aria-labelledby="pdp-support-title"] nav[aria-label="Product support"] a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 41px;
+    padding: .55rem .45rem;
+    font-size: 10px;
+    letter-spacing: .12em;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .owner-pdp-polish-v2 > footer { margin-top: 1.15rem; }
+}
+@media (min-width:1024px) {
+  .owner-mobile-pdp-info-trigger { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .owner-mobile-pdp-info-trigger svg { transition:none; }
+}

@@ -446,3 +446,51 @@ test('V11 mobile-responsive owner QA route is protected, noindex and tests actua
  assert.match(client,/aria-pressed=\{width===value\}/);
  assert.match(review,/href:'\/owner-mobile-review'/);
 });
+
+test('V12 Shop CTA links remain contextual but no bright underline or generic SEO change',()=>{
+ const s=read('components/OwnerShopSeoText.tsx');
+ assert.match(s,/const anchor='font-medium text-/);
+ assert.doesNotMatch(s,/underline underline-offset-4/);
+ assert.match(s,/focus-visible:outline/);
+ assert.match(s,//collections/shoulder-armor/);
+});
+test('V12 mobile Shop count is horizontal above Filters / Recommended; desktop intact',()=>{
+ const css=read('app/ownerVisualPreviewV2.css');
+ const shop=read('components/ShopClient.tsx');
+ assert.match(shop,/Showing \{visibleProducts\.length\} of \{filtered\.length\} pieces/);
+ assert.match(css,/\[data-testid="shop-page"\] main\.col-span-12 > div:first-child > \.eyebrow-dim/);
+ assert.match(css,/white-space: nowrap/);
+ assert.match(css,/flex-direction: column/);
+ assert.match(css,/justify-content: flex-start/);
+});
+test('V12 mobile PDP right information is collapsible without mutating frozen ProductDetailClient',()=>{
+ const layout=read('app/shop/[slug]/layout.tsx');
+ const client=read('components/OwnerPdpMobileInfoToggle.tsx');
+ const style=read('app/shop/[slug]/ownerPdpPolishV2.css');
+ assert.match(layout,/<OwnerPdpMobileInfoToggle\/>/);
+ assert.match(client,/createPortal/);
+ assert.match(client,/Additional information/);
+ assert.match(client,/aria-expanded=\{expanded\}/);
+ assert.match(client,/usePathname/);
+ assert.match(style,/@media \(max-width: 1023px\)/);
+ assert.match(style,/nth-child\(2\):has\(> \.owner-mobile-pdp-info-trigger\[aria-expanded="true"\]\)/);
+ assert.match(style,/grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(style,/margin-top: 1\.15rem/);
+ const canonical=read('components/ProductDetailClient.tsx');
+ assert.match(canonical,/rightPdpPanel\.map\(\(block\) => <Detail/);
+ assert.doesNotMatch(canonical,/OwnerPdpMobileInfoToggle/);
+});
+test('V12 preview only homepage and Cart spacing and carousel timing preserve desktop',()=>{
+ const css=read('app/ownerVisualPreviewV2.css');
+ const home=read('components/HomePieceCarousel.tsx');
+ assert.match(css,/section\[aria-label="Hero"\]/);
+ assert.match(css,/padding-top: 80px/);
+ assert.match(css,/:has\(\.home-piece-carousel\)/);
+ assert.match(css,/Order summary/);
+ assert.match(css,/background: rgba\(7,7,10,\.97\)/);
+ assert.match(css,/width: 116px/);
+ assert.match(home,/3000/);
+ assert.match(home,/document\.visibilityState/);
+ assert.match(home,/prefers-reduced-motion: reduce/);
+ assert.match(home,/onTouchStart=/);
+});

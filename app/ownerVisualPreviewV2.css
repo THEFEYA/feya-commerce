@@ -160,3 +160,67 @@
 .owner-visual-v2-root [data-testid="shop-page"]:not(.visual-commerce-embedded) > section:first-of-type {
   padding-top: var(--feya-owner-intro-top)!important;
 }
+
+/* V12: mobile-only layout corrections, using the SAME URLs and content as desktop.
+ * Product Truth, desktop typography and main navigation dimensions unchanged. */
+@media (max-width: 639px) {
+  /* An opaque sticky header prevents text underneath from showing through
+     the oversized absolute logo visual during scrolling. */
+  .owner-visual-v2-root [data-testid="site-header"] {
+    background: rgba(7,7,10,.97) !important;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(216,214,211,.12);
+  }
+  .owner-visual-v2-root [data-testid="logo-link"]::after {
+    width: 116px;
+    height: 38px;
+    left: -2px;
+  }
+  /* A single readable count row precedes two horizontal controls. */
+  .owner-visual-v2-root [data-testid="shop-page"] main.col-span-12 > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .65rem;
+  }
+  .owner-visual-v2-root [data-testid="shop-page"] main.col-span-12 > div:first-child > .eyebrow-dim {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: .12em;
+    line-height: 1.4;
+  }
+  .owner-visual-v2-root [data-testid="shop-page"] main.col-span-12 > div:first-child > div.flex {
+    width: 100%;
+    justify-content: flex-start;
+    gap: .6rem;
+  }
+  .owner-visual-v2-root [data-testid="shop-page"] main.col-span-12 > div:first-child .chip {
+    white-space: nowrap;
+    min-height: 40px;
+  }
+
+  /* Homepage photo hero now starts shortly below the fixed mobile header,
+     instead of leaving a large blank strip. */
+  .owner-visual-v2-root main.visual-commerce-shell > section[aria-label="Hero"] {
+    padding-top: 80px !important;
+  }
+  /* Breathing space below the Full Looks carousel arrows, before the next
+     section divider. Its 3-second autoplay remains active. */
+  .owner-visual-v2-root .visual-home-section:has(.home-piece-carousel) .home-piece-carousel + div {
+    margin-bottom: 1.35rem;
+  }
+  /* Features and footer no longer share a border without visual breathing
+     room; desktop and the existing Footer layout stay unchanged. */
+  .owner-visual-v2-root main.visual-commerce-shell:has(> section[aria-label="Hero"]) > section.container-feya:last-of-type {
+    padding-bottom: 2.5rem !important;
+  }
+  .owner-visual-v2-root main.visual-commerce-shell:has([aria-label="Order summary"]) > footer {
+    margin-top: 1.25rem;
+  }
+  .owner-visual-v2-root main.visual-commerce-shell:has([aria-label="Order summary"]) > .container-feya {
+    padding-top: 6rem !important;
+    padding-bottom: 4.75rem !important;
+  }
+}
