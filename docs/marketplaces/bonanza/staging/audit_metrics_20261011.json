@@ -1,0 +1,45 @@
+{
+  "products": 207,
+  "variants": 856,
+  "missing_variants": 0,
+  "orphan_variant": 0,
+  "variant_no_conf": 0,
+  "nonapproved": 0,
+  "priced_mismatch": 0,
+  "placeholder_product_count": 42,
+  "duplicate_product_count": 32,
+  "category_group_counts": {
+    "COSTUME_ACCESSORY": 37,
+    "WOMEN_COSTUME": 129,
+    "COUPLES_REVIEW": 6,
+    "UNRESOLVED": 22,
+    "MEN_COSTUME": 8,
+    "BODYSUIT_CORSET_REVIEW": 4,
+    "MASK_ACCESSORY": 1
+  },
+  "category_id_counts": {
+    "53369": 129,
+    "82161": 37,
+    "116724": 1,
+    "PENDING": 40
+  },
+  "with_full_set": 195,
+  "category_matrix_evidence": [
+    {
+      "category_id": 53369,
+      "path": "Fashion > Specialty > Costumes, Reenactment, Theater > Costumes > Women",
+      "source": "https://www.bonanza.com/booths/Seasonbase?item_sort_options%5Bfilter_category_id%5D=53369"
+    },
+    {
+      "category_id": 116724,
+      "path": "Fashion > Specialty > Costumes, Reenactment, Theater > Accessories > Masks & Eye Masks",
+      "source": "https://www.bonanza.com/booths/Plady?item_sort_options%5Bfilter_category_id%5D=116724"
+    },
+    {
+      "category_id": 82161,
+      "path": "Fashion > Specialty > Costumes, Reenactment, Theater > Accessories > Other Costume Accessories",
+      "source": "https://www.bonanza.com/booths/Utahskimom?item_sort_options%5Bfilter_category_id%5D=82161"
+    }
+  ],
+  "all_catalog_export_blocked": true
+}
