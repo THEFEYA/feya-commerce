@@ -123,16 +123,21 @@
 .owner-visual-v2-root [data-testid="logo-link"]::after {
   content: '';
   position: absolute;
-  inset: -3px -5px;
+  /* VISUAL-ONLY: larger approved transparent mark; header flex footprint
+     and the top navigation hit areas remain unchanged. */
+  width: 170px;
+  height: 54px;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: url('/thefeya-approved-logo-transparent.webp') center / contain no-repeat;
   pointer-events: none;
-  transform: scale(1.10);
-  transform-origin: center;
 }
 @media(max-width:639px) {
   .owner-visual-v2-root [data-testid="logo-link"]::after {
-    left: 0;
-    right: -13px;
+    width: 134px;
+    height: 44px;
+    left: -3px;
   }
 }
 

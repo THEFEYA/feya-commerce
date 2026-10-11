@@ -368,3 +368,57 @@ test('V9 Seller Online details are moved to end of Shipping before Footer, not d
  assert.match(partner,/href="\/privacy"/);
  assert.match(partner,/href="\/terms"/);
 });
+
+test('V10 approved FEYA mark is larger within the old header footprint, without changing Header source',()=>{
+ const css=read('app/ownerVisualPreviewV2.css');
+ const header=read('components/Header.tsx');
+ assert.match(css,/width: 170px/);
+ assert.match(css,/height: 54px/);
+ assert.match(css,/position: absolute/);
+ assert.match(css,/top: 50%/);
+ assert.match(css,/thefeya-approved-logo-transparent\.webp/);
+ assert.doesNotMatch(css,/mix-blend-mode:screen/);
+ assert.match(header,/data-testid="logo-link"/);
+});
+test('V10 shop browse guide is SSR and only shown on unfiltered page-one catalog',()=>{
+ const shop=read('app/shop-v8-review/page.tsx');
+ const guide=read('components/OwnerShopSeoText.tsx');
+ assert.match(shop,/import \{OwnerShopSeoText\}/);
+ assert.match(shop,/navigation\.page===1 && !shopNavigationHasFilterState\(navigation\) && !utilityState/);
+ assert.match(shop,/<OwnerShopSeoText\/>/);
+ assert.match(shop,/robots: \{ index:false, follow:false \}/);
+ assert.match(guide,/<details className="group/);
+ assert.match(guide,/<summary aria-label=/);
+ assert.match(guide,/<ChevronDown size=\{23\}/);
+ assert.match(guide,/group-open:rotate-180/);
+ assert.match(guide,/lg:grid-cols-2/);
+ const hrefs=[...guide.matchAll(/href="(\/collections\/[^"]+)"/g)].map(m=>m[1]);
+ assert.equal(hrefs.length,10);
+ assert.equal(new Set(hrefs).size,10);
+ const authorized=[
+ '/collections/festival-outfits','/collections/rave-outfits',
+ '/collections/burning-man-outfits','/collections/performance-costumes',
+ '/collections/shoulder-armor','/collections/bodysuits',
+ '/collections/costume-headpieces','/collections/costume-masks',
+ '/collections/costume-belts','/collections/festival-skirts',
+ ];
+ assert.deepEqual(hrefs.slice().sort(),authorized.sort());
+ assert.ok(guide.includes('href="/size-guide"'));
+ assert.ok(guide.includes('href="/shipping"'));
+ assert.doesNotMatch(guide,/Keyword Planner|search volume|guaranteed ranking|best in the world/);
+});
+test('V10 exact Google place profiles load real iframe on protected owner Preview, production keeps consent activation',()=>{
+ const map=read('components/OwnerLocationMapPreview.tsx');
+ const contact=read('components/ContactExperience2026.tsx');
+ assert.match(map,/ChIJBWr-l83F1EARiaqJ10nf3mA/);
+ assert.match(map,/ChIJQZawTZytxokRn5f9xm8D7xg/);
+ assert.match(map,/query_place_id/);
+ assert.match(map,/NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW==='1'/);
+ assert.match(map,/loaded\?<iframe/);
+ assert.match(map,/setLoaded\(true\)/);
+ assert.match(map,/maps\.google\.com\/maps\?q=/);
+ assert.match(map,/output=embed/);
+ assert.match(contact,/OwnerLocationMapPreview location="kyiv"/);
+ assert.match(contact,/OwnerLocationMapPreview location="us-warehouse"/);
+ assert.doesNotMatch(contact,/Maps are interactive and load only when you choose/);
+});

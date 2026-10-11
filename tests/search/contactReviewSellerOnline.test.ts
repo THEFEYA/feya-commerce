@@ -79,3 +79,13 @@ test('two evidence-backed map locations load Google Maps only on visitor click',
   assert.match(clipboard,/aria-label=/);
   assert.doesNotMatch(clipboard,/Copy email'|Copy email\}/);
 });
+
+test('Google Maps business entries are now verified by place ID and live in protected preview',()=>{
+ const map=readFileSync('components/OwnerLocationMapPreview.tsx','utf8');
+ assert.match(map,/placeId:'ChIJBWr-l83F1EARiaqJ10nf3mA'/);
+ assert.match(map,/placeId:'ChIJQZawTZytxokRn5f9xm8D7xg'/);
+ assert.match(map,/query_place_id/);
+ assert.match(map,/const \[loaded,setLoaded\]=useState\(process\.env\.NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW==='1'\)/);
+ assert.match(map,/src=\{embed\}/);
+ assert.match(map,/loaded\?<iframe/);
+});

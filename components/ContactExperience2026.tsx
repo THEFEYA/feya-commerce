@@ -86,7 +86,7 @@ export function ContactExperience2026(){
     <section className="container-feya pb-12 lg:pb-16" aria-label="Where we work">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div><p className="eyebrow-gold">Studio & logistics</p><h2 className="mt-2 text-[clamp(22px,2.7vw,31px)] font-medium text-[#f7f3ec]">Explore our locations</h2></div>
-        <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">Maps are interactive and load only when you choose to view them.</p>
+        <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">Explore interactive Google Maps, or open each verified location directly.</p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">

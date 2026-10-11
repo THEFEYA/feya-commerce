@@ -20,6 +20,7 @@ import { Header } from '@/components/Header';
 import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
 import { ShopClient } from '@/components/ShopClient';
 import {OwnerHubCatalogSkeleton} from '@/components/OwnerHubCatalogSkeleton';
+import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 import {readOwnerRemoteCatalogPreviewV1} from '@/lib/ownerRemoteCatalogPreviewServer';
 import {isOwnerUnifiedStorefrontPreview} from '@/lib/ownerUnifiedStorefrontPreview';
 
@@ -113,6 +114,10 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
     error={error}
     navigation={strictNavigation}
     initialNavigation={initialNavigation}
-  /></main>;
+  />
+  {products.length>0 && navigation.page===1 && !shopNavigationHasFilterState(navigation) && !utilityState
+    ? <OwnerShopSeoText/>
+    : null}
+  </main>;
 }
 
