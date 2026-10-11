@@ -1,0 +1,32 @@
+{
+  "status": "PASS_OFFLINE_PAYLOAD_HOLD_API",
+  "date": "2026-10-11",
+  "source": "TheFEYA active M1 Offer + 207 owner-reviewed decisions",
+  "pilot_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+  "etsy_id": "4367470907",
+  "default_price_usd": 295.09,
+  "source_variant_prices": {
+    "Garters": 96.5,
+    "Panties": 96.5,
+    "Skirt": 115.81,
+    "Top": 130.28,
+    "Top + Skirt": 175.46,
+    "Full Set": 295.09
+  },
+  "owner_colorways": [
+    "Gold",
+    "Silver"
+  ],
+  "variation_pairs": 12,
+  "unique_skus": 12,
+  "qty_all_zero": true,
+  "sale_flag": false,
+  "unverified_category_id": 53369,
+  "category_traits_verified": false,
+  "api_credentials_connected": false,
+  "made_to_order_sizing_collection_verified": false,
+  "shipping_ready": false,
+  "existing_booth_items_backed_up": false,
+  "publication_allowed": false,
+  "live_bonanza_item_created": false
+}
