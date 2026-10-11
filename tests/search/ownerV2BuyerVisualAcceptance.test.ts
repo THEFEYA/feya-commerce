@@ -452,7 +452,7 @@ test('V12 Shop CTA links remain contextual but no bright underline or generic SE
  assert.match(s,/const anchor='font-medium text-/);
  assert.doesNotMatch(s,/underline underline-offset-4/);
  assert.match(s,/focus-visible:outline/);
- assert.match(s,//collections/shoulder-armor/);
+ assert.ok(s.includes('href="/collections/shoulder-armor"'));
 });
 test('V12 mobile Shop count is horizontal above Filters / Recommended; desktop intact',()=>{
  const css=read('app/ownerVisualPreviewV2.css');
