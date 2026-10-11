@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-12",
+  "source_product_count": 207,
+  "source_variant_count": 856,
+  "review_rows": 207,
+  "candidate_fullset_rows": 86,
+  "blocked_or_not_candidate": 121,
+  "expanded_plan_rows": 2161,
+  "sku_unique_plan": 2149,
+  "pilot": {
+    "id": "TF-BZ-FS-4367470907",
+    "title": "Silver Metallic Festival Costume - Full Set Only",
+    "price": "295.09",
+    "category": "53369",
+    "quantity": "0",
+    "image": "https://i.etsystatic.com/54033853/r/il/c27048/7236051841/il_fullxfull.7236051841_f214.jpg"
+  },
+  "files": [
+    {
+      "name": "01_BONANZA_PILOT_1_FULLSET_DRAFT_TEST.csv",
+      "bytes": 576
+    },
+    {
+      "name": "02_BONANZA_86_FULLSET_CANDIDATES_HOLD.csv",
+      "bytes": 179639
+    },
+    {
+      "name": "03_THEFEYA_ALL_207_AUDIT_NOT_FOR_IMPORT.csv",
+      "bytes": 95909
+    },
+    {
+      "name": "04_THEFEYA_ALL_856_VARIATIONS_NOT_FOR_IMPORT.csv",
+      "bytes": 250589
+    },
+    {
+      "name": "05_THEFEYA_EXPANDED_VARIATION_PLAN_NOT_FOR_IMPORT.csv",
+      "bytes": 381984
+    }
+  ],
+  "warning": "BASIC CSV DOES NOT TRANSMIT COLOR OR CONFIGURATION VARIATIONS. ALL IMPORT CANDIDATES QUANTITY ZERO / NOT FOR PUBLICATION.",
+  "no_changes_to_live_bonanza": true,
+  "found_original_color_material_price_exceptions": 4
+}
