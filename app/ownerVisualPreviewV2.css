@@ -117,7 +117,6 @@
  * blending rather than incorrectly painting a black rectangle. */
 .owner-visual-v2-root [data-testid="logo-link"] {
   position:relative;
-  isolation:isolate;
 }
 .owner-visual-v2-root [data-testid="logo-link"] > svg {
   opacity:0;
