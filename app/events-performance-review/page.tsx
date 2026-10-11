@@ -6,6 +6,7 @@ import {notFound} from 'next/navigation';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
+import {OwnerHubCatalogSkeleton} from '@/components/OwnerHubCatalogSkeleton';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
 import {EVENTS_PERFORMANCE_HUB_TILES} from '@/config/discoveryHubs';
@@ -33,7 +34,7 @@ export default function EventsPerformanceReview(){
       <h1 className="visual-display max-w-4xl text-[clamp(32px,3.8vw,50px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Dress for where you are going.</h1>
       <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[var(--bone-dim)]">Find a look for your next event, then shop the original pieces below.</p>
       <div className="mt-9"><OwnerDiscoveryTileStrip tiles={EVENTS_PERFORMANCE_HUB_TILES}/></div>
-      <Suspense fallback={<div aria-busy="true" className="min-h-[500px]"/>}><ReviewProducts/></Suspense>
+      <Suspense fallback={<OwnerHubCatalogSkeleton/>}><ReviewProducts/></Suspense>
       <OwnerHubSeoText kind="events"/>
     </section>
     <Footer/>

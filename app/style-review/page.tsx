@@ -6,6 +6,7 @@ import {notFound} from 'next/navigation';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
+import {OwnerHubCatalogSkeleton} from '@/components/OwnerHubCatalogSkeleton';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
 import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
@@ -28,22 +29,6 @@ async function ReviewProducts(){
   </section>;
 }
 
-function CatalogLoading(){
-  return <section aria-busy="true" aria-label="Loading costumes by style"
-    className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-4">
-    <p className="mb-5 text-[12px] text-[var(--bone-dim)]" role="status">Loading styles and pieces…</p>
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {[0,1,2,3].map(i=><div key={i} className="overflow-hidden rounded-xl border border-white/[.08] bg-white/[.018]">
-        <div className="aspect-[4/5] animate-pulse bg-[#17171c]"/>
-        <div className="space-y-3 p-3">
-          <div className="h-3 w-4/5 animate-pulse rounded bg-white/[.08]"/>
-          <div className="h-3 w-2/5 animate-pulse rounded bg-white/[.06]"/>
-        </div>
-      </div>)}
-    </div>
-  </section>;
-}
-
 export default function StyleReview(){
   if(!isOwnerUnifiedStorefrontPreview(process.env))notFound();
   return <main className="visual-commerce-shell relative min-h-screen">
@@ -56,7 +41,7 @@ export default function StyleReview(){
           207-product approved catalogue. Stream images immediately instead of
           waiting for a catalog fetch that previously yielded blank 550px. */}
       <div className="mt-9"><OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}/></div>
-      <Suspense fallback={<CatalogLoading/>}><ReviewProducts/></Suspense>
+      <Suspense fallback={<OwnerHubCatalogSkeleton/>}><ReviewProducts/></Suspense>
       <OwnerHubSeoText kind="style"/>
     </section>
     <Footer/>

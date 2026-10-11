@@ -153,11 +153,11 @@ test('owner V6 all collection landings compact Show More -> Related -> Before th
 });
 test('owner V6 Style tiles render before one catalogue read, no empty suspense wall',()=>{
  const src=read('app/style-review/page.tsx');
- assert.ok(src.indexOf('OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}')<src.indexOf('<Suspense fallback={<CatalogLoading/>}>'));
+ assert.ok(src.indexOf('OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}')<src.indexOf('<Suspense fallback={<OwnerHubCatalogSkeleton/>}>'));
  assert.ok(src.includes('const products=await readStyleHubProducts();'));
  assert.ok(!src.includes('readStyleTileAvailability'));
  assert.ok(!src.includes('min-h-[550px]'));
- assert.ok(src.includes('Loading styles and pieces'));
+ assert.ok(read('components/OwnerHubCatalogSkeleton.tsx').includes('Loading the pieces'));
  assert.ok(src.includes('robots:{index:false,follow:false'));
 });
 test('owner V6 improves delivery scannability, About breathing room and low-emphasis Contact footer',()=>{
@@ -247,4 +247,16 @@ test('V7 socials are inside left-hand Contact support, not repeated beneath news
  assert.match(src,/text-\[#817b74\]/);
  assert.match(src,/op\.legalName/);
  assert.match(src,/Privacy Policy/);
+});
+
+test('V7 Events/Style share a visible skeleton rather than show an empty 500px gap while waiting',()=>{
+ const events=read('app/events-performance-review/page.tsx');
+ const style=read('app/style-review/page.tsx');
+ const skeleton=read('components/OwnerHubCatalogSkeleton.tsx');
+ assert.match(events,/<OwnerHubCatalogSkeleton\/>/);
+ assert.match(style,/<OwnerHubCatalogSkeleton\/>/);
+ assert.doesNotMatch(events,/min-h-\[500px\]/);
+ assert.doesNotMatch(style,/min-h-\[550px\]|CatalogLoading/);
+ assert.match(skeleton,/aria-busy="true"/);
+ assert.match(skeleton,/grid gap-4 sm:grid-cols-2 lg:grid-cols-4/);
 });
