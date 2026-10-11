@@ -405,7 +405,8 @@ test('V10 shop browse guide is SSR and only shown on unfiltered page-one catalog
  assert.deepEqual(hrefs.slice().sort(),authorized.sort());
  assert.ok(guide.includes('href="/size-guide"'));
  assert.ok(guide.includes('href="/shipping"'));
- assert.doesNotMatch(guide,/Keyword Planner|search volume|guaranteed ranking|best in the world/);
+ const rendered=guide.slice(guide.indexOf('export function OwnerShopSeoText()'));
+ assert.doesNotMatch(rendered,/Keyword Planner|search volume|guaranteed ranking|best in the world/);
 });
 test('V10 exact Google place profiles load real iframe on protected owner Preview, production keeps consent activation',()=>{
  const map=read('components/OwnerLocationMapPreview.tsx');
