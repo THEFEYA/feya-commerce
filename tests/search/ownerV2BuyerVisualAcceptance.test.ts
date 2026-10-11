@@ -204,3 +204,25 @@ test('owner V7 FAQ uses SSR native disclosures and compact footer spacing, publi
  assert.match(faq,/\{item\.a\}/);
  assert.doesNotMatch(faq,/useState|onClick|setOpen/);
 });
+
+test('owner V7 remote catalog experiment preserves pinned source and release access boundaries',()=>{
+ const hub=read('lib/discoveryHubServer.ts');
+ const cached=read('lib/ownerRemoteCatalogPreviewServer.ts');
+ const events=read('app/events-performance-review/page.tsx');
+ const style=read('app/style-review/page.tsx');
+ assert.match(cached,/'use cache: remote'/);
+ assert.match(cached,/cacheLife\('max'\)/);
+ assert.match(cached,/STOREFRONT_CACHE_TAGS\.site/);
+ assert.match(cached,/STOREFRONT_CACHE_TAGS\.catalog/);
+ assert.match(cached,/readApprovedStorefrontCardProductsV1/);
+ assert.doesNotMatch(cached,/cookies\(|headers\(|getUser|getSession|closedReview/);
+ assert.match(hub,/readClosedReviewPresentation/);
+ assert.match(hub,/if\(review\.status==='blocked'\)return null/);
+ assert.match(hub,/review\.status==='disabled'&&ownerV2/);
+ assert.match(hub,/readCachedApprovedStorefrontCatalogV1/);
+ assert.match(hub,/review\.release\.entries/);
+ assert.match(events,/owner_hub_catalog_timing/);
+ assert.match(style,/owner_hub_catalog_timing/);
+ assert.match(events,/kind:'events'/);
+ assert.match(style,/kind:'style'/);
+});

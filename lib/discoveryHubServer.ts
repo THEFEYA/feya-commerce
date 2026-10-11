@@ -2,6 +2,8 @@ import 'server-only';
 
 import {defaultShopFilters, filterShopProducts} from '@/lib/shopCatalogNavigation';
 import {readCachedApprovedStorefrontCatalogV1} from '@/lib/storefrontCatalogCacheServer';
+import {readOwnerRemoteCatalogPreviewV1} from '@/lib/ownerRemoteCatalogPreviewServer';
+import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import type {StorefrontProduct} from '@/lib/types';
 import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
 import {readClosedReviewPresentation} from '@/lib/searchReviewPresentationServer';
@@ -19,7 +21,14 @@ function dedupe(products:StorefrontProduct[]){
 async function readDiscoveryHubCatalog(){
   const review=await readClosedReviewPresentation();
   if(review.status==='blocked')return null;
-  const products=await readCachedApprovedStorefrontCatalogV1();
+  // Remote shared cache is permitted ONLY after the request-scoped closed
+  // review gate says disabled AND the exact SSO-protected owner V2 branch.
+  // Any closed review still uses the original projection and authorization.
+  const ownerV2=isOwnerUnifiedStorefrontPreview(process.env)
+    &&process.env.VERCEL_GIT_COMMIT_REF===OWNER_VISUAL_V2_REVIEW_BRANCH;
+  const products=review.status==='disabled'&&ownerV2
+    ? await readOwnerRemoteCatalogPreviewV1()
+    : await readCachedApprovedStorefrontCatalogV1();
   if(review.status!=='review')return products;
   const allowed=new Set(review.release.entries.map((entry)=>entry.identity.canonical_product_id));
   return products.filter((product)=>allowed.has(product.canonical_product_id));

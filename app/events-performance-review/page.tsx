@@ -14,7 +14,11 @@ import {isOwnerUnifiedStorefrontPreview} from '@/lib/ownerUnifiedStorefrontPrevi
 export const metadata:Metadata={title:'Events & Performance · Owner Visual Review',robots:{index:false,follow:false,nocache:true,noarchive:true}};
 async function ReviewProducts(){
   await connection();
+  const started=Date.now();
   const products=await readEventsPerformanceHubProducts();
+  console.info('owner_hub_catalog_timing',JSON.stringify({
+    kind:'events',elapsed_ms:Date.now()-started,product_count:products?.length??0,
+  }));
   if(!products)notFound();
   return <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
     <DiscoveryHubProducts products={products}/>

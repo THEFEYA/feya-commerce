@@ -17,7 +17,11 @@ export const metadata:Metadata={title:'Style · Owner Visual Review',robots:{ind
 async function ReviewProducts(){
   await connection();
   // One cached catalogue lookup; availability is not independently refetched.
+  const started=Date.now();
   const products=await readStyleHubProducts();
+  console.info('owner_hub_catalog_timing',JSON.stringify({
+    kind:'style',elapsed_ms:Date.now()-started,product_count:products?.length??0,
+  }));
   if(!products)notFound();
   return <section className="owner-hub-products mt-1 border-t border-white/[.08] pb-0 pt-2">
     <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
