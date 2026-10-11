@@ -45,6 +45,7 @@ async function api(path,method,body,authenticated,retry){
  const auth=authenticated!==false;
  if(auth){if(!session||!session.access_token)throw Error('Требуется вход');if(Date.now()>session.expires_at-45000)await refresh()}
  const h={'apikey':KEY,'Content-Type':'application/json'};
+ if(path.startsWith('/rest/v1/'+TABLE)&&method==='POST')h.Prefer='resolution=merge-duplicates,return=minimal';
  if(auth)h.Authorization='Bearer '+session.access_token;
  const res=await fetch(BASE+path,{method:method||'GET',headers:h,body:body==null?undefined:JSON.stringify(body),cache:'no-store'});
  if(res.status===401&&auth&&retry!==false&&session&&session.refresh_token){await refresh();return api(path,method,body,true,false)}
@@ -253,7 +254,7 @@ function register(){
  $('#nextPage').addEventListener('click',()=>{page++;cards();window.scrollTo(0,150)});
  $('#grid').addEventListener('click',e=>{if(e.target.closest('[data-check]'))return;const button=e.target.closest('[data-open]');if(button)openDrawer(button.dataset.open)});
  $('#grid').addEventListener('change',e=>{const id=e.target.dataset.select;if(!id)return;e.target.checked?selected.add(id):selected.delete(id);cards()});
- $$('.bulkdock input,.bulkdock select').forEach(el=>el.addEventListener('change',bulkPreview));
+ $('#bulkDock').addEventListener('change',bulkPreview);
  $('#applyBulk').addEventListener('click',bulkApply);$('#resetBulk').addEventListener('click',resetBulk);
  $('#closeBulk').addEventListener('click',()=>{selected.clear();cards()});
  $('#drawerClose').addEventListener('click',closeDrawer);$('#drawerBack').addEventListener('click',closeDrawer);
