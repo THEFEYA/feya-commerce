@@ -26,11 +26,13 @@ test('Contact design uses real customer support, canonical provider metadata and
   const provider=readFileSync('lib/sellerOnlineProvider.ts','utf8');
   assert.match(component,/manager\.feya@gmail\.com/);
   assert.match(component,/380636556288/);
-  assert.match(component,/SELLER_ONLINE_PROVIDER/);
-  assert.match(component,/op\.contactAddress\.postalCode/);
-  assert.match(component,/online checkout|Online payments/i);
-  assert.match(component,/href="\/privacy"/);
-  assert.match(component,/href="\/terms"/);
+  const partner=readFileSync('components/OwnerSellerOnlinePartnerDetails.tsx','utf8');
+  assert.doesNotMatch(component,/SELLER_ONLINE_PROVIDER/);
+  assert.match(partner,/SELLER_ONLINE_PROVIDER/);
+  assert.match(partner,/op\.contactAddress\.postalCode/);
+  assert.match(partner,/online checkout|Online payments/i);
+  assert.match(partner,/href="\/privacy"/);
+  assert.match(partner,/href="\/terms"/);
   assert.match(provider,/merchantOfRecordConfirmed: false/);
   assert.doesNotMatch(component,/Merchant of Record|is our legal seller|guaranteed response|24\/7/i);
   assert.match(component,/focus-visible/);

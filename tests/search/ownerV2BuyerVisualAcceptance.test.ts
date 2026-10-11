@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=(path:string)=>readFileSync(path,'utf8');
 
-test('Contact puts direct contact and question form alongside, then maps and newsletter, then subdued operator',()=>{
+test('Contact puts direct contact and question form alongside, then maps and newsletter; operator on Shipping',()=>{
   const src=read('components/ContactExperience2026.tsx');
   assert.match(src,/grid-cols-\[minmax\(0,.85fr\)_minmax\(0,1.15fr\)\]/);
   assert.match(src,/OwnerContactFormPreview/);
@@ -13,9 +13,11 @@ test('Contact puts direct contact and question form alongside, then maps and new
   assert.match(src,/OwnerNewsletterSignupPreview/);
   assert.ok(src.indexOf('<OwnerContactFormPreview/>')<src.indexOf('OwnerLocationMapPreview location="kyiv"'));
   assert.ok(src.indexOf('OwnerLocationMapPreview location="us-warehouse"')<src.lastIndexOf('<OwnerNewsletterSignupPreview/>'));
-  assert.ok(src.indexOf('<OwnerNewsletterSignupPreview/>')<src.indexOf('payment-operator-heading'));
-  assert.match(src,/op\.contactAddress\.postalCode/);
-  assert.match(src,/Online payments on thefeya.com are not active yet/);
+  assert.ok(src.indexOf('<OwnerNewsletterSignupPreview/>')>=0);
+  assert.doesNotMatch(src,/payment-operator-heading/);
+  const partner=read('components/OwnerSellerOnlinePartnerDetails.tsx');
+  assert.match(partner,/op\.contactAddress\.postalCode/);
+  assert.match(partner,/Online payments on thefeya.com are not active yet/);
 });
 
 test('Newsletter is honest: independent opt-in, no pretend subscription or data transmission',()=>{
@@ -62,7 +64,7 @@ test('Style and Events hub SEO is responsive continuous SSR text, one arrow disc
 
 test('owner cart is compact and photos larger without losing multiple-item lists',()=>{
   const source=read('components/CartOwnerLiveReviewClient.tsx');
-  assert.match(source,/lg:pt-28/);
+  assert.match(source,/lg:pt-24/);
   assert.ok(source.includes('sm:h-[172px] sm:w-[136px]'));
   assert.match(source,/aria-labelledby="owner-cart-extras-title"/);
   assert.match(source,/sm:grid-cols-2/);
@@ -129,7 +131,7 @@ test('owner V5 shipping reduces card heights and puts proper titles over restrai
  assert.match(src,/px-5 py-5 sm:px-6 sm:py-5/);
  assert.match(src,/text-\[30px\]/);
  assert.match(src,/text-\[32px\]/);
- assert.match(src,/pt-24 pb-7 sm:pt-28 lg:pt-28/);
+ assert.match(src,/pt-20 pb-7 sm:pt-24 lg:pt-24/);
  assert.match(src,/6–9 working days/);
 });
 test('owner V5 Contact reduces top whitespace, Google Maps height, and newsletter vertical stack',()=>{
@@ -153,7 +155,7 @@ test('owner V6 all collection landings compact Show More -> Related -> Before th
 });
 test('owner V6 Style tiles render before one catalogue read, no empty suspense wall',()=>{
  const src=read('app/style-review/page.tsx');
- assert.ok(src.indexOf('OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}')<src.indexOf('<Suspense fallback={<OwnerHubCatalogSkeleton/>}>'));
+ assert.ok(src.indexOf('OwnerDiscoveryTileStrip tiles={OWNER_STYLE_HUB_TILES}')<src.indexOf('<Suspense fallback={<OwnerHubCatalogSkeleton/>}>'));
  assert.ok(src.includes('const products=await readStyleHubProducts();'));
  assert.ok(!src.includes('readStyleTileAvailability'));
  assert.ok(!src.includes('min-h-[550px]'));
@@ -175,7 +177,8 @@ test('owner V6 improves delivery scannability, About breathing room and low-emph
  assert.ok(shipping.includes('mt-3 text-[32px]'));
  assert.ok(shipping.includes('mt-1 text-[14px]'));
  assert.ok(contact.includes('<Icon size={22}'));
- assert.ok(contact.includes('payment-operator-heading'));
+ assert.ok(!contact.includes('payment-operator-heading'));
+ assert.ok(read('components/OwnerSellerOnlinePartnerDetails.tsx').includes('payment-operator-heading'));
  assert.ok(!contact.includes('rounded-xl border border-[rgba(216,214,211,.09)]'));
 });
 
@@ -244,9 +247,10 @@ test('V7 socials are inside left-hand Contact support, not repeated beneath news
  const newsletter=src.indexOf('<OwnerNewsletterSignupPreview/>');
  assert.ok(whatsapp>=0&&social>whatsapp&&social<question&&social<maps&&social<newsletter);
  assert.equal(src.split('Follow TheFEYA').length-1,1);
- assert.match(src,/text-\[#817b74\]/);
- assert.match(src,/op\.legalName/);
- assert.match(src,/Privacy Policy/);
+ const partner=read('components/OwnerSellerOnlinePartnerDetails.tsx');
+ assert.match(partner,/text-\[#817b74\]/);
+ assert.match(partner,/op\.legalName/);
+ assert.match(partner,/Privacy Policy/);
 });
 
 test('V7 Events/Style share a visible skeleton rather than show an empty 500px gap while waiting',()=>{
@@ -264,10 +268,10 @@ test('V7 Events/Style share a visible skeleton rather than show an empty 500px g
 test('V8 approved owner mark is an exact image blob in Header slot without changing nav dimensions',()=>{
  const header=read('components/Header.tsx');
  const css=read('app/ownerVisualPreviewV2.css');
- assert.ok(readFileSync('public/thefeya-approved-logo.webp').length>1000);
+ assert.ok(readFileSync('public/thefeya-approved-logo-transparent.webp').length>1000);
  assert.match(header,/data-testid="logo-link"/);
- assert.match(css,/thefeya-approved-logo\.webp/);
- assert.match(css,/mix-blend-mode:screen/);
+ assert.match(css,/thefeya-approved-logo-transparent\.webp/);
+ assert.doesNotMatch(css,/mix-blend-mode:screen/);
  assert.match(css,/\[data-testid="shop-page"\]:not\(\.visual-commerce-embedded\)/);
 });
 test('V8 Events includes every requested occasion, without Festival Skirts',()=>{
