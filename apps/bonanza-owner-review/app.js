@@ -190,10 +190,11 @@ function arrOp(old,values,mode){if(mode==='replace')return [...new Set(values)];
 function resetBulk(){$$('.bulkdock input[type="checkbox"],.bulkdock input[type="radio"]').forEach(e=>e.checked=false);$('#colorsMode').value='add';$('#materialsMode').value='add';bulkPreview()}
 function bulkApply(){
  const b=bulkData(),n=selected.size;if(!n)return;if(!b.colors.length&&!b.materials.length&&!b.audience&&!b.custom&&!b.hold)return;
+ if(b.colors.includes('as_pictured')&&(b.colors.length>1||b.custom)){toast('Только как на фото нельзя совмещать с другими расцветками');return}
  if(n>=50&&!confirm('Применить массовые изменения к '+n+' товарам?'))return;
  if(n>=10&&((b.colorMode==='replace'&&b.colors.length)||(b.materialMode==='replace'&&b.materials.length))&&!confirm('Ты выбрал ЗАМЕНИТЬ. Старые значения у '+n+' товаров будут заменены. Продолжить?'))return;
  for(const id of selected){const d=editable(id);
-  if(b.colors.length){d.colors=arrOp(d.colors,b.colors,b.colorMode);d.confirmed.colors=!!(d.colors.length||d.customOnRequest)}
+  if(b.colors.length){d.colors=arrOp(d.colors,b.colors,b.colorMode);if(b.colors.includes('as_pictured'))d.colors=['as_pictured'];else if(b.colorMode!=='remove')d.colors=d.colors.filter(x=>x!=='as_pictured');d.confirmed.colors=!!(d.colors.length||d.customOnRequest)}
   if(b.custom){d.customOnRequest=true;d.confirmed.colors=true}
   if(b.materials.length){d.materials=arrOp(d.materials,b.materials,b.materialMode);d.confirmed.materials=!!d.materials.length}
   if(b.audience){d.audience=b.audience;d.confirmed.audience=true}
@@ -226,8 +227,8 @@ function draw(){
 }
 function onDrawerChange(e){
  if(!active)return;const el=e.target,d=editable(active);
- if(el.classList.contains('one-color')){d.colors=arrOp(d.colors,[el.value],el.checked?'add':'remove');d.confirmed.colors=!!(d.colors.length||d.customOnRequest)}
- if(el.id==='singleCustom'){d.customOnRequest=el.checked;d.confirmed.colors=!!(d.colors.length||d.customOnRequest)}
+ if(el.classList.contains('one-color')){d.colors=arrOp(d.colors,[el.value],el.checked?'add':'remove');if(el.checked&&el.value==='as_pictured'){d.colors=['as_pictured'];d.customOnRequest=false;}else if(el.checked)d.colors=d.colors.filter(x=>x!=='as_pictured');d.confirmed.colors=!!(d.colors.length||d.customOnRequest);draw()}
+ if(el.id==='singleCustom'){d.customOnRequest=el.checked;if(el.checked)d.colors=d.colors.filter(x=>x!=='as_pictured');d.confirmed.colors=!!(d.colors.length||d.customOnRequest);draw()}
  if(el.classList.contains('one-material')){d.materials=arrOp(d.materials,[el.value],el.checked?'add':'remove');d.confirmed.materials=!!d.materials.length}
  if(el.classList.contains('one-audience')){d.audience=el.value;d.confirmed.audience=true}
  touch(active);render();
@@ -237,6 +238,28 @@ function backup(){
  const obj={type:'THEFEYA_BONANZA_OWNER_REVIEW_V2',created_at:new Date().toISOString(),catalog_version:catalog.generated_at,products_count:207,decisions};
  download('TheFEYA_Bonanza_owner_review_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(obj,null,2));toast('Резервная копия JSON готова');
 }
+
+async function importOldBackup(file){
+ let obj;try{obj=JSON.parse(await file.text())}catch(e){toast('Это не JSON-файл');return}
+ if(!obj.decisions||typeof obj.decisions!=='object'||Array.isArray(obj.decisions)){toast('В файле нет сохранённых решений');return}
+ const ids=Object.keys(obj.decisions).filter(x=>byId.has(x));
+ if(!ids.length){toast('В файле не найдены товары нашего каталога');return}
+ if(!confirm('Перенести старые отметки по '+ids.length+' товарам в облачный черновик?'))return;
+ ids.forEach(id=>{
+  const old=obj.decisions[id],d=editable(id);
+  d.colors=Array.isArray(old.colors)?old.colors.filter(x=>CSET.has(x)):[];
+  d.materials=Array.isArray(old.materials)?old.materials.filter(x=>MSET.has(x)):[];
+  d.audience=ASET.has(old.audience)?old.audience:'';
+  d.customOnRequest=Boolean(old.customOnRequest);
+  d.comment=String(old.comment||'').slice(0,1500);
+  d.hold=Boolean(old.hold||old.status==='hold');
+  d.confirmed.colors=!!(d.colors.length||d.customOnRequest);
+  d.confirmed.materials=!!d.materials.length;
+  d.confirmed.audience=!!d.audience;
+  touch(id);
+ });
+ render();scheduleSave(20);toast('Перенесено '+ids.length+' товаров · идёт сохранение в Supabase');
+}
 function register(){
  $('#loginForm').addEventListener('submit',signin);
  $('#logoutBtn').addEventListener('click',async()=>{
@@ -245,6 +268,8 @@ function register(){
   session=null;user=null;localStorage.removeItem(SESS_KEY);loginView('');
  });
  $('#backupBtn').addEventListener('click',backup);
+ $('#importBtn').addEventListener('click',()=>$('#restoreFile').click());
+ $('#restoreFile').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)importOldBackup(file);e.target.value=''});
  $('#syncBtn').addEventListener('click',async()=>{await flush();if(!dirty.size){await loadCloud();render();toast('Черновики прочитаны из Supabase')}});
  ['search','statusFilter','colorFilter','audienceFilter','groupFilter','sortFilter'].forEach(id=>$('#'+id).addEventListener(id==='search'?'input':'change',()=>{page=1;render()}));
  $('#selectPage').addEventListener('change',e=>{filtered.slice((page-1)*perPage,page*perPage).forEach(p=>e.target.checked?selected.add(p.id):selected.delete(p.id));cards()});
