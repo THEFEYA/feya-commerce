@@ -12,6 +12,7 @@ const COLORS=[
 ['holographic_black','Голографический + чёрный',['#9bd8f5','#d6aef2','#171a20']],
 ['blue_black','Синий + чёрный',['#2266c8','#151921']],
 ['red','Красный',['#d52b3c']],
+['black_red','Чёрный + красный',['#171a20','#d52b3c']],
 ['as_pictured','Только как на фото',['#eee','#969c9a']]
 ];
 const MATERIALS=[['vegan_leather','Веганская кожа'],['mirror_vegan_leather','Зеркальная веганская кожа'],['genuine_leather','Натуральная кожа'],['mirror_acrylic','Зеркальный акрил'],['plastic','Пластик'],['stretch_fabric','Эластичная ткань'],['fabric','Ткань'],['patent','Лаковый материал'],['chain','Цепи'],['holographic','Голографический материал'],['other','Другой материал']];
