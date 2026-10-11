@@ -178,3 +178,29 @@ test('owner V6 improves delivery scannability, About breathing room and low-emph
  assert.ok(contact.includes('payment-operator-heading'));
  assert.ok(!contact.includes('rounded-xl border border-[rgba(216,214,211,.09)]'));
 });
+
+test('owner V7 Shop footer is present ONLY on /shop, not duplicated on PDPs',()=>{
+ const template=read('app/template.tsx');
+ const footer=read('components/OwnerShopFooterPreview.tsx');
+ assert.match(template,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
+ assert.match(template,/<OwnerShopFooterPreview\/>/);
+ assert.match(footer,/usePathname\(\)/);
+ assert.match(footer,/pathname!=='\/shop'/);
+ assert.match(footer,/return <Footer\/>/);
+ assert.match(read('components/Footer.tsx'),/<footer/);
+});
+test('owner V7 FAQ uses SSR native disclosures and compact footer spacing, public collection markup unchanged',()=>{
+ const page=read('app/collections/[slug]/page.tsx');
+ const faq=read('components/OwnerCollectionFaqAccordion.tsx');
+ assert.match(page,/visualFaqPreview=isOwnerUnifiedStorefrontPreview\(process\.env\)/);
+ assert.match(page,/OwnerCollectionFaqAccordion faq=\{content\.faq\}/);
+ assert.match(page,/container-feya pb-4 lg:pb-6/);
+ assert.match(page,/container-feya pb-16 lg:pb-24/);
+ assert.match(page,/\{content\.faq\.map\(\(item\)=>\(/);
+ assert.match(faq,/<details key=/);
+ assert.match(faq,/<summary className=/);
+ assert.match(faq,/group-open:rotate-180/);
+ assert.match(faq,/\{item\.q\}/);
+ assert.match(faq,/\{item\.a\}/);
+ assert.doesNotMatch(faq,/useState|onClick|setOpen/);
+});

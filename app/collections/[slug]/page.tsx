@@ -7,6 +7,8 @@ import Link from 'next/link';
 import {Suspense} from 'react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {OwnerCollectionFaqAccordion} from '@/components/OwnerCollectionFaqAccordion';
+import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
@@ -71,6 +73,8 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
   const isHold=candidate.searchStatus==='hold_noindex';
   if(isHold)notFound();
   const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';
+  const visualFaqPreview=isOwnerUnifiedStorefrontPreview(process.env)
+    &&process.env.VERCEL_GIT_COMMIT_REF===OWNER_VISUAL_V2_REVIEW_BRANCH;
 
   const breadcrumbLd={
     '@context':'https://schema.org',
@@ -188,17 +192,20 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
         </div>
       </section>
 
-      {content.faq.length?<section className="container-feya pb-16 lg:pb-24">
+      {content.faq.length?<section className={visualFaqPreview
+        ? 'container-feya pb-4 lg:pb-6'
+        : 'container-feya pb-16 lg:pb-24'}>
         <div className="max-w-4xl">
           <div className="eyebrow-gold">Questions</div>
-          <div className="mt-5 divide-y divide-[rgba(216,214,211,.12)] border-y border-[rgba(216,214,211,.12)]">
-            {content.faq.map((item)=>(
-              <article key={item.q} className="py-6">
-                <h2 className="text-bone text-lg">{item.q}</h2>
-                <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">{item.a}</p>
-              </article>
-            ))}
-          </div>
+          {visualFaqPreview?<OwnerCollectionFaqAccordion faq={content.faq}/>:
+            <div className="mt-5 divide-y divide-[rgba(216,214,211,.12)] border-y border-[rgba(216,214,211,.12)]">
+              {content.faq.map((item)=>(
+                <article key={item.q} className="py-6">
+                  <h2 className="text-bone text-lg">{item.q}</h2>
+                  <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">{item.a}</p>
+                </article>
+              ))}
+            </div>}
         </div>
       </section>:null}
     </>:null}
