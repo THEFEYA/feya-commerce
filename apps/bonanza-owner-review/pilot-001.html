@@ -35,7 +35,16 @@ const cfg=document.getElementById('config'),clr=document.getElementById('color')
 function paint(){
 let opt=cfg.value,color=clr.value,price=prices[opt];
 document.getElementById('price').textContent='$'+price.toFixed(2);
-document.getElementById('explain').innerHTML='<strong>Выбрано:</strong> '+opt+' · '+color+'. <strong>Цена выбранной опции:</strong> $'+price.toFixed(2)+'. Цена Full Set не подменяется ценой отдельных деталей.';
+document.getElementById('explain').innerHTML='<strong>Выбрано:</strong> '+opt+' · '+color+'. <strong>Цена выбранной опции:</strong> 
+}
+cfg.addEventListener('change',paint);clr.addEventListener('change',paint);
+document.querySelectorAll('.thumbs button').forEach(b=>b.addEventListener('click',()=>{
+let ix=Number(b.dataset.index);
+document.getElementById('mainImage').src=urls[ix];
+document.querySelectorAll('.thumbs button').forEach(x=>x.classList.toggle('active',x===b))
+}));
+paint();
+</script></body></html>+price.toFixed(2)+'. Цена Full Set не подменяется ценой отдельных деталей.<br><em>Фотографии показывают серебряное исполнение. Для Gold отдельная фотография в этом тесте не подтверждена; образец визуально не меняется при выборе цвета.</em>';
 }
 cfg.addEventListener('change',paint);clr.addEventListener('change',paint);
 document.querySelectorAll('.thumbs button').forEach(b=>b.addEventListener('click',()=>{
