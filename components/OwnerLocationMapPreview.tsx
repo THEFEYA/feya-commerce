@@ -31,11 +31,11 @@ export function OwnerLocationMapPreview({location}:{location:keyof typeof LOCATI
   // Existing no-key Google map embed format. Official Maps Embed API requires
   // a restricted Google API key before adopting /maps/embed/v1/place.
   const embed='https://maps.google.com/maps?q='+encodeURIComponent(data.query)+'&z=16&output=embed';
-  return <div className="mt-4" aria-label={data.label}>
-    <div className="relative aspect-[16/9] min-h-[205px] overflow-hidden rounded-xl border border-white/[.16] bg-[radial-gradient(ellipse_at_center,rgba(70,70,80,.27),rgba(16,16,20,.98))]">
+  return <div className="mt-4 min-w-0 max-w-full" aria-label={data.label}>
+    <div className="relative aspect-[16/9] min-h-[205px] min-w-0 max-w-full overflow-hidden rounded-xl border border-white/[.16] bg-[radial-gradient(ellipse_at_center,rgba(70,70,80,.27),rgba(16,16,20,.98))]">
       {loaded?<iframe title={data.label+' — interactive Google Maps'}
         src={embed} loading="lazy" referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen className="absolute inset-0 h-full w-full border-0"
+        allowFullScreen className="absolute inset-0 block h-full w-full max-w-full border-0"
       />:<div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
         <MapPin size={28} className="text-[#d4b26a]" aria-hidden="true"/>
         <p className="max-w-xs text-[13px] leading-6 text-[var(--bone-dim)]">

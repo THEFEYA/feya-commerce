@@ -11,8 +11,8 @@ export function OwnerNewsletterSignupPreview(){
   const [email,setEmail]=useState('');
   const [consent,setConsent]=useState(false);
   const [notice,setNotice]=useState(false);
-  return <div className="rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.09),rgba(255,255,255,.014)_70%)] px-5 py-5 sm:px-7 sm:py-6 lg:px-8 lg:py-6">
-    <div className="grid items-center gap-5 lg:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)] lg:gap-8">
+  return <div data-testid="owner-newsletter-panel" className="w-full max-w-full min-w-0 rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.09),rgba(255,255,255,.014)_70%)] px-5 py-5 sm:px-7 sm:py-6 lg:px-8 lg:py-6">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-5 lg:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)] lg:gap-8">
       <div>
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.05)] text-[#d4b26a]">
@@ -27,7 +27,7 @@ export function OwnerNewsletterSignupPreview(){
           New collections, special offers and creative updates from TheFEYA, delivered to your inbox.
         </p>
       </div>
-      <form className="space-y-3" onSubmit={e=>{e.preventDefault();setNotice(true);}}>
+      <form className="min-w-0 max-w-full space-y-3" onSubmit={e=>{e.preventDefault();setNotice(true);}}>
         <label htmlFor="feya-newsletter-email" className="block text-[12px] text-[#e1dace]">Your email address</label>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input id="feya-newsletter-email" type="email" required value={email}

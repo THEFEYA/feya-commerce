@@ -494,3 +494,60 @@ test('V12 preview only homepage and Cart spacing and carousel timing preserve de
  assert.match(home,/prefers-reduced-motion: reduce/);
  assert.match(home,/onTouchStart=/);
 });
+
+test('V13 mobile collection links: true compact 2x2 grid, one-line understated count, no desktop drift',()=>{
+ const page=read('app/collections/[slug]/page.tsx');
+ const css=read('app/ownerVisualPreviewV2.css');
+ for(const anchor of ['collection-snapshot-summary','collection-snapshot-shop-all','collection-related-links','collection-preorder-links']){
+   assert.ok(page.includes('data-testid="'+anchor+'"'),anchor);
+ }
+ assert.match(page,/grid grid-cols-2 gap-2 sm:mt-5 sm:flex/);
+ assert.match(page,/lg:text-2xl/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/min-height:44px/);
+ assert.match(css,/grid-column:1\/-1/);
+});
+test('V13 compact About buttons, full-width Shipping secondary copy and no Contact horizontal overflow',()=>{
+ const about=read('components/OwnerEditorialReviewPages.tsx');
+ const ship=read('app/shipping-review/page.tsx');
+ const contact=read('components/ContactExperience2026.tsx');
+ const news=read('components/OwnerNewsletterSignupPreview.tsx');
+ const form=read('components/OwnerContactFormPreview.tsx');
+ const css=read('app/ownerVisualPreviewV2.css');
+ assert.match(about,/data-testid="about-review-actions"/);
+ assert.match(ship,/data-testid="shipping-secondary-cards"/);
+ assert.match(contact,/data-testid="owner-contact-preview"/);
+ assert.match(news,/data-testid="owner-newsletter-panel"/);
+ assert.match(form,/data-testid="contact-email-prepare"/);
+ assert.match(css,/grid-column:1\/-1/);
+ assert.match(css,/overflow-x:clip/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\)!important/);
+});
+test('V13 mobile menu opens closed, next group has only one divider and public Header source remains frozen',()=>{
+ const template=read('app/template.tsx');
+ const shim=read('components/OwnerMobileNavigationReviewFix.tsx');
+ const css=read('app/ownerVisualPreviewV2.css');
+ assert.match(template,/<OwnerMobileNavigationReviewFix\/>/);
+ assert.match(shim,/MutationObserver/);
+ assert.match(shim,/attributeFilter:\['aria-hidden'\]/);
+ assert.match(shim,/mobile-panel-shop/);
+ assert.match(shim,/shop\.click\(\)/);
+ assert.match(css,/div:last-child > a/);
+ assert.match(css,/border-bottom:0!important/);
+ assert.match(css,/padding-top:\.75rem!important/);
+ const frozen=read('components/Header.tsx');
+ assert.match(frozen,/const \[openMobileSection, setOpenMobileSection\] = useState<string \| null>\('shop'\)/);
+});
+test('V13 Shop summary spacing equals Events reference and PDP mobile disclosure sits near Reviews',()=>{
+ const shop=read('components/OwnerShopSeoText.tsx');
+ const pdp=read('app/shop/[slug]/ownerPdpPolishV2.css');
+ const cart=read('app/ownerVisualPreviewV2.css');
+ assert.match(shop,/mt-4 pb-8 sm:mt-5 sm:pb-10/);
+ assert.match(pdp,/#description \{/);
+ assert.match(pdp,/padding-bottom:\.4rem!important/);
+ assert.match(pdp,/#reviews \{/);
+ assert.match(pdp,/feyaMobileInfoGleam/);
+ assert.match(pdp,/prefers-reduced-motion:reduce/);
+ assert.match(cart,/padding-bottom: 1rem !important/);
+ assert.match(cart,/margin-top: \.65rem/);
+});

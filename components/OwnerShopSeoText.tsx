@@ -7,7 +7,7 @@ import {ChevronDown} from 'lucide-react';
  */
 export function OwnerShopSeoText(){
   const anchor='font-medium text-[#ddc181] transition-colors hover:text-[#f6deb0] focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]';
-  return <section className="container-feya pb-8 sm:pb-10" aria-labelledby="shop-collection-guide-title">
+  return <section className="container-feya mt-4 pb-8 sm:mt-5 sm:pb-10" aria-labelledby="shop-collection-guide-title">
     <div className="border-t border-white/[.10] pt-6 sm:pt-7">
       <p className="eyebrow-gold">TheFEYA · Shop by piece</p>
       <details className="group mt-4">

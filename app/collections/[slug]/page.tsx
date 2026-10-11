@@ -156,13 +156,13 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
         </div>
       </section>
 
-      <section className="container-feya pb-12 lg:pb-16">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-7">
+      <section className="container-feya pb-5 sm:pb-12 lg:pb-16">
+        <div data-testid="collection-snapshot-summary" className="mb-4 flex items-end justify-between gap-3 lg:mb-7 lg:items-end lg:gap-4">
           <div>
             <div className="eyebrow-gold">Current collection snapshot</div>
-            <h2 className="mt-3 text-bone text-2xl">{membershipCount} orderable pieces</h2>
+            <h2 className="mt-1 text-[11px] leading-5 tracking-[.12em] uppercase text-[var(--bone-dim)] lg:mt-3 lg:text-2xl lg:normal-case lg:tracking-normal lg:text-bone">{membershipCount} orderable pieces</h2>
           </div>
-          <Link href="/shop" className="btn-ghost">Shop all</Link>
+          <Link href="/shop" data-testid="collection-snapshot-shop-all" className="btn-ghost">Shop all</Link>
         </div>
 
         {facetedProducts.length
@@ -170,19 +170,19 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
           : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current release products are present in this immutable membership snapshot.</div>}
       </section>
 
-      <section className="container-feya pb-12 lg:pb-16">
-        <div className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.02)] p-6 lg:p-8">
+      <section className="container-feya pb-3 sm:pb-12 lg:pb-16">
+        <div className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.02)] p-4 sm:p-6 lg:p-8">
           <div className="eyebrow-gold">Explore related collections</div>
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div data-testid="collection-related-links" className="mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-wrap sm:gap-3">
             {relatedLinks.map((link)=><Link key={link.href} href={link.href} className="btn-ghost">{link.anchor}</Link>)}
           </div>
         </div>
       </section>
 
-      <section className="container-feya pb-12 lg:pb-16">
-        <div className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.04)] p-6 lg:p-7">
+      <section className="container-feya pb-5 sm:pb-12 lg:pb-16">
+        <div className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.04)] p-4 sm:p-6 lg:p-7">
           <div className="eyebrow-gold">Before you order</div>
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div data-testid="collection-preorder-links" className="mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-wrap sm:gap-3">
             <Link href="/size-guide" className="btn-ghost">Measurements & sizing</Link>
             <Link href="/care" className="btn-ghost">Care & storage</Link>
             <Link href="/shipping" className="btn-ghost">Shipping</Link>

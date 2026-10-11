@@ -19,7 +19,7 @@ const socialReview=[
 // Account links pending owner verification: show real platform icons, no fake URLs.
 
 export function ContactExperience2026(){
-  return <main className="visual-commerce-shell relative min-h-screen">
+  return <main data-testid="owner-contact-preview" className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-20 pb-7 sm:pt-24 lg:pt-24 lg:pb-9">
       <div className="max-w-4xl">
@@ -32,7 +32,7 @@ export function ContactExperience2026(){
     </section>
 
     <section className="container-feya pb-10 lg:pb-14" aria-label="Contact TheFEYA">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:items-stretch">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:items-stretch">
         <div className="rounded-[18px] border border-[rgba(216,214,211,.16)] bg-[radial-gradient(ellipse_at_top_left,rgba(212,178,106,.055),rgba(255,255,255,.018)_60%)] p-6 sm:p-8">
           <p className="eyebrow-gold">TheFEYA support</p>
           <h2 className="mt-3 text-[clamp(23px,2.7vw,31px)] font-medium text-[#f7f3ec]">We are here to help.</h2>
@@ -88,7 +88,7 @@ export function ContactExperience2026(){
         <div><p className="eyebrow-gold">Studio & logistics</p><h2 className="mt-2 text-[clamp(22px,2.7vw,31px)] font-medium text-[#f7f3ec]">Explore our locations</h2></div>
         <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">Explore interactive Google Maps, or open each verified location directly.</p>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
         <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">
           <div className="flex items-center gap-2 text-[#d4b26a]"><MapPinned size={22} aria-hidden="true"/><span className="text-[10px] uppercase tracking-[.16em]">Ukraine · showroom reference</span></div>
           <h3 className="mt-3 text-[21px] text-[#f7f3ec]">Фея-Портупея</h3>

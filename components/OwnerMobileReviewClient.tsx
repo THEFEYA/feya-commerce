@@ -41,7 +41,8 @@ export function OwnerMobileReviewClient(){
         Открыть {current} напрямую
       </Link>
     </div>
-    <div className="mt-5 hidden w-full overflow-x-auto rounded-[22px] border border-white/[.10] bg-[#111116] px-3 py-7 md:block">
+    <p className="mt-4 text-[12px] font-medium text-[#e2c580]" aria-live="polite">Сейчас: {current} · экран {width} px</p>
+    <div className="mt-3 hidden w-full overflow-x-auto rounded-[22px] border border-white/[.10] bg-[#111116] px-3 py-7 md:block">
       <div className="mx-auto overflow-hidden rounded-[29px] border-[7px] border-[#2f2f34] bg-black shadow-[0_25px_90px_rgba(0,0,0,.40)]"
         style={{width:width+14,maxWidth:'none'}}>
         <div className="flex h-6 items-center justify-center bg-[#111115]">

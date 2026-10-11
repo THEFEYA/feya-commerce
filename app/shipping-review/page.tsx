@@ -78,7 +78,7 @@ export default function ShippingReviewPage(){
         </article>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div data-testid="shipping-secondary-cards" className="mt-5 grid min-w-0 gap-4 md:grid-cols-2">
         <article className={box+' flex min-w-0 gap-5 p-6 sm:p-7'}>
           <IconSpot><Boxes size={27} strokeWidth={1.45} aria-hidden="true"/></IconSpot>
           <div>

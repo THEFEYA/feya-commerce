@@ -34,7 +34,7 @@ export function OwnerContactFormPreview(){
       <textarea className={base+' min-h-[130px]'} required minLength={5} maxLength={1800}
         value={message} onChange={e=>setMessage(e.target.value)} placeholder="Tell our studio what you need…"/>
     </label>
-    <button type="submit" className="btn-chrome inline-flex w-fit items-center gap-2"><Mail size={16}/> Open your email to send <Send size={14}/></button>
+    <button type="submit" data-testid="contact-email-prepare" className="btn-chrome inline-flex w-fit max-w-full items-center gap-2"><Mail size={16}/> Open your email to send <Send size={14}/></button>
     <p className="text-[12px] leading-6 text-[var(--bone-dim)]" role="status">
       {prepared?'Your email app was opened. Send the message there to reach our team.':
       'Your message opens in your email app for you to send.'}

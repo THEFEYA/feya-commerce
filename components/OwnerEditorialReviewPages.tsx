@@ -63,7 +63,7 @@ export function OwnerAboutReview(){
           <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px]">{body}</p>
         </article>)}
       </div>
-      <div className="mt-7 flex flex-wrap gap-3">
+      <div data-testid="about-review-actions" className="mt-5 grid grid-cols-2 gap-2 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
         <Link href="/shop" className="btn-chrome">Explore our designs</Link>
         <Link href="/contact" className="btn-ghost">Contact our studio</Link>
       </div>
