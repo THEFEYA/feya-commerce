@@ -7,6 +7,11 @@ const COLORS=[
 ['black_white','Чёрно-белый',['#181c22','#fff']],['black_gold','Чёрно-золотой',['#181c22','#d8ae58']],['black_silver','Чёрно-серебряный',['#181c22','#b9c6cc']],
 ['white_gold','Бело-золотой',['#fff','#d8ae58']],['white_silver','Бело-серебряный',['#fff','#b9c6cc']],['gold_silver','Золотой + серебряный',['#d8ae58','#b9c6cc']],
 ['gold_silver_black','Чёрный + золотой + серебряный',['#181c22','#d8ae58','#b9c6cc']],['white_gold_silver','Белый + золотой + серебряный',['#fff','#d8ae58','#b9c6cc']],
+['holographic','Голографический',['#9bd8f5','#c5b1f0','#f6c5dd','#f7ebad']],
+['holographic_white','Голографический + белый',['#9bd8f5','#f4c2df','#ffffff']],
+['holographic_black','Голографический + чёрный',['#9bd8f5','#d6aef2','#171a20']],
+['blue_black','Синий + чёрный',['#2266c8','#151921']],
+['red','Красный',['#d52b3c']],
 ['as_pictured','Только как на фото',['#eee','#969c9a']]
 ];
 const MATERIALS=[['vegan_leather','Веганская кожа'],['mirror_vegan_leather','Зеркальная веганская кожа'],['genuine_leather','Натуральная кожа'],['mirror_acrylic','Зеркальный акрил'],['plastic','Пластик'],['stretch_fabric','Эластичная ткань'],['fabric','Ткань'],['patent','Лаковый материал'],['chain','Цепи'],['holographic','Голографический материал'],['other','Другой материал']];
