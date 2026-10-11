@@ -171,9 +171,9 @@ test('owner V6 improves delivery scannability, About breathing room and low-emph
  assert.ok(intro.includes('pt-28 pb-11'));
  assert.ok(intro.includes('lg:pb-12'));
  for(const value of ['3–5 days','€19','€35'])assert.ok(shipping.includes(value));
- assert.ok(shipping.includes('w-full text-center text-[30px]'));
- assert.ok(shipping.includes('w-full text-center text-[32px]'));
- assert.ok(shipping.includes('text-center text-[14px]'));
+ assert.ok(shipping.includes('mt-3 text-[30px]'));
+ assert.ok(shipping.includes('mt-3 text-[32px]'));
+ assert.ok(shipping.includes('mt-1 text-[14px]'));
  assert.ok(contact.includes('<Icon size={22}'));
  assert.ok(contact.includes('payment-operator-heading'));
  assert.ok(!contact.includes('rounded-xl border border-[rgba(216,214,211,.09)]'));
@@ -225,4 +225,26 @@ test('owner V7 remote catalog experiment preserves pinned source and release acc
  assert.match(style,/owner_hub_catalog_timing/);
  assert.match(events,/kind:'events'/);
  assert.match(style,/kind:'style'/);
+});
+
+test('V7 buyer shipping left alignment restored while font hierarchy stays approved',()=>{
+ const shipping=read('app/shipping-review/page.tsx');
+ assert.match(shipping,/mt-3 text-\[30px\]/);
+ assert.match(shipping,/mt-3 text-\[32px\]/);
+ assert.match(shipping,/mt-1 text-\[14px\]/);
+ assert.doesNotMatch(shipping,/w-full text-center text-\[(?:30|32)px\]/);
+ assert.doesNotMatch(shipping,/text-center text-\[14px\]/);
+});
+test('V7 socials are inside left-hand Contact support, not repeated beneath newsletter',()=>{
+ const src=read('components/ContactExperience2026.tsx');
+ const social=src.indexOf('aria-label="TheFEYA social profiles"');
+ const whatsapp=src.indexOf('wa.me/380636556288');
+ const question=src.indexOf('<OwnerContactFormPreview/>');
+ const maps=src.indexOf('OwnerLocationMapPreview location="kyiv"');
+ const newsletter=src.indexOf('<OwnerNewsletterSignupPreview/>');
+ assert.ok(whatsapp>=0&&social>whatsapp&&social<question&&social<maps&&social<newsletter);
+ assert.equal(src.split('Follow TheFEYA').length-1,1);
+ assert.match(src,/text-\[#817b74\]/);
+ assert.match(src,/op\.legalName/);
+ assert.match(src,/Privacy Policy/);
 });
