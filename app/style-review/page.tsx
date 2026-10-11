@@ -9,7 +9,7 @@ import {OwnerHubSeoText} from '@/components/OwnerHubSeoText';
 import {OwnerHubCatalogSkeleton} from '@/components/OwnerHubCatalogSkeleton';
 import {OwnerDiscoveryTileStrip} from '@/components/OwnerDiscoveryTileStrip';
 import {DiscoveryHubProducts} from '@/components/DiscoveryHubPage';
-import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
+import {OWNER_STYLE_HUB_TILES} from '@/config/ownerDiscoveryTilesV8';
 import {readStyleHubProducts} from '@/lib/discoveryHubServer';
 import {isOwnerUnifiedStorefrontPreview} from '@/lib/ownerUnifiedStorefrontPreview';
 
@@ -40,7 +40,7 @@ export default function StyleReview(){
       {/* All eight configured style tiles have matching items in the current
           207-product approved catalogue. Stream images immediately instead of
           waiting for a catalog fetch that previously yielded blank 550px. */}
-      <div className="mt-9"><OwnerDiscoveryTileStrip tiles={STYLE_HUB_TILES}/></div>
+      <div className="mt-9"><OwnerDiscoveryTileStrip tiles={OWNER_STYLE_HUB_TILES}/></div>
       <Suspense fallback={<OwnerHubCatalogSkeleton/>}><ReviewProducts/></Suspense>
       <OwnerHubSeoText kind="style"/>
     </section>

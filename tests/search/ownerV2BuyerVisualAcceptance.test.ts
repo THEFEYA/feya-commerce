@@ -136,7 +136,7 @@ test('owner V5 Contact reduces top whitespace, Google Maps height, and newslette
  const contact=read('components/ContactExperience2026.tsx');
  const map=read('components/OwnerLocationMapPreview.tsx');
  const newsletter=read('components/OwnerNewsletterSignupPreview.tsx');
- assert.match(contact,/pt-24 pb-7 sm:pt-28 lg:pt-28/);
+ assert.match(contact,/pt-20 pb-7 sm:pt-24 lg:pt-24/);
  assert.match(map,/aspect-\[16\/9\]/);
  assert.match(map,/min-h-\[205px\]/);
  assert.match(newsletter,/minmax\(0,.82fr\)_minmax\(0,1.18fr\)/);
@@ -264,25 +264,24 @@ test('V7 Events/Style share a visible skeleton rather than show an empty 500px g
 test('V8 approved owner mark is an exact image blob in Header slot without changing nav dimensions',()=>{
  const header=read('components/Header.tsx');
  const css=read('app/ownerVisualPreviewV2.css');
- const fs=require('node:fs') as typeof import('node:fs');
- assert.ok(fs.statSync('public/thefeya-approved-logo.webp').size>1000);
+ assert.ok(readFileSync('public/thefeya-approved-logo.webp').length>1000);
  assert.match(header,/data-testid="logo-link"/);
  assert.match(css,/thefeya-approved-logo\.webp/);
  assert.match(css,/mix-blend-mode:screen/);
  assert.match(css,/\[data-testid="shop-page"\]:not\(\.visual-commerce-embedded\)/);
 });
 test('V8 Events includes every requested occasion, without Festival Skirts',()=>{
- const src=read('config/discoveryHubs.ts');
+ const src=read('config/ownerDiscoveryTilesV8.ts');
  const nav=read('config/storefrontNavigation.ts');
  for(const label of ['Rave','Burning Man','Halloween','Pride','Cosplay','Performance','Fashion','Showgirl','Drag Queen','Go-Go Dancer','Pole Dancer'])
    assert.ok(src.includes("'"+label+"'"),label);
  assert.match(nav,/item\.code==='festival_skirts'/);
  assert.match(nav,/NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW === '1'/);
- assert.doesNotMatch(src.slice(src.indexOf('export const EVENTS_PERFORMANCE_HUB_TILES'),src.indexOf('// All ten current real style filters')),/festival-skirts|Festival Skirts/);
+ assert.doesNotMatch(src.slice(src.indexOf('export const OWNER_EVENTS_HUB_TILES'),src.indexOf('// All ten current real style filters')),/festival-skirts|Festival Skirts/);
 });
 test('V8 Style includes both verified Burlesque and Classic filters, no personas',()=>{
- const src=read('config/discoveryHubs.ts');
- const styles=src.slice(src.indexOf('export const STYLE_HUB_TILES'),src.indexOf('// Governed counts'));
+ const src=read('config/ownerDiscoveryTilesV8.ts');
+ const styles=src.slice(src.indexOf('export const OWNER_STYLE_HUB_TILES'));
  assert.ok(styles.includes("'Burlesque'"));
  assert.ok(styles.includes("'Classic'"));
  assert.doesNotMatch(styles,/persona=|Warrior|Queen/);
@@ -302,4 +301,14 @@ test('V8 Contact no longer repeats technical order advice under support',()=>{
  assert.doesNotMatch(src,/For order questions, include your order number/);
  assert.match(src,/TheFEYA social profiles/);
  assert.match(src,/pt-20 pb-7 sm:pt-24 lg:pt-24/);
+});
+
+test('V8 canonical ten owner landing directory stays frozen while only extra carousel filters expand',()=>{
+ const canonical=read('config/discoveryHubs.ts');
+ const owner=read('config/ownerDiscoveryTilesV8.ts');
+ assert.match(canonical,/code:'festival-skirts'/);
+ assert.match(canonical,/code:'festival-outfits'/);
+ assert.match(owner,/OWNER_EVENTS_HUB_TILES/);
+ assert.match(owner,/OWNER_STYLE_HUB_TILES/);
+ assert.doesNotMatch(owner,/COLLECTION_DIRECTORY_GROUPS/);
 });

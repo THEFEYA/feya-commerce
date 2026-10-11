@@ -6,6 +6,7 @@ import {readOwnerRemoteCatalogPreviewV1} from '@/lib/ownerRemoteCatalogPreviewSe
 import {isOwnerUnifiedStorefrontPreview,OWNER_VISUAL_V2_REVIEW_BRANCH} from '@/lib/ownerUnifiedStorefrontPreview';
 import type {StorefrontProduct} from '@/lib/types';
 import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
+import {OWNER_STYLE_HUB_TILES} from '@/config/ownerDiscoveryTilesV8';
 import {readClosedReviewPresentation} from '@/lib/searchReviewPresentationServer';
 
 function dedupe(products:StorefrontProduct[]){
@@ -50,7 +51,7 @@ export async function readEventsPerformanceHubProducts(){
 export async function readStyleHubProducts(){
   const products=await readDiscoveryHubCatalog();
   if(!products)return null;
-  const allowed=new Set(STYLE_HUB_TILES.map((tile)=>tile.label));
+  const allowed=new Set(OWNER_STYLE_HUB_TILES.map((tile)=>tile.label));
   return products.filter((product)=>product.facets?.styles?.some((style)=>allowed.has(style)));
 }
 
