@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-11",
+  "environment": "GitHub branch only / no live upload",
+  "source_project": "ysnizcgzhdwdfdkjkhud",
+  "source_shop": "thefeya",
+  "target_booth": "She_Knows (NOT_CONFIRMED)",
+  "products": 207,
+  "variants": 856,
+  "product_ids_unique": 207,
+  "variant_skus_unique": 856,
+  "full_set_products": 195,
+  "category_candidates": {
+    "53369": 129,
+    "82161": 37,
+    "116724": 1,
+    "PENDING": 40
+  },
+  "raw_label_problem_rows": 117,
+  "all_problem_rows_have_proposals": true,
+  "semantically_ambiguous_proposals": 8,
+  "duplicate_proposed_label_products": 0,
+  "structural_errors": [],
+  "publishable": false,
+  "status": "PASS_STRUCTURE_HOLD_UPLOAD"
+}
