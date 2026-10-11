@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>TheFEYA × Bonanza — массовая проверка каталога</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="loginView" class="loginview">
+  <section class="loginbox" aria-labelledby="loginTitle">
+    <div class="mark">F</div><div class="eyebrow">THEFEYA · PRIVATE OWNER REVIEW</div>
+    <h1 id="loginTitle">Кабинет проверки Bonanza</h1>
+    <p>Войди через подтверждённый аккаунт Supabase. Решения сохраняются в отдельный черновик — товары, цены и сайт не изменяются.</p>
+    <form id="loginForm" autocomplete="on">
+      <label>Email администратора<input id="loginEmail" type="email" autocomplete="username" value="manager.feya@gmail.com" readonly></label>
+      <label>Пароль Supabase<input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Пароль только на странице входа"></label>
+      <div id="loginError" class="alert hidden" role="alert"></div>
+      <button class="btn primary big" id="loginButton" type="submit">Войти в рабочий кабинет</button>
+    </form>
+    <small>Мы не сохраняем пароль в кабинете. Доступ к записям ограничен твоим аккаунтом средствами Supabase Auth и RLS.</small>
+  </section>
+</div>
+<div id="appView" class="hidden">
+<header class="header">
+  <div class="container topnav">
+    <div class="brand"><span class="mark small">F</span><div><small>THEFEYA × BONANZA</small><strong>Owner Review Studio <span class="version">v2</span></strong></div></div>
+    <div class="navtools"><span id="cloudStatus" class="cloudstatus" role="status">Проверяю соединение…</span><button class="btn dark" id="backupBtn">Резервная копия</button><button class="btn dark" id="syncBtn">Синхронизировать</button><button class="btn dark" id="logoutBtn">Выйти</button></div>
+  </div>
+</header>
+<main class="container">
+  <div class="intro">
+    <h1>Массовая проверка ассортимента</h1>
+    <p>Отмечай галочками любые товары и назначай им расцветки, материалы и аудиторию целой группой. Комплектации и цены оставлены без изменений.</p>
+  </div>
+  <div class="summary" id="summary">
+    <div class="metric"><span>Всего товаров</span><strong id="totalMetric">207</strong></div>
+    <div class="metric"><span>Полностью заполнено</span><strong id="doneMetric">0</strong><div class="progressbar"><i id="doneProgress"></i></div></div>
+    <div class="metric"><span>Расцветки не заполнены</span><strong id="missingColorsMetric">207</strong></div>
+    <div class="metric"><span>Материалы не заполнены</span><strong id="missingMaterialsMetric">207</strong></div>
+    <div class="metric"><span>Аудитория не заполнена</span><strong id="missingAudienceMetric">207</strong></div>
+  </div>
+  <div class="hintline">Классический, футуристический, сценический и другие стили система назначит по существующему Product DNA. Цветовые сочетания — <b>каждое одно сочетание</b>, а не два отдельных варианта. Варианты цен мы сверим автоматически.</div>
+  <div class="toolbar">
+    <div class="filterrow">
+      <label class="sr-only" for="search">Поиск товара</label>
+      <input id="search" type="search" placeholder="Поиск: название, Etsy ID, плечи, юбка…">
+      <label>Заполнение<select id="statusFilter">
+        <option value="all">Все статусы</option><option value="untouched">Не проверяли</option><option value="partial">Заполнено частично</option>
+        <option value="ready">Все три поля заполнены</option><option value="missing_colors">Без подтверждённых цветов</option>
+        <option value="missing_materials">Без подтверждённых материалов</option><option value="missing_audience">Без аудитории</option>
+        <option value="hold">Отложено</option><option value="issues">Ошибки старых вариаций</option>
+      </select></label>
+      <label>Расцветка<select id="colorFilter"><option value="all">Все расцветки</option><option value="missing">Цвет ещё не назначен</option></select></label>
+      <label>Аудитория<select id="audienceFilter"><option value="all">Все аудитории</option><option value="missing">Аудитория не заполнена</option><option value="women">Женская</option><option value="men">Мужская</option><option value="unisex">Унисекс</option><option value="couples">Парная</option></select></label>
+      <label>Тип товара<select id="groupFilter"><option value="all">Все типы</option></select></label>
+      <label>Сортировка<select id="sortFilter"><option value="default">По каталогу</option><option value="missing">Сначала незаполненные</option><option value="title">По названию</option></select></label>
+    </div>
+    <div class="selectionrow">
+      <label class="checkline"><input id="selectPage" type="checkbox"><span>Все на странице</span></label>
+      <button class="linkbutton" id="selectFiltered">Выбрать все отфильтрованные</button>
+      <button class="linkbutton" id="clearSelection">Снять выделение</button>
+      <span class="spacer"></span>
+      <b id="filteredCount">207 товаров</b> · <span id="selectedCount">Выбрано: 0</span>
+    </div>
+  </div>
+  <div id="loadError" class="alert hidden" role="alert"></div>
+  <div id="grid" class="grid" aria-live="polite"></div>
+  <div class="pagination"><button class="btn" id="prevPage">← Назад</button><span id="pageText">Страница 1</span><button class="btn" id="nextPage">Вперёд →</button></div>
+</main>
+<div id="bulkDock" class="bulkdock hidden" role="region" aria-label="Массовое редактирование">
+  <div class="bulkhead">
+    <div><strong>Выбрано <span id="bulkCount">0</span> товаров</strong><small>Изменения применятся только к отмеченным галочками карточкам</small></div>
+    <button class="btn compact" id="closeBulk">Скрыть панель</button>
+  </div>
+  <div class="bulkbody">
+    <div class="bulkgroups">
+      <section class="bulkgroup">
+        <h3>Расцветки <span class="opt">можно несколько</span></h3>
+        <div id="bulkColorChoices" class="chips"></div>
+        <label class="checkline custom"><input type="checkbox" id="bulkCustomOnRequest">Другие цвета под заказ</label>
+        <div class="mode"><span>Действие:</span><select id="colorsMode"><option value="add">Добавить к имеющимся</option><option value="replace">Заменить выбранными</option><option value="remove">Убрать выбранные</option></select></div>
+      </section>
+      <section class="bulkgroup">
+        <h3>Материалы <span class="opt">можно несколько</span></h3>
+        <div id="bulkMaterialChoices" class="chips"></div>
+        <div class="mode"><span>Действие:</span><select id="materialsMode"><option value="add">Добавить к имеющимся</option><option value="replace">Заменить выбранными</option><option value="remove">Убрать выбранные</option></select></div>
+      </section>
+      <section class="bulkgroup">
+        <h3>Аудитория <span class="opt">один выбор</span></h3>
+        <div id="bulkAudiences" class="audiencechips"></div>
+        <label class="checkline custom"><input id="bulkHold" type="checkbox">Отложить выбранные товары</label>
+        <p class="subnote">Стили, категории Bonanza и цены заполняются отдельно. Никаких ручных 856 вариантов.</p>
+      </section>
+    </div>
+    <div class="bulkactions">
+      <span id="bulkPreview" class="preview">Выбери поля для применения</span>
+      <button class="btn primary" id="applyBulk">Применить к выбранным</button>
+      <button class="btn" id="resetBulk">Сбросить выбор параметров</button>
+    </div>
+  </div>
+</div>
+<div class="drawerback hidden" id="drawerBack"></div>
+<aside class="drawer hidden" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawerhead"><div><span class="eyebrow" id="drawerMeta">ТОВАР</span><h2 id="drawerTitle"></h2></div><button class="close" id="drawerClose" aria-label="Закрыть">×</button></div>
+  <div class="drawerbody" id="drawerBody"></div>
+  <div class="drawerfoot"><button class="btn" id="drawerHold">Отложить</button><button class="btn primary" id="drawerNext">Сохранить и дальше →</button></div>
+</aside>
+<input type="file" id="restoreFile" accept=".json,application/json" hidden>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="/config.js"></script><script src="/app.js" defer></script>
+</body></html>
