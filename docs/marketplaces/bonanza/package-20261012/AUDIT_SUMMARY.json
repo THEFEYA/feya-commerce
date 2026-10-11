@@ -6,7 +6,7 @@
   "candidate_fullset_rows": 86,
   "blocked_or_not_candidate": 121,
   "expanded_plan_rows": 2161,
-  "sku_unique_plan": 2149,
+  "sku_unique_plan": 2161,
   "pilot": {
     "id": "TF-BZ-FS-4367470907",
     "title": "Silver Metallic Festival Costume - Full Set Only",
@@ -34,10 +34,11 @@
     },
     {
       "name": "05_THEFEYA_EXPANDED_VARIATION_PLAN_NOT_FOR_IMPORT.csv",
-      "bytes": 381984
+      "bytes": 385929
     }
   ],
   "warning": "BASIC CSV DOES NOT TRANSMIT COLOR OR CONFIGURATION VARIATIONS. ALL IMPORT CANDIDATES QUANTITY ZERO / NOT FOR PUBLICATION.",
   "no_changes_to_live_bonanza": true,
-  "found_original_color_material_price_exceptions": 4
+  "found_original_color_material_price_exceptions": 4,
+  "sku_audit": "PASS_ALL_UNIQUE"
 }
