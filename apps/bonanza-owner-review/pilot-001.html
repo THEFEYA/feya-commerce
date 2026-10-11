@@ -29,28 +29,34 @@
 <div class="footer"><a href="https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/pilot-001/README.md" target="_blank">Полная инструкция по пилоту</a><a href="https://www.bonanza.com/categories/full_list" target="_blank">Категории Bonanza</a><span class="meta">API тест пока не отправлялся, 202 старых объявления не изменены</span></div>
 </main>
 <script>
-const prices={"Garters":96.5,"Panties":96.5,"Skirt":115.81,"Top":130.28,"Top + Skirt":175.46,"Full Set":295.09};
-const urls=["https://i.etsystatic.com/54033853/r/il/c27048/7236051841/il_fullxfull.7236051841_f214.jpg","https://i.etsystatic.com/54033853/r/il/409c40/7188072088/il_fullxfull.7188072088_bkxl.jpg","https://i.etsystatic.com/54033853/r/il/709895/7236051845/il_fullxfull.7236051845_5wgg.jpg","https://i.etsystatic.com/54033853/r/il/d2dfd8/7236052379/il_fullxfull.7236052379_fbyx.jpg"];
-const cfg=document.getElementById('config'),clr=document.getElementById('color');
+"use strict";
+const prices = {"Garters":96.50,"Panties":96.50,"Skirt":115.81,"Top":130.28,"Top + Skirt":175.46,"Full Set":295.09};
+const urls = ["https://i.etsystatic.com/54033853/r/il/c27048/7236051841/il_fullxfull.7236051841_f214.jpg","https://i.etsystatic.com/54033853/r/il/409c40/7188072088/il_fullxfull.7188072088_bkxl.jpg","https://i.etsystatic.com/54033853/r/il/709895/7236051845/il_fullxfull.7236051845_5wgg.jpg","https://i.etsystatic.com/54033853/r/il/d2dfd8/7236052379/il_fullxfull.7236052379_fbyx.jpg"];
+const cfg=document.getElementById("config");
+const clr=document.getElementById("color");
+const priceNode=document.getElementById("price");
+const explainNode=document.getElementById("explain");
 function paint(){
-let opt=cfg.value,color=clr.value,price=prices[opt];
-document.getElementById('price').textContent='$'+price.toFixed(2);
-document.getElementById('explain').innerHTML='<strong>Выбрано:</strong> '+opt+' · '+color+'. <strong>Цена выбранной опции:</strong> 
+  const option=cfg.value;
+  const color=clr.value;
+  const amount=prices[option];
+  if(!Number.isFinite(amount)) {
+    priceNode.textContent="Цена недоступна";
+    explainNode.textContent="Выбери допустимую комплектацию";
+    return;
+  }
+  priceNode.textContent="$"+amount.toFixed(2);
+  explainNode.textContent="Выбрано: "+option+" · "+color+". Цена выбранной опции: $"+amount.toFixed(2)+". Цена Full Set не подменяется ценой отдельных деталей. Фотографии показывают серебряное исполнение; золотая фотография не подтверждена.";
 }
-cfg.addEventListener('change',paint);clr.addEventListener('change',paint);
-document.querySelectorAll('.thumbs button').forEach(b=>b.addEventListener('click',()=>{
-let ix=Number(b.dataset.index);
-document.getElementById('mainImage').src=urls[ix];
-document.querySelectorAll('.thumbs button').forEach(x=>x.classList.toggle('active',x===b))
-}));
-paint();
-</script></body></html>+price.toFixed(2)+'. Цена Full Set не подменяется ценой отдельных деталей.<br><em>Фотографии показывают серебряное исполнение. Для Gold отдельная фотография в этом тесте не подтверждена; образец визуально не меняется при выборе цвета.</em>';
-}
-cfg.addEventListener('change',paint);clr.addEventListener('change',paint);
-document.querySelectorAll('.thumbs button').forEach(b=>b.addEventListener('click',()=>{
-let ix=Number(b.dataset.index);
-document.getElementById('mainImage').src=urls[ix];
-document.querySelectorAll('.thumbs button').forEach(x=>x.classList.toggle('active',x===b))
-}));
+cfg.addEventListener("change",paint);
+clr.addEventListener("change",paint);
+document.querySelectorAll(".thumbs button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    const i=Number(button.dataset.index);
+    if(!Number.isInteger(i)||i<0||i>=urls.length)return;
+    document.getElementById("mainImage").src=urls[i];
+    document.querySelectorAll(".thumbs button").forEach(item=>item.classList.toggle("active",item===button));
+  });
+});
 paint();
 </script></body></html>
