@@ -20,70 +20,38 @@ function imageFrom(map:Record<string,{imageUrl:string}>,label:string){
   return map[label]?.imageUrl || '';
 }
 
-export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
-  {
-    code:'festival-outfits',pieceCount:111,
-    label:'Festival Outfits',
-    href:'/collections/festival-outfits',
-    eyebrow:'Festival',
-    description:'Statement looks for festival nights and large-scale events.',
-    imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Festival'),
-    imageAlt:'Festival outfit by TheFEYA',
-    role:'owner',
-  },
-  {
-    code:'rave-outfits',pieceCount:40,
-    label:'Rave Outfits',
-    href:'/collections/rave-outfits',
-    eyebrow:'Rave',
-    description:'High-impact pieces for rave and EDM styling.',
-    imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Rave'),
-    imageAlt:'Rave outfit by TheFEYA',
-    role:'owner',
-  },
-  {
-    code:'burning-man-outfits',pieceCount:45,
-    label:'Burning Man Looks',
-    href:'/collections/burning-man-outfits',
-    eyebrow:'Desert',
-    description:'Sculptural statement pieces for desert-event styling.',
-    imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Burning Man'),
-    imageAlt:'Burning Man look by TheFEYA',
-    role:'owner',
-  },
-  {
-    code:'performance-costumes',pieceCount:96,
-    label:'Stage & Performance',
-    href:'/collections/performance-costumes',
-    eyebrow:'Performance',
-    description:'Camera-facing pieces for stage, fashion and live performance.',
-    imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Stage & Fashion'),
-    imageAlt:'Stage performance outfit by TheFEYA',
-    role:'owner',
-  },
-  {
-    code:'festival-skirts',pieceCount:56,
-    label:'Festival Skirts',
-    href:'/collections/festival-skirts',
-    eyebrow:'Festival · Skirts',
-    description:'Skirt-led looks for festival styling.',
-    imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Skirts'),
-    imageAlt:'Festival skirt by TheFEYA',
-    role:'owner',
-  },
-];
+// These are existing shopper navigation/filter targets, NOT new SEO page owners.
+// The dedicated Festival Skirts collection remains available through Shop,
+// but is not an event/occasion category in Events & Performance.
+const EVENT_CHOICES=[
+  ['Rave','rave','/collections/rave-outfits','Rave','owner'],
+  ['Burning Man','burning-man','/collections/burning-man-outfits','Burning Man','owner'],
+  ['Halloween','halloween','/shop?event=Halloween','Halloween','filter'],
+  ['Pride','pride','/shop?event=Pride','Pride','filter'],
+  ['Cosplay','cosplay','/shop?event=Cosplay','Cosplay','filter'],
+  ['Performance','performance','/collections/performance-costumes','Performance','owner'],
+  ['Fashion','fashion','/shop?performance=Stage%20%26%20Fashion','Stage & Fashion','filter'],
+  ['Showgirl','showgirl','/shop?performance=Showgirl','Showgirl','filter'],
+  ['Drag Queen','drag-queen','/shop?performance=Drag%20Queen','Drag Queen','filter'],
+  ['Go-Go Dancer','go-go-dancer','/shop?dance=Go-Go%20Dancer','Go-Go Dancer','filter'],
+  ['Pole Dancer','pole-dancer','/shop?dance=Pole%20Dancer','Pole Dancer','filter'],
+] as const;
 
+export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=EVENT_CHOICES.map(([label,code,href,preview,role])=>({
+  code,label,href,eyebrow:'Events & Performance',
+  description:'Explore TheFEYA '+label.toLowerCase()+' looks and individual pieces.',
+  imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,preview),
+  imageAlt:label+' stage or festival outfit by TheFEYA',
+  role,
+}));
+
+// All ten current real style filters, matched to existing approved product photos.
+// Personas are intentionally NOT included in the Style carousel.
 export const STYLE_HUB_TILES:DiscoveryHubTile[]=[
-  ['Glam','Glam'],
-  ['Futuristic','Futuristic'],
-  ['Sci-Fi','Sci-Fi'],
-  ['Cyberpunk','Cyberpunk'],
-  ['Post-Apocalyptic','Post-Apocalyptic'],
-  ['Fantasy','Fantasy'],
-  ['Goth','Goth'],
-  ['Punk','Punk'],
-].map(([code,label])=>({
-  code:String(code).toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+  'Glam','Futuristic','Sci-Fi','Cyberpunk','Post-Apocalyptic',
+  'Fantasy','Goth','Punk','Burlesque','Classic',
+].map(label=>({
+  code:label.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
   label,
   href:'/shop?style='+encodeURIComponent(label),
   eyebrow:'Style',

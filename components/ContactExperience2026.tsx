@@ -24,7 +24,7 @@ export function ContactExperience2026(){
   const op=SELLER_ONLINE_PROVIDER;
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
-    <section className="container-feya pt-24 pb-7 sm:pt-28 lg:pt-28 lg:pb-9">
+    <section className="container-feya pt-20 pb-7 sm:pt-24 lg:pt-24 lg:pb-9">
       <div className="max-w-4xl">
         <p className="eyebrow-gold mb-4">TheFEYA · Get in touch</p>
         <h1 className="visual-display text-[clamp(34px,4vw,54px)] leading-[1.04] tracking-[-.035em] text-[#f7f3ec]">Contact</h1>
@@ -60,10 +60,8 @@ export function ContactExperience2026(){
               </a>
             </div>
           </div>
-          <p className="mt-6 border-t border-white/[.10] pt-4 text-[12px] leading-6 text-[var(--bone-dim)]">
-            For order questions, include your order number. For a design question, share the product link.
-          </p>
-          <div className="mt-5" aria-label="TheFEYA social profiles">
+          <div className="mt-4 border-t border-white/[.10] pt-4" aria-label="Contact and social media">
+          <div className="mt-1" aria-label="TheFEYA social profiles">
             <span className="text-[11px] uppercase tracking-[.16em] text-[#aaa39a]">Follow TheFEYA</span>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
               {socialReview.map(({id,label,Icon})=><span key={id} aria-label={label}
@@ -71,6 +69,7 @@ export function ContactExperience2026(){
                 <Icon size={22} strokeWidth={1.7} aria-hidden="true"/>{label}
               </span>)}
             </div>
+          </div>
           </div>
         </div>
 

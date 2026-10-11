@@ -103,3 +103,33 @@
 .owner-visual-v2-root main.visual-commerce-shell:has(> section nav[aria-label="Breadcrumb"]) > section:has(.visual-commerce-embedded) + section + section {
   padding-bottom: 1.25rem!important;
 }
+
+/* V8: the original ShopClient root adds pt-24/28 ABOVE the approved hero.
+ * Shorten only the owner preview's content-to-header gap; the horizontal
+ * primary navigation dimensions, font and hit areas remain byte-frozen. */
+.owner-visual-v2-root [data-testid="shop-page"]:not(.visual-commerce-embedded) {
+  padding-top: 4rem!important;
+}
+
+/* Owner-supplied approved mark. Keep the original Header logo-link footprint
+ * and screenreader labels; the existing SVG children are still accessible.
+ * The asset has a black matte, composited over the dark header with screen
+ * blending rather than incorrectly painting a black rectangle. */
+.owner-visual-v2-root [data-testid="logo-link"] {
+  position:relative;
+  isolation:isolate;
+}
+.owner-visual-v2-root [data-testid="logo-link"] > svg {
+  opacity:0;
+}
+.owner-visual-v2-root [data-testid="logo-link"]::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:url('/thefeya-approved-logo.webp');
+  background-position:center;
+  background-size:contain;
+  background-repeat:no-repeat;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}

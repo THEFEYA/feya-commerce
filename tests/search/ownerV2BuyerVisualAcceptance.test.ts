@@ -260,3 +260,46 @@ test('V7 Events/Style share a visible skeleton rather than show an empty 500px g
  assert.match(skeleton,/aria-busy="true"/);
  assert.match(skeleton,/grid gap-4 sm:grid-cols-2 lg:grid-cols-4/);
 });
+
+test('V8 approved owner mark is an exact image blob in Header slot without changing nav dimensions',()=>{
+ const header=read('components/Header.tsx');
+ const css=read('app/ownerVisualPreviewV2.css');
+ const fs=require('node:fs') as typeof import('node:fs');
+ assert.ok(fs.statSync('public/thefeya-approved-logo.webp').size>1000);
+ assert.match(header,/data-testid="logo-link"/);
+ assert.match(css,/thefeya-approved-logo\.webp/);
+ assert.match(css,/mix-blend-mode:screen/);
+ assert.match(css,/\[data-testid="shop-page"\]:not\(\.visual-commerce-embedded\)/);
+});
+test('V8 Events includes every requested occasion, without Festival Skirts',()=>{
+ const src=read('config/discoveryHubs.ts');
+ const nav=read('config/storefrontNavigation.ts');
+ for(const label of ['Rave','Burning Man','Halloween','Pride','Cosplay','Performance','Fashion','Showgirl','Drag Queen','Go-Go Dancer','Pole Dancer'])
+   assert.ok(src.includes("'"+label+"'"),label);
+ assert.match(nav,/item\.code==='festival_skirts'/);
+ assert.match(nav,/NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW === '1'/);
+ assert.doesNotMatch(src.slice(src.indexOf('export const EVENTS_PERFORMANCE_HUB_TILES'),src.indexOf('// All ten current real style filters')),/festival-skirts|Festival Skirts/);
+});
+test('V8 Style includes both verified Burlesque and Classic filters, no personas',()=>{
+ const src=read('config/discoveryHubs.ts');
+ const styles=src.slice(src.indexOf('export const STYLE_HUB_TILES'),src.indexOf('// Governed counts'));
+ assert.ok(styles.includes("'Burlesque'"));
+ assert.ok(styles.includes("'Classic'"));
+ assert.doesNotMatch(styles,/persona=|Warrior|Queen/);
+});
+test('V8 image-led visual strip advances every 3 seconds and supports reduced motion, pause, arrows',()=>{
+ const src=read('components/OwnerDiscoveryTileStrip.tsx');
+ assert.match(src,/\},3000\)/);
+ assert.match(src,/prefers-reduced-motion: reduce/);
+ assert.match(src,/onMouseEnter=\{\(\)=>setPause\(true\)\}/);
+ assert.match(src,/onFocusCapture=\{\(\)=>setPause\(true\)\}/);
+ assert.match(src,/document\.visibilityState/);
+ assert.match(src,/onClick=\{\(\)=>move\(-1\)\}/);
+ assert.match(src,/onClick=\{\(\)=>move\(1\)\}/);
+});
+test('V8 Contact no longer repeats technical order advice under support',()=>{
+ const src=read('components/ContactExperience2026.tsx');
+ assert.doesNotMatch(src,/For order questions, include your order number/);
+ assert.match(src,/TheFEYA social profiles/);
+ assert.match(src,/pt-20 pb-7 sm:pt-24 lg:pt-24/);
+});
