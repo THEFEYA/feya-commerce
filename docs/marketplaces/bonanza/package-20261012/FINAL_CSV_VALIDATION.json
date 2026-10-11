@@ -1,0 +1,36 @@
+{
+  "status": "PASS_CSV_STRUCTURAL_VALIDATION_IMPORT_NOT_YET_TESTED",
+  "date": "2026-10-12",
+  "source_product_count": 207,
+  "source_original_variant_count": 856,
+  "eligible_fullset_candidates": 86,
+  "pilot_rows": 1,
+  "expanded_planning_rows": 2161,
+  "all_expanded_skus_unique": true,
+  "confirmed_core_columns": [
+    "id",
+    "title",
+    "price",
+    "category",
+    "description",
+    "quantity",
+    "image"
+  ],
+  "import_quantity_zero": true,
+  "full_catalog_variants_in_import_csv": false,
+  "bonanza_two_axes_csv_spec_not_verified": true,
+  "pilot": {
+    "id": "TF-BZ-FS-4367470907",
+    "title": "Silver Metallic Festival Costume - Full Set Only",
+    "price": "295.09",
+    "category": "53369",
+    "quantity": "0"
+  },
+  "file_links": [
+    "https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/package-20261012/01_BONANZA_PILOT_1_FULLSET_DRAFT_TEST.csv",
+    "https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/package-20261012/02_BONANZA_86_FULLSET_CANDIDATES_HOLD.csv",
+    "https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/package-20261012/03_THEFEYA_ALL_207_AUDIT_NOT_FOR_IMPORT.csv",
+    "https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/package-20261012/04_THEFEYA_ALL_856_VARIATIONS_NOT_FOR_IMPORT.csv",
+    "https://github.com/THEFEYA/feya-commerce/blob/work/bonanza-migration-staging-20261011/docs/marketplaces/bonanza/package-20261012/05_THEFEYA_EXPANDED_VARIATION_PLAN_NOT_FOR_IMPORT.csv"
+  ]
+}
