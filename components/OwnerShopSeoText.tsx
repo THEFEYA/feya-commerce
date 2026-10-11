@@ -1,48 +1,57 @@
 import Link from 'next/link';
 import {ChevronDown} from 'lucide-react';
 
-/** Shop is a NOINDEX catalog in Search Release v12.
- * This server-rendered buyer guide connects browse journeys to the exact
- * 10 existing indexable collection owners. It does not claim new primary
- * query ownership or fabricate Keyword Planner ranking metrics.
+/** Component-first buyer guidance grounded in approved sellable Product DNA,
+ * 2026-09-26 US/en demand snapshots, and the ACTIVE v12 search-owner graph.
+ * /shop remains NOINDEX; type-specific owners remain the original collections.
  */
 export function OwnerShopSeoText(){
-  const linkClass='text-[#e0c37d] underline underline-offset-4 hover:text-[#f7f3ec]';
+  const anchor='text-[#e0c37d] underline underline-offset-4 hover:text-[#f7f3ec]';
   return <section className="container-feya pb-8 sm:pb-10" aria-labelledby="shop-collection-guide-title">
     <div className="border-t border-white/[.10] pt-6 sm:pt-7">
-      <p className="eyebrow-gold">TheFEYA · Find your look</p>
+      <p className="eyebrow-gold">TheFEYA · Shop by piece</p>
       <details className="group mt-4">
-        <summary aria-label="Expand or collapse the TheFEYA collection guide"
+        <summary aria-label="Expand or collapse the guide to choosing costume pieces"
           className="flex cursor-pointer list-none items-start justify-between gap-6 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#d4b26a] [&::-webkit-details-marker]:hidden">
           <div className="min-w-0">
             <h2 id="shop-collection-guide-title"
               className="text-[clamp(22px,2.7vw,32px)] font-medium leading-tight tracking-[-.02em] text-[#f7f3ec]">
-              Create a look that is unmistakably yours.
+              Choose the piece that defines your look.
             </h2>
             <p className="mt-3 w-full text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px]">
-              Discover handmade festival outfits, rave looks and stage costumes from TheFEYA. Start with an occasion or build your own combination of sculptural shoulder armor, bodysuits and accessories.
+              Shop original handmade costume tops, shoulder armor, skirts, bodysuits and accessories by body area. Start with one standout piece or combine separate elements to create a look that feels like your own.
             </p>
           </div>
           <span className="mt-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[.20] text-[#d7b974] transition-colors group-hover:border-[#d4b26a]">
-            <ChevronDown size={23} strokeWidth={1.65}
-              className="transition-transform duration-200 group-open:rotate-180"
-              aria-hidden="true"/>
+            <ChevronDown size={23} strokeWidth={1.65} className="transition-transform duration-200 group-open:rotate-180" aria-hidden="true"/>
           </span>
-          <span className="sr-only">More information about the collection</span>
+          <span className="sr-only">More information about choosing costume components</span>
         </summary>
-        <div className="mt-5 grid gap-4 border-t border-white/[.08] pt-5 text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px] lg:grid-cols-2 lg:gap-x-8">
-          <p>
-            Dressing for an event? Browse our <Link href="/collections/festival-outfits" className={linkClass}>festival outfits</Link> or <Link href="/collections/rave-outfits" className={linkClass}>rave outfits</Link> for electronic-music nights and expressive looks. Discover sculptural <Link href="/collections/burning-man-outfits" className={linkClass}>Burning Man outfits</Link> for desert-event styling, or explore <Link href="/collections/performance-costumes" className={linkClass}>stage and performance costumes</Link> for live shows, artists and photoshoots. Each collection has its own designs and product options.
-          </p>
-          <p>
-            Prefer individual pieces? Start with <Link href="/collections/shoulder-armor" className={linkClass}>shoulder armor</Link>, <Link href="/collections/bodysuits" className={linkClass}>costume bodysuits</Link>, <Link href="/collections/costume-headpieces" className={linkClass}>costume headpieces</Link> or <Link href="/collections/costume-masks" className={linkClass}>costume masks</Link>. For finishing touches, compare <Link href="/collections/costume-belts" className={linkClass}>costume belts</Link> and <Link href="/collections/festival-skirts" className={linkClass}>festival skirts</Link>. Choose a shape and visual effect that work together rather than assuming every photographed piece is part of the same purchase.
-          </p>
-          <p>
-            TheFEYA creates original handmade stage and festival designs with metallic, mirror-like and sculptural effects. Materials and construction vary between products. Some listings offer a complete set; others let you select separate components or a smaller combination. Check the specific product page for what is included, available colors, sizes and the current price before choosing.
-          </p>
-          <p>
-            Looking for a particular fit? Use our <Link href="/size-guide" className={linkClass}>measurements and sizing guide</Link> before ordering, or ask the studio about supported adjustments. Designs are typically made to order, with production time depending on the piece. Our <Link href="/shipping" className={linkClass}>shipping information</Link> explains the current delivery options. Start with the piece that feels right, then make the full look your own.
-          </p>
+        <div className="mt-5 grid gap-5 border-t border-white/[.08] pt-5 text-[14px] leading-7 text-[var(--bone-dim)] sm:text-[15px] lg:grid-cols-2 lg:gap-x-9">
+          <div>
+            <h3 className="mb-2 text-[17px] font-medium text-[#f7f3ec]">Tops, shoulder armor and harnesses</h3>
+            <p>
+              Make <Link href="/collections/shoulder-armor" className={anchor}>shoulder armor</Link> the focal point of a dramatic silhouette, or start with <Link href="/shop?piece=Tops%20%26%20Bras" className={anchor}>costume tops and bra tops</Link> for a more flexible base. For a different shape, explore <Link href="/shop?piece=Corset" className={anchor}>corsets</Link> and <Link href="/shop?piece=Harness" className={anchor}>fashion harnesses</Link>. Every design has its own components: check the listing to see which pieces can be ordered individually.
+            </p>
+          </div>
+          <div>
+            <h3 className="mb-2 text-[17px] font-medium text-[#f7f3ec]">Skirts, bodysuits and waist details</h3>
+            <p>
+              Build from <Link href="/shop?piece=Skirt" className={anchor}>costume skirts</Link> and other separates, or choose a <Link href="/collections/bodysuits" className={anchor}>costume bodysuit</Link> as a single-piece starting point. Our <Link href="/collections/festival-skirts" className={anchor}>festival skirts</Link> offer another route to a layered look; <Link href="/collections/costume-belts" className={anchor}>costume belts</Link> can provide a finishing detail. A photograph may show a full styled outfit, so always check what the selected option actually includes.
+            </p>
+          </div>
+          <div>
+            <h3 className="mb-2 text-[17px] font-medium text-[#f7f3ec]">Arms, masks and headpieces</h3>
+            <p>
+              Smaller pieces can make an outfit more personal. Compare <Link href="/shop?piece=Bracelet%20%2F%20Cuff" className={anchor}>bracelets and arm cuffs</Link>, then explore sculptural <Link href="/collections/costume-headpieces" className={anchor}>costume headpieces</Link> and <Link href="/collections/costume-masks" className={anchor}>costume masks</Link>. TheFEYA designs feature expressive shapes and reflective effects, with the exact colors, materials and details stated on each product page.
+            </p>
+          </div>
+          <div>
+            <h3 className="mb-2 text-[17px] font-medium text-[#f7f3ec]">Fit, finishes and what comes in a set</h3>
+            <p>
+              Each handmade piece begins with our original design, with available adjustments depending on the model. Some products offer a complete set; others offer individual items or grouped options. Check the <Link href="/size-guide" className={anchor}>measurements and sizing guide</Link>, compare the selected variant and read our <Link href="/shipping" className={anchor}>production and delivery information</Link> before ordering. If you prefer to start with an occasion rather than a body piece, visit <Link href="/events-performance" className={anchor}>Events &amp; Performance</Link>.
+            </p>
+          </div>
         </div>
       </details>
     </div>

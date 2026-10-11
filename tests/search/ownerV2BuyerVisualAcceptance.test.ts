@@ -393,16 +393,23 @@ test('V10 shop browse guide is SSR and only shown on unfiltered page-one catalog
  assert.match(guide,/group-open:rotate-180/);
  assert.match(guide,/lg:grid-cols-2/);
  const hrefs=[...guide.matchAll(/href="(\/collections\/[^"]+)"/g)].map(m=>m[1]);
- assert.equal(hrefs.length,10);
- assert.equal(new Set(hrefs).size,10);
+ assert.equal(hrefs.length,6);
+ assert.equal(new Set(hrefs).size,6);
  const authorized=[
- '/collections/festival-outfits','/collections/rave-outfits',
- '/collections/burning-man-outfits','/collections/performance-costumes',
  '/collections/shoulder-armor','/collections/bodysuits',
  '/collections/costume-headpieces','/collections/costume-masks',
  '/collections/costume-belts','/collections/festival-skirts',
  ];
  assert.deepEqual(hrefs.slice().sort(),authorized.sort());
+ for(const piece of ['Tops%20%26%20Bras','Corset','Harness','Skirt','Bracelet%20%2F%20Cuff']){
+   assert.ok(guide.includes('href="/shop?piece='+piece+'"'),piece);
+ }
+ assert.match(guide,/Shop by piece/);
+ assert.match(guide,/Tops, shoulder armor and harnesses/);
+ assert.match(guide,/Skirts, bodysuits and waist details/);
+ assert.match(guide,/Arms, masks and headpieces/);
+ assert.match(guide,/Fit, finishes and what comes in a set/);
+ assert.doesNotMatch(guide,/Browse our .*festival outfits.*rave outfits/);
  assert.ok(guide.includes('href="/size-guide"'));
  assert.ok(guide.includes('href="/shipping"'));
  const rendered=guide.slice(guide.indexOf('export function OwnerShopSeoText()'));
@@ -422,4 +429,20 @@ test('V10 exact Google place profiles load real iframe on protected owner Previe
  assert.match(contact,/OwnerLocationMapPreview location="kyiv"/);
  assert.match(contact,/OwnerLocationMapPreview location="us-warehouse"/);
  assert.doesNotMatch(contact,/Maps are interactive and load only when you choose/);
+});
+
+test('V11 mobile-responsive owner QA route is protected, noindex and tests actual mobile CSS breakpoints',()=>{
+ const page=read('app/owner-mobile-review/page.tsx');
+ const client=read('components/OwnerMobileReviewClient.tsx');
+ const review=read('app/owner-review/page.tsx');
+ assert.match(page,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
+ assert.match(page,/notFound\(\)/);
+ assert.match(page,/index:false,follow:false/);
+ assert.match(page,/<OwnerMobileReviewClient\/>/);
+ assert.match(client,/375,390,430/);
+ assert.match(client,/<iframe key=\{path\} src=\{path\}/);
+ assert.match(client,/md:block/);
+ assert.match(client,/href=\{path\}/);
+ assert.match(client,/aria-pressed=\{width===value\}/);
+ assert.match(review,/href:'\/owner-mobile-review'/);
 });
