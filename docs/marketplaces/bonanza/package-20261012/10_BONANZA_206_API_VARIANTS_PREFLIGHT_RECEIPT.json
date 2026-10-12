@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-12",
+  "status": "PASS_DATA_PARITY_NO_API_CREDENTIAL_NO_UPLOAD",
+  "products_in_source": 207,
+  "products_staged": 206,
+  "owner_hold_products_excluded": 1,
+  "original_configurations": 856,
+  "planned_combinations_original": 2161,
+  "api_staged_variation_combinations": 2157,
+  "variant_prices_matches_source": true,
+  "all_variant_skus_unique": true,
+  "item_allowForSale_false": true,
+  "category_ids_confirmed_by_authenticated_api": false,
+  "variation_axes_confirmed_by_authenticated_api": false,
+  "booth_review_cleared": false,
+  "shipping_verified": false,
+  "fully_importable_without_approval": false,
+  "variation_axis_distribution": {
+    "Configuration + Color": 198,
+    "Configuration": 4,
+    "Color": 3,
+    "Material + Color": 1
+  },
+  "flags_frequency": {
+    "UNCONFIRMED_LEGACY_LATEX": 118,
+    "CATEGORY_SEMANTIC_REVIEW": 70,
+    "CATEGORY_ID_PENDING": 19,
+    "MISSING_SELLABLE_COMPOSITION": 20,
+    "NEEDS_LABEL_REVIEW": 7,
+    "SOURCE_COLOR_PRICE_CONFLICT": 3,
+    "MULTIPLE_FULLSETS_NEED_COMPOSITION": 4,
+    "NEW_OWNER_COLOR_NO_SOURCE_PRICE": 2,
+    "PRESERVE_MATERIAL_PRICE_OPTIONS": 1,
+    "TWO_MATERIAL_PRICE_OPTIONS_REQUIRE_EXACT_TRAITS": 1,
+    "LEGACY_COUPLE_AUDIENCE_MISMATCH": 1
+  },
+  "package_files": [
+    {
+      "name": "10_BONANZA_API_CATALOG_01_OF_04_UNPUBLISHED.jsonl",
+      "products": 52,
+      "variants": 546,
+      "bytes": 268952,
+      "commit": "8e823c66b74556a216c6a1d4bc3b2710d232a378"
+    },
+    {
+      "name": "10_BONANZA_API_CATALOG_02_OF_04_UNPUBLISHED.jsonl",
+      "products": 52,
+      "variants": 559,
+      "bytes": 272944,
+      "commit": "1ba763b196fc9ac9d447543c38fd476d1f45b78b"
+    },
+    {
+      "name": "10_BONANZA_API_CATALOG_03_OF_04_UNPUBLISHED.jsonl",
+      "products": 52,
+      "variants": 517,
+      "bytes": 264540,
+      "commit": "4ff0703ec4c1263420a0123a753c8706aa14b7b6"
+    },
+    {
+      "name": "10_BONANZA_API_CATALOG_04_OF_04_UNPUBLISHED.jsonl",
+      "products": 50,
+      "variants": 535,
+      "bytes": 261625,
+      "commit": "feb9994a9f3611108d47a7b9f5b274357d80ee71"
+    }
+  ]
+}
