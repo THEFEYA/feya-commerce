@@ -29,7 +29,13 @@ async function getProducts() {
   const reviewGate = process.env.VERCEL_ENV === 'production'
     ? { status: 'disabled' as const, release: null }
     : await readClosedReviewPresentation();
-  if (reviewGate.status === 'blocked') notFound();
+  if (process.env.VERCEL_ENV === 'production' || reviewGate.status === 'blocked') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'review',isProduction:process.env.VERCEL_ENV === 'production',review:reviewGate.status}));
+  }
+  if (reviewGate.status === 'blocked') {
+    console.warn('feya_shop_not_found','review_gate_blocked');
+    notFound();
+  }
   const review = reviewGate.status === 'review';
   try {
     return {
