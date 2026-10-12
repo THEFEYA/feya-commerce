@@ -2,7 +2,7 @@ import 'server-only';
 
 import {cacheLife,cacheTag} from 'next/cache';
 import {homePresentationProductIds} from '@/config/homePresentation';
-import {readApprovedStorefrontCardProductsV1} from '@/lib/storefrontCardReadModelServer';
+import {readCachedApprovedStorefrontCatalogV1} from '@/lib/storefrontCatalogCacheServer';
 import {
   STOREFRONT_CACHE_TAGS,
   storefrontCacheTagForProduct,
@@ -21,10 +21,13 @@ export async function readCachedHomePresentationProducts():Promise<StorefrontPro
   cacheTag(
     STOREFRONT_CACHE_TAGS.site,
     STOREFRONT_CACHE_TAGS.home,
+    STOREFRONT_CACHE_TAGS.catalog,
     ...ids.map((id)=>storefrontCacheTagForProduct(id)),
   );
 
-  const products=await readApprovedStorefrontCardProductsV1();
+  // Share one approved 207-product SQL result with Shop and discovery hubs.
+  // Keep Home-specific selection and existing product-tag invalidation.
+  const products=await readCachedApprovedStorefrontCatalogV1();
   const byId=new Map(products.map((product)=>[product.canonical_product_id,product]));
 
   // Preserve the owner-authored homepage ID order and never substitute a raw,
