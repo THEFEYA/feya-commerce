@@ -16,8 +16,8 @@ Bonanza support said in the 2026-03-31 ticket #1330141 that the items were appro
 
 - Six connected mailboxes checked; the store support correspondence is in `eportupeya@gmail.com`.
 - March 31 ticket **#1330144** ("need an export template"): agent Kel linked to `https://support.bonanza.com/hc/en-us/articles/360000656491-How-do-I-import-items-from-an-existing-inventory-CSV-file`, but **did not attach an Excel/CSV template**.
-- On 2026-10-11 an English support request titled **"DariaL20 / She_Knows booth — safe CSV/API variant import and category trait questions"** was **already sent** to `support@bonanza.com`. It asks about 2 axes, CSV row format, permitted category traits, the API, combined colorways, unpublished creation, and replacement of Etsy-imported inventory.
-- No technical reply to that message was found in the checked inbox as of this checkpoint. **Do not submit a duplicate request.** The support acknowledgement to an earlier ticket cautioned that multiple contacts can delay queue processing.
+- On 2026-10-11 a **DRAFT (UNSENT)** message titled **"DariaL20 / She_Knows booth — safe CSV/API variant import and category trait questions"** was created in `eportupeya@gmail.com`, addressed to `support@bonanza.com`. **Gmail directly confirms the message's DRAFT label and draft ID**; searches for it in Sent and Trash returned no matching message on 2026-10-12. The owner did not authorize sending. Do not send, edit, delete, or reuse the draft without explicit owner permission.
+- There can be no reply to this **unsent draft**. **Do not contact Bonanza support from the owner's mail accounts without explicit authorization.**
 
 ## Revalidation of repository data (2026-10-12)
 
