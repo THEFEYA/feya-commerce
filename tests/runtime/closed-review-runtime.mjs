@@ -246,12 +246,13 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     // The new presentation source must expose exactly those approved identities,
     // but preserve the original synthetic v4 title and option-price fields.
     // The REAL new view SQL and ACL are validated by native PostgreSQL CI.
-    // This local fixture only needs the two existence keys used by the
-    // fast_v2 JOIN: canonical_product_id and product_slug. Populate those
-    // directly from the already restored EXACT 207 pinned snapshot records,
-    // rather than recursing through legacy v4 and old card views. The real
-    // migration's full approval, visibility and pricing guards remain tested
-    // by native Postgres CI and independently on production Supabase.
+    // The Home/Shop fast_v2 JOIN requires exact IDs and slugs, while the
+    // PUBLIC collection reader also selects the whole slim presentation row.
+    // Reconstruct the latter from the original 207 pinned fixture records
+    // with nullable fields that the synthetic snapshot never captured.
+    // This remains test-only, never a public price/offer authority. Real
+    // approval/visibility/live-price SQL is checked in native PostgreSQL
+    // CI and independently in Production Supabase.
     await db.query(`
       create table public.feya_closed_review_fast_catalog_fixture_v1 as
       select canonical_product_id,product_slug
@@ -262,7 +263,23 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         to service_role;
       create view public.feya_storefront_collection_cards_fast_v1
       with (security_invoker=true) as
-      select * from public.feya_closed_review_fast_catalog_fixture_v1;
+      select
+        f.canonical_product_id,f.product_slug,
+        null::text as matched_etsy_listing_id,null::text as source_url,
+        s.card_title,s.h1,s.seo_title,s.meta_description,
+        s.product_type,s.material,s.color,
+        null::text as size_mode,null::text as production_profile,
+        null::text as shipping_profile,null::boolean as handmade_flag,
+        null::boolean as styled_imagery_flag,
+        s.primary_image_url,s.primary_image_alt,s.secondary_image_url,
+        s.hover_image_url,s.video_url,s.media_count,s.has_video,
+        s.min_price,s.max_price,s.currency,
+        s.card_display_price_amount as full_set_display_price_amount,
+        s.category_label,s.world_label,s.canonical_color_label,s.color_options
+      from public.feya_closed_review_fast_catalog_fixture_v1 f
+      join public.feya_storefront_product_card_snapshots_v1 s
+        on s.canonical_product_id=f.canonical_product_id
+       and s.product_slug=f.product_slug;
       revoke all on public.feya_storefront_collection_cards_fast_v1
         from public,anon,authenticated,service_role;
       grant select on public.feya_storefront_collection_cards_fast_v1
@@ -338,7 +355,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     let fastReady=false,fastStatus=0,fastBody='';
     for(let i=0;i<40;i++){
       const response=await fetch(
-        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id&limit=1',
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id,product_slug,card_title,full_set_display_price_amount,primary_image_url&limit=1',
         {headers:{
           apikey:env.SUPABASE_SERVICE_ROLE_KEY,
           authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
