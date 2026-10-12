@@ -2,6 +2,14 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Owner-approved Shipping & Delivery V13 public presentation; canonical URL
+  // and ACTIVE Search Release v12 index/noindex behavior remain /shipping.
+  // Other public routes, Footer and Contact do not participate in this rewrite.
+  async rewrites() {
+    return {beforeFiles:[
+      {source:'/shipping',destination:'/shipping-public-v13'},
+    ],afterFiles:[],fallback:[]};
+  },
   async redirects() {
     return [
       { source: '/collections/burning-man-looks', destination: '/collections/burning-man-outfits', permanent: true },
