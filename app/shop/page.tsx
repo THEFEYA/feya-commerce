@@ -80,14 +80,29 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   // URL state is request-time; the 207-product slim catalog remains one shared cache.
   const params = await searchParams;
   const navigation = parseShopNavigation(params);
-  if (!navigation) notFound();
+  if (process.env.VERCEL_ENV === 'production') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'navigation',keys:Object.keys(params).length,valid:Boolean(navigation)}));
+  }
+  if (!navigation) {
+    console.warn('feya_shop_not_found','invalid_navigation');
+    notFound();
+  }
 
   const { products, error, review } = await getProducts();
   const filteredCount = filterShopProducts(products, navigation.filters).length;
   const utilityState = shopNavigationHasUtilityState(navigation);
 
-  if (products.length && utilityState && filteredCount===0) notFound();
-  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
+  if (process.env.VERCEL_ENV === 'production') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
+  }
+  if (products.length && utilityState && filteredCount===0) {
+    console.warn('feya_shop_not_found','utility_without_results');
+    notFound();
+  }
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) {
+    console.warn('feya_shop_not_found','invalid_page_number');
+    notFound();
+  }
 
   const normalizedHref=shopPageHref(navigation.page,navigation.filters);
   if (shopNavigationNeedsNormalization(params,navigation)) {
