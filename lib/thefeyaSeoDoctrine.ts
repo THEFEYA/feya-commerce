@@ -75,13 +75,15 @@ function rightPanelBlock(block_key: string, heading: string, lines: readonly str
   };
 }
 
-// Active business-truth v1, rechecked 2026-09-24. Exact public copy, not an
-// inferred promise or a conversion of unspecified production days to weekdays.
-// Provenance: docs/search/fulfillment-truth-capture-20260924.json.
+// This global right-side service panel retains the original owner-approved
+// structure. The Express estimate is superseded by the later owner-confirmed
+// Oct 2026 commercial delivery decision (6–9 business days, after dispatch)
+// already publicly shown on /shipping. Never rewrite the Sept historical capture.
+// Production lead-time and ship-time are separate.
 export const THEFEYA_APPROVED_FULFILLMENT_COPY = {
   production: 'Production usually takes 3–5 days.',
   standard: 'Standard international shipping usually takes 10–14 business days.',
-  express: 'Express shipping usually takes 7–10 business days.',
+  express: 'Express shipping usually takes 6–9 business days.',
 } as const;
 
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
