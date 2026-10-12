@@ -348,6 +348,10 @@ export function CartOwnerLiveReviewClient(){
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
+              <p className="text-[11px] leading-5 text-[var(--bone-dim)]">
+                Necessary contact details are not stored or sent by this prepayment form. See the
+                {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
+              </p>
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
                 <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
@@ -411,13 +415,16 @@ export function CartOwnerLiveReviewClient(){
               <span className="text-[13px] leading-6 text-[#f7f3ec]">Estimated order total</span>
               <strong className="text-[26px] font-medium text-[#e4c87d]">{currency(illustrativeTotal)}</strong>
             </div>
+            <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
+              The final payable amount cannot be calculated until taxes and the delivery route are confirmed.
+            </p>
           </div>
           <button type="button" aria-disabled="true" disabled
             className="mt-5 flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-[rgba(216,214,211,.26)] bg-[rgba(216,214,211,.11)] text-[13px] text-[var(--bone-dim)] opacity-80">
             <LockKeyhole size={16}/> Checkout not active
           </button>
           <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]" role="status">
-            Online checkout is coming soon. You cannot place an order on this preview.
+            Online checkout is not active yet. You cannot place an order.
           </p>
           <div className="mt-5 flex flex-wrap gap-3 text-[12px]">
             <Link className="inline-flex min-h-11 items-center text-[#d4b26a] underline underline-offset-4" href="/shop">Continue shopping</Link>
