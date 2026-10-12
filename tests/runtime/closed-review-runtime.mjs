@@ -265,6 +265,19 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     `);
     assert.deepEqual(fastFixture.rows[0],{n:207,distinct_n:207});
 
+    // The Home/Shop production reader now uses the exact next pinned-card view.
+    // Exercise the real additive migration against the isolated 207-row fixture;
+    // the fixture's trusted fast collection alias preserves current real prices
+    // without inventing an unrelated v2 catalogue or softening any test.
+    await db.query(await readFile(
+      'supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql','utf8'
+    ));
+    const pinnedFastFixture=await db.query(`
+      select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
+      from public.feya_storefront_product_cards_fast_v2
+    `);
+    assert.deepEqual(pinnedFastFixture.rows[0],{n:207,distinct_n:207});
+
     await db.query("notify pgrst, 'reload schema'");
     const state=await db.query(
       `select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
@@ -289,6 +302,23 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await new Promise(r=>setTimeout(r,200));
     }
     assert.equal(cardApiReady,true,'Card read model not visible through PostgREST: '+lastStatus+' '+lastBody.slice(0,160));
+    // Wait for the ACTUAL Home/Shop fast reader, not just the former v1 alias.
+    let pinnedFastReady=false,pinnedFastStatus=0,pinnedFastBody='';
+    for(let i=0;i<40;i++){
+      const response=await fetch(
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_product_cards_fast_v2?select=canonical_product_id&limit=1',
+        {headers:{
+          apikey:env.SUPABASE_SERVICE_ROLE_KEY,
+          authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
+        }}
+      );
+      pinnedFastStatus=response.status;
+      pinnedFastBody=await response.text();
+      if(response.ok){pinnedFastReady=true;break;}
+      await new Promise(r=>setTimeout(r,200));
+    }
+    assert.equal(pinnedFastReady,true,
+      'Home/Shop fast v2 read model unavailable in local PostgREST: '+pinnedFastStatus+' '+pinnedFastBody.slice(0,160));
     // The actual collection reader uses a second service-only relation; wait
     // for its Data API schema visibility as well (no blind timeout/sleep).
     let fastReady=false,fastStatus=0,fastBody='';
