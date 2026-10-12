@@ -184,7 +184,12 @@ export function mainCompareAtPrice(product: StorefrontProduct) {
 export function salePrice(regular: number | null | undefined) {
   return regular == null ? null : Number(regular);
 }
-export function productTitle(product: StorefrontProduct) {
+/** Product tiles may lack a presentation row when the approved catalog DB read
+ * fails closed. A missing row must not crash SSR or invent merchandise.
+ * Existing valid product titles are unchanged.
+ */
+export function productTitle(product: StorefrontProduct | null | undefined) {
+  if (!product) return '';
   return product.card_title || product.h1 || 'Atelier piece';
 }
 export function productSlug(product: StorefrontProduct) {
