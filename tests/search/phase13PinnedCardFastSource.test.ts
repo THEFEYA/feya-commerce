@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const sql=readFileSync('supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql','utf8');
+test('Home/Shop faster card source is a new service-only candidate and cannot change current site',()=>{
+ assert.ok(sql.includes('create view public.feya_storefront_product_cards_fast_v2'));
+ assert.ok(sql.includes('security_invoker=true'));
+ assert.ok(sql.includes('grant select on public.feya_storefront_product_cards_fast_v2 to service_role'));
+ assert.ok(sql.includes('revoke all on public.feya_storefront_product_cards_fast_v2 from public,anon,authenticated,service_role'));
+ assert.ok(!sql.includes('JOIN feya_commerce_v_step7_storefront_products_api_v4 live'));
+ assert.ok(sql.includes('JOIN feya_storefront_collection_cards_fast_v1 live'));
+ assert.ok(sql.includes('s.card_title'));
+ assert.ok(sql.includes('s.card_display_price_amount'));
+ assert.ok(sql.includes('s.primary_image_url'));
+ assert.ok(sql.includes('fi.parent_components_json'));
+ assert.ok(sql.includes('mc.membership_codes'));
+ assert.ok(sql.includes('s.content_sha256'));
+ assert.ok(sql.includes('b.draft_updated_at_snapshot'));
+ assert.ok(sql.includes("s.source_release_ref") || sql.includes("s.source_release_ref,"));
+ assert.ok(sql.includes("n <> 207 or unique_n <> 207 or invalid_n <> 0"));
+ assert.ok(readFileSync('lib/storefrontCardReadModelServer.ts','utf8').includes("= 'feya_storefront_product_cards_v1';"));
+});
