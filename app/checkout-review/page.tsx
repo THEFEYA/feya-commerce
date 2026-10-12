@@ -2,6 +2,7 @@ export const instant = false;
 
 import type {Metadata} from 'next';
 import {notFound} from 'next/navigation';
+import {connection} from 'next/server';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {BuyerCheckoutReviewClient,type CheckoutVisualReviewProduct} from '@/components/BuyerCheckoutReviewClient';
@@ -40,6 +41,8 @@ async function approvedCardSamples():Promise<CheckoutVisualReviewProduct[]>{
 }
 
 export default async function CheckoutReviewPage(){
+  // Review-only catalog access must never run during Vercel static prerender.
+  await connection();
   if(process.env.VERCEL_ENV!=='preview'&&process.env.NODE_ENV==='production')notFound();
   const products=await approvedCardSamples();
   return <main className="visual-commerce-shell relative min-h-screen">
