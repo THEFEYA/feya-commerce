@@ -32,10 +32,8 @@ async function getProducts() {
   if (process.env.VERCEL_ENV === 'production' || reviewGate.status === 'blocked') {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'review',isProduction:process.env.VERCEL_ENV === 'production',review:reviewGate.status}));
   }
-  if (reviewGate.status === 'blocked') {
-    console.warn('feya_shop_not_found','review_gate_blocked');
-    notFound();
-  }
+  if (reviewGate.status === 'blocked') console.warn('feya_shop_not_found','review_gate_blocked');
+  if (reviewGate.status === 'blocked') notFound();
   const review = reviewGate.status === 'review';
   try {
     return {
@@ -89,10 +87,8 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   if (process.env.VERCEL_ENV === 'production') {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'navigation',keys:Object.keys(params).length,valid:Boolean(navigation)}));
   }
-  if (!navigation) {
-    console.warn('feya_shop_not_found','invalid_navigation');
-    notFound();
-  }
+  if (!navigation) console.warn('feya_shop_not_found','invalid_navigation');
+  if (!navigation) notFound();
 
   const { products, error, review } = await getProducts();
   const filteredCount = filterShopProducts(products, navigation.filters).length;
@@ -101,14 +97,10 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   if (process.env.VERCEL_ENV === 'production') {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
   }
-  if (products.length && utilityState && filteredCount===0) {
-    console.warn('feya_shop_not_found','utility_without_results');
-    notFound();
-  }
-  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) {
-    console.warn('feya_shop_not_found','invalid_page_number');
-    notFound();
-  }
+  if (products.length && utilityState && filteredCount===0) console.warn('feya_shop_not_found','utility_without_results');
+  if (products.length && utilityState && filteredCount===0) notFound();
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) console.warn('feya_shop_not_found','invalid_page_number');
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
 
   const normalizedHref=shopPageHref(navigation.page,navigation.filters);
   if (shopNavigationNeedsNormalization(params,navigation)) {
