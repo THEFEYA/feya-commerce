@@ -19,7 +19,7 @@ test('homepage uses the approved card corpus behind governed persistent cache ta
   assert.match(server,/STOREFRONT_CACHE_TAGS\.home/);
   assert.match(server,/storefrontCacheTagForProduct/);
   assert.match(server,/readCachedApprovedStorefrontCatalogV1/);
-  assert.match(server,/STOREFRONT_CACHE_TAGS\\.catalog/);
+  assert.match(server,/STOREFRONT_CACHE_TAGS\.catalog/);
   assert.doesNotMatch(server,/readApprovedStorefrontCardProductsV1/);
   assert.match(readFileSync('lib/storefrontCatalogCacheServer.ts','utf8'),/readApprovedStorefrontCardProductsV1/);
   assert.match(server,/homePresentationProductIds/);
