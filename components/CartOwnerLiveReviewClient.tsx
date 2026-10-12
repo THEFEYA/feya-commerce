@@ -372,7 +372,7 @@ export function CartOwnerLiveReviewClient(){
               <span className="text-[#f7f3ec]">{currency(totals.shipping_minor)}</span>
             </div>
             {totals.show_handling_fee&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
-              <span>Additional packaging for a larger parcel</span>
+              <span>Additional packaging for multiple items</span>
               <span className="text-[#f7f3ec]">{currency(totals.handling_minor)}</span>
             </div>}
             {visualExtras.made_to_measure_minor>0&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
