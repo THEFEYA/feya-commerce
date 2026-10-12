@@ -1,0 +1,5 @@
+# Production /shop 404 forensic checkpoint — 2026-10-12
+
+Context: stable Phase 13 V13 Owner release. Deploy PR #129 restored the public Production Review isolation, but direct origin SSR for /shop, /shop?page=2 and /shop?color=Gold still emitted `NEXT_HTTP_ERROR_FALLBACK;404`, with zero product cards. Home returned 8 cards, collections returned 20. Supabase pinned fast v2 exists, has 207/207 valid rows; service_role SELECT only. Search v12 18 indexed URLs and Shipping-only Seller-Online address remain intact.
+
+This narrowly scoped **temporary** production-only diagnostic logs no personal data or URL params: only nav-key count, valid state, product/match count, page and selected non-PII rejection reason. It cannot change navigation behavior, product source or SEO. Remove the extra info logging once the actual reason is proven, keep a targeted test to prevent silent streaming 404. Do not infer success from HTTP 200. Requires CI 19/19 and Preview READY; then fresh Production SSR + runtime log correlation. Avoid speculative edits to prices, canonical routes, owner PDP descriptions and V13 CSS.
