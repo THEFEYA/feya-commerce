@@ -1,0 +1,137 @@
+{
+  "artifact_type": "ANALYSIS_ONLY_NOT_API_REQUEST",
+  "date": "2026-10-12",
+  "product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+  "etsy_listing_id": "4367470907",
+  "candidate_category_id": 53369,
+  "external_product_id_candidate": "TF-BZ-FS-4367470907",
+  "buyer_axis_1_candidate": "Configuration (or category-permitted equivalent such as Style; UNVERIFIED)",
+  "buyer_axis_2_candidate": "Color (category trait and exact label UNVERIFIED)",
+  "expected_variation_count": 12,
+  "default_full_set_price_usd": "295.09",
+  "proposed_allowForSale": false,
+  "all_variation_quantities": 0,
+  "api_authorization_present": false,
+  "category_traits_verified": false,
+  "admin_review_cleared": false,
+  "public_copy_ready": false,
+  "preconditions": [
+    "Bonanza administrative review cleared",
+    "Category 53369 validity reconfirmed",
+    "getCategoryTraits shows two permitted variation traits with variationsEnabled=true",
+    "Support confirms schema and acceptance of full combination colorways",
+    "Pictures verified per buyer color",
+    "Shipping/payment/sizing/returns verified",
+    "Pilot approved before any public listing"
+  ],
+  "variations": [
+    {
+      "source_variation_id": "033fb477-75de-536d-b274-2af398d1a810",
+      "configuration": "Full Set",
+      "colorway": "Gold",
+      "price_usd": "295.09",
+      "quantity": 0,
+      "sku": "TFB-4367470907-033fb47775de-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "033fb477-75de-536d-b274-2af398d1a810",
+      "configuration": "Full Set",
+      "colorway": "Silver",
+      "price_usd": "295.09",
+      "quantity": 0,
+      "sku": "TFB-4367470907-033fb47775de-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "66a4f994-2288-50e5-915d-b5f8eb762f6d",
+      "configuration": "Top + Skirt",
+      "colorway": "Gold",
+      "price_usd": "175.46",
+      "quantity": 0,
+      "sku": "TFB-4367470907-66a4f9942288-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "66a4f994-2288-50e5-915d-b5f8eb762f6d",
+      "configuration": "Top + Skirt",
+      "colorway": "Silver",
+      "price_usd": "175.46",
+      "quantity": 0,
+      "sku": "TFB-4367470907-66a4f9942288-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "77b4f907-712b-50d9-80dc-43905d985295",
+      "configuration": "Top",
+      "colorway": "Gold",
+      "price_usd": "130.28",
+      "quantity": 0,
+      "sku": "TFB-4367470907-77b4f907712b-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "77b4f907-712b-50d9-80dc-43905d985295",
+      "configuration": "Top",
+      "colorway": "Silver",
+      "price_usd": "130.28",
+      "quantity": 0,
+      "sku": "TFB-4367470907-77b4f907712b-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "7ab9a1ce-8902-52d7-8861-df90eb543a8e",
+      "configuration": "Panties",
+      "colorway": "Gold",
+      "price_usd": "96.50",
+      "quantity": 0,
+      "sku": "TFB-4367470907-7ab9a1ce8902-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "7ab9a1ce-8902-52d7-8861-df90eb543a8e",
+      "configuration": "Panties",
+      "colorway": "Silver",
+      "price_usd": "96.50",
+      "quantity": 0,
+      "sku": "TFB-4367470907-7ab9a1ce8902-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "ad180ff5-524a-5a89-9bb0-c42c046c2bdb",
+      "configuration": "Garters",
+      "colorway": "Gold",
+      "price_usd": "96.50",
+      "quantity": 0,
+      "sku": "TFB-4367470907-ad180ff5524a-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "ad180ff5-524a-5a89-9bb0-c42c046c2bdb",
+      "configuration": "Garters",
+      "colorway": "Silver",
+      "price_usd": "96.50",
+      "quantity": 0,
+      "sku": "TFB-4367470907-ad180ff5524a-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "ad48b187-48e6-5908-a992-5642202be2e0",
+      "configuration": "Skirt",
+      "colorway": "Gold",
+      "price_usd": "115.81",
+      "quantity": 0,
+      "sku": "TFB-4367470907-ad48b18748e6-01",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    },
+    {
+      "source_variation_id": "ad48b187-48e6-5908-a992-5642202be2e0",
+      "configuration": "Skirt",
+      "colorway": "Silver",
+      "price_usd": "115.81",
+      "quantity": 0,
+      "sku": "TFB-4367470907-ad48b18748e6-02",
+      "hold": "DO_NOT_IMPORT_OR_PUBLISH"
+    }
+  ]
+}
