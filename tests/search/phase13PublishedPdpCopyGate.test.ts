@@ -48,6 +48,7 @@ test('the historical review-only source cannot silently switch on a public or in
 test('a PUBLIC approved PDP content release requires two exact owner/production secrets and the complete 207-pin identity',()=>{
   const valid={
     VERCEL:'1',VERCEL_ENV:'production',
+    VERCEL_PROJECT_ID:'prj_ePIymo4sUG33wrRjHBxWrSlaxPID',
     FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:PHASE13_PDP_COPY_PUBLIC_RELEASE,
     FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:'approved-2026-10-10',
   };
@@ -58,6 +59,7 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
     VERCEL_GIT_COMMIT_REF:'work/phase13-approved-pdp-public-read-gate-20261010',
   };
   assert.equal(phase13PublicPdpCopyEnabled(ownerPreview,correct),true);
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/phase13-pdp-public-copy-v13-20261012'},correct),true);
   for(const bad of [
     {VERCEL_PROJECT_ID:'another-project'},
     {VERCEL_GIT_COMMIT_REF:'main'},
@@ -65,11 +67,15 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
     {FEYA_OWNER_PREVIEW_DISABLED:'true'},
     {VERCEL_ENV:'production'},
   ])assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,...bad},correct),false);
-  // Even exact Vercel secrets CANNOT enable production until a separately
-  // reviewed release PR changes the Git-owned production authorization.
-  assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,false);
-  assert.equal(phase13PublicPdpCopyEnabled(valid,correct),false);
+  // The separately reviewed V13 release candidate now requires BOTH Vercel
+  // Production flags plus exact pinned 207 approved rows and project identity.
+  assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,true);
+  assert.equal(phase13PublicPdpCopyEnabled(valid,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({},correct),false);
+  // Draft PR may be built before owner sets BOTH actual Production env flags.
+  assert.equal(phase13PublicPdpCopyEnabled({...valid,FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:undefined},correct),false);
+  assert.equal(phase13PublicPdpCopyEnabled({...valid,FEYA_PUBLIC_APPROVED_PDP_OWNER_SIGNOFF:undefined},correct),false);
+  assert.equal(phase13PublicPdpCopyEnabled({...valid,VERCEL_PROJECT_ID:'other'},correct),false);
   for(const invalid of [
    {VERCEL:'0'}, {VERCEL_ENV:'development'},
    {FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:'off'},
