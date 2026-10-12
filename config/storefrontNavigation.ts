@@ -241,7 +241,25 @@ export function navigationPanel(code: string) {
 }
 
 export function enabledNavigationGroups(code: string) {
-  return navigationPanel(code)?.groups.filter((group) => group.items.some((item) => item.enabled) || Boolean(group.href)) || [];
+  // Only the SSO-protected owner V8 candidate changes the occasion navigation.
+  // Festival Skirts remains an indexed collection and a Shop-by-piece option;
+  // "Stage & Fashion" remains the existing underlying product facet/owner.
+  const ownerVisual = process.env.NEXT_PUBLIC_FEYA_V13_PUBLIC_DESIGN === '1' || process.env.NEXT_PUBLIC_FEYA_OWNER_V2_COPY_REVIEW === '1';
+  const groups = navigationPanel(code)?.groups || [];
+  const normalized = ownerVisual && code === 'events_performance'
+    ? groups.map(group=>({
+        ...group,
+        items: group.items.flatMap(item=>{
+          if(item.code==='festival_skirts')return [];
+          if(item.code==='stage_fashion')return [
+            {...item,code:'performance',label:'Performance'},
+            filter('fashion','Fashion','/shop?performance=Stage%20%26%20Fashion'),
+          ];
+          return [item];
+        }),
+      }))
+    : groups;
+  return normalized.filter((group)=>group.items.some((item)=>item.enabled)||Boolean(group.href));
 }
 
 export function panelHasEnabledItems(code: string) {
