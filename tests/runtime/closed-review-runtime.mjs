@@ -240,6 +240,31 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       'supabase/migrations/20260930235500_storefront_card_exact_identity_v4.sql',
     ]) await db.query(await readFile(migration,'utf8'));
 
+    // Test-only alias for the Phase13 fast source. This isolated fixture seeds
+    // 208 synthetic JSON products and deliberately has no real v2 price tables.
+    // Its trusted 207-card pinned model already enforces approval and visibility.
+    // The new presentation source must expose exactly those approved identities,
+    // but preserve the original synthetic v4 title and option-price fields.
+    // The REAL new view SQL and ACL are validated by native PostgreSQL CI.
+    await db.query(`
+      create view public.feya_storefront_collection_cards_fast_v1
+      with (security_invoker=true) as
+      select live.*
+      from public.feya_commerce_v_step7_storefront_products_api_v4 live
+      join public.feya_storefront_product_cards_v1 pinned
+        on pinned.canonical_product_id=live.canonical_product_id
+       and pinned.product_slug=live.product_slug;
+      revoke all on public.feya_storefront_collection_cards_fast_v1
+        from public,anon,authenticated,service_role;
+      grant select on public.feya_storefront_collection_cards_fast_v1
+        to service_role;
+    `);
+    const fastFixture=await db.query(`
+      select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
+      from public.feya_storefront_collection_cards_fast_v1
+    `);
+    assert.deepEqual(fastFixture.rows[0],{n:207,distinct_n:207});
+
     await db.query("notify pgrst, 'reload schema'");
     const state=await db.query(
       `select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
@@ -264,6 +289,24 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await new Promise(r=>setTimeout(r,200));
     }
     assert.equal(cardApiReady,true,'Card read model not visible through PostgREST: '+lastStatus+' '+lastBody.slice(0,160));
+    // The actual collection reader uses a second service-only relation; wait
+    // for its Data API schema visibility as well (no blind timeout/sleep).
+    let fastReady=false,fastStatus=0,fastBody='';
+    for(let i=0;i<40;i++){
+      const response=await fetch(
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id&limit=1',
+        {headers:{
+          apikey:env.SUPABASE_SERVICE_ROLE_KEY,
+          authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
+        }}
+      );
+      fastStatus=response.status;
+      fastBody=await response.text();
+      if(response.ok){fastReady=true;break;}
+      await new Promise(r=>setTimeout(r,200));
+    }
+    assert.equal(fastReady,true,'Fast collection view missing in local PostgREST: '+fastStatus+' '+fastBody.slice(0,160));
+
   });
   const first=release.entries[0], path=first.copy.metadata.canonical_path, base='http://127.0.0.1:3004';
   let server,page,outsiderContext,log='';
