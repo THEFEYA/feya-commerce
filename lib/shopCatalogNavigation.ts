@@ -109,11 +109,18 @@ function listParam(raw: string, values: readonly string[]) {
   return unique.sort((a,b)=>values.indexOf(a)-values.indexOf(b));
 }
 
-export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
+/** Public Shop must not become a 404 because a browser, CDN or attribution
+ * service appended an unrelated query key. Known filters retain exact
+ * validation; protected previews remain strict by default.
+ */
+export function parseShopNavigation(
+  params: Record<string, string | string[] | undefined>,
+  options: { ignoreUnknownParams?: boolean } = {},
+): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
   const known = SHOP_FILTER_PARAM_ORDER;
   if (known.some((key) => typeof params[key] === 'string' && (params[key] as string).length > SHOP_MAX_PARAM_LENGTH)) return null;
-  if (Object.keys(params).some((key) => !known.includes(key as typeof known[number]) && !isShopTrackingParam(key))) return null;
+  if (!options.ignoreUnknownParams && Object.keys(params).some((key) => !known.includes(key as typeof known[number]) && !isShopTrackingParam(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
   const rawPage = scalar('page');

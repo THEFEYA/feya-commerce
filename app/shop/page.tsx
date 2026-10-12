@@ -55,7 +55,7 @@ async function getProducts() {
 type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
-  const query = parseShopNavigation(await searchParams);
+  const query = parseShopNavigation(await searchParams,{ignoreUnknownParams:process.env.VERCEL_ENV === 'production'});
   const filterState=Boolean(query&&shopNavigationHasFilterState(query));
   return {
     title: 'Shop',
@@ -83,7 +83,9 @@ function ShopRouteFallback() {
 async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   // URL state is request-time; the 207-product slim catalog remains one shared cache.
   const params = await searchParams;
-  const navigation = parseShopNavigation(params);
+  // Unknown auxiliary query keys cannot hide the entire public catalog.
+  // Approved facet/page values remain validated by parseShopNavigation.
+  const navigation = parseShopNavigation(params,{ignoreUnknownParams:process.env.VERCEL_ENV === 'production'});
   if (process.env.VERCEL_ENV === 'production') {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'navigation',keys:Object.keys(params).length,valid:Boolean(navigation)}));
   }
