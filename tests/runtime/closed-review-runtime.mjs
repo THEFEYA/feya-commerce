@@ -277,6 +277,11 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       from public.feya_storefront_product_cards_fast_v2
     `);
     assert.deepEqual(pinnedFastFixture.rows[0],{n:207,distinct_n:207});
+    const goldFast=await db.query(`
+      select count(*)::int n from public.feya_storefront_product_cards_fast_v2
+      where card_title ilike '%Gold%'
+    `);
+    assert.ok(goldFast.rows[0].n>0,'Approved synthetic fast v2 fixture must contain searchable Gold cards');
 
     await db.query("notify pgrst, 'reload schema'");
     const state=await db.query(
@@ -495,10 +500,35 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     await check('Public Shop direct filter SSR matches zero-network client filtering',async()=>{
       const publicBase='http://127.0.0.1:3000';
       const term='Gold';
-      const direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
-      assert.equal(direct.status(),200);
-      const directDoc=await documentData(await direct.text());
-      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20);
+      // This long-running suite starts public Next :3000 BEFORE installing
+      // local approved card fixtures. Invalidate a possible negative
+      // pre-fixture cache entry through the same authenticated audited
+      // revalidation endpoint used by Production (not a test bypass).
+      const refresh=await fetch(publicBase+'/api/internal/storefront-revalidate',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Idempotency-Key':'runtime-phase13-fast-v2-ready-0001',
+          'x-feya-storefront-revalidation-token':env.FEYA_STOREFRONT_REVALIDATION_TOKEN,
+        },
+        body:JSON.stringify({
+          event_type:'global_content_changed',
+          source_ref:'runtime:phase13-fast-v2-seeded',
+        }),
+      });
+      assert.equal(refresh.status,202,'Fast v2 fixture must invalidate audited public cache: '+await refresh.text());
+      // revalidateTag(...,'max') is stale-while-revalidate by design. Probe
+      // readiness from actual SSR output rather than sleeping blindly.
+      let direct,directDoc;
+      for(let attempt=0;attempt<12;attempt++){
+        direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
+        assert.equal(direct.status(),200);
+        directDoc=await documentData(await direct.text());
+        if(directDoc.cards.length>0)break;
+        await new Promise(resolve=>setTimeout(resolve,250));
+      }
+      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20,
+        'Public Shop filtered SSR did not recover after audited catalog invalidation');
       assert.match(directDoc.robots||'',/noindex/);
 
       await page.setViewportSize({width:390,height:844});
