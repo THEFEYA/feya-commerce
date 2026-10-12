@@ -43,7 +43,7 @@ test('fast collection select carries exactly the original rendered card data',()
  }
  assert.ok(!module.includes("'configurations'"));
  assert.ok(!module.includes("'media_gallery'"));
- assert.ok(!module.includes('checkout'));
+ assert.ok(!module.includes('createPaymentSession'));
  assert.ok(!module.includes('service_role'));
 });
 
