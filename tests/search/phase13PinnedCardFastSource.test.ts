@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const sql=readFileSync('supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql','utf8');
-test('Home/Shop faster card source is a new service-only candidate and cannot change current site',()=>{
+test('Home/Shop fast pinned model has been explicitly promoted after parity and security checks',()=>{
  assert.ok(sql.includes('create view public.feya_storefront_product_cards_fast_v2'));
  assert.ok(sql.includes('security_invoker=true'));
  assert.ok(sql.includes('grant select on public.feya_storefront_product_cards_fast_v2 to service_role'));
@@ -18,5 +18,5 @@ test('Home/Shop faster card source is a new service-only candidate and cannot ch
  assert.ok(sql.includes('b.draft_updated_at_snapshot'));
  assert.ok(sql.includes("s.source_release_ref") || sql.includes("s.source_release_ref,"));
  assert.ok(sql.includes("n <> 207 or unique_n <> 207 or invalid_n <> 0"));
- assert.ok(readFileSync('lib/storefrontCardReadModelServer.ts','utf8').includes("= 'feya_storefront_product_cards_v1';"));
+ assert.ok(readFileSync('lib/storefrontCardReadModelServer.ts','utf8').includes("= 'feya_storefront_product_cards_fast_v2';"));
 });

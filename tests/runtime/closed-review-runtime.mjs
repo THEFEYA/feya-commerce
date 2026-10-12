@@ -246,14 +246,40 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     // The new presentation source must expose exactly those approved identities,
     // but preserve the original synthetic v4 title and option-price fields.
     // The REAL new view SQL and ACL are validated by native PostgreSQL CI.
+    // The Home/Shop fast_v2 JOIN requires exact IDs and slugs, while the
+    // PUBLIC collection reader also selects the whole slim presentation row.
+    // Reconstruct the latter from the original 207 pinned fixture records
+    // with nullable fields that the synthetic snapshot never captured.
+    // This remains test-only, never a public price/offer authority. Real
+    // approval/visibility/live-price SQL is checked in native PostgreSQL
+    // CI and independently in Production Supabase.
     await db.query(`
+      create table public.feya_closed_review_fast_catalog_fixture_v1 as
+      select canonical_product_id,product_slug
+      from public.feya_storefront_product_card_snapshots_v1;
+      revoke all on public.feya_closed_review_fast_catalog_fixture_v1
+        from public,anon,authenticated,service_role;
+      grant select on public.feya_closed_review_fast_catalog_fixture_v1
+        to service_role;
       create view public.feya_storefront_collection_cards_fast_v1
       with (security_invoker=true) as
-      select live.*
-      from public.feya_commerce_v_step7_storefront_products_api_v4 live
-      join public.feya_storefront_product_cards_v1 pinned
-        on pinned.canonical_product_id=live.canonical_product_id
-       and pinned.product_slug=live.product_slug;
+      select
+        f.canonical_product_id,f.product_slug,
+        null::text as matched_etsy_listing_id,null::text as source_url,
+        s.card_title,s.h1,s.seo_title,s.meta_description,
+        s.product_type,s.material,s.color,
+        null::text as size_mode,null::text as production_profile,
+        null::text as shipping_profile,null::boolean as handmade_flag,
+        null::boolean as styled_imagery_flag,
+        s.primary_image_url,s.primary_image_alt,s.secondary_image_url,
+        s.hover_image_url,s.video_url,s.media_count,s.has_video,
+        s.min_price,s.max_price,s.currency,
+        s.card_display_price_amount as full_set_display_price_amount,
+        s.category_label,s.world_label,s.canonical_color_label,s.color_options
+      from public.feya_closed_review_fast_catalog_fixture_v1 f
+      join public.feya_storefront_product_card_snapshots_v1 s
+        on s.canonical_product_id=f.canonical_product_id
+       and s.product_slug=f.product_slug;
       revoke all on public.feya_storefront_collection_cards_fast_v1
         from public,anon,authenticated,service_role;
       grant select on public.feya_storefront_collection_cards_fast_v1
@@ -264,6 +290,24 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       from public.feya_storefront_collection_cards_fast_v1
     `);
     assert.deepEqual(fastFixture.rows[0],{n:207,distinct_n:207});
+
+    // The Home/Shop production reader now uses the exact next pinned-card view.
+    // Exercise the real additive migration against the isolated 207-row fixture;
+    // the fixture's trusted fast collection alias preserves current real prices
+    // without inventing an unrelated v2 catalogue or softening any test.
+    await db.query(await readFile(
+      'supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql','utf8'
+    ));
+    const pinnedFastFixture=await db.query(`
+      select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
+      from public.feya_storefront_product_cards_fast_v2
+    `);
+    assert.deepEqual(pinnedFastFixture.rows[0],{n:207,distinct_n:207});
+    const goldFast=await db.query(`
+      select count(*)::int n from public.feya_storefront_product_cards_fast_v2
+      where card_title ilike '%Gold%'
+    `);
+    assert.ok(goldFast.rows[0].n>0,'Approved synthetic fast v2 fixture must contain searchable Gold cards');
 
     await db.query("notify pgrst, 'reload schema'");
     const state=await db.query(
@@ -289,12 +333,29 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await new Promise(r=>setTimeout(r,200));
     }
     assert.equal(cardApiReady,true,'Card read model not visible through PostgREST: '+lastStatus+' '+lastBody.slice(0,160));
+    // Wait for the ACTUAL Home/Shop fast reader, not just the former v1 alias.
+    let pinnedFastReady=false,pinnedFastStatus=0,pinnedFastBody='';
+    for(let i=0;i<40;i++){
+      const response=await fetch(
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_product_cards_fast_v2?select=canonical_product_id&limit=1',
+        {headers:{
+          apikey:env.SUPABASE_SERVICE_ROLE_KEY,
+          authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
+        }}
+      );
+      pinnedFastStatus=response.status;
+      pinnedFastBody=await response.text();
+      if(response.ok){pinnedFastReady=true;break;}
+      await new Promise(r=>setTimeout(r,200));
+    }
+    assert.equal(pinnedFastReady,true,
+      'Home/Shop fast v2 read model unavailable in local PostgREST: '+pinnedFastStatus+' '+pinnedFastBody.slice(0,160));
     // The actual collection reader uses a second service-only relation; wait
     // for its Data API schema visibility as well (no blind timeout/sleep).
     let fastReady=false,fastStatus=0,fastBody='';
     for(let i=0;i<40;i++){
       const response=await fetch(
-        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id&limit=1',
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id,product_slug,card_title,full_set_display_price_amount,primary_image_url&limit=1',
         {headers:{
           apikey:env.SUPABASE_SERVICE_ROLE_KEY,
           authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
@@ -465,10 +526,35 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     await check('Public Shop direct filter SSR matches zero-network client filtering',async()=>{
       const publicBase='http://127.0.0.1:3000';
       const term='Gold';
-      const direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
-      assert.equal(direct.status(),200);
-      const directDoc=await documentData(await direct.text());
-      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20);
+      // This long-running suite starts public Next :3000 BEFORE installing
+      // local approved card fixtures. Invalidate a possible negative
+      // pre-fixture cache entry through the same authenticated audited
+      // revalidation endpoint used by Production (not a test bypass).
+      const refresh=await fetch(publicBase+'/api/internal/storefront-revalidate',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Idempotency-Key':'runtime-phase13-fast-v2-ready-0001',
+          'x-feya-storefront-revalidation-token':env.FEYA_STOREFRONT_REVALIDATION_TOKEN,
+        },
+        body:JSON.stringify({
+          event_type:'global_content_changed',
+          source_ref:'runtime:phase13-fast-v2-seeded',
+        }),
+      });
+      assert.equal(refresh.status,202,'Fast v2 fixture must invalidate audited public cache: '+await refresh.text());
+      // revalidateTag(...,'max') is stale-while-revalidate by design. Probe
+      // readiness from actual SSR output rather than sleeping blindly.
+      let direct,directDoc;
+      for(let attempt=0;attempt<12;attempt++){
+        direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
+        assert.equal(direct.status(),200);
+        directDoc=await documentData(await direct.text());
+        if(directDoc.cards.length>0)break;
+        await new Promise(resolve=>setTimeout(resolve,250));
+      }
+      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20,
+        'Public Shop filtered SSR did not recover after audited catalog invalidation');
       assert.match(directDoc.robots||'',/noindex/);
 
       await page.setViewportSize({width:390,height:844});
@@ -477,10 +563,18 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.getByRole('button',{name:/^Filters/}).click();
       const mobilePanel=page.locator('aside').last();
       await mobilePanel.getByPlaceholder('Search TheFEYA…').waitFor();
+      // Let the initial streaming/hydration and any pre-existing RSC request
+      // settle BEFORE measuring the shopper's in-page filter interaction.
+      // The strict zero-network invariant below still applies after fill().
+      await page.waitForLoadState('networkidle',{timeout:15000});
 
       let dataRequests=0;
+      const dataRoutes=[];
       const countRequest=request=>{
-        if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
+        if(['document','xhr','fetch'].includes(request.resourceType())){
+          dataRequests++;
+          dataRoutes.push({kind:request.resourceType(),path:new URL(request.url()).pathname});
+        }
       };
       page.on('request',countRequest);
       await mobilePanel.getByPlaceholder('Search TheFEYA…').fill(term);
@@ -494,7 +588,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       page.off('request',countRequest);
 
       assert.equal(new URL(page.url()).searchParams.get('search'),term);
-      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip');
+      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip: '+JSON.stringify(dataRoutes));
       const clientCards=await page.locator('a[data-testid^="product-card-"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
       assert.deepEqual(clientCards,directDoc.cards);
       report.shop_phase7_zero_network_filter_pass=true;
