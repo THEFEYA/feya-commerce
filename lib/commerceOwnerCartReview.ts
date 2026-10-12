@@ -39,6 +39,8 @@ export type OwnerCartPreviewItem={
   slug:string;title:string;image:string;config:string;
   size:string;color:string;qty:number;price:number;currency:'EUR';
   configuration_id:string|null;
+  // Display comparison only, never authoritative discount/checkout money.
+  compare_at_unit_price_amount:number|null;
   price_contract_version:string|null;
   price_confidence_status:string|null;
 };
@@ -82,6 +84,12 @@ export function parseOwnerCartStorage(raw:unknown):{
       image:safeImage(v.image),config:v.config.trim(),size:v.size.trim(),
       color:v.color.trim(),qty:v.qty,price:unitMinor/100,currency:'EUR',
       configuration_id:v.configuration_id??null,
+      compare_at_unit_price_amount:
+        typeof v.compare_at_price_amount==='number'
+        &&Number.isFinite(v.compare_at_price_amount)
+        &&v.compare_at_price_amount>rawPrice
+        &&v.compare_at_price_amount<=50_000
+          ?Math.round(v.compare_at_price_amount*100)/100:null,
       price_contract_version:short(v.price_contract_version,80)?v.price_contract_version:null,
       price_confidence_status:short(v.price_confidence_status,80)?v.price_confidence_status:null,
     });
@@ -120,6 +128,33 @@ export function ownerCartVisualTotals(items:readonly OwnerCartPreviewItem[],meth
     carrier_serviceability_verified:false,server_price_verified:false,
     payable:false,payment_enabled:false,provider_session_enabled:false,
   };
+}
+
+/** Owner Preview only: proposed EUR upsells have NO payment authority. */
+export const OWNER_PREVIEW_EXTRA_EUR_MINOR={
+  made_to_measure:1500,gift_card:1000,gift_box:2500,remote_one_parcel_example:2000,
+} as const;
+export function ownerCartPreviewExtraEstimate(
+  items:readonly OwnerCartPreviewItem[],
+  input:{madeToMeasureItemIds:readonly string[];giftCard:boolean;giftBox:boolean;destination:string}
+){
+  if(!Array.isArray(items)||items.length>40||!Array.isArray(input.madeToMeasureItemIds)
+    ||input.madeToMeasureItemIds.length>40||typeof input.giftCard!=='boolean'
+    ||typeof input.giftBox!=='boolean'||typeof input.destination!=='string')
+    throw new Error('owner_preview_extra_input_invalid');
+  const active=new Set(items.map(i=>i.id)), selected=new Set(input.madeToMeasureItemIds);
+  if(selected.size!==input.madeToMeasureItemIds.length||
+    [...selected].some(id=>!active.has(id)))throw new Error('owner_preview_extra_line_invalid');
+  const ready=items.length>0;
+  const made_to_measure_minor=ready?selected.size*OWNER_PREVIEW_EXTRA_EUR_MINOR.made_to_measure:0;
+  const gift_card_minor=ready&&input.giftCard?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_card:0;
+  const gift_box_minor=ready&&input.giftBox?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_box:0;
+  const remote_example_minor=ready&&['AU','MX','NZ'].includes(input.destination)
+    ?OWNER_PREVIEW_EXTRA_EUR_MINOR.remote_one_parcel_example:0;
+  return {made_to_measure_minor,gift_card_minor,gift_box_minor,remote_example_minor,
+    total_extra_minor:made_to_measure_minor+gift_card_minor+gift_box_minor+remote_example_minor,
+    currency:'EUR' as const,proposals_not_approved_for_payment:true,
+    destination_not_verified:true,final_payable_amount_minor:null};
 }
 
 export const OWNER_CART_COUNTRIES=DELIVERY_COUNTRIES.filter(

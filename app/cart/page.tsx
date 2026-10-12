@@ -6,6 +6,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {CartOwnerLiveReviewClient} from '@/components/CartOwnerLiveReviewClient';
 import {isOwnerRealCartReviewDeployment} from '@/lib/commerceOwnerCartReview';
+import {isApprovedV13Presentation} from '@/lib/approvedV13Presentation';
 
 export const metadata:Metadata={
   title:'Bag | TheFEYA',
@@ -15,10 +16,9 @@ export const metadata:Metadata={
 };
 
 export default function CartPage(){
-  // Only one explicitly protected Vercel owner-review deployment may render
-  // actual PDP-selected local browser cart lines. All public/production sites
-  // preserve the existing intentionally disabled prelaunch cart exactly.
-  if(isOwnerRealCartReviewDeployment(process.env)){
+  // Owner-approved V13 shows real browser-selected variants in the nonpayable
+  // bag; the payment/order backend is still disabled.
+  if(isOwnerRealCartReviewDeployment(process.env)||isApprovedV13Presentation(process.env)){
     return <main className="visual-commerce-shell relative min-h-screen">
       <Header/>
       <CartOwnerLiveReviewClient/>
