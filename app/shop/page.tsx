@@ -22,7 +22,13 @@ import { ShopClient } from '@/components/ShopClient';
 import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 
 async function getProducts() {
-  const reviewGate = await readClosedReviewPresentation();
+  // The closed review must NEVER gate the public Production Shop. An old
+  // review environment flag could otherwise cause an invisible streamed 404
+  // in the catalog even though the approved 207-card source is available.
+  // Owner review remains strictly confined to protected non-Production routes.
+  const reviewGate = process.env.VERCEL_ENV === 'production'
+    ? { status: 'disabled' as const, release: null }
+    : await readClosedReviewPresentation();
   if (reviewGate.status === 'blocked') notFound();
   const review = reviewGate.status === 'review';
   try {
