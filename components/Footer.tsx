@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 import { Mail } from 'lucide-react';
 import { FeyaMark } from '@/components/FeyaMark';
 
@@ -74,6 +75,22 @@ export function Footer() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* public-site-prepayment-selleronline: provider address available BEFORE payment activation. */}
+      <div className="relative z-10 border-t border-[rgba(216,214,211,0.10)]">
+        <div className="container-feya py-4 text-[12px] leading-6 text-[var(--bone-dim)]">
+          <p className="font-medium text-[#b5a994]">Planned payment &amp; logistics partner</p>
+          <address className="not-italic">
+            <span className="text-bone">{SELLER_ONLINE_PROVIDER.legalName}</span>
+            {', '}{SELLER_ONLINE_PROVIDER.contactAddress.line1}
+            {', '}{SELLER_ONLINE_PROVIDER.contactAddress.city}
+            {', '}{SELLER_ONLINE_PROVIDER.contactAddress.region}
+            {' '}{SELLER_ONLINE_PROVIDER.contactAddress.postalCode}
+            {', '}{SELLER_ONLINE_PROVIDER.contactAddress.country}
+          </address>
+          <p className="mt-1">Online checkout is not active yet. TheFEYA handles product and order enquiries; this partner address does not identify the legal seller.</p>
         </div>
       </div>
 
