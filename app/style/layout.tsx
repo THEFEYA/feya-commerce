@@ -1,3 +1,4 @@
+export const instant = false;
 import type {ReactNode} from 'react';
 import {isApprovedV13Presentation} from '@/lib/approvedV13Presentation';
 import OwnerV13StyleHub from '@/components/OwnerV13StyleHub';
