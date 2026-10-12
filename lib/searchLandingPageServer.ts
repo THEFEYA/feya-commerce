@@ -3,7 +3,7 @@ import {cache} from 'react';
 import {cacheLife, cacheTag} from 'next/cache';
 import type {StorefrontProduct} from '@/lib/types';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
-import {STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4} from '@/lib/storefront';
+import {COLLECTION_FAST_VIEW,COLLECTION_FAST_SELECT} from '@/lib/collectionCardFastReadModel';
 import {getSearchLandingCandidate, type SearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchReleasePathState} from '@/lib/searchReleaseIndexationServer';
 import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
@@ -379,8 +379,8 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
   let products: StorefrontProduct[] = [];
   if (ids.length) {
     const {data: rows, error: productError} = await service
-      .from(STOREFRONT_VIEW_V4)
-      .select(STOREFRONT_V4_CARD_SELECT)
+      .from(COLLECTION_FAST_VIEW)
+      .select(COLLECTION_FAST_SELECT)
       .in('canonical_product_id',ids)
       .limit(500);
     if (productError) throw new Error(`SEARCH_LANDING_PRODUCT_READ_FAILED:${productError.message}`);
