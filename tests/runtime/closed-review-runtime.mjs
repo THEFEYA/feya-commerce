@@ -546,10 +546,18 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.getByRole('button',{name:/^Filters/}).click();
       const mobilePanel=page.locator('aside').last();
       await mobilePanel.getByPlaceholder('Search TheFEYA…').waitFor();
+      // Let the initial streaming/hydration and any pre-existing RSC request
+      // settle BEFORE measuring the shopper's in-page filter interaction.
+      // The strict zero-network invariant below still applies after fill().
+      await page.waitForLoadState('networkidle',{timeout:15000});
 
       let dataRequests=0;
+      const dataRoutes=[];
       const countRequest=request=>{
-        if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
+        if(['document','xhr','fetch'].includes(request.resourceType())){
+          dataRequests++;
+          dataRoutes.push({kind:request.resourceType(),path:new URL(request.url()).pathname});
+        }
       };
       page.on('request',countRequest);
       await mobilePanel.getByPlaceholder('Search TheFEYA…').fill(term);
@@ -563,7 +571,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       page.off('request',countRequest);
 
       assert.equal(new URL(page.url()).searchParams.get('search'),term);
-      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip');
+      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip: '+JSON.stringify(dataRoutes));
       const clientCards=await page.locator('a[data-testid^="product-card-"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
       assert.deepEqual(clientCards,directDoc.cards);
       report.shop_phase7_zero_network_filter_pass=true;
