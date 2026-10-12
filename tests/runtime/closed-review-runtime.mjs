@@ -246,18 +246,16 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     // The new presentation source must expose exactly those approved identities,
     // but preserve the original synthetic v4 title and option-price fields.
     // The REAL new view SQL and ACL are validated by native PostgreSQL CI.
-    // Materialize the ORIGINAL synthetic source once. Otherwise the local
-    // test-only fast alias nests the costly legacy v4 and original card view
-    // inside the next pinned v2 view. That triggers Postgres 57014 timeouts
-    // unrelated to the production fast view. The 207 existing IDs, labels
-    // and original option prices are copied verbatim; nothing is invented.
+    // This local fixture only needs the two existence keys used by the
+    // fast_v2 JOIN: canonical_product_id and product_slug. Populate those
+    // directly from the already restored EXACT 207 pinned snapshot records,
+    // rather than recursing through legacy v4 and old card views. The real
+    // migration's full approval, visibility and pricing guards remain tested
+    // by native Postgres CI and independently on production Supabase.
     await db.query(`
       create table public.feya_closed_review_fast_catalog_fixture_v1 as
-      select live.*
-      from public.feya_commerce_v_step7_storefront_products_api_v4 live
-      join public.feya_storefront_product_cards_v1 pinned
-        on pinned.canonical_product_id=live.canonical_product_id
-       and pinned.product_slug=live.product_slug;
+      select canonical_product_id,product_slug
+      from public.feya_storefront_product_card_snapshots_v1;
       revoke all on public.feya_closed_review_fast_catalog_fixture_v1
         from public,anon,authenticated,service_role;
       grant select on public.feya_closed_review_fast_catalog_fixture_v1
