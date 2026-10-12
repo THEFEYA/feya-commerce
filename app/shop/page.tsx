@@ -19,6 +19,7 @@ import {
 import { Header } from '@/components/Header';
 import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
 import { ShopClient } from '@/components/ShopClient';
+import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 
 async function getProducts() {
   const reviewGate = await readClosedReviewPresentation();
@@ -99,6 +100,8 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
     error={error}
     navigation={strictNavigation}
     initialNavigation={initialNavigation}
-  /></main>;
+  />
+  {products.length>0 && navigation.page===1 && !shopNavigationHasFilterState(navigation) && !utilityState ? <OwnerShopSeoText/> : null}
+  </main>;
 }
 
