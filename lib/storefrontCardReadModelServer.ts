@@ -75,12 +75,33 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
   const service = getSupabaseServiceRoleClient();
   if (!service) throw new Error('STOREFRONT_CARD_READ_MODEL_SERVICE_UNAVAILABLE');
 
+  // Measure only a cache-miss/source request; no product, buyer or URL details are logged.
+  // A read failure keeps the existing fail-closed behavior. Telemetry does NOT retry,
+  // extend timeouts, reclassify approved content or substitute stale product cards.
+  const readStartedAt = Date.now();
   const { data, error } = await service
     .from(STOREFRONT_CARD_READ_MODEL_V1)
     .select(CARD_SELECT)
     .order('canonical_product_id', { ascending: true });
+  const elapsedMs = Math.max(0, Date.now() - readStartedAt);
 
-  if (error) throw new Error(`STOREFRONT_CARD_READ_MODEL_READ_FAILED:${error.code || 'unknown'}`);
+  if (error) {
+    const sqlState = typeof error.code === 'string' && /^[0-9A-Z]{5}$/.test(error.code)
+      ? error.code : 'unknown';
+    console.warn('feya_catalog_source_read_v1', JSON.stringify({
+      outcome: 'error',
+      sql_state: sqlState,
+      elapsed_ms: elapsedMs,
+    }));
+    throw new Error(`STOREFRONT_CARD_READ_MODEL_READ_FAILED:${error.code || 'unknown'}`);
+  }
+  if (elapsedMs >= 1500) {
+    console.info('feya_catalog_source_read_v1', JSON.stringify({
+      outcome: 'slow',
+      elapsed_ms: elapsedMs,
+      rows: Array.isArray(data) ? data.length : 0,
+    }));
+  }
 
   const rows = (data || []) as unknown as StorefrontCardReadRowV1[];
   if (rows.length !== STOREFRONT_CARD_READ_MODEL_EXPECTED_COUNT) {
