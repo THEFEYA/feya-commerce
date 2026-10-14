@@ -71,7 +71,7 @@ async function getGrowthData(): Promise<GrowthData> {
       .select('capability_code,capability_state,limitations_summary,updated_at')
       .in('capability_code', CAPABILITY_CODES),
     supabase
-      .from('feya_commerce_v_data_source_health_latest_safe_v1')
+      .from('feya_commerce_v_data_source_health_effective_safe_v2')
       .select('source_code,health_state,freshness_state,last_success_at,checked_at')
       .in('source_code', ['EXTERNAL_KEYWORD_DEMAND', 'ORGANIC_SEARCH_PERFORMANCE']),
     supabase
