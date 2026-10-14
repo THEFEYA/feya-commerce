@@ -6,18 +6,18 @@ const src=(path:string)=>readFileSync(path,'utf8');
 
 test('Phase13 P1 changes only Home/Shop input view, not approved card projections or caching',()=>{
  const reader=src('lib/storefrontCardReadModelServer.ts');
- const view=src('supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql');
+ const view=src('supabase/migrations/20261014214000_phase13_fast_pinned_card_live_eligibility_v3.sql');
  const cache=src('lib/storefrontCatalogCacheServer.ts');
  const home=src('lib/homePresentationServer.ts');
- assert.ok(reader.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v2'"));
+ assert.ok(reader.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v3'"));
  assert.ok(reader.includes('STOREFRONT_CARD_READ_MODEL_EXPECTED_COUNT = 207'));
  for(const key of ['card_title','card_display_price_amount','approved_content_sha256',
   'primary_image_url','membership_codes','facet_contract_version','facet_snapshot_hash'])
   assert.ok(reader.includes("'"+key+"'"),key);
- assert.ok(view.includes('create view public.feya_storefront_product_cards_fast_v2'));
- assert.ok(view.includes('feya_storefront_collection_cards_fast_v1 live'));
+ assert.ok(view.includes('create view public.feya_storefront_product_cards_fast_v3'));
+ assert.ok(view.includes('JOIN live_identity live'));
  assert.ok(!view.includes('feya_commerce_v_step7_storefront_products_api_v4 live'));
- assert.ok(view.includes('grant select on public.feya_storefront_product_cards_fast_v2 to service_role'));
+ assert.ok(view.includes('grant select on public.feya_storefront_product_cards_fast_v3 to service_role'));
  assert.ok(view.includes('security_invoker=true'));
  assert.ok(cache.includes('readApprovedStorefrontCardProductsV1'));
  assert.ok(cache.includes("cacheLife('max')"));

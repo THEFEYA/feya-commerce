@@ -148,10 +148,17 @@ jobs:
           PHASE12_ALLOW_BLOCKED: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
         run: node tests/runtime/phase12-production-origin-crawl.mjs
 
+      - name: Phase 13 full-stream public Shop SSR check
+        env:
+          PHASE12_ALLOW_BLOCKED: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+        run: node tests/runtime/phase13-shop-origin-smoke.mjs
+
       - name: Production crawl evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase12-production-origin-crawl
-          path: runtime-results/phase12-production-origin-crawl.json
+          path: |
+            runtime-results/phase12-production-origin-crawl.json
+            runtime-results/phase13-shop-origin-smoke.json
           retention-days: 30
