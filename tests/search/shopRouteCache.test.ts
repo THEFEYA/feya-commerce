@@ -22,7 +22,7 @@ test('Phase 7 direct-filter validation, normalization and review auth stay outsi
   const cache=readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
   assert.match(page,/readClosedReviewPresentation/);
   assert.match(page,/if \(reviewGate\.status === 'blocked'\) notFound\(\)/);
-  assert.match(page,/const navigation = parseShopNavigation\(params\)/);
+  assert.match(page,/const navigation = parseShopNavigation\(params,\{ignoreUnknownParams:process\.env\.VERCEL_ENV === 'production'\}\)/);
   assert.match(page,/if \(!navigation\) notFound\(\)/);
   assert.match(page,/shopNavigationHasUtilityState/);
   assert.match(page,/filteredCount===0\) notFound\(\)/);

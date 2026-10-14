@@ -22,7 +22,17 @@ import { ShopClient } from '@/components/ShopClient';
 import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 
 async function getProducts() {
-  const reviewGate = await readClosedReviewPresentation();
+  // The closed review must NEVER gate the public Production Shop. An old
+  // review environment flag could otherwise cause an invisible streamed 404
+  // in the catalog even though the approved 207-card source is available.
+  // Owner review remains strictly confined to protected non-Production routes.
+  const reviewGate = process.env.VERCEL_ENV === 'production'
+    ? { status: 'disabled' as const, release: null }
+    : await readClosedReviewPresentation();
+  if (process.env.VERCEL_ENV === 'production' || reviewGate.status === 'blocked') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'review',isProduction:process.env.VERCEL_ENV === 'production',review:reviewGate.status}));
+  }
+  if (reviewGate.status === 'blocked') console.warn('feya_shop_not_found','review_gate_blocked');
   if (reviewGate.status === 'blocked') notFound();
   const review = reviewGate.status === 'review';
   try {
@@ -45,7 +55,7 @@ async function getProducts() {
 type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
-  const query = parseShopNavigation(await searchParams);
+  const query = parseShopNavigation(await searchParams,{ignoreUnknownParams:process.env.VERCEL_ENV === 'production'});
   const filterState=Boolean(query&&shopNavigationHasFilterState(query));
   return {
     title: 'Shop',
@@ -73,14 +83,25 @@ function ShopRouteFallback() {
 async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   // URL state is request-time; the 207-product slim catalog remains one shared cache.
   const params = await searchParams;
-  const navigation = parseShopNavigation(params);
+  // Unknown auxiliary query keys cannot hide the entire public catalog.
+  // Approved facet/page values remain validated by parseShopNavigation.
+  const navigation = parseShopNavigation(params,{ignoreUnknownParams:process.env.VERCEL_ENV === 'production'});
+  if (process.env.VERCEL_ENV === 'production') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'navigation',keys:Object.keys(params).length,valid:Boolean(navigation)}));
+  }
+  if (!navigation) console.warn('feya_shop_not_found','invalid_navigation');
   if (!navigation) notFound();
 
   const { products, error, review } = await getProducts();
   const filteredCount = filterShopProducts(products, navigation.filters).length;
   const utilityState = shopNavigationHasUtilityState(navigation);
 
+  if (process.env.VERCEL_ENV === 'production') {
+    console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
+  }
+  if (products.length && utilityState && filteredCount===0) console.warn('feya_shop_not_found','utility_without_results');
   if (products.length && utilityState && filteredCount===0) notFound();
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) console.warn('feya_shop_not_found','invalid_page_number');
   if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
 
   const normalizedHref=shopPageHref(navigation.page,navigation.filters);

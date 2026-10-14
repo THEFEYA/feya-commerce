@@ -29,6 +29,26 @@ test('shop URL grammar validates filters, accepts attribution params and rejects
   assert.equal(parseShopNavigation({piece:'Skirt,'.repeat(100)}),null);
 });
 
+test('public Shop tolerates auxiliary URL keys but never invalid facets, prices or pagination',()=>{
+  const transport={_rsc:'transport',__edge:'trace',some_analytics_key:'opaque'};
+  assert.equal(parseShopNavigation(transport),null,'default protected mode stays strict');
+  const publicRoot=parseShopNavigation(transport,{ignoreUnknownParams:true});
+  assert.ok(publicRoot);
+  assert.equal(publicRoot.page,1);
+  assert.equal(shopPageHref(publicRoot.page,publicRoot.filters),'/shop');
+  const filtered=parseShopNavigation({...transport,piece:'Skirt',page:'2'},{ignoreUnknownParams:true});
+  assert.deepEqual(filtered?.filters.piece,['Skirt']);
+  assert.equal(filtered?.page,2);
+  assert.equal(shopPageHref(filtered!.page,filtered!.filters),'/shop?piece=Skirt&page=2');
+  for(const invalid of [{piece:'not-a-piece'},{color:['Gold','Silver']},{page:'0'},{min:'1000',max:'10'},{search:'x'.repeat(200)}]){
+    assert.equal(parseShopNavigation({...transport,...invalid},{ignoreUnknownParams:true}),null);
+  }
+  const publicCode=readFileSync('app/shop/page.tsx','utf8');
+  assert.equal((publicCode.match(/ignoreUnknownParams:process.env.VERCEL_ENV === 'production'/g)||[]).length,2);
+  assert.ok(publicCode.includes('OwnerShopSeoText'));
+  assert.ok(publicCode.includes('readCachedApprovedStorefrontCatalogV1()'));
+});
+
 test('shop normalization omits defaults, canonicalizes values and preserves tracking outside canonicals',()=>{
   const parsed=parseShopNavigation({color:'gold',page:'1',utm_source:'google'});
   assert.ok(parsed);
