@@ -39,6 +39,23 @@ Sources: production Vercel runtime logs (October 12–14), Supabase **SELECT-onl
 
 Neither a second AI-agent system nor another general-purpose admin should be built. Evolve the existing registries and UIs only after inputs are real.
 
+### 2A. Role-persistence contract from the eight CANONICAL Agent Passports (2026-09-18)
+
+The separately owned **FEYA Growth Director, OSPM, CPIM, GMEL, SCO, CQA, TSEO and GDAE Agent Passports v1.0** and **FEYA Decision & Interaction Map v1.0** are binding for Growth OS behavior. These documents were inspected during the October 14 checkpoint; they are not descriptions of already-running production agents.
+
+- **One decision = one accountable owner.** Growth Director prioritizes material cross-domain Growth Cases with a deterministic business-impact × relevance × confidence × urgency policy (effort, risk, dependency, capacity adjusted); the LLM only *explains* the policy score. Strategy, price, product design/retirement, high-risk bulk execution and autonomy level remain Human Owner approvals.
+- **Protected winner is not an experiment sandbox.** Declining seasonal demand alone with a stable winner means monitor/MAINTAIN, not rewrite. Test a weaker comparable URL/cohort first; preserve original owner/query authority and release hashes.
+- **OSPM** decides search intent/page ownership and eligibility, not copy, deploy or canonical mutation. **CPIM** distinguishes *low exposure* from true *high-exposure/low-conversion* business weakness; zero orders without actual exposure/paid truth are not poor conversion.
+- **SCO** can produce only `seo_content_proposal.v1` from a locked approved `seo_content_brief.v1` with Product Truth/DNA, exclusions, diff and proposal hash. **CQA** independently verifies and returns PASS/WARNING/REVISION/REJECT; CQA must never write/rewrite and self-approve.
+- **TSEO** separately records intended release state, observed live HTTP/crawl state and Google-known state. A successful GitHub/Vercel release is *not* an SEO outcome, and canonical, `noindex` and `robots.txt` must not be treated interchangeably.
+- **GDAE** owns stable IDs, consent-limited source instrumentation, watermarks, ingestion and governed marts, never invents rows or converts unknown to zero. May run approved monthly demand refresh subject to source authority, validation and bounded cost, but may not decide SEO winners.
+- **GMEL** locks hypotheses, primary metrics and evidence ceilings **before** a change. `INCONCLUSIVE` and `NOT_MEASURABLE` are valid outcomes; no changing the target metric after seeing results, no LLM-invented p-values, no causal assertion from mere seasonal pre/post.
+- **Execution authority is separate** (Core/Gateway/Human approval). No direct production writes through role passports by default, no untracked chat-only handoffs, no broadcast-to-all-agents and no autonomous SEO copy regeneration.
+
+Standard handoff: **GDAE source validation → OSPM or CPIM investigation → GMEL measurement viability → SCO proposal → CQA independent review and/or TSEO technical preflight → authorized Execution Gateway + receipt → GMEL outcome → domain interpretation → Growth Director/Owner decision → reusable Learning Registry**. If source fails, route a `DATA_QUALITY_CASE` rather than fabricating commercial learning.
+
+The contract deliberately remains inactive where production GSC/GA4/order-source proof is unavailable. Preserve these passports and the Interaction Map as higher authority than an AI-generated recommendation.
+
 ## 3. Finite, dependency-ordered launch queue
 
 ### P0A. Keep Shop healthy, preserve V13 and prepare an observable baseline
