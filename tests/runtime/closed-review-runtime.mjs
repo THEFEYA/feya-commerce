@@ -298,13 +298,26 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     await db.query(await readFile(
       'supabase/migrations/20261012193000_phase13_fast_pinned_card_view_v2.sql','utf8'
     ));
+    // This isolated runtime has synthetic approved 207 cards but no real
+    // configuration/media source tables for evaluating Production V3's EXISTS
+    // predicates. Its *transport* fixture mirrors only the already-proven
+    // equal V2 output columns and RLS/service-role visibility. Real V3 SQL,
+    // live eligibility and full 207-row parity are validated separately in
+    // the production Supabase migration and deterministic source tests.
+    await db.query(`
+      create view public.feya_storefront_product_cards_fast_v3
+        with (security_invoker=true) as
+        select * from public.feya_storefront_product_cards_fast_v2;
+      revoke all on public.feya_storefront_product_cards_fast_v3 from public,anon,authenticated,service_role;
+      grant select on public.feya_storefront_product_cards_fast_v3 to service_role;
+    `);
     const pinnedFastFixture=await db.query(`
       select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
-      from public.feya_storefront_product_cards_fast_v2
+      from public.feya_storefront_product_cards_fast_v3
     `);
     assert.deepEqual(pinnedFastFixture.rows[0],{n:207,distinct_n:207});
     const goldFast=await db.query(`
-      select count(*)::int n from public.feya_storefront_product_cards_fast_v2
+      select count(*)::int n from public.feya_storefront_product_cards_fast_v3
       where card_title ilike '%Gold%'
     `);
     assert.ok(goldFast.rows[0].n>0,'Approved synthetic fast v2 fixture must contain searchable Gold cards');
@@ -337,7 +350,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     let pinnedFastReady=false,pinnedFastStatus=0,pinnedFastBody='';
     for(let i=0;i<40;i++){
       const response=await fetch(
-        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_product_cards_fast_v2?select=canonical_product_id&limit=1',
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_product_cards_fast_v3?select=canonical_product_id&limit=1',
         {headers:{
           apikey:env.SUPABASE_SERVICE_ROLE_KEY,
           authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,

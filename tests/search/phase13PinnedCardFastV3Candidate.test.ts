@@ -46,7 +46,7 @@ test('Phase13 additive V3 removes only expensive legacy live existence projectio
   assert.ok(oldV2.includes('JOIN feya_storefront_collection_cards_fast_v1 live'));
 });
 
-test('V3 stays service-only, checks exact 207 + all field hashes, and does not switch storefront',()=>{
+test('V3 stays service-only, checks exact 207 + all field hashes, and verifies the independently authorized storefront cutover',()=>{
   assert.ok(migration.includes('with (security_invoker=true)'));
   assert.ok(migration.includes('revoke all on public.feya_storefront_product_cards_fast_v3 from public,anon,authenticated,service_role'));
   assert.ok(migration.includes('grant select on public.feya_storefront_product_cards_fast_v3 to service_role'));
@@ -56,7 +56,7 @@ test('V3 stays service-only, checks exact 207 + all field hashes, and does not s
   assert.ok(migration.includes('to_jsonb(v3)'));
   assert.ok(migration.includes('to_jsonb(v2)'));
   assert.ok(migration.includes('n <> 207 or unique_n <> 207 or invalid_n <> 0'));
-  assert.ok(currentReader.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v2'"));
+  assert.ok(currentReader.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v3'"));
   assert.ok(!migration.includes('create or replace view public.feya_storefront_product_cards_fast_v2'));
   assert.ok(!migration.includes('FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE='));
   assert.ok(!migration.includes('drop table'));

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 test('Phase13 approved-card SQL tail diagnostics never change product truth or release authority',()=>{
   const src=readFileSync('lib/storefrontCardReadModelServer.ts','utf8');
-  assert.ok(src.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v2'"));
+  assert.ok(src.includes("STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v3'"));
   assert.ok(src.includes('STOREFRONT_CARD_READ_MODEL_EXPECTED_COUNT = 207'));
   assert.ok(src.includes("'feya_catalog_source_read_v1'"));
   assert.ok(src.includes("outcome: 'error'"));

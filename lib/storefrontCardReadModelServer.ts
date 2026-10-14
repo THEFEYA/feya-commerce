@@ -7,7 +7,7 @@ import type { StorefrontProduct } from '@/lib/types';
 // Phase13 P1 fast physical read with exact original output schema and approvals.
  // Only the source view changes; the 207-row identity, price, media and facet
  // contract, consumer props and public cache invalidation remain unchanged.
-export const STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v2';
+export const STOREFRONT_CARD_READ_MODEL_V1 = 'feya_storefront_product_cards_fast_v3';
 export const STOREFRONT_CARD_READ_MODEL_EXPECTED_COUNT = 207;
 export const STOREFRONT_CARD_FACET_CONTRACT = 'feya-storefront-facets-v4';
 

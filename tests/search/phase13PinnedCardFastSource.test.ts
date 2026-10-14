@@ -18,5 +18,5 @@ test('Home/Shop fast pinned model has been explicitly promoted after parity and 
  assert.ok(sql.includes('b.draft_updated_at_snapshot'));
  assert.ok(sql.includes("s.source_release_ref") || sql.includes("s.source_release_ref,"));
  assert.ok(sql.includes("n <> 207 or unique_n <> 207 or invalid_n <> 0"));
- assert.ok(readFileSync('lib/storefrontCardReadModelServer.ts','utf8').includes("= 'feya_storefront_product_cards_fast_v2';"));
+ assert.ok(readFileSync('lib/storefrontCardReadModelServer.ts','utf8').includes("= 'feya_storefront_product_cards_fast_v3';"));
 });
