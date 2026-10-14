@@ -1,0 +1,107 @@
+# TheFEYA — Phase 13 operating checkpoint, 2026-10-14
+
+**Status:** evidence-led operational checkpoint / DO NOT treat as permission to publish, index products, switch on tracking, or enable payment.  
+**Scope:** `THEFEYA/feya-commerce` at Production `main` `4b69d04f4f5a16baabb6f42c21c23e91b8d7804a`; project `ysnizcgzhdwdfdkjkhud`.  
+**Canonical order:** Current official provider/legal requirements > live production GitHub/Vercel/Supabase receipts > `THEFEYA_MASTER_STOREFRONT_SEARCH_PERFORMANCE_ARCHITECTURE_v1.0` and dated canonical amendments > research reports. Later owner decisions in issues supersede their earlier histories.
+
+## 0. Do not regress owner-approved truth
+
+**FROZEN until an explicitly governed change:** V13 typography, images, collection hierarchy, mobile/desktop compositions and product cards; Product Truth/DNA and prices; exact 207 human-approved four-block SEO drafts and independent left-side piece labels; right-side sellable configurations, galleries, options and money; Search Release v12's active 18 index-allowed URL corpus and its noindex PDPs.
+
+Do not regenerate SEO packs because demand snapshots have aged, combine independently approved pieces into one `What's included` line, index arbitrary facets, merge historical draft PRs, auto-enable checkout, or substitute the partner's contact address as the legally verified seller identity.
+
+## 1. Verified receipts (live observations, October 14)
+
+| Domain | Verified live receipt | Interpretation |
+|---|---|---|
+| GitHub | `main` at `4b69d04f4f5a16baabb6f42c21c23e91b8d7804a`; [PR #131](https://github.com/THEFEYA/feya-commerce/pull/131) MERGED. | Public Shop auxiliary-query repair is deployed, not a new content release. |
+| Vercel Production | `dpl_6jfwqxgrPoXFbR4z5k2wayNJ1fNM` READY, exact same SHA. Later Bonanza deployment with target=null is NOT Production. | READY is a build/deploy receipt, not itself a public HTML or CWV pass. |
+| Shop runtime | October 14 production `feya_shop_trace_v1` reaches `catalog_ready` with `items=207`, `hasError=false`, meaningful matched sets (7/13/20/30/48) in several regions. | Live catalog source works in those requests. Independent direct-origin HTML crawl was unavailable in this run. |
+| Shop remaining diagnostic | `feya_shop_not_found invalid_navigation` also occurred October 13–14 *after* the fix. Production parser intentionally still rejects **invalid known** filters, page, arrays and bounds while ignoring unknown auxiliary keys. | Do NOT declare a new general outage from a warning alone. Correlate valid-URL smoke tests and sampled request outcomes; preserve privacy, never log complete queries. Remove verbose temporary info telemetry separately only after proof. |
+| Supabase Content | Exactly **207** unique pinned products and 207 draft IDs, all with valid non-null 64-character stored content SHA, current `approved_draft/approved` status, matching draft update timestamp, four original `pdp_blocks` and matching canonical `/shop/[slug]` path; **207/207** on all six checks. | Approval source is intact, but this checks stored hashes' format and source bindings, NOT a fresh JavaScript payload SHA re-computation nor public rendering. Historical 210 approved draft rows / 209 products include suppressed/unpinned records; NEVER publish all 210. |
+| Public copy activation | [PR #127](https://github.com/THEFEYA/feya-commerce/pull/127) is still OPEN **Draft**, gated by exact production project, original source manifest, independent signoff and two Production environment flags. | Safe branch/owner Preview is not equivalent to public rollout; do not merge or enable flags without final signed proof + anonymous postflight + rollback route. |
+| Search v12 | One `ACTIVE` release, ID `2dc86d7c-6269-5327-9154-6b5178931254`: **228 items = 18 intended `index` + 210 intended `noindex`**, including 207 PDPs. | “Index-allowed” does NOT mean actually indexed by Google. Zero-day October 2 counts are historical. |
+| GSC status | GSC Wizard `list_sitemaps` and URL-inspection queries returned `payment_required` (trial expired). | Actual October 14 Search Console impressions, clicks, position and indexed count **unknown**. No optimization decisions from presumed zero activity. |
+| Demand | `feya_commerce_seo_keyword_metric_snapshots_v1`: 231 rows total. US: 150 `google_ads_keyword_planner` placeholder rows without `fetched_at` or numeric volume; 18 real July 8 CSV rows; 63 September 26 HYPD snapshots (49 with numeric volume). | These are historical Ads/research demand estimates, not organic positions, current-day trends or proof of conversion. Do not treat placeholders as zero demand or live measurements. |
+| Growth OS | 14 metric registry entries; `feya_growth_cases_v1=0`, `feya_growth_experiments_v1=0`, `feya_growth_workflow_runs_v1=0`, `feya_growth_learnings_v1=0`; six execution receipts, two owner attention rows, 291 generic decisions. Five DB operational metric readings available. | Durable infrastructure is present, but an autonomously executed Toyota/PDCA learning loop is **not** operational. |
+| Growth observations | Organic clicks/impressions/position/CTR, GA4 product-view events, completed orders and net item revenue are marked unavailable by the registry. Some capability register text still describes September 18 launch-off/Phase A status and is stale after Search v12. | Reconcile actual source health before rendering director-level performance; never call missing input `0` activity. |
+| Commercial | Delivery approvals=0, shipping rate heads=0, verified carrier method observations=0, checkout preflights v2=0, approved shipping quotes v2=0, durable payment-ready checkout snapshots=0. | **Paid guest checkout remains OFF**, even though Cart/Shipping UI exists. |
+| Seller Online | Owner's support ticket **#264386**: October 13 support asked to update the custom-site `Other` request at `my.seller-online.com/connect/other`; owner replied `Готово!` at 08:47 UTC. No later provider approval exists in this thread as checked October 14. | Application is UPDATED / AWAITING provider continuation. No API v2 production entitlement, merchant of record, KYC, invoices, provider callback or refund contract may be assumed. |
+| Security/performance review | Supabase advisory findings include 4 `auth_rls_initplan` warnings, 2 multiple-permissive-policy warnings (legacy leads), 5 duplicate indexes, 156 foreign-key-index informational hints across the shared DB. | Triage by actual exposure/query load in separate bounded migrations. RLS-enabled/no-policy tables are often intentionally service-only; never blanket-create policies/drop indexes without a query/security proof. |
+
+Sources: production Vercel runtime logs (October 12–14), Supabase **SELECT-only** checks October 14, GitHub `main`/PRs, Seller Online #264386 owned-mail thread; canonical [Phase13 baseline](./PHASE13_POST_LAUNCH_BASELINE_20261002.md), [Shop reader](../performance/PHASE13_P1_HOME_SHOP_FAST_READER_20261012.md), [approved copy candidate](./PHASE13_PUBLIC_207_PINNED_COPY_RELEASE_CANDIDATE_20261010.md), owner [Issue #108](https://github.com/THEFEYA/feya-commerce/issues/108), shipping [Issue #91](https://github.com/THEFEYA/feya-commerce/issues/91) and checkout [Issue #81](https://github.com/THEFEYA/feya-commerce/issues/81).
+
+## 2. Reconcile three different systems, do not merge them
+
+1. **Storefront/Product OS in `feya-commerce`:** English buyer website, Russian product/SEO owner workspaces, V13 visual truth and publishable approved copy.
+2. **Commerce Growth OS in `feya-commerce` database:** `feya_growth_*` registries, roles Human Owner / Growth Director / OSPM / CPIM / GMEL / SCO / CQA / TSEO / GDAE / Core, measured hypothesis, ownership epoch, locked measurement specs, action receipts and learning records. The DB exists; production signal-to-case runtime is not yet active.
+3. **`THEFEYA/feya-ops-console`:** a separate SERP/Reddit/Places prospect-lead / outreach console, with `/flow`, `/inbox`, `/analytics`, `/control`, its own `docs/feya/01_CANON.md`. It is **not** the storefront's autonomous SEO/performance director. Its latest inspected Vercel non-production deployment was ERROR; do not claim these dashboards are production-ready, and do not turn lead signals into GA4 organic revenue.
+
+Neither a second AI-agent system nor another general-purpose admin should be built. Evolve the existing registries and UIs only after inputs are real.
+
+## 3. Finite, dependency-ordered launch queue
+
+### P0A. Keep Shop healthy, preserve V13 and prepare an observable baseline
+
+**Owner: TSEO + GDAE; gate: bounded anonymous source verification.** Verify `/`, `/shop`, `/shop?page=2`, `/shop?color=Gold`, `/shop?piece=Skirt`, sample collection/product paths, `/sitemap.xml`, `/robots.txt`, canonical, robots, RSC HTML and 20 visible cards. Assert invalid known facet/page still fail closed. Specifically classify post-#131 `invalid_navigation` warnings against valid-URL smoke tests; no raw query capture. Once proven, remove temporary `feya_shop_trace_v1` per-request info logs in an independent performance-safe PR, retaining regression tests and actionable error-only telemetry.
+
+No promise of speed from a DB `EXPLAIN` value or a `READY` deployment. Introduce measured mobile/desktop p75 **LCP < 2.5s, INP < 200ms, CLS < 0.1**, segmented by home/shop/collection/PDP and device, plus server TTFB (warm vs cold) and rate of Shop hidden 404. Work on cache/image/suspense/query profile only when measurements identify the costly layer. Supabase is `eu-west-1`; Vercel logs from different regions are a clue to check compute placement, not evidence of a proved latency cause.
+
+### P0B. Exact 207 PDP copy, without Wave B indexing
+
+**Owner: SCO + CQA + TSEO; gate: PR #127 isolated.** Preserve source pins, SEO metadata versions, original 4 blocks, exact left included pieces, right options and ProductDetailClient frozen hash. Inspect 3–5 representative products in protected review and anonymous pre/postflight; measure sample PDP median/p95 TTFB and fallback state. Verify original exact payload SHA for all 207, independent Production project/env signoff flags, exact-head CI 19/19 and rollback. Publish the exact owner-approved text as a **separate** governed public-content release only after flags actually verified. Keep all 207 PDPs `noindex` and all 18 Wave A index states untouched. This release is NOT equivalent to Google indexing, Merchant Center, or checkout authority.
+
+### P0C. Actual search and behavior measurement, no synthetic learning
+
+**Owner: GDAE + GMEL + Human Owner.** Recover permissioned current Search Console property data by a working authorized method (GSC Wizard currently subscription-blocked), verify 18 URL-level indexing, sitemap and page/query daily data, capture date freshness and 2–3-day GSC lag. Identify the production FEYA GA4 `G-...` web stream independently of legacy Shopify, decide the real privacy controller and verify consent before client-side events. Implement consent-denied behavior, data minimization and deduplicated `view_item`, `select_item`, `add_to_cart`, `begin_checkout`; purchase events only from verified provider/order truth with replay protection. Never record email/address/phone or fabricated purchases as analytics.
+
+**Interim no-checkout denominator:** It is legitimate to observe indexed impressions/clicks, product views and contact/availability enquiries (with lawful collection), but **not** purchase conversion or attributable revenue. Clearly show 'payment unavailable' and 'order conversion unavailable' rather than dividing by zero. Do not mislead with active 'buy' claims.
+
+### P0D. Seller Online v2 + one **real** auditable guest purchase
+
+**Owner: Human Owner + CPIM + TSEO/legal reviewer.** Provider must approve actual #264386 onboarding and explain v2 credentials, payment parties/MoR, KYC, API contracts, webhook signatures, settlements, invoices, refunds, test/live mode. Bind a real legal/trader identity, privacy and EU/US disclosures to actual parties. Review EU withdrawal exclusions *per genuinely tailored/personalized vs standard item* and statutory defective-goods remedies; a blanket `no returns/cancellations` is not a compliance substitute.
+
+**Active issue supersession:** Standard **EUR 19**, Express **EUR 35** are whole-order **brand** services; Express prioritizes production/dispatch and does not require a *different* courier product. Both can use a verified Nova Post method; see latest owner supersession in #91/#81, NOT the older method-per-tier plan. EUR 5 for *each additional distinct canonical listing* above the first, not extra quantities/configurations. AU/MX/NZ remote EUR 20 is conditional per eligible real parcel. Eligibility for at least the first target actual origin→country lane is verified; do **not** block a first paid order on measuring every product/route/parcel or on building global ETA forecasting. Buyer never needs to supply carrier package dimensions.
+
+Before creating any payment session, complete server-authoritative money including discounts, handling, destination/shipping, tax/duties roles, final policies, expiration and idempotent checkout snapshot; provider callback+receipt, refund, replay-safe order lifecycle; one sandbox and one verified genuine guest-order end-to-end proof (no invented successful payment). Until then buttons/payment remain OFF.
+
+### P1. Shopping/Ads, then controlled PDP Search Wave B
+
+Google Merchant Center Shopping and free merchant listings need a **completable online checkout**, matching feed/PDP/cart price, correct `Product/Offer` and shipping/returns, and transparent mandatory service/handling costs. Merchant guidance treats non-government checkout surcharges as shipping-related rather than surprising product-price increases; review the EUR 5 multi-listing fee presentation and Merchant shipping data before submitting feeds. See [Merchant checkout rules](https://support.google.com/merchants/answer/9158778?hl=en), [checkout incomplete](https://support.google.com/merchants/answer/10249082?hl=en), and [merchant listing structured data](https://developers.google.com/search/docs/appearance/structured-data/merchant-listing).
+
+Keep **Google Ads API Basic/Branding verification** separate from approval to run manually configured Google Ads campaigns, and both separate from merchant feed policy approval; do not connect campaign spend to a non-purchasable checkout. After successful paid-order proof, do feed diagnostics, limited launch with budget guardrails, and separately staged 207 PDP Page Wave B CQA/owner intent release. The number of published PDPs is not the number Google actually indexed.
+
+### P1. Operational Toyota/PDCA learning, not uncontrolled AI rewrites
+
+**Owner: Growth Director**, with these accountable handoffs: GDAE = trustworthy source/health; OSPM = demand clusters/intent ownership and candidate diagnosis; GMEL = measurement design/results; TSEO = technical/facet/index release safeguards; SCO = bounded content proposal; CQA = factual/uniqueness/review gate; CPIM = buyer/paid conversion, margin and fulfillment truth; Human Owner = approval of external spend, payment, public content changes or risky experiments.
+
+Protocol: **signal + valid source + materiality → one deduplicated Growth Case → dated diagnosis → falsifiable hypothesis → locked pre-change Measurement Spec (primary metric, guardrails, date window, cohorts, sample/stopping rule, confounders, evidence ceiling) → owner/agent assignment with version epoch → dry-run + CI + protected QA → narrowly scoped release and reversible receipt → observation after data lag → learn/rollback/scale**.
+
+Do not auto-start content experiments while Search Console/GA4/order truth is absent. For keyword refresh, use *monthly* geo/language/source-versioned snapshots by default, extra checks on justified seasonality. Trend changes must be proven by relevant month-by-month observations + current page/query GSC, not guesses about Halloween/EDC/Burning Man. Never assume Google Ads bid competition equals organic difficulty. At low traffic, report observation and plausible association—not causal success.
+
+## 4. CEO / Owner dashboard acceptance contract
+
+The existing stores already contain objective/registry/attention/change/measurement concepts. Do **not** rebuild a second admin or claim the dashboards measure business outcomes today. Introduce read-only director and owner views in the existing Product/Growth OS once the underlying source is verified.
+
+One owner view should show, per domain/collection/PDP cohort:
+
+| KPI/signal | Source truth | Unavailable state / next valid action |
+|---|---|---|
+| Search indexed pages, impressions, clicks, CTR, avg position | Google Search Console domain property, query+page+day | GSC authorization pending: **UNAVAILABLE**, show source timestamp, never 0 |
+| Landing traffic, engaged product views, cart interactions | consented FEYA GA4 web stream, event schema version | Privacy/controller/consent/web stream missing: **UNAVAILABLE** |
+| Shop 404 rate + SSR latency; mobile CWV p75 | bounded Vercel/origin diagnostics + RUM/CrUX where eligible | Collect actual samples; **no fabricated site-speed score** |
+| Paid orders, net sales, checkout conversion, CAC/ROAS | provider-confirmed immutable order truth + spend | Until live paid proof: **UNAVAILABLE** |
+| Demand snapshots, proposed page-owner changes, cannibalization | provenance-checked Keyword Registry + GSC | Only proposals, age/market/source, human approvals |
+| Agent learning: open cases, implementation receipts, verified outcomes | Growth Case/Measurement/Change registries | Cases=0 is a system maturity signal, not a victory |
+
+Use one source-health indicator, named human/agent owner, actionable blocker and latest evidence link on every card. An agent run without source data/receipt is not a result. Add an explicit recurring review cadence only when there are verified data sources.
+
+## 5. Next checkpoints and go/no-go
+
+1. **Immediate:** classify any post-#131 Shop warnings and run actual public origin/sitemap checks; keep rollback and approved v12 unchanged.
+2. **Parallel:** ensure the existing **#127** 207-copy review has final 207 source SHA + protected visual + p95 TTFB + explicit owner env approval. A draft PR is **NO-GO** for direct Production merge.
+3. **Parallel:** reopen live GSC access (tool currently `payment_required`) and identify actual FEYA GA4/privacy controller; measured organic baseline can start **before** payment.
+4. **Commercial gate:** process pending Seller Online #264386 response; complete first eligible destination/policy/tax/provider checkout quote and signed webhook end-to-end. Never activate public payment speculatively.
+5. **After first real order:** honest Merchant/product feed and controlled paid marketing; **then** choose Search Wave B and test SEO changes in versioned cohorts with GMEL outcome receipts.
+
+**Not done by this checkpoint:** No source code, DB writes, environment values, Search Release records, policies, production URLs, frozen visuals, 207 draft texts or pricing were mutated. This record can be reviewed/merged as documentation independently; it **does not approve** PR #127 or payment activation. Link future execution PRs and production receipts here instead of rewriting canonical dated project history.
