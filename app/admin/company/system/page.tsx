@@ -61,7 +61,7 @@ async function getSystemData(): Promise<{
     aiUsageResult,
   ] = await Promise.all([
     supabase.from('feya_commerce_v_launch_readiness_summary_safe_v2').select('*').order('readiness_scope'),
-    supabase.from('feya_commerce_v_data_source_health_latest_safe_v1')
+    supabase.from('feya_commerce_v_data_source_health_effective_safe_v2')
       .select('source_code,health_state,freshness_state,last_success_at,checked_at,error_message')
       .order('source_code'),
     supabase.from('feya_commerce_v_growth_action_capability_safe_v1')

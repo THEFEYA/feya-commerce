@@ -11,7 +11,7 @@ async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string 
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
-    .from('feya_commerce_v_data_source_health_latest_safe_v1')
+    .from('feya_commerce_v_data_source_health_effective_safe_v2')
     .select('*')
     .order('source_code', { ascending: true });
 
@@ -67,7 +67,7 @@ export default async function AdminDataHealthPage() {
   const healthy = rows.filter((row) => row.health_state === 'HEALTHY').length;
   const degraded = rows.filter((row) => row.health_state === 'DEGRADED').length;
   const unavailable = rows.filter((row) => row.health_state === 'UNAVAILABLE').length;
-  const notObservable = rows.filter((row) => row.health_state === 'NOT_OBSERVABLE').length;
+  const notObservable = rows.filter((row) => row.health_state === 'NOT_OBSERVABLE' || row.health_state === 'STALE').length;
 
   const issueRows = [...rows]
     .filter((row) => row.health_state !== 'HEALTHY')
@@ -94,7 +94,7 @@ export default async function AdminDataHealthPage() {
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Недоступны</span></div>
           <div className="owner-summary-cell"><strong>{degraded}</strong><span>Работают с ограничениями</span></div>
-          <div className="owner-summary-cell"><strong>{notObservable}</strong><span>Недостаточно наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{notObservable}</strong><span>Нет свежей проверки</span></div>
           <div className="owner-summary-cell"><strong>{healthy}</strong><span>Работают нормально</span></div>
         </section>
 

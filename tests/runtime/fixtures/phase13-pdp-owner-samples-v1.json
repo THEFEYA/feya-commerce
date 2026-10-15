@@ -1,0 +1,44 @@
+{
+  "contract": "phase13_pdp_owner_samples_v1",
+  "samples": [
+    {
+      "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+      "slug": "apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005",
+      "h1": "Gold Shoulder Armor for Burning Man",
+      "included": []
+    },
+    {
+      "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+      "slug": "cosmic-festival-outfit-with-top-skirt-metallic-costume-set-party-rave-wear-unique-futuristic-outfit-cyber-punk-clothing-accessories-4367470907",
+      "h1": "Silver Metallic Top And Skirt Set for Festivals",
+      "included": [
+        "Top",
+        "Skirt",
+        "Panties",
+        "Garters"
+      ]
+    },
+    {
+      "canonical_product_id": "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
+      "slug": "gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118",
+      "h1": "Black and Red Futuristic Bodysuit",
+      "included": [
+        "Bodysuit",
+        "Leg Covers",
+        "Skirt"
+      ]
+    },
+    {
+      "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+      "slug": "rave-festival-outfit-with-mask-shoulder-top-skirt-bracelet-white-gold-leather-armor-wear-burning-man-costume-set-women-futuristic-suit-1842722795",
+      "h1": "Gold Festival Outfit",
+      "included": []
+    },
+    {
+      "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "slug": "gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+      "h1": "Gold Futuristic Armor Costume for Men",
+      "included": []
+    }
+  ]
+}
