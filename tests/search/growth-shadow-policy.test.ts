@@ -40,3 +40,13 @@ test('shadow TSEO uses canonical ACTIVE release evidence and never legacy portfo
   assert.match(newMigration,/VERIFY_ACTIVE_SEARCH_RELEASE/);
   assert.doesNotMatch(newMigration,/READ_PORTFOLIO_INDEXABILITY|feya_commerce_v_page_indexability_readiness_v1/);
 });
+
+test('TSEO snapshot completion remains in active work until independent review is finished',()=>{
+  const presenter = readFileSync(new URL('../../lib/owner-ui/presenters.ts',import.meta.url),'utf8');
+  const labels = readFileSync(new URL('../../lib/owner-ui/terminology.ts',import.meta.url),'utf8');
+  assert.match(presenter,/TSEO_INDEXABILITY_SHADOW/);
+  assert.match(presenter,/workflow_status\) === 'COMPLETED'/);
+  assert.match(presenter,/\['CLOSED', 'CANCELLED'\]/);
+  assert.match(presenter,/shadowAwaitingReview[\s\S]*WAITING_REVIEW/);
+  assert.match(labels,/WAITING_REVIEW: 'Ожидает независимой проверки'/);
+});
