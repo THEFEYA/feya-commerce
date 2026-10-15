@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { TSEO_SHADOW_RELEASE_QUESTION } from '@/lib/growthShadowTaskContract';
 
 type Receipt = {
   evidence_time: string;
@@ -33,17 +34,15 @@ type Props = {
   reason?: string | null;
 };
 
-const INITIAL = 'Проверь действующий Search Release и количество URL с index/noindex, ничего не меняя.';
 
 export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
   const router = useRouter();
   const requestId = useRef<string | null>(null);
-  const [question, setQuestion] = useState(INITIAL);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
 
   async function submit() {
-    if (!enabled || running || question.trim().length < 12 || question.trim().length > 500) return;
+    if (!enabled || running) return;
     if (!requestId.current) requestId.current = crypto.randomUUID();
     setRunning(true);
     setResult(null);
@@ -51,7 +50,7 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
       const response = await fetch('/api/admin/company/work/shadow-indexability', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim(), request_id: requestId.current }),
+        body: JSON.stringify({ question: TSEO_SHADOW_RELEASE_QUESTION, request_id: requestId.current }),
       });
       const data = (await response.json()) as Result;
       setResult(data);
@@ -79,22 +78,17 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
 
       {enabled ? (
         <div style={{ display: 'grid', gap: 8, maxWidth: 660, marginTop: 12 }}>
-          <label htmlFor="growth-shadow-question" className="owner-eyebrow">Вопрос для отчёта</label>
-          <textarea
-            id="growth-shadow-question"
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            maxLength={500}
-            rows={2}
-            disabled={running}
-            aria-label="Вопрос к проверке SEO-готовности"
-            style={{ width: '100%', borderRadius: 8, padding: 12, font: 'inherit' }}
-          />
+          <span className="owner-eyebrow">Первое стандартизированное задание</span>
+          <p className="owner-card-copy">{TSEO_SHADOW_RELEASE_QUESTION}</p>
+          <p className="owner-card-copy">
+            Свободные поручения нескольким AI-сотрудникам подключим отдельно, после проверки
+            передачи ответственности и сохранения результатов.
+          </p>
           <div className="owner-actions">
             <button
               type="button"
               className="owner-button primary"
-              disabled={running || question.trim().length < 12}
+              disabled={running}
               onClick={submit}
             >
               {running ? 'Проверяется…' : 'Запустить проверку'}
