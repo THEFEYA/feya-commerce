@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
   const caseId = task.case_id as string;
   const workflowRunId = task.workflow_run_id as string;
   const ownershipEpoch = Number(task.ownership_epoch);
-  const workerId = 'tseo-shadow:' + requestId;
+  // Unique per execution attempt: a late HTTP worker must never complete a newer lease.
+  const workerId = 'tseo-shadow:' + crypto.randomUUID();
 
   const { data: claimed, error: claimError } = await actor.service.rpc('feya_fn_claim_bound_workflow_v1', {
     p_workflow_run_id: workflowRunId,
