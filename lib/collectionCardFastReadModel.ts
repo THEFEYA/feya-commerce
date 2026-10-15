@@ -4,7 +4,7 @@ import 'server-only';
  * exact 207 owner-approved source checks. Does not replace the Home/Shop
  * pinned Product Truth read model, public PDP or checkout price authority.
  */
-export const COLLECTION_FAST_VIEW='feya_storefront_collection_cards_fast_v1';
+export const COLLECTION_FAST_VIEW='feya_storefront_collection_cards_fast_v2';
 export const COLLECTION_FAST_SELECT=[
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url',
   'card_title','h1','seo_title','meta_description','product_type','material','color',

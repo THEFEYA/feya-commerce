@@ -27,9 +27,9 @@ test('only the collection product-card read switches; SEO ownership and release 
 
 test('fast collection select carries exactly the original rendered card data',()=>{
  const module=read('lib/collectionCardFastReadModel.ts');
- const migration=read('supabase/migrations/20261012180500_phase13_collection_card_fast_read_v1.sql');
+ const migration=read('supabase/migrations/20261015120500_phase13_collection_exact_fast_v2.sql');
  assert.ok(module.includes("import 'server-only'"));
- assert.ok(module.includes("feya_storefront_collection_cards_fast_v1"));
+ assert.ok(module.includes("feya_storefront_collection_cards_fast_v2"));
  const required=[
  'canonical_product_id','product_slug','card_title','h1','seo_title','meta_description',
  'primary_image_url','primary_image_alt','secondary_image_url','hover_image_url',

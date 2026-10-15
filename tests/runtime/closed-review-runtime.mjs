@@ -284,6 +284,15 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         from public,anon,authenticated,service_role;
       grant select on public.feya_storefront_collection_cards_fast_v1
         to service_role;
+      -- Synthetic test runtime has approved 207 pinned snapshots, but lacks the
+      -- raw Product Draft + configuration-price tables needed by real V2 SQL.
+      -- The real V2 migration is independently installed and full-31-field
+      -- parity-checked against live Production. This local alias tests only
+      -- service-role PostgREST, cache and route transport of that exact schema.
+      create view public.feya_storefront_collection_cards_fast_v2 with (security_invoker=true) as
+        select * from public.feya_storefront_collection_cards_fast_v1;
+      revoke all on public.feya_storefront_collection_cards_fast_v2 from public,anon,authenticated,service_role;
+      grant select on public.feya_storefront_collection_cards_fast_v2 to service_role;
     `);
     const fastFixture=await db.query(`
       select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
@@ -368,7 +377,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     let fastReady=false,fastStatus=0,fastBody='';
     for(let i=0;i<40;i++){
       const response=await fetch(
-        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v1?select=canonical_product_id,product_slug,card_title,full_set_display_price_amount,primary_image_url&limit=1',
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_collection_cards_fast_v2?select=canonical_product_id,product_slug,card_title,full_set_display_price_amount,primary_image_url&limit=1',
         {headers:{
           apikey:env.SUPABASE_SERVICE_ROLE_KEY,
           authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
