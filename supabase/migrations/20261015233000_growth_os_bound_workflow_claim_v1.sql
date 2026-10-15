@@ -200,6 +200,15 @@ BEGIN
     RAISE EXCEPTION 'growth_bound_finish_owner_changed';
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM public.feya_growth_role_activation_v1 r
+    WHERE r.role_code=p_expected_accountable_domain
+      AND r.runtime_status IN ('SHADOW','ACTIVE')
+      AND (coalesce(r.allowed_action_codes_json,'[]'::jsonb) ? p_expected_workflow_type)
+  ) THEN
+    RAISE EXCEPTION 'growth_bound_finish_role_not_enabled';
+  END IF;
+
   SELECT * INTO v_run FROM public.feya_growth_workflow_runs_v1 w
   WHERE w.workflow_run_id=p_workflow_run_id FOR UPDATE;
   IF NOT FOUND OR v_run.case_id IS DISTINCT FROM p_expected_case_id
