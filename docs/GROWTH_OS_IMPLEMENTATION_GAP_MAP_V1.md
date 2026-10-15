@@ -1,5 +1,8 @@
 # FEYA Growth OS — Implementation Gap Map v1
 
+> **2026-10-15 live status override:** This file contains historical implementation planning. Recheck any "NEW/NOT IMPLEMENTED" status against [the current Runtime Activation Checkpoint](./owner/THEFEYA_GROWTH_OS_RUNTIME_ACTIVATION_20261015.md), live Supabase capabilities and current main before new work. The existing database already has canonical workflow/handoff/case/role/scenario tables; automatic multi-agent operation is **not** activated. This note does not override the Growth OS passports or approved storefront MASTER.
+
+
 Status: implementation planning baseline
 Repository: THEFEYA/feya-commerce
 Architecture baseline: FEYA Growth OS v1.0 CANONICAL
