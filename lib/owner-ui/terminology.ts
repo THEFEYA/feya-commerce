@@ -37,6 +37,7 @@ const STATUS_LABELS: Record<string, string> = {
   WAITING_FOR_DATA: 'Ждёт данных',
   WAITING_FOR_CONDITION: 'Ждёт условия',
   WAITING_FOR_OWNER: 'Ждёт вашего решения',
+  WAITING_REVIEW: 'Ожидает независимой проверки',
   BLOCKED: 'Заблокировано',
   COMPLETED: 'Работа завершена',
   MEASURING: 'Измеряем результат',
