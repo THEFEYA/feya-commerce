@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { isOwnerActionStepUpPath,ownerPreviewMutationAllowed } from '../../lib/ownerActionStepUpPolicy.ts';
 
 const route='/api/admin/company/work/shadow-indexability';
@@ -23,4 +24,19 @@ test('feature flag without mandatory owner step-up does not allow public POST',(
   assert.equal(ownerPreviewMutationAllowed(route,'POST',{
     FEYA_OWNER_ACTION_AUTH_REQUIRED:'false',FEYA_GROWTH_SHADOW_WORK_ENABLED:'true'
   }),false);
+});
+
+test('shadow TSEO uses canonical ACTIVE release evidence and never legacy portfolio readiness',()=>{
+  const routeSource=readFileSync(new URL('../../app/api/admin/company/work/shadow-indexability/route.ts',import.meta.url),'utf8');
+  const readerSource=readFileSync(new URL('../../lib/owner-ui/activeSearchReleaseEvidenceServer.ts',import.meta.url),'utf8');
+  const newMigration=readFileSync(new URL('../../supabase/migrations/20261016003000_growth_os_active_search_authority_v1.sql',import.meta.url),'utf8');
+  assert.match(routeSource,/getActiveSearchEvidence/);
+  assert.match(routeSource,/TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1/);
+  assert.match(routeSource,/canonical_release_intent_not_google_actual_indexing/);
+  assert.doesNotMatch(routeSource,/feya_commerce_v_page_indexability_readiness_v1|countReadiness\(/);
+  assert.match(readerSource,/\.eq\('release_status', 'ACTIVE'\)/);
+  assert.match(readerSource,/feya_search_release_items_v1/);
+  assert.match(readerSource,/feya_storefront_approved_product_bindings_v1/);
+  assert.match(newMigration,/VERIFY_ACTIVE_SEARCH_RELEASE/);
+  assert.doesNotMatch(newMigration,/READ_PORTFOLIO_INDEXABILITY|feya_commerce_v_page_indexability_readiness_v1/);
 });
