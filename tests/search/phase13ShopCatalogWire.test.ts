@@ -39,6 +39,8 @@ function example(index: number): StorefrontProduct {
       events: ['Festival'], performance: ['Stage & Fashion'],
       dance: [], styles: ['Futuristic'], personas: [],
       materials: ['Vegan Leather'], effects: ['Metallic'],
+      colors: [index % 2 ? 'Silver' : 'Gold'],
+      mappingVersion: 'feya-storefront-facets-v4',
     },
   } as StorefrontProduct;
 }
