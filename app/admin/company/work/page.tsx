@@ -8,7 +8,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
 import { OwnerShadowReadinessClient } from '@/components/admin/OwnerShadowReadinessClient';
-import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
+import { getOwnerActionConfigStatus, requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
@@ -206,6 +206,9 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   const roleVM = roles.map(presentRole);
   const shadowConfig = getOwnerActionConfigStatus('growth_shadow_work');
   const shadowRoleReady = roles.some((item) => item.role_code === 'TSEO' && item.runtime_status === 'SHADOW');
+  const shadowOwner = !error && shadowConfig.ready && shadowRoleReady
+    ? await requireOwnerActionActor('growth_shadow_work')
+    : null;
   const roleRows = new Map(roles.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
   const handoffsByCase = new Map<string, GrowthHandoffRow[]>();
   handoffs.forEach((handoff) => handoffsByCase.set(handoff.case_id, [...(handoffsByCase.get(handoff.case_id) || []), handoff]));
@@ -289,8 +292,8 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
         </header>
 
         <OwnerShadowReadinessClient
-          enabled={!error && shadowConfig.ready && shadowRoleReady}
-          reason={error ? 'состояние источников не загружено' : shadowConfig.blockers[0] || (!shadowRoleReady ? 'роль TSEO ещё не доступна в режиме SHADOW' : null)}
+          enabled={!error && shadowConfig.ready && shadowRoleReady && shadowOwner?.ok === true}
+          reason={error ? 'состояние источников не загружено' : shadowConfig.blockers[0] || (!shadowRoleReady ? 'роль TSEO ещё не доступна в режиме SHADOW' : shadowOwner && !shadowOwner.ok ? 'нужно войти как подтверждённый владелец' : null)}
         />
 
         {!error ? (
