@@ -77,6 +77,7 @@ before(async () => {
       lease_owner text,
       lease_expires_at timestamptz,
       started_at timestamptz,
+      completed_at timestamptz,
       wake_at timestamptz,
       wait_reason text,
       last_error text,
@@ -96,6 +97,39 @@ before(async () => {
       created_at timestamptz not null default now()
     );
     grant select,insert,update on all tables in schema public to service_role;
+  `);
+  // The pre-existing canonical completion RPC is represented by an isolated fixture.
+  // Bound completion must call it, not replace its production contract.
+  await db.exec(`
+    create or replace function public.feya_fn_complete_workflow_v1(
+      p_workflow_run_id uuid,p_worker_id text,p_result_state_patch jsonb default '{}'::jsonb
+    )
+    returns table(workflow_run_id uuid,workflow_status text,completed_at timestamptz)
+    language plpgsql security definer set search_path='' as $canonical$
+    declare v_run public.feya_growth_workflow_runs_v1%rowtype;
+    begin
+      select * into v_run from public.feya_growth_workflow_runs_v1 w
+       where w.workflow_run_id=p_workflow_run_id for update;
+      if not found or v_run.workflow_status<>'RUNNING' or
+        v_run.lease_owner is distinct from p_worker_id then
+        raise exception 'canonical_complete_bad_lease';
+      end if;
+      update public.feya_growth_workflow_runs_v1 w
+         set workflow_status='COMPLETED',
+             completed_at=clock_timestamp(),updated_at=clock_timestamp(),
+             lease_owner=null,lease_expires_at=null,
+             state_json=w.state_json||coalesce(p_result_state_patch,'{}'::jsonb)
+       where w.workflow_run_id=p_workflow_run_id returning * into v_run;
+      insert into public.feya_growth_workflow_events_v1(
+        workflow_run_id,case_id,event_type,from_status,to_status,step_code,worker_id,reason,payload_json
+      ) values (
+        v_run.workflow_run_id,v_run.case_id,'WORKFLOW_COMPLETED',
+        'RUNNING','COMPLETED',v_run.current_step_code,p_worker_id,'canonical completion fixture',
+        coalesce(p_result_state_patch,'{}'::jsonb)
+      );
+      return query select v_run.workflow_run_id,v_run.workflow_status,v_run.completed_at;
+    end;
+    $canonical$;
   `);
   await db.exec(await migration());
 });
@@ -198,4 +232,61 @@ test('invalid lease and missing identity never create events',async () => {
   await assert.rejects(claim({lease:10}),/invalid_lease/);
   await assert.rejects(claim({worker:'   '}),/invalid_scope/);
   assert.equal(await count('feya_growth_workflow_events_v1'),0);
+});
+
+async function finish({
+  run=ids.osRun,caseId=ids.osCase,epoch=1,role='OSPM',
+  action='RUN_QUERY_CLUSTER_PROPOSALS',step='STEP_ONE',
+  worker='unit-shadow',patch={reviewed:true},
+}={}) {
+  return (await db.query(
+    `select * from public.feya_fn_complete_bound_workflow_v1(
+       $1::uuid,$2::uuid,$3::integer,$4::text,$5::text,$6::text,$7::text,$8::jsonb)`,
+    [run,caseId,epoch,role,action,step,worker,JSON.stringify(patch)]
+  )).rows;
+}
+
+test('bound completion reuses canonical completion and persists one checked result',async () => {
+  await claim();
+  const done=await finish();
+  assert.equal(done.length,1);
+  assert.equal(done[0].workflow_status,'COMPLETED');
+  const workflow=(await db.query('select state_json,lease_owner from public.feya_growth_workflow_runs_v1 where workflow_run_id=$1',[ids.osRun])).rows[0];
+  assert.equal(workflow.state_json.reviewed,true);
+  assert.equal(workflow.lease_owner,null);
+  assert.equal(await count('feya_growth_workflow_events_v1'),2);
+  await assert.rejects(finish(),/lease_expired_or_not_owned/);
+});
+
+test('stale owner epoch cannot finish an otherwise matching active lease',async () => {
+  await claim();
+  await db.query('update public.feya_growth_cases_v1 set ownership_epoch=2 where case_id=$1',[ids.osCase]);
+  await assert.rejects(finish(),/owner_changed/);
+  assert.equal((await db.query('select workflow_status from public.feya_growth_workflow_runs_v1 where workflow_run_id=$1',[ids.osRun])).rows[0].workflow_status,'RUNNING');
+  assert.equal(await count('feya_growth_workflow_events_v1'),1);
+});
+
+test('expired lease and another worker ID cannot report success',async () => {
+  await claim();
+  await assert.rejects(finish({worker:'imposter'}),/lease_expired_or_not_owned/);
+  await db.query("update public.feya_growth_workflow_runs_v1 set lease_expires_at=now()-interval '10 seconds' where workflow_run_id=$1",[ids.osRun]);
+  await assert.rejects(finish(),/lease_expired_or_not_owned/);
+  assert.equal(await count('feya_growth_workflow_events_v1'),1);
+});
+
+test('wrong step or revoked role blocks late completion and preserves original state',async () => {
+  await claim();
+  await assert.rejects(finish({step:'OTHER_STEP'}),/scope_changed/);
+  await db.query("update public.feya_growth_role_activation_v1 set runtime_status='INACTIVE' where role_code='OSPM'");
+  await assert.rejects(finish(),/role_not_enabled/);
+  assert.equal((await db.query('select workflow_status from public.feya_growth_workflow_runs_v1 where workflow_run_id=$1',[ids.osRun])).rows[0].workflow_status,'RUNNING');
+});
+
+test('bound completion is service-role-only like bound claim', async () => {
+  const acl=(await db.query(`
+    select has_function_privilege('anon',oid,'execute') anon,
+      has_function_privilege('authenticated',oid,'execute') auth,
+      has_function_privilege('service_role',oid,'execute') svc
+    from pg_proc where proname='feya_fn_complete_bound_workflow_v1'`)).rows[0];
+  assert.deepEqual(acl,{anon:false,auth:false,svc:true});
 });
