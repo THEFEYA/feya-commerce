@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Database, LockKeyhole, PlayCircle, ShieldCheck, Siren, UserCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getActiveSearchEvidence } from '@/lib/owner-ui/activeSearchReleaseEvidenceServer';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
@@ -188,7 +189,8 @@ function sourceTimestamp(value: unknown) {
 
 export default async function AdminSystemPage() {
   await connection();
-  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, ownerActionAudit, adminBoundary, aiUsage, error } = await getSystemData();
+  const [systemData, activeSearch] = await Promise.all([getSystemData(), getActiveSearchEvidence()]);
+  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, ownerActionAudit, adminBoundary, aiUsage, error } = systemData;
   const ownerAuth = getAdminAuthConfigStatus();
   const ownerActions = getOwnerActionConfigStatus();
   const blockedReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() !== 'PASS');
@@ -227,10 +229,30 @@ export default async function AdminSystemPage() {
           <div className="owner-section-head">
             <div className="owner-section-heading">
               <span className="owner-section-icon is-attention" aria-hidden="true"><LockKeyhole size={17} strokeWidth={1.7} /></span>
-              <div><h2>Что мешает запуску</h2><div className="owner-section-kicker">Нормальные зоны не занимают главный экран</div></div>
+              <div><h2>Search Release и источники готовности</h2><div className="owner-section-kicker">Текущий SEO-релиз выше исторических launch-readiness v2. Отдельно проверяются оплата, GSC и GA4.</div></div>
             </div>
           </div>
 
+          {activeSearch.value ? (
+            <div className="owner-card is-success" aria-label="Актуальный поисковый релиз">
+              <div className="owner-status is-success">ACTIVE Search Release v{activeSearch.value.releaseVersion}</div>
+              <h3 className="owner-card-title">{activeSearch.value.releaseCode}</h3>
+              <p className="owner-card-copy">
+                {activeSearch.value.intendedIndex} URL разрешены к индексации · {activeSearch.value.intendedNoindex} имеют noindex · {activeSearch.value.approvedProducts} утверждённых товарных привязок.
+                Это не число проиндексированных Google страниц и не признак готовности checkout.
+              </p>
+              <Link href="/admin/launch-readiness" className="owner-button">Подробная готовность</Link>
+            </div>
+          ) : (
+            <div className="notice">Не удалось подтвердить ACTIVE Search Release: {activeSearch.error || 'источник недоступен'}. Исторические значения не заменяют действующие данные.</div>
+          )}
+
+          <details className="owner-disclosure owner-disclosure-section" style={{marginTop:'12px'}}>
+            <summary>
+              <span><strong>Историческая диагностика readiness v2</strong><small>Отражает прежние проверки; может содержать 243 кандидата и 0 indexable при ACTIVE v12</small></span>
+              <span className="owner-section-kicker">{readiness.length} архивных зон</span>
+            </summary>
+            <div className="owner-disclosure-body">
           {blockedReadiness.length ? (
             <div className="owner-grid two">
               {blockedReadiness.map((row) => {
@@ -268,6 +290,8 @@ export default async function AdminSystemPage() {
               </div>
             </details>
           ) : null}
+            </div>
+          </details>
         </section>
 
         <section className="owner-section" id="sources">
