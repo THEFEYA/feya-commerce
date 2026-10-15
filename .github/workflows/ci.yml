@@ -159,6 +159,11 @@ jobs:
           PHASE12_ALLOW_BLOCKED: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
         run: node tests/runtime/phase13-shop-origin-smoke.mjs
 
+      - name: Phase 13 approved PDP exact-copy postflight
+        env:
+          PHASE13_REQUIRE_PUBLISHED_COPY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
+        run: node tests/runtime/phase13-public-pdp-copy-smoke.mjs
+
       - name: Production crawl evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -168,4 +173,5 @@ jobs:
             runtime-results/phase12-production-origin-crawl.json
             runtime-results/phase13-shop-origin-smoke.json
             runtime-results/phase13-production-revision-gate.json
+            runtime-results/phase13-public-pdp-copy-postflight.json
           retention-days: 30
