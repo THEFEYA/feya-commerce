@@ -16,7 +16,7 @@ function parseCsv(value: string | undefined) {
 }
 
 export type OwnerActionConfigStatus = ReturnType<typeof getOwnerActionConfigStatus>;
-export type OwnerActionScope = 'owner_actions' | 'delivery_workspace_draft';
+export type OwnerActionScope = 'owner_actions' | 'delivery_workspace_draft' | 'growth_shadow_work';
 
 export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_actions') {
   const auth = getAdminAuthConfigStatus();
@@ -25,7 +25,9 @@ export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_acti
   );
   const actionSwitchEnabled = scope === 'delivery_workspace_draft'
     ? process.env.FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED === 'true'
-    : process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
+    : scope === 'growth_shadow_work'
+      ? process.env.FEYA_GROWTH_SHADOW_WORK_ENABLED === 'true'
+      : process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
   const actionAuthRequired = isOwnerActionAuthRequired(process.env);
 
   const blockers: string[] = [];
@@ -35,7 +37,9 @@ export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_acti
   if (!serviceRoleConfigured) blockers.push('серверный защищённый исполнитель не настроен');
   if (!actionSwitchEnabled) blockers.push(scope === 'delivery_workspace_draft'
     ? 'переключатель черновиков доставки остаётся выключенным'
-    : 'переключатель owner actions остаётся выключенным');
+    : scope === 'growth_shadow_work'
+      ? 'ручная проверка Growth OS пока выключена'
+      : 'переключатель owner actions остаётся выключенным');
 
   return {
     ...auth,
@@ -59,6 +63,9 @@ export async function requireOwnerActionActor(scope: OwnerActionScope = 'owner_a
   if (!config.actionSwitchEnabled) {
     if (scope === 'delivery_workspace_draft') {
       return { ok: false as const, status: 423, code: 'delivery_workspace_draft_disabled', error: 'Delivery workspace drafts are intentionally disabled.' };
+    }
+    if (scope === 'growth_shadow_work') {
+      return { ok: false as const, status: 423, code: 'growth_shadow_work_disabled', error: 'Growth OS manual shadow work is intentionally disabled.' };
     }
     return { ok: false as const, status: 423, code: 'owner_actions_disabled', error: 'Owner actions are intentionally disabled.' };
   }

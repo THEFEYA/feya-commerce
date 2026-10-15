@@ -12,6 +12,13 @@ async function getWorkItem(id: string): Promise<{
   row?: Row;
   handoffs: GrowthHandoffRow[];
   workflowEvents: GrowthWorkflowEventRow[];
+  readinessReceipt?: {
+    scanned: number;
+    coverage: string;
+    observedAt: string;
+    counts: Array<[string, number]>;
+    note: string;
+  };
   error?: string;
 }> {
   const supabase = getAdminReadClient();
@@ -38,8 +45,43 @@ async function getWorkItem(id: string): Promise<{
   const firstError = workResult.error || handoffResult.error || workflowEventResult.error;
   if (firstError) return { handoffs: [], workflowEvents: [], error: firstError.message };
   if (!workResult.data) return { handoffs: [], workflowEvents: [] };
+
+  // The owner sees a persisted, bounded evidence summary after leaving the original chat.
+  // No raw drafts or private workflow state are sent to the browser.
+  let readinessReceipt;
+  if (workResult.data.case_type === 'TSEO_INDEXABILITY_SHADOW') {
+    const { data: workflow } = await supabase
+      .from('feya_growth_workflow_runs_v1')
+      .select('state_json,workflow_status')
+      .eq('case_id', id)
+      .eq('workflow_type', 'RECORD_INDEXABILITY_PROPOSAL')
+      .order('created_at', { ascending: false })
+      .limit(1).maybeSingle();
+    const receiptValue = workflow?.state_json &&
+      typeof workflow.state_json === 'object' && !Array.isArray(workflow.state_json)
+      ? (workflow.state_json as Record<string, unknown>).indexability_receipt
+      : null;
+    if (workflow?.workflow_status === 'COMPLETED' &&
+        receiptValue && typeof receiptValue === 'object' && !Array.isArray(receiptValue)) {
+      const receipt = receiptValue as Record<string, unknown>;
+      const raw = receipt.counts_by_status;
+      const counts = raw && typeof raw === 'object' && !Array.isArray(raw)
+        ? Object.entries(raw as Record<string, unknown>)
+            .filter(([key, n]) => key.length < 80 && typeof n === 'number' && Number.isFinite(n) && n >= 0)
+            .slice(0, 20) as Array<[string, number]>
+        : [];
+      readinessReceipt = {
+        scanned: typeof receipt.rows_scanned === 'number' ? receipt.rows_scanned : 0,
+        coverage: typeof receipt.coverage === 'string' ? receipt.coverage : 'UNKNOWN',
+        observedAt: typeof receipt.evidence_time === 'string' ? receipt.evidence_time : '',
+        counts,
+        note: typeof receipt.conclusion === 'string' ? receipt.conclusion.slice(0, 350) : '',
+      };
+    }
+  }
   return {
     row: workResult.data as Row,
+    readinessReceipt,
     handoffs: (handoffResult.data || []) as GrowthHandoffRow[],
     workflowEvents: (workflowEventResult.data || []) as GrowthWorkflowEventRow[],
   };
@@ -47,7 +89,7 @@ async function getWorkItem(id: string): Promise<{
 
 export default async function OwnerWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, handoffs, workflowEvents, error } = await getWorkItem(id);
+  const { row, handoffs, workflowEvents, readinessReceipt, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
   const item = row ? presentWorkItem(row) : null;
@@ -66,6 +108,25 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
+        {readinessReceipt ? (
+          <section className="owner-card" aria-label="Фактический отчёт TSEO">
+            <div className="owner-status is-success">Снимок TSEO сохранён</div>
+            <h2 className="owner-card-title">Готовность SEO-страниц · наблюдение</h2>
+            <p className="owner-card-copy">
+              Проверено: {readinessReceipt.scanned} страниц.
+              Полнота данных: {readinessReceipt.coverage === 'COMPLETE' ? 'полная выборка' : 'ограниченная или отсутствует'}.
+            </p>
+            <div className="owner-actions">
+              {readinessReceipt.counts.map(([status, count]) => (
+                <span key={status} className="owner-status">{status}: {count}</span>
+              ))}
+            </div>
+            <p className="owner-card-copy">{readinessReceipt.note}</p>
+            <p className="owner-card-copy">
+              Это не подтверждение индексации Google. Независимый AI-аудит не выполнялся, товары не изменялись.
+            </p>
+          </section>
+        ) : null}
       </div>
     </main>
   );

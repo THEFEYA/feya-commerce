@@ -72,7 +72,7 @@ export async function verifyOwnerActionStepUpRuntime({
     });
 
     await check('Authenticated owner still cannot use unrelated preview mutation endpoints',async()=>{
-      for(const path of ['/api/admin/review-events','/api/admin/company/execution-approval']){
+      for(const path of ['/api/admin/review-events','/api/admin/company/execution-approval','/api/admin/company/work/shadow-indexability']){
         const unrelated=await page.request.post(base+path,{data:{}});
         assert.equal(unrelated.status(),423);
         assert.equal((await unrelated.json()).code,'owner_preview_read_only');
