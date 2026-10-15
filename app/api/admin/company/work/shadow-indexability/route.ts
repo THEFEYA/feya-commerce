@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
+import { getActiveSearchEvidence } from '@/lib/owner-ui/activeSearchReleaseEvidenceServer';
 
-type WorkRow = {
-  seo_page_id?: unknown;
-  page_type?: unknown;
-  indexability_readiness_status?: unknown;
-  indexation_intent?: unknown;
-  portfolio_status?: unknown;
-  primary_ownership_count?: unknown;
-};
-
-const SOURCE_VIEW = 'feya_commerce_v_page_indexability_readiness_v1';
-const MAX_ROWS = 300;
-const STEP = 'READ_PORTFOLIO_INDEXABILITY';
+// Use exactly the same ACTIVE release reader as the CEO and System admin pages.
+// The old portfolio readiness view precedes Search Release v12 and cannot be used as active truth.
+const STEP = 'VERIFY_ACTIVE_SEARCH_RELEASE';
 const ACTION = 'RECORD_INDEXABILITY_PROPOSAL';
 const ROLE = 'TSEO';
-const QUESTION_DEFAULT = 'Какие SEO-страницы сейчас требуют дополнительной проверки готовности к индексации?';
+const QUESTION_DEFAULT = 'Проверь действующий поисковый релиз и количество URL с index/noindex, ничего не изменяя.';
 
 const headers = { 'Cache-Control': 'private, no-store' };
 
@@ -29,30 +21,6 @@ function cleanText(value: unknown) {
 
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
-function countReadiness(rows: WorkRow[]) {
-  const countsByStatus: Record<string, number> = {};
-  const countsByType: Record<string, number> = {};
-  const ids = new Set<string>();
-  for (const row of rows) {
-    if (typeof row.seo_page_id !== 'string' || !isUuid(row.seo_page_id) ||
-        typeof row.indexability_readiness_status !== 'string' ||
-        !row.indexability_readiness_status.trim() ||
-        typeof row.page_type !== 'string' || !row.page_type.trim()) {
-      throw new Error('indexability_source_schema_invalid');
-    }
-    if (ids.has(row.seo_page_id)) throw new Error('indexability_duplicate_page_id');
-    ids.add(row.seo_page_id);
-    const status = row.indexability_readiness_status.trim().slice(0, 80);
-    const type = row.page_type.trim().slice(0, 60);
-    countsByStatus[status] = (countsByStatus[status] ?? 0) + 1;
-    countsByType[type] = (countsByType[type] ?? 0) + 1;
-  }
-  if (Object.values(countsByStatus).reduce((n, x) => n + x, 0) !== rows.length) {
-    throw new Error('indexability_count_reconciliation_failed');
-  }
-  return { countsByStatus, countsByType };
 }
 
 export async function POST(request: NextRequest) {
@@ -134,32 +102,35 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { data, error } = await actor.service.from(SOURCE_VIEW)
-      .select('seo_page_id,page_type,indexability_readiness_status,indexation_intent,portfolio_status,primary_ownership_count')
-      .order('seo_page_id', { ascending: true }).limit(MAX_ROWS + 1);
-    if (error) throw new Error('indexability_source_unavailable');
+    const active = await getActiveSearchEvidence();
+    if (!active.value) throw new Error('active_search_release_unverified');
 
-    const all = (data || []) as WorkRow[];
-    const incomplete = all.length > MAX_ROWS;
-    const rows = incomplete ? all.slice(0, MAX_ROWS) : all;
-    const summary = countReadiness(rows);
+    const verified = active.value;
+    if (!verified.releaseCode ||
+        !Number.isInteger(verified.releaseVersion) || verified.releaseVersion < 1 ||
+        !Number.isInteger(verified.intendedIndex) || verified.intendedIndex < 0 ||
+        !Number.isInteger(verified.intendedNoindex) || verified.intendedNoindex < 0 ||
+        !Number.isInteger(verified.approvedProducts) || verified.approvedProducts < 0 ||
+        verified.intendedIndex + verified.intendedNoindex < 1) {
+      throw new Error('active_search_release_evidence_incomplete');
+    }
     const receipt = {
-      template: 'TSEO_INDEXABILITY_READINESS_V1',
-      source: SOURCE_VIEW,
-      source_kind: 'internal_portfolio_not_google_index_status',
+      template: 'TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1',
+      source: 'feya_search_releases_v1:ACTIVE',
+      source_kind: 'canonical_release_intent_not_google_actual_indexing',
       evidence_time: new Date().toISOString(),
-      rows_scanned: rows.length,
-      coverage: incomplete ? 'PARTIAL' : rows.length ? 'COMPLETE' : 'NOT_OBSERVABLE',
-      counts_by_status: summary.countsByStatus,
-      counts_by_type: summary.countsByType,
+      release_code: verified.releaseCode,
+      release_version: verified.releaseVersion,
+      target_origin: verified.targetOrigin,
+      intended_urls_counted: verified.intendedIndex + verified.intendedNoindex,
+      intended_index: verified.intendedIndex,
+      intended_noindex: verified.intendedNoindex,
+      approved_product_bindings: verified.approvedProducts,
+      coverage: 'COMPLETE',
       independent_agent_qa: 'NOT_RUN',
       changes_applied: 0,
       model_calls: 0,
-      conclusion: incomplete
-        ? 'В выборке больше 300 страниц: полноценное заключение заблокировано.'
-        : rows.length === 0
-          ? 'Нет наблюдаемых страниц для заключения.'
-          : 'Снимок готовности портфеля получен. Это не подтверждение индексации Google и не разрешение публикации.',
+      conclusion: 'Проверен действующий Search Release и его разрешённые состояния URL. Это не число страниц в индексе Google и не согласование новой индексации.',
     };
 
     const { data: finished, error: completeError } = await actor.service.rpc('feya_fn_complete_bound_workflow_v1', {
@@ -187,7 +158,7 @@ export async function POST(request: NextRequest) {
     await actor.service.rpc('feya_fn_fail_workflow_v1', {
       p_workflow_run_id: workflowRunId,
       p_worker_id: workerId,
-      p_error: 'Shadow readiness source or completion failed; investigate before retry.',
+      p_error: 'ACTIVE Search Release could not be independently verified by the canonical server reader.',
       p_retry_after_seconds: 300,
     });
     return respond({ ok: false, code: 'growth_shadow_execution_failed',
