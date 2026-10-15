@@ -163,5 +163,74 @@ GRANT EXECUTE ON FUNCTION public.feya_fn_claim_bound_workflow_v1(
   uuid,uuid,integer,text,text,text,text,integer
 ) TO service_role;
 
+-- A formerly authorised worker must not complete after ownership transfer,
+-- lost lease or step change. The existing completion function is reused verbatim;
+-- this wrapper validates the scoped contract before invoking it atomically.
+CREATE OR REPLACE FUNCTION public.feya_fn_complete_bound_workflow_v1(
+  p_workflow_run_id uuid,
+  p_expected_case_id uuid,
+  p_expected_ownership_epoch integer,
+  p_expected_accountable_domain text,
+  p_expected_workflow_type text,
+  p_expected_step_code text,
+  p_worker_id text,
+  p_result_state_patch jsonb DEFAULT '{}'::jsonb
+)
+RETURNS TABLE(workflow_run_id uuid,workflow_status text,completed_at timestamptz)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $growth_bound_finish$
+DECLARE
+  v_case public.feya_growth_cases_v1%rowtype;
+  v_run public.feya_growth_workflow_runs_v1%rowtype;
+  v_done record;
+BEGIN
+  IF p_workflow_run_id IS NULL OR p_expected_case_id IS NULL
+      OR p_expected_ownership_epoch IS NULL OR p_expected_ownership_epoch <= 0
+      OR nullif(btrim(coalesce(p_worker_id,'')),'') IS NULL
+      OR p_result_state_patch IS NULL OR jsonb_typeof(p_result_state_patch) <> 'object'
+      OR pg_column_size(p_result_state_patch) > 65536 THEN
+    RAISE EXCEPTION 'growth_bound_finish_invalid_input';
+  END IF;
+  -- Lock case first to serialize against ownership transfer.
+  SELECT * INTO v_case FROM public.feya_growth_cases_v1 c
+  WHERE c.case_id=p_expected_case_id FOR SHARE;
+  IF NOT FOUND OR v_case.ownership_epoch IS DISTINCT FROM p_expected_ownership_epoch
+      OR v_case.current_accountable_domain IS DISTINCT FROM p_expected_accountable_domain
+      OR v_case.case_status IN ('CLOSED','CANCELLED','BLOCKED','DEFERRED','NOT_OBSERVABLE') THEN
+    RAISE EXCEPTION 'growth_bound_finish_owner_changed';
+  END IF;
+
+  SELECT * INTO v_run FROM public.feya_growth_workflow_runs_v1 w
+  WHERE w.workflow_run_id=p_workflow_run_id FOR UPDATE;
+  IF NOT FOUND OR v_run.case_id IS DISTINCT FROM p_expected_case_id
+      OR v_run.ownership_epoch IS DISTINCT FROM p_expected_ownership_epoch
+      OR v_run.workflow_type IS DISTINCT FROM p_expected_workflow_type
+      OR v_run.current_step_code IS DISTINCT FROM p_expected_step_code THEN
+    RAISE EXCEPTION 'growth_bound_finish_scope_changed';
+  END IF;
+  IF v_run.workflow_status <> 'RUNNING'
+      OR v_run.lease_owner IS DISTINCT FROM p_worker_id
+      OR v_run.lease_expires_at IS NULL
+      OR v_run.lease_expires_at <= clock_timestamp() THEN
+    RAISE EXCEPTION 'growth_bound_finish_lease_expired_or_not_owned';
+  END IF;
+
+  SELECT * INTO STRICT v_done
+  FROM public.feya_fn_complete_workflow_v1(
+    p_workflow_run_id => p_workflow_run_id,
+    p_worker_id => p_worker_id,
+    p_result_state_patch => p_result_state_patch
+  );
+  RETURN QUERY SELECT v_done.workflow_run_id,v_done.workflow_status,v_done.completed_at;
+END;
+$growth_bound_finish$;
+
+REVOKE ALL ON FUNCTION public.feya_fn_complete_bound_workflow_v1(
+  uuid,uuid,integer,text,text,text,text,jsonb
+) FROM PUBLIC,anon,authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.feya_fn_complete_bound_workflow_v1(
+  uuid,uuid,integer,text,text,text,text,jsonb
+) TO service_role;
+
 NOTIFY pgrst, 'reload schema';
 COMMIT;
