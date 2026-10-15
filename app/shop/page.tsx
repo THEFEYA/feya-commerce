@@ -18,7 +18,8 @@ import {
 } from '@/lib/shopCatalogNavigation';
 import { Header } from '@/components/Header';
 import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
-import { ShopClient } from '@/components/ShopClient';
+import { ShopCatalogWireClient } from '@/components/ShopCatalogWireClient';
+import { packStorefrontCatalog } from '@/lib/storefrontCatalogWire';
 import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 
 async function getProducts() {
@@ -115,9 +116,9 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   const strictNavigation = review || navigation.page>1 ? navigation : undefined;
   const initialNavigation = strictNavigation ? undefined : navigation;
 
-  return <main className="relative min-h-screen"><Header /><ShopClient
+  return <main className="relative min-h-screen"><Header /><ShopCatalogWireClient
     key={normalizedHref}
-    products={products}
+    catalog={packStorefrontCatalog(products)}
     error={error}
     navigation={strictNavigation}
     initialNavigation={initialNavigation}
