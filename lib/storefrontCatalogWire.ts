@@ -44,8 +44,8 @@ export function unpackStorefrontCatalog(wire: StorefrontCatalogWire): Storefront
     || wire.values.some((row) => !Array.isArray(row) || row.length !== wire.fields.length)) {
     throw new Error('FEYA_SHOP_CATALOG_WIRE_INVALID');
   }
-  return wire.values.map((row) =>
+  return wire.values.map((row) => (
     Object.fromEntries(wire.fields.map((field, index) => [field, row[index]]))
-      as unknown as StorefrontProduct
-  );
+      as StorefrontProduct
+  ));
 }
