@@ -7,6 +7,8 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
+import { OwnerShadowReadinessClient } from '@/components/admin/OwnerShadowReadinessClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
@@ -202,6 +204,8 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   const activeWorkVM = workVM.filter((item) => !['COMPLETED', 'CLOSED'].includes(item.status));
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
+  const shadowConfig = getOwnerActionConfigStatus('growth_shadow_work');
+  const shadowRoleReady = roles.some((item) => item.role_code === 'TSEO' && item.runtime_status === 'SHADOW');
   const roleRows = new Map(roles.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
   const handoffsByCase = new Map<string, GrowthHandoffRow[]>();
   handoffs.forEach((handoff) => handoffsByCase.set(handoff.case_id, [...(handoffsByCase.get(handoff.case_id) || []), handoff]));
@@ -283,6 +287,11 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
             <p>Что реально выполняется, чего ждёт система и где без владельца нельзя продолжить безопасно.</p>
           </div>
         </header>
+
+        <OwnerShadowReadinessClient
+          enabled={!error && shadowConfig.ready && shadowRoleReady}
+          reason={error ? 'состояние источников не загружено' : shadowConfig.blockers[0] || (!shadowRoleReady ? 'роль TSEO ещё не доступна в режиме SHADOW' : null)}
+        />
 
         {!error ? (
           <section className="owner-command-brief owner-work-brief" aria-label="Сводка работы">
