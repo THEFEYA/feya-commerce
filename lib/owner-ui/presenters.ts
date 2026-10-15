@@ -68,7 +68,15 @@ export function presentSignal(row: Row): OwnerSignalVM {
 }
 
 export function presentWorkItem(row: Row): OwnerWorkItemVM {
-  const status = text(row.workflow_status) || text(row.case_status, 'OPEN');
+  // A bounded source snapshot is not the completion of the Growth Case.
+  // Until independent QA/owner triage exists, keep this TSEO work visible.
+  const shadowAwaitingReview =
+    text(row.case_type) === 'TSEO_INDEXABILITY_SHADOW' &&
+    text(row.workflow_status) === 'COMPLETED' &&
+    !['CLOSED', 'CANCELLED'].includes(text(row.case_status));
+  const status = shadowAwaitingReview
+    ? 'WAITING_REVIEW'
+    : text(row.workflow_status) || text(row.case_status, 'OPEN');
   return {
     id: text(row.case_id),
     code: text(row.case_code),
