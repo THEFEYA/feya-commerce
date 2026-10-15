@@ -31,7 +31,7 @@ test('shadow TSEO uses canonical ACTIVE release evidence and never legacy portfo
   const readerSource=readFileSync(new URL('../../lib/owner-ui/activeSearchReleaseEvidenceServer.ts',import.meta.url),'utf8');
   const newMigration=readFileSync(new URL('../../supabase/migrations/20261016003000_growth_os_active_search_authority_v1.sql',import.meta.url),'utf8');
   assert.match(routeSource,/getActiveSearchEvidence/);
-  assert.match(routeSource,/TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1/);
+  assert.match(routeSource,/TSEO_SHADOW_RELEASE_TEMPLATE/);
   assert.match(routeSource,/canonical_release_intent_not_google_actual_indexing/);
   assert.doesNotMatch(routeSource,/feya_commerce_v_page_indexability_readiness_v1|countReadiness\(/);
   assert.match(readerSource,/\.eq\('release_status', 'ACTIVE'\)/);
@@ -49,4 +49,15 @@ test('TSEO snapshot completion remains in active work until independent review i
   assert.match(presenter,/\['CLOSED', 'CANCELLED'\]/);
   assert.match(presenter,/shadowAwaitingReview[\s\S]*WAITING_REVIEW/);
   assert.match(labels,/WAITING_REVIEW: 'Ожидает независимой проверки'/);
+});
+
+test('the first owner action is a bounded diagnostic, not a fake free-form agent',()=>{
+  const ui=readFileSync(new URL('../../components/admin/OwnerShadowReadinessClient.tsx',import.meta.url),'utf8');
+  const route=readFileSync(new URL('../../app/api/admin/company/work/shadow-indexability/route.ts',import.meta.url),'utf8');
+  const contract=readFileSync(new URL('../../lib/growthShadowTaskContract.ts',import.meta.url),'utf8');
+  assert.match(ui,/Первое стандартизированное задание/);
+  assert.doesNotMatch(ui,/<textarea|setQuestion/);
+  assert.match(route,/question !== TSEO_SHADOW_RELEASE_QUESTION/);
+  assert.match(contract,/TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1/);
+  assert.match(contract,/Проверь действующий Search Release/);
 });
