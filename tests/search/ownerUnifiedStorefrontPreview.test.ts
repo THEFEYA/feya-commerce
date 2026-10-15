@@ -29,7 +29,7 @@ test('one exact owner-authenticated Vercel SSO preview branch unlocks EVERY revi
   assert.equal(PDP_COPY_REVIEW_SAMPLES.length,5);
   assert.equal(OWNER_UNIFIED_PREVIEW_BRANCH,'work/owner-unified-storefront-review-20261010');
   assert.equal(OWNER_UNIFIED_PREVIEW_PROJECT,'prj_ePIymo4sUG33wrRjHBxWrSlaxPID');
-  assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,false);
+  assert.equal(PHASE13_PRODUCTION_PUBLISH_AUTHORIZED,true);
 });
 test('no ordinary URL/other branch/production/development/user header can reveal live bag, approved copy or review hub',()=>{
   for(const bad of [
@@ -50,8 +50,8 @@ test('no ordinary URL/other branch/production/development/user header can reveal
   assert.equal(isOwnerUnifiedStorefrontPreview({}),false);
   assert.equal(isOwnerRealCartReviewDeployment({}),false);
   assert.equal(phase13PublicPdpCopyEnabled({},corpus),false);
-  // Even an exact copied Production release token cannot enable public copy
-  // because the independent Git-based owner publish authorization is still OFF.
+  // Even both copied Production tokens cannot enable public copy without the
+  // exact verified TheFEYA project ID (independent from the Git release lever).
   assert.equal(phase13PublicPdpCopyEnabled({
     VERCEL:'1',VERCEL_ENV:'production',
     FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE:'phase13-owner-approved-pdp207-20261010-v1',
@@ -86,7 +86,7 @@ test('original user-frozen PDP/catalog source and actual first-sale checkout rem
  assert.match(originalCart,/robots:\{index:false,follow:false\}/);
  assert.match(collection,/isOwnerUnifiedStorefrontPreview\(process\.env\)/);
  assert.match(collection,/VERCEL_GIT_COMMIT_REF===BRANCH/);
- assert.match(phase13,/PHASE13_PRODUCTION_PUBLISH_AUTHORIZED=false/);
+ assert.match(phase13,/PHASE13_PRODUCTION_PUBLISH_AUTHORIZED=true/);
  assert.doesNotMatch(source,/FEYA_SELLER_ONLINE_PAYMENTS_ENABLED=true/);
 });
 test('cart storage stays one same-origin key and no private address is saved by preview UI',()=>{
