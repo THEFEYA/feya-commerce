@@ -1,5 +1,8 @@
 # FEYA Commerce — Start Here
 
+> **Operational status update (2026-10-15):** The historical Phase A paragraphs below describe an early project stage, not the current public release. Main has Phase13 P0B pinned 207 owner-approved PDP descriptions; Search Release v12 and V13 visual freeze must remain intact. For Growth OS implementation, read [the current Runtime Activation Checkpoint](./owner/THEFEYA_GROWTH_OS_RUNTIME_ACTIVATION_20261015.md) **before** using the older gap map. This note creates no approval for autonomous or production writes.
+
+
 Status: active code repository  
 Source of truth for Phase 0 canon: `THEFEYA/FEYA/docs/feya-commerce/`  
 Current repository: `THEFEYA/feya-commerce`
