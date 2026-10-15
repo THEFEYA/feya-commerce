@@ -36,8 +36,8 @@ test('Phase13 collection V2 is additive and has exact field parity plus service-
  assert.ok(!source.includes('FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE='));
 });
 
-test('public collection reader remains original V1 until an independent controlled switch',()=>{
- assert.ok(reader.includes("COLLECTION_FAST_VIEW='feya_storefront_collection_cards_fast_v1'"));
+test('public collection reader uses exact approved V2 after separate install and release verification',()=>{
+ assert.ok(reader.includes("COLLECTION_FAST_VIEW='feya_storefront_collection_cards_fast_v2'"));
  assert.ok(searchReader.includes('.from(COLLECTION_FAST_VIEW)'));
  assert.ok(searchReader.includes("SEARCH_LANDING_STOREFRONT_PARITY_FAILED"));
  assert.ok(searchReader.includes('readSearchReleasePathState(urlPath)'));
