@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { getActiveSearchEvidence } from '@/lib/owner-ui/activeSearchReleaseEvidenceServer';
+import { TSEO_SHADOW_RELEASE_QUESTION, TSEO_SHADOW_RELEASE_TEMPLATE } from '@/lib/growthShadowTaskContract';
 
 // Use exactly the same ACTIVE release reader as the CEO and System admin pages.
 // The old portfolio readiness view precedes Search Release v12 and cannot be used as active truth.
 const STEP = 'VERIFY_ACTIVE_SEARCH_RELEASE';
 const ACTION = 'RECORD_INDEXABILITY_PROPOSAL';
 const ROLE = 'TSEO';
-const QUESTION_DEFAULT = 'Проверь действующий поисковый релиз и количество URL с index/noindex, ничего не изменяя.';
 
 const headers = { 'Cache-Control': 'private, no-store' };
 
@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
   }
 
   // One fixed read-only workflow. No user-selected action, role, model or URL is executable.
-  const question = cleanText(input.question) || QUESTION_DEFAULT;
+  const question = cleanText(input.question) || TSEO_SHADOW_RELEASE_QUESTION;
   const requestId = cleanText(input.request_id);
-  if (!isUuid(requestId) || question.length < 12 || question.length > 500) {
+  if (!isUuid(requestId) || question !== TSEO_SHADOW_RELEASE_QUESTION) {
     return respond({ ok: false, code: 'invalid_shadow_request', error: 'Некорректный идентификатор или текст задания.' }, 400);
   }
   if (Object.keys(input).some((key) => !['request_id', 'question'].includes(key))) {
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       throw new Error('active_search_release_evidence_incomplete');
     }
     const receipt = {
-      template: 'TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1',
+      template: TSEO_SHADOW_RELEASE_TEMPLATE,
       source: 'feya_search_releases_v1:ACTIVE',
       source_kind: 'canonical_release_intent_not_google_actual_indexing',
       evidence_time: new Date().toISOString(),
