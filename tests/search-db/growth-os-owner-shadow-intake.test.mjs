@@ -16,6 +16,7 @@ const secondOwner='10000000-0000-4000-8000-000000000002';
 const key='20000000-0000-4000-8000-000000000001';
 const question='Какие страницы требуют проверки индексируемости без изменений сайта?';
 const migration=()=>readFile(new URL('../../supabase/migrations/20261016001500_growth_os_owner_tseo_shadow_intake_v1.sql',import.meta.url),'utf8');
+const authorityCorrection=()=>readFile(new URL('../../supabase/migrations/20261016003000_growth_os_active_search_authority_v1.sql',import.meta.url),'utf8');
 
 async function start(questionInput=question, requestKey=key, actor=owner){
   return (await db.query(
@@ -113,6 +114,7 @@ before(async()=>{
     grant select,insert,update on all tables in schema public to service_role;
   `);
   await db.exec(await migration());
+  await db.exec(await authorityCorrection());
 });
 after(async()=>db?.close());
 
@@ -135,7 +137,8 @@ test('owner TSEO intake atomically records one real case and one SHADOW workflow
   assert.equal(await count('feya_growth_workflow_runs_v1'),1);
   const result=(await db.query('select state_json,workflow_type,current_step_code from public.feya_growth_workflow_runs_v1')).rows[0];
   assert.equal(result.workflow_type,'RECORD_INDEXABILITY_PROPOSAL');
-  assert.equal(result.current_step_code,'READ_PORTFOLIO_INDEXABILITY');
+  assert.equal(result.current_step_code,'VERIFY_ACTIVE_SEARCH_RELEASE');
+  assert.equal(result.state_json.template_code,'TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1');
   assert.equal(result.state_json.mode,'SHADOW');
   assert.equal(result.state_json.dry_run,true);
   assert.equal(result.state_json.model_calls_allowed,false);
