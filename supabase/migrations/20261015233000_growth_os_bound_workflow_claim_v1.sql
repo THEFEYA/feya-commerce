@@ -57,7 +57,7 @@ BEGIN
   IF NOT FOUND OR v_role.runtime_status NOT IN ('SHADOW','ACTIVE') THEN
     RAISE EXCEPTION 'growth_bound_claim_role_not_enabled';
   END IF;
-  IF coalesce(v_role.allowed_action_codes_json,'[]'::jsonb) ? p_expected_workflow_type IS NOT TRUE THEN
+  IF (coalesce(v_role.allowed_action_codes_json,'[]'::jsonb) ? p_expected_workflow_type) IS NOT TRUE THEN
     RAISE EXCEPTION 'growth_bound_claim_action_not_allowed';
   END IF;
 
