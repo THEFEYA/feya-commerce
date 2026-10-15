@@ -6,10 +6,14 @@ import { useRef, useState } from 'react';
 
 type Receipt = {
   evidence_time: string;
-  rows_scanned: number;
+  release_code: string;
+  release_version: number;
+  target_origin: string;
+  intended_urls_counted: number;
+  intended_index: number;
+  intended_noindex: number;
+  approved_product_bindings: number;
   coverage: string;
-  counts_by_status: Record<string, number>;
-  counts_by_type: Record<string, number>;
   changes_applied: number;
   model_calls: number;
   independent_agent_qa: string;
@@ -29,7 +33,7 @@ type Props = {
   reason?: string | null;
 };
 
-const INITIAL = 'Какие страницы каталога и коллекций требуют проверки готовности к индексации?';
+const INITIAL = 'Проверь действующий Search Release и количество URL с index/noindex, ничего не меняя.';
 
 export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
   const router = useRouter();
@@ -66,11 +70,11 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
     <section className="owner-card" aria-labelledby="shadow-task-heading">
       <div className="owner-status is-info">Ручная проверка · TSEO / SHADOW</div>
       <h2 id="shadow-task-heading" className="owner-card-title" style={{ marginTop: 8 }}>
-        Проверить готовность SEO-страниц
+        Сверить действующий поисковый релиз
       </h2>
       <p className="owner-card-copy">
-        Только чтение актуального портфеля: без AI-вызовов, переписывания товаров и публикации.
-        Это снимок внутренних данных, а не подтверждение индексации Google.
+        Только чтение утверждённого ACTIVE Search Release: без AI-вызовов, изменения товаров и публикации.
+        Показываем правила index/noindex, а не фактическое число страниц в Google.
       </p>
 
       {enabled ? (
@@ -113,15 +117,15 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
           {result.receipt ? (
             <>
               <p className="owner-card-copy">
-                Проверено страниц: <strong>{result.receipt.rows_scanned}</strong>.
-                Полнота: {result.receipt.coverage === 'COMPLETE' ? 'полная выборка' : 'нужна дополнительная проверка'}.
+                Релиз: <strong>v{result.receipt.release_version}</strong> ({result.receipt.release_code}).
+                URL по плану: <strong>{result.receipt.intended_urls_counted}</strong>.
                 Изменений: {result.receipt.changes_applied}.
                 AI-вызовов: {result.receipt.model_calls}.
               </p>
               <p className="owner-card-copy">
-                {Object.entries(result.receipt.counts_by_status).map(([status, count]) => (
-                  <span key={status} style={{ marginRight: 12 }}>{status}: {count}</span>
-                ))}
+                <span style={{ marginRight: 12 }}>index: {result.receipt.intended_index}</span>
+                <span style={{ marginRight: 12 }}>noindex: {result.receipt.intended_noindex}</span>
+                <span>Утверждённых товаров: {result.receipt.approved_product_bindings}</span>
               </p>
               <p className="owner-card-copy">{result.receipt.conclusion}</p>
               <p className="owner-card-copy">Независимая агентная проверка: ещё не проводилась.</p>
