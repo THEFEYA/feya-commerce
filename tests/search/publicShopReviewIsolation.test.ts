@@ -28,7 +28,11 @@ test('Shop root navigation is a real public listing, never an accidental 404',()
 test('Shop retains owner-approved visuals and immutable Search release behavior',()=>{
  const s=readFileSync('app/shop/page.tsx','utf8');
  assert.match(s,/OwnerShopSeoText/);
- assert.match(s,/ShopClient/);
+ assert.match(s,/ShopCatalogWireClient/);
+ assert.match(s,/packStorefrontCatalog/);
+ const bridge=readFileSync('components/ShopCatalogWireClient.tsx','utf8');
+ assert.match(bridge,/return <ShopClient/);
+ assert.match(bridge,/products=\{products\}/);
  assert.match(s,/SHOP_PAGE_SIZE/);
  assert.match(s,/closedReviewRequested/);
  assert.doesNotMatch(s,/FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE|PHASE13_PRODUCTION_PUBLISH_AUTHORIZED/);

@@ -20,8 +20,13 @@ test('Shop runtime uses the exact slim read model through the governed catalog c
 
 test('Phase 7 keeps the frozen Shop composition while extending only data and URL-state props', () => {
   const page = readFileSync('app/shop/page.tsx','utf8');
-  assert.ok(page.includes('<Header /><ShopClient'));
-  assert.ok(page.includes('products={products}'));
+  assert.ok(page.includes('<Header /><ShopCatalogWireClient'));
+  assert.ok(page.includes('catalog={packStorefrontCatalog(products)}'));
+  const bridge=readFileSync('components/ShopCatalogWireClient.tsx','utf8');
+  assert.ok(bridge.includes('return <ShopClient'));
+  assert.ok(bridge.includes('products={products}'));
+  assert.ok(bridge.includes('unpackStorefrontCatalog'));
+  assert.ok(!page.includes('<ShopClient'));
   assert.ok(page.includes('error={error}'));
   assert.ok(page.includes('navigation={strictNavigation}'));
   assert.ok(page.includes('initialNavigation={initialNavigation}'));
