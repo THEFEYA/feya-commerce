@@ -15,6 +15,7 @@ import {
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getActiveSearchEvidence } from '@/lib/owner-ui/activeSearchReleaseEvidenceServer';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { admissionLabel, priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
@@ -197,7 +198,8 @@ function pluralRu(value: number, one: string, few: string, many: string) {
 
 export default async function AdminHomePage() {
   await connection();
-  const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
+  const [today, activeSearch] = await Promise.all([getTodayData(), getActiveSearchEvidence()]);
+  const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = today;
 
   const attentionVM = attention.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));
   const commerceAttentionVM = presentCommerceExecutionApprovals(commerceApprovals);
@@ -251,9 +253,7 @@ export default async function AdminHomePage() {
               <p>
                 {ownerDecisionItems.length
                   ? 'Сначала разберите эти решения: они являются реальными точками human authority и могут удерживать следующий безопасный шаг.'
-                  : totalBlockers
-                    ? 'Команда продолжает подготовку к запуску. Ограничения ниже связаны с ещё не подключёнными данными и launch-gates, а не с аварией.'
-                    : 'Основные рабочие потоки продолжаются без блокирующего участия владельца.'}
+                  : 'Действующая SEO-волна, коммерческий checkout и источники измерений оцениваются отдельно. Ни один устаревший чек-лист не подтверждает готовность к оплате или индексацию Google.'}
               </p>
             </div>
             <div className="owner-command-brief-metrics" aria-label="Ключевые состояния">
@@ -267,10 +267,10 @@ export default async function AdminHomePage() {
                 <strong>{operationalQueueTotal}</strong>
                 <small>требуют обработки</small>
               </Link>
-              <Link href="/admin/company/system">
-                <span>Ограничения</span>
-                <strong>{blockedScopes.length}</strong>
-                <small>зон подготовки</small>
+              <Link href="/admin/launch-readiness">
+                <span>Поисковый релиз</span>
+                <strong>{activeSearch.value ? `v${activeSearch.value.releaseVersion}` : '—'}</strong>
+                <small>{activeSearch.value ? `${activeSearch.value.intendedIndex} URL допущены` : 'данные не подтверждены'}</small>
               </Link>
             </div>
           </section>
@@ -459,12 +459,31 @@ export default async function AdminHomePage() {
               <span className="owner-section-icon is-system" aria-hidden="true"><ShieldCheck size={17} strokeWidth={1.7} /></span>
               <div>
                 <h2>Состояние системы</h2>
-                <div className="owner-section-kicker">Надёжность и launch-gates без общего искусственного балла</div>
+                <div className="owner-section-kicker">ACTIVE Search Release имеет приоритет над историческими readiness v2; оплата и реальные Google-метрики требуют собственных источников</div>
               </div>
             </div>
             <Link href="/admin/company/system" className="owner-button">Открыть систему</Link>
           </div>
 
+          <div className={`owner-system-ribbon${activeSearch.value ? ' is-healthy' : ' is-limited'}`}>
+            <div className="owner-system-ribbon-main">
+              <span className="owner-system-ribbon-icon" aria-hidden="true"><ShieldCheck size={18} strokeWidth={1.7} /></span>
+              <div>
+                <strong>{activeSearch.value ? `ACTIVE Search Release v${activeSearch.value.releaseVersion}` : 'Невозможно подтвердить действующий поисковый релиз'}</strong>
+                <p>
+                  {activeSearch.value
+                    ? `${activeSearch.value.intendedIndex} URL разрешены к индексации · ${activeSearch.value.intendedNoindex} имеют noindex · ${activeSearch.value.approvedProducts} утверждённых товарных привязок. Это не данные о фактической индексации Google, оплате или конверсии.`
+                    : `Состояние источника: ${activeSearch.error || 'неизвестно'}. Не используйте старые значения как факт.`}
+                </p>
+              </div>
+            </div>
+            <div className="owner-system-ribbon-scopes">
+              <Link href="/admin/launch-readiness">Текущий SEO-релиз и исторические ограничения →</Link>
+            </div>
+          </div>
+          <details className="owner-disclosure owner-disclosure-section" style={{marginTop:'12px'}}>
+            <summary><span><strong>Исторические проверки readiness v2</strong><small>Датированная диагностика старой модели: не равна текущему статусу Search Release или сайта</small></span><span className="owner-section-kicker">архив</span></summary>
+            <div className="owner-disclosure-body">
           <div className={`owner-system-ribbon${blockedScopes.length ? ' is-limited' : ' is-healthy'}`}>
             <div className="owner-system-ribbon-main">
               <span className="owner-system-ribbon-icon" aria-hidden="true"><ShieldCheck size={18} strokeWidth={1.7} /></span>
@@ -485,6 +504,8 @@ export default async function AdminHomePage() {
               ))}
             </div>
           </div>
+            </div>
+          </details>
         </section>
 
         <section className="owner-section">
