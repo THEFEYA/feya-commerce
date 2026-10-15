@@ -13,10 +13,13 @@ async function getWorkItem(id: string): Promise<{
   handoffs: GrowthHandoffRow[];
   workflowEvents: GrowthWorkflowEventRow[];
   readinessReceipt?: {
-    scanned: number;
+    releaseCode: string;
+    releaseVersion: number;
+    intendedIndex: number;
+    intendedNoindex: number;
+    approvedProducts: number;
     coverage: string;
     observedAt: string;
-    counts: Array<[string, number]>;
     note: string;
   };
   error?: string;
@@ -64,19 +67,28 @@ async function getWorkItem(id: string): Promise<{
     if (workflow?.workflow_status === 'COMPLETED' &&
         receiptValue && typeof receiptValue === 'object' && !Array.isArray(receiptValue)) {
       const receipt = receiptValue as Record<string, unknown>;
-      const raw = receipt.counts_by_status;
-      const counts = raw && typeof raw === 'object' && !Array.isArray(raw)
-        ? Object.entries(raw as Record<string, unknown>)
-            .filter(([key, n]) => key.length < 80 && typeof n === 'number' && Number.isFinite(n) && n >= 0)
-            .slice(0, 20) as Array<[string, number]>
-        : [];
-      readinessReceipt = {
-        scanned: typeof receipt.rows_scanned === 'number' ? receipt.rows_scanned : 0,
-        coverage: typeof receipt.coverage === 'string' ? receipt.coverage : 'UNKNOWN',
-        observedAt: typeof receipt.evidence_time === 'string' ? receipt.evidence_time : '',
-        counts,
-        note: typeof receipt.conclusion === 'string' ? receipt.conclusion.slice(0, 350) : '',
-      };
+      // No fallback to legacy readiness data: unknown release fields are not reported as zeros.
+      if (receipt.template === 'TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1' &&
+          typeof receipt.release_code === 'string' &&
+          typeof receipt.release_version === 'number' &&
+          typeof receipt.intended_index === 'number' &&
+          typeof receipt.intended_noindex === 'number' &&
+          typeof receipt.approved_product_bindings === 'number' &&
+          receipt.release_version > 0 &&
+          receipt.intended_index >= 0 &&
+          receipt.intended_noindex >= 0 &&
+          receipt.approved_product_bindings >= 0) {
+        readinessReceipt = {
+          releaseCode: receipt.release_code.slice(0, 120),
+          releaseVersion: receipt.release_version,
+          intendedIndex: receipt.intended_index,
+          intendedNoindex: receipt.intended_noindex,
+          approvedProducts: receipt.approved_product_bindings,
+          coverage: typeof receipt.coverage === 'string' ? receipt.coverage : 'UNKNOWN',
+          observedAt: typeof receipt.evidence_time === 'string' ? receipt.evidence_time : '',
+          note: typeof receipt.conclusion === 'string' ? receipt.conclusion.slice(0, 350) : '',
+        };
+      }
     }
   }
   return {
@@ -111,15 +123,16 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
         {readinessReceipt ? (
           <section className="owner-card" aria-label="Фактический отчёт TSEO">
             <div className="owner-status is-success">Снимок TSEO сохранён</div>
-            <h2 className="owner-card-title">Готовность SEO-страниц · наблюдение</h2>
+            <h2 className="owner-card-title">Действующий Search Release v{readinessReceipt.releaseVersion}</h2>
             <p className="owner-card-copy">
-              Проверено: {readinessReceipt.scanned} страниц.
-              Полнота данных: {readinessReceipt.coverage === 'COMPLETE' ? 'полная выборка' : 'ограниченная или отсутствует'}.
+              Код: {readinessReceipt.releaseCode}. URL по утверждённому плану:
+              {' '}{readinessReceipt.intendedIndex + readinessReceipt.intendedNoindex}.
+              Полнота: {readinessReceipt.coverage === 'COMPLETE' ? 'подтверждённая' : 'не подтверждена'}.
             </p>
             <div className="owner-actions">
-              {readinessReceipt.counts.map(([status, count]) => (
-                <span key={status} className="owner-status">{status}: {count}</span>
-              ))}
+              <span className="owner-status">index: {readinessReceipt.intendedIndex}</span>
+              <span className="owner-status">noindex: {readinessReceipt.intendedNoindex}</span>
+              <span className="owner-status">Утверждённых товаров: {readinessReceipt.approvedProducts}</span>
             </div>
             <p className="owner-card-copy">{readinessReceipt.note}</p>
             <p className="owner-card-copy">
