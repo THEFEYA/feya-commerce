@@ -25,7 +25,7 @@ function dateTimeLabel(value?: string | null) {
 function lifecyclePhase(status: string) {
   if (status === 'QUEUED' || status === 'NEW' || status === 'ASSIGNED') return 0;
   if (status === 'RUNNING') return 1;
-  if (status.startsWith('WAITING') || status === 'EVIDENCE_REVIEWED' || status === 'REVIEW_REQUIRED' || status === 'BLOCKED') return 2;
+  if (status.startsWith('WAITING') || status === 'EVIDENCE_REVIEWED' || status === 'EVIDENCE_PREFLIGHT' || status === 'REVIEW_REQUIRED' || status === 'BLOCKED') return 2;
   if (status === 'COMPLETED') return 3;
   if (status === 'MEASURING' || status === 'LEARNING') return 4;
   if (status === 'CLOSED') return 5;
