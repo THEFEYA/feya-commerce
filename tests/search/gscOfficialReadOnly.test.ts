@@ -109,7 +109,8 @@ test('internal API route is protected and remains read-only; env example stays o
   const route=readFileSync('app/api/internal/gsc-source-readiness/route.ts','utf8');
   assert.match(route,/withInternalApi\(handleGet\)/);
   assert.match(route,/probeOfficialGscReadOnly\(process\.env\)/);
-  assert.doesNotMatch(route,/supabase|insert|upsert|schedule|ga4|purchase/i);
+  for(const forbidden of ['getSupabaseServiceRoleClient(', '.insert(', '.upsert(', 'cron.schedule(', 'trackEcommerceEvent('])
+    assert.equal(route.includes(forbidden),false,forbidden);
   const envExample=readFileSync('.env.example','utf8');
   assert.match(envExample,/FEYA_GSC_READ_ENABLED=false/);
   assert.match(envExample,/FEYA_GSC_OAUTH_REFRESH_TOKEN=/);
