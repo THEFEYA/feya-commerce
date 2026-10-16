@@ -9,7 +9,9 @@ type Env = Readonly<Record<string,string|undefined>>;
 type Fetcher = (url:string,init?:RequestInit)=>Promise<Response>;
 type Permission = 'siteOwner'|'siteFullUser'|'siteRestrictedUser';
 type Code = 'GSC_READ_DISABLED'|'GSC_OAUTH_NOT_CONFIGURED'|'GSC_PROPERTY_MISMATCH'
-  |'GSC_INVALID_CLOCK'|'GSC_OAUTH_REJECTED'|'GSC_ACCESS_DENIED'
+  |'GSC_INVALID_CLOCK'|'GSC_OAUTH_REJECTED'|'GSC_OAUTH_CLIENT_REJECTED'
+  |'GSC_OAUTH_REFRESH_REJECTED'|'GSC_OAUTH_CLIENT_NOT_ALLOWED'
+  |'GSC_OAUTH_REQUEST_INVALID'|'GSC_ACCESS_DENIED'
   |'GSC_DOMAIN_PROPERTY_NOT_VISIBLE'|'GSC_GOOGLE_UNAVAILABLE'
   |'GSC_INVALID_GOOGLE_RESPONSE'|'GSC_VERIFIED_NO_FINAL_ROWS'
   |'GSC_VERIFIED_WITH_FINAL_ROWS';
@@ -88,7 +90,26 @@ export async function probeOfficialGscReadOnly(
       body:new URLSearchParams({client_id:client,client_secret:secret,
         refresh_token:refresh,grant_type:'refresh_token'})
     });
-    if(!response.ok)return fail('GSC_OAUTH_REJECTED');
+    if(!response.ok){
+      // Never emit Google's raw error_description, credentials or token response.
+      // Only the official, stable OAuth error field maps to a bounded status code.
+      if(response.status===429||response.status>=500)
+        return fail('GSC_GOOGLE_UNAVAILABLE');
+      if(response.status!==400&&response.status!==401&&response.status!==403)
+        return fail('GSC_OAUTH_REJECTED');
+      let oauthError:unknown=null;
+      try{
+        const raw=await response.text();
+        if(raw.length<=4096)oauthError=asRecord(JSON.parse(raw))?.error;
+      }catch{
+        // Provider error bodies are deliberately discarded, not logged.
+      }
+      if(oauthError==='invalid_client')return fail('GSC_OAUTH_CLIENT_REJECTED');
+      if(oauthError==='invalid_grant')return fail('GSC_OAUTH_REFRESH_REJECTED');
+      if(oauthError==='unauthorized_client')return fail('GSC_OAUTH_CLIENT_NOT_ALLOWED');
+      if(oauthError==='invalid_request')return fail('GSC_OAUTH_REQUEST_INVALID');
+      return fail('GSC_OAUTH_REJECTED');
+    }
     const payload=asRecord(await response.json());
     if(typeof payload?.access_token!=='string'||!payload.access_token.trim())
       return fail('GSC_INVALID_GOOGLE_RESPONSE');
