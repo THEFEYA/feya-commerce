@@ -77,7 +77,6 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
   const gmelReviewState = text(row.gmel_review_state);
   const status = shadowAwaitingReview
     ? gmelReviewState === 'OPERATOR_REVIEWED' ? 'EVIDENCE_REVIEWED'
-      : gmelReviewState === 'AUTONOMOUS_REVIEWED' ? 'EVIDENCE_REVIEWED'
       : gmelReviewState === 'REJECTED' || gmelReviewState === 'STALE' ? 'REVIEW_REQUIRED'
       : 'WAITING_REVIEW'
     : text(row.workflow_status) || text(row.case_status, 'OPEN');
