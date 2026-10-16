@@ -9,6 +9,34 @@ const STEP = 'VERIFY_ACTIVE_SEARCH_RELEASE';
 const ACTION = 'RECORD_INDEXABILITY_PROPOSAL';
 const ROLE = 'TSEO';
 
+// A deterministic continuation, not a GMEL LLM or a business outcome.
+// Service-only Supabase RPC atomically persists an idempotent handoff and its
+// verified L0/source-consistency receipt. If it fails, the TSEO receipt remains.
+async function advanceDeterministicReview(
+  service: { rpc: (name: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message?: string } | null }> },
+  caseId: string,
+  workflowRunId: string,
+  ownershipEpoch: number,
+) {
+  const { data, error } = await service.rpc('feya_fn_reconcile_tseo_gmel_release_v1', {
+    p_case_id: caseId,
+    p_expected_ownership_epoch: ownershipEpoch,
+    p_source_workflow_run_id: workflowRunId,
+  });
+  if (error || !Array.isArray(data) || data.length !== 1 ||
+      typeof data[0]?.handoff_id !== 'string') {
+    return { status: 'PENDING', method: 'NOT_RUN', model_calls: 0, changes_applied: 0 };
+  }
+  const result = data[0] as Record<string, unknown>;
+  return {
+    status: String(result.handoff_status || 'PENDING'),
+    method: String(result.review_method || 'NOT_RUN'),
+    handoff_id: result.handoff_id,
+    model_calls: 0,
+    changes_applied: 0,
+  };
+}
+
 const headers = { 'Cache-Control': 'private, no-store' };
 
 function respond(body: Record<string, unknown>, status = 200) {
@@ -90,10 +118,14 @@ export async function POST(request: NextRequest) {
     const previous = existing?.state_json && typeof existing.state_json === 'object'
       ? (existing.state_json as Record<string, unknown>).indexability_receipt
       : null;
+    const gmelReview = existing?.workflow_status === 'COMPLETED' && previous
+      ? await advanceDeterministicReview(actor.service, caseId, workflowRunId, ownershipEpoch)
+      : null;
     return respond({
       ok: true, case_id: caseId, workflow_run_id: workflowRunId,
       status: existing?.workflow_status || 'WAITING',
       receipt: existing?.workflow_status === 'COMPLETED' ? previous ?? null : null,
+      gmel_review: gmelReview,
       reused: true,
       message: existing?.workflow_status === 'COMPLETED'
         ? 'Предыдущая проверка уже сохранена.'
@@ -148,10 +180,16 @@ export async function POST(request: NextRequest) {
       throw new Error('growth_shadow_completion_rejected');
     }
 
+    // This second step is safe to retry and cannot overwrite a human review.
+    // It has no network model call and records the method honestly in Supabase.
+    const gmelReview = await advanceDeterministicReview(actor.service, caseId, workflowRunId, ownershipEpoch);
     return respond({
       ok: true, case_id: caseId, workflow_run_id: workflowRunId,
-      status: 'COMPLETED', receipt, reused: !task.created_new,
-      message: 'Проверка фактических данных сохранена. Независимый AI-аудит пока не запускался.',
+      status: 'COMPLETED', receipt, gmel_review: gmelReview,
+      reused: !task.created_new,
+      message: gmelReview.status === 'COMPLETED'
+        ? 'TSEO и автоматическая проверка фактов сохранены. Самостоятельный AI-анализ GMEL не запускался.'
+        : 'TSEO сохранён, но проверка фактов GMEL ещё ожидает повтора. Никаких изменений сайта не было.',
     });
   } catch {
     // A failed source read cannot become a successful business conclusion.
