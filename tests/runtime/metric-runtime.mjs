@@ -168,6 +168,23 @@ try {
   }
   assert.deepEqual(await counts(),before);
  });
+ await check('Official GSC capture is auth-protected, owner-disabled and never sends provider traffic by default',async()=>{
+  const before=await counts(),path=base+'/api/internal/gsc-official-capture';
+  for(const headers of [{},{authorization:'Bearer wrong-token'}]){
+    const response=await fetch(path,{method:'POST',headers});
+    assert.equal(response.status,401);
+    assert.match(response.headers.get('cache-control'),/private.*no-store/);
+    assert.deepEqual(await response.json(),{ok:false,code:'internal_auth_required'});
+  }
+  const response=await fetch(path,{method:'POST',headers:{'x-feya-internal-token':internalToken}});
+  assert.equal(response.status,503);
+  assert.match(response.headers.get('cache-control'),/private.*no-store/);
+  assert.deepEqual(await response.json(),{
+    ok:false,code:'GSC_CAPTURE_DISABLED',source_health_promoted:false
+  });
+  assert.deepEqual(await counts(),before);
+ });
+
  await check('Authenticated internal input rejects coercion and GET execution; health works without provider credentials',async()=>{
   const before=await counts(),headers={'x-feya-internal-token':internalToken};
   for(const [route,method] of internalRoutes.filter(([,method])=>method==='POST')){
