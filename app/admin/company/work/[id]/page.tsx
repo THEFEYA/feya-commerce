@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentWorkItem } from '@/lib/owner-ui/presenters';
 import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
+import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growthGmelAiAdmission';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 type Row = Record<string, unknown>;
@@ -13,6 +14,7 @@ async function getWorkItem(id: string): Promise<{
   row?: Row;
   handoffs: GrowthHandoffRow[];
   workflowEvents: GrowthWorkflowEventRow[];
+  gmelAiAdmission?: GmelAdmissionDecision;
   readinessReceipt?: {
     releaseCode: string;
     releaseVersion: number;
@@ -53,14 +55,42 @@ async function getWorkItem(id: string): Promise<{
   // The owner sees a persisted, bounded evidence summary after leaving the original chat.
   // No raw drafts or private workflow state are sent to the browser.
   let readinessReceipt;
+  let gmelAiAdmission: GmelAdmissionDecision | undefined;
   if (workResult.data.case_type === 'TSEO_INDEXABILITY_SHADOW') {
-    const { data: workflow } = await supabase
-      .from('feya_growth_workflow_runs_v1')
-      .select('state_json,workflow_status')
-      .eq('case_id', id)
-      .eq('workflow_type', 'RECORD_INDEXABILITY_PROPOSAL')
-      .order('created_at', { ascending: false })
-      .limit(1).maybeSingle();
+    const [workflowResponse, sourceResponse, roleResponse] = await Promise.all([
+      supabase
+        .from('feya_growth_workflow_runs_v1')
+        .select('state_json,workflow_status')
+        .eq('case_id', id)
+        .eq('workflow_type', 'RECORD_INDEXABILITY_PROPOSAL')
+        .order('created_at', { ascending: false })
+        .limit(1).maybeSingle(),
+      supabase.from('feya_commerce_v_data_source_health_effective_safe_v2')
+        .select('source_code,health_state,freshness_state,checked_at')
+        .in('source_code', [
+          'ORGANIC_SEARCH_PERFORMANCE',
+          'BEHAVIORAL_ANALYTICS',
+          'COMMERCE_ORDER_TRUTH',
+          'COMMERCE_REVENUE_TRUTH',
+        ])
+        .limit(4),
+      supabase.from('feya_growth_role_activation_v1')
+        .select('role_code,runtime_status,allowed_action_codes_json')
+        .eq('role_code', 'GMEL')
+        .maybeSingle(),
+    ]);
+    const workflow = workflowResponse.data;
+    gmelAiAdmission = evaluateGmelAiAdmission({
+      role: roleResponse.error ? null : roleResponse.data,
+      sources: sourceResponse.error ? [] : sourceResponse.data || [],
+      purpose: 'COMMERCIAL_OUTCOME',
+      case_status: String(workResult.data.case_status || 'UNKNOWN'),
+      current_accountable_domain: String(workResult.data.current_accountable_domain || 'UNKNOWN'),
+      question_is_new_and_semantic: false,
+      model_executor_enabled: false,
+      budget: null,
+      now: new Date(),
+    });
     const receiptValue = workflow?.state_json &&
       typeof workflow.state_json === 'object' && !Array.isArray(workflow.state_json)
       ? (workflow.state_json as Record<string, unknown>).indexability_receipt
@@ -94,6 +124,7 @@ async function getWorkItem(id: string): Promise<{
   }
   return {
     row: workResult.data as Row,
+    gmelAiAdmission,
     readinessReceipt,
     handoffs: (handoffResult.data || []) as GrowthHandoffRow[],
     workflowEvents: (workflowEventResult.data || []) as GrowthWorkflowEventRow[],
@@ -102,7 +133,7 @@ async function getWorkItem(id: string): Promise<{
 
 export default async function OwnerWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, handoffs, workflowEvents, readinessReceipt, error } = await getWorkItem(id);
+  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
@@ -151,6 +182,27 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
               Это не разрешение менять SEO-тексты, метаданные или индексацию.
             </p>
             <div className="owner-status">Кейс остаётся открытым до корректного следующего решения</div>
+          </section>
+        ) : null}
+        {gmelAiAdmission && !gmelAiAdmission.allowed_to_dispatch ? (
+          <section className="owner-card" aria-label="Готовность автономного анализа GMEL">
+            <div className="owner-status is-warning">Автономный анализ GMEL пока выключен</div>
+            <h2 className="owner-card-title">Что нужно для измеримого улучшения</h2>
+            <p className="owner-card-copy">
+              Техническая проверка Search Release завершена. Для оценки реальных результатов
+              необходимы свежие данные поиска, посещений и подтверждённых заказов.
+              Пока их нет, нельзя заявлять о росте конверсии или эффективности.
+            </p>
+            <div className="owner-actions" aria-label="Состояние источников">
+              <span className="owner-status">GSC: {gmelAiAdmission.source_states.ORGANIC_SEARCH_PERFORMANCE || 'UNKNOWN'}</span>
+              <span className="owner-status">GA4: {gmelAiAdmission.source_states.BEHAVIORAL_ANALYTICS || 'UNKNOWN'}</span>
+              <span className="owner-status">Заказы: {gmelAiAdmission.source_states.COMMERCE_ORDER_TRUTH || 'UNKNOWN'}</span>
+            </div>
+            <p className="owner-card-copy">
+              AI-модель не запускается автоматически: требуется новая содержательная задача,
+              утверждённый владельцем бюджет и отдельная защищённая очередь исполнения.
+              Платных вызовов отсюда не происходит.
+            </p>
           </section>
         ) : null}
         {readinessReceipt ? (
