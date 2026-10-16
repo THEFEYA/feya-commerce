@@ -129,8 +129,8 @@ BEGIN
    OR v_w.lease_owner IS DISTINCT FROM p_worker_id
    OR v_w.lease_expires_at IS NULL OR v_w.lease_expires_at<=v_now
    OR v_w.state_json->>'handoff_id' IS DISTINCT FROM p_handoff_id::text
-   OR v_w.state_json->>'mode'<>'SHADOW'
-   OR v_w.state_json->>'dry_run'<>'true' THEN
+   OR v_w.state_json->>'mode' IS DISTINCT FROM 'SHADOW'
+   OR v_w.state_json->>'dry_run' IS DISTINCT FROM 'true' THEN
    RAISE EXCEPTION 'GMEL_BUDGET_UNLEASED_WORK';
  END IF;
 
@@ -210,11 +210,29 @@ BEGIN
  IF v_r.status<>'RESERVED' THEN
    RETURN QUERY SELECT v_r.status,false; RETURN;
  END IF;
+ -- Owner/role may have changed since budget reservation. Recheck at SEND.
+ IF NOT EXISTS (SELECT 1 FROM public.feya_growth_cases_v1 c
+   WHERE c.case_id=v_r.case_id AND c.ownership_epoch=v_r.ownership_epoch
+     AND c.current_accountable_domain='TSEO'
+     AND c.case_status IN ('OPEN','TRIAGED','INVESTIGATING')) OR
+   NOT EXISTS (SELECT 1 FROM public.feya_growth_handoffs_v1 h
+   WHERE h.handoff_id=v_r.handoff_id AND h.case_id=v_r.case_id
+     AND h.ownership_epoch=v_r.ownership_epoch
+     AND h.source_domain='TSEO' AND h.target_domain='GMEL'
+     AND h.handoff_status='OPEN') OR
+   NOT EXISTS (SELECT 1 FROM public.feya_growth_role_activation_v1 a
+   WHERE a.role_code='GMEL' AND a.runtime_status IN ('SHADOW','ACTIVE')
+     AND a.allowed_action_codes_json ? 'RECORD_LEARNING_EVIDENCE') THEN
+   RAISE EXCEPTION 'GMEL_BUDGET_SUBMIT_SCOPE_REVOKED';
+ END IF;
  SELECT * INTO v_w FROM public.feya_growth_workflow_runs_v1 w
  WHERE w.workflow_run_id=v_r.workflow_run_id FOR SHARE;
  IF NOT FOUND OR v_w.workflow_status<>'RUNNING'
    OR v_w.lease_owner IS DISTINCT FROM p_worker_id
-   OR v_w.lease_expires_at IS NULL OR v_w.lease_expires_at<=v_now THEN
+   OR v_w.lease_expires_at IS NULL OR v_w.lease_expires_at<=v_now
+   OR v_w.workflow_type IS DISTINCT FROM 'GMEL_SEMANTIC_EVIDENCE_V1'
+   OR v_w.current_step_code IS DISTINCT FROM 'MODEL_REVIEW'
+   OR v_w.state_json->>'handoff_id' IS DISTINCT FROM v_r.handoff_id::text THEN
    RAISE EXCEPTION 'GMEL_BUDGET_SUBMIT_LEASE_EXPIRED';
  END IF;
  SELECT * INTO v_policy FROM public.feya_growth_ai_budget_policies_v1 b
