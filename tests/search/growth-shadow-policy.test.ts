@@ -61,3 +61,17 @@ test('the first owner action is a bounded diagnostic, not a fake free-form agent
   assert.match(contract,/TSEO_ACTIVE_SEARCH_RELEASE_AUDIT_V1/);
   assert.match(contract,/Проверь действующий Search Release/);
 });
+
+test('owner TSEO completion automatically requests only deterministic GMEL SQL and reuses retry key',()=>{
+ const route=readFileSync(new URL('../../app/api/admin/company/work/shadow-indexability/route.ts',import.meta.url),'utf8');
+ const client=readFileSync(new URL('../../components/admin/OwnerShadowReadinessClient.tsx',import.meta.url),'utf8');
+ const migration=readFileSync(new URL('../../supabase/migrations/20261016123000_growth_os_tseo_gmel_deterministic_review_v1.sql',import.meta.url),'utf8');
+ assert.match(route,/feya_fn_reconcile_tseo_gmel_release_v1/);
+ assert.match(route,/advanceDeterministicReview/);
+ assert.match(route,/status: 'PENDING', method: 'NOT_RUN'/);
+ assert.doesNotMatch(route,/fetch\\(['"]https:\\/\\/api\\.openai\\.com/);
+ assert.match(client,/data\\.gmel_review\\?\\.status === 'COMPLETED'/);
+ assert.match(migration,/AUTOMATED_SQL_RECONCILIATION_NO_LLM/);
+ assert.match(migration,/AUTOMATED_SQL_RECONCILIATION_NO_LLM/);
+ assert.match(migration,/REVOKE ALL ON FUNCTION/);
+});
