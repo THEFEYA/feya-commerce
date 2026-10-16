@@ -44,6 +44,12 @@ CREATE TABLE IF NOT EXISTS public.feya_growth_ai_spend_reservations_v1 (
   input_max_tokens integer NOT NULL CHECK(input_max_tokens>0),
   output_max_tokens integer NOT NULL CHECK(output_max_tokens>0),
   reserved_usd numeric(14,6) NOT NULL CHECK(reserved_usd>0),
+  -- Freeze pricing when reserving so later policy edits cannot rewrite history.
+  provider text NOT NULL,
+  model_id text NOT NULL,
+  price_contract_version text NOT NULL,
+  input_usd_per_million numeric(14,6) NOT NULL,
+  output_usd_per_million numeric(14,6) NOT NULL,
   status text NOT NULL DEFAULT 'RESERVED'
     CHECK(status IN ('RESERVED','SUBMITTED','SETTLED','UNCERTAIN','RELEASED')),
   actual_input_tokens integer CHECK(actual_input_tokens>=0),
@@ -97,6 +103,8 @@ BEGIN
     OR p_expected_epoch IS NULL OR p_expected_epoch<=0
     OR length(btrim(coalesce(p_worker_id,''))) NOT BETWEEN 1 AND 120
     OR length(btrim(coalesce(p_request_key,''))) NOT BETWEEN 16 AND 180
+    OR p_request_key IS DISTINCT FROM btrim(p_request_key)
+    OR p_worker_id IS DISTINCT FROM btrim(p_worker_id)
     OR p_request_sha256 IS NULL OR p_request_sha256 !~ '^[0-9a-f]{64}$'
     OR p_max_input_tokens IS NULL OR p_max_input_tokens<=0
     OR p_max_output_tokens IS NULL OR p_max_output_tokens<=0 THEN
@@ -181,11 +189,14 @@ BEGIN
 
  INSERT INTO public.feya_growth_ai_spend_reservations_v1(
   policy_id,case_id,handoff_id,workflow_run_id,ownership_epoch,
-  worker_id,request_key,request_sha256,input_max_tokens,output_max_tokens,reserved_usd
+  worker_id,request_key,request_sha256,input_max_tokens,output_max_tokens,reserved_usd,
+  provider,model_id,price_contract_version,input_usd_per_million,output_usd_per_million
  ) VALUES(
   p_budget_id,p_case_id,p_handoff_id,p_workflow_run_id,p_expected_epoch,
   btrim(p_worker_id),btrim(p_request_key),p_request_sha256,
-  p_max_input_tokens,p_max_output_tokens,v_max
+  p_max_input_tokens,p_max_output_tokens,v_max,
+  v_policy.provider,v_policy.model_id,v_policy.price_contract_version,
+  v_policy.input_usd_per_million,v_policy.output_usd_per_million
  ) RETURNING * INTO v_created;
  RETURN QUERY SELECT v_created.reservation_id,v_created.status,v_created.reserved_usd,true;
 END;
@@ -214,12 +225,12 @@ BEGIN
  IF NOT EXISTS (SELECT 1 FROM public.feya_growth_cases_v1 c
    WHERE c.case_id=v_r.case_id AND c.ownership_epoch=v_r.ownership_epoch
      AND c.current_accountable_domain='TSEO'
-     AND c.case_status IN ('OPEN','TRIAGED','INVESTIGATING')) OR
+     AND c.case_status IN ('OPEN','TRIAGED','INVESTIGATING') FOR SHARE) OR
    NOT EXISTS (SELECT 1 FROM public.feya_growth_handoffs_v1 h
    WHERE h.handoff_id=v_r.handoff_id AND h.case_id=v_r.case_id
      AND h.ownership_epoch=v_r.ownership_epoch
      AND h.source_domain='TSEO' AND h.target_domain='GMEL'
-     AND h.handoff_status='OPEN') OR
+     AND h.handoff_status='OPEN' FOR SHARE) OR
    NOT EXISTS (SELECT 1 FROM public.feya_growth_role_activation_v1 a
    WHERE a.role_code='GMEL' AND a.runtime_status IN ('SHADOW','ACTIVE')
      AND a.allowed_action_codes_json ? 'RECORD_LEARNING_EVIDENCE') THEN
@@ -298,8 +309,8 @@ BEGIN
  END IF;
  SELECT * INTO STRICT v_p FROM public.feya_growth_ai_budget_policies_v1 b
  WHERE b.policy_id=v_r.policy_id;
- v_charge:=ceil((p_input_tokens::numeric*v_p.input_usd_per_million+
-                 p_output_tokens::numeric*v_p.output_usd_per_million)) / 1000000::numeric;
+ v_charge:=ceil((p_input_tokens::numeric*v_r.input_usd_per_million+
+                 p_output_tokens::numeric*v_r.output_usd_per_million)) / 1000000::numeric;
  IF v_charge>v_r.reserved_usd THEN
    RAISE EXCEPTION 'GMEL_BUDGET_ACTUAL_SPEND_EXCEEDS_RESERVATION';
  END IF;
