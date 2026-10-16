@@ -209,7 +209,7 @@ BEGIN
       RETURN;
     END IF;
     UPDATE public.feya_growth_workflow_runs_v1 w
-    SET retry_count=retry_count+1 WHERE w.workflow_run_id=v_run.workflow_run_id;
+    SET retry_count=w.retry_count+1 WHERE w.workflow_run_id=v_run.workflow_run_id;
   END IF;
 
   v_before:=v_run.workflow_status;
