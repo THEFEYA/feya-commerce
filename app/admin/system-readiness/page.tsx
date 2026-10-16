@@ -6,6 +6,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
 import { capabilityLabel, capabilityOwnerSummary, implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { googleOAuthReviewConfiguration } from '@/lib/googleOAuthReviewConfiguration';
+import { OwnerGscReadinessClient } from '@/components/admin/OwnerGscReadinessClient';
 async function getCapabilities(): Promise<{ rows: GrowthCapabilityStatusRow[]; error?: string }> {
   const supabase = getAdminReadClient();
 
@@ -94,12 +95,14 @@ export default async function AdminSystemReadinessPage({ searchParams }: { searc
           <p className="owner-card-copy">Приложение: {googleReview.applicationName}. Номер проекта в MASTER: {googleReview.expectedProjectNumber}.</p>
           <p className="owner-card-copy">Подсказка номера из текущего OAuth client ID: {googleReview.oauthProjectNumberHint || 'недоступна'}. Сверьте её с Project number в Google Cloud → Project info и с существующим клиентом в Clients.</p>
           {googleReview.projectHintMatchesExpected === false ? <p className="owner-card-copy">Номера отличаются: сначала подтвердите, какой проект владеет рабочими OAuth credentials и перенесённым доступом Google Ads API.</p> : null}
-          <p className="owner-card-copy">Brand verification и Basic access ещё требуют подтверждения в Google. После сверки проекта заполните Branding, опубликуйте External / In production, выполните Verify Branding → Publish branding и подайте Basic application.</p>
+          <p className="owner-card-copy">Google Ads API Basic подтверждён письмом Google от 09.10.2026 для проекта 826834264134. Статус Brand Verification проверяется отдельно. Search Console API и разрешение webmasters.readonly настроены отдельно от Google Ads.</p>
           <div className="owner-actions">
             <a href={googleReview.brandingUrl} className="owner-button" target="_blank" rel="noopener noreferrer">Открыть Google Branding</a>
             <Link href="/marketing-tools" className="owner-button">Публичная страница приложения</Link>
           </div>
         </section>
+
+        <OwnerGscReadinessClient />
 
         <form action="/admin/system-readiness" className="owner-card" style={{ marginBottom: '18px' }}>
           <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
