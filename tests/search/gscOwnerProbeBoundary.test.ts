@@ -42,3 +42,17 @@ test('owner UI exposes a single on-demand diagnostic without credentials',()=>{
   assert.match(page,/Google Ads API Basic подтверждён/);
   assert.doesNotMatch(screen,/client_secret|refresh_token|access_token/);
 });
+
+
+test('Owner feedback distinguishes OAuth client mismatch from rejected refresh token',()=>{
+  const messages=[
+    'GSC_OAUTH_CLIENT_REJECTED',
+    'GSC_OAUTH_REFRESH_REJECTED',
+    'GSC_OAUTH_CLIENT_NOT_ALLOWED',
+    'GSC_OAUTH_REQUEST_INVALID'
+  ];
+  for(const code of messages)assert.ok(screen.includes(code),code);
+  assert.ok(screen.includes('FEYA_GSC_OAUTH_REFRESH_TOKEN'));
+  assert.ok(screen.includes('Vercel Production'));
+  assert.doesNotMatch(screen,/GOCSPX-|ya29\.|1\/\//);
+});
