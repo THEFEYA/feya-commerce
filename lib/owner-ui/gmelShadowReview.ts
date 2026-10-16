@@ -4,7 +4,7 @@ import type { GrowthHandoffRow } from '@/lib/types';
 
 type CaseRow = Record<string, unknown>;
 export type GmelShadowReview = {
-  state: 'PENDING' | 'OPERATOR_REVIEWED' | 'AUTONOMOUS_REVIEWED' | 'REJECTED' | 'STALE' | 'UNVERIFIED';
+  state: 'PENDING' | 'OPERATOR_REVIEWED' | 'REJECTED' | 'STALE' | 'UNVERIFIED';
   verdict?: string;
   evidenceLevel?: string;
   businessOutcome?: string;
@@ -51,18 +51,19 @@ export function gmelShadowReviewForCase(row: CaseRow, handoffs: GrowthHandoffRow
   const method = typeof result.independent_review_method === 'string'
     ? result.independent_review_method
     : '';
-  const actualAutonomous = result.autonomous_gmel_agent_executed === true;
+  // Future autonomous reviewers will need a separately authenticated run receipt.
+  // A JSON boolean by itself cannot prove that an agent executed a real task.
   const actualOperator = method === 'OPERATOR_ASSISTED_CHATGPT_SEPARATE_SQL_RECOUNT_NOT_AUTONOMOUS_GMEL_RUNTIME'
     && result.autonomous_gmel_agent_executed === false;
 
-  if (!actualAutonomous && !actualOperator) return { state: 'UNVERIFIED' };
+  if (!actualOperator) return { state: 'UNVERIFIED' };
 
   return {
-    state: actualAutonomous ? 'AUTONOMOUS_REVIEWED' : 'OPERATOR_REVIEWED',
+    state: 'OPERATOR_REVIEWED',
     verdict: String(result.verdict),
     evidenceLevel: String(result.evidence_level),
     businessOutcome: String(result.business_outcome_state),
-    reviewMethod: actualAutonomous ? 'AUTONOMOUS_GMEL_RUNTIME' : 'OPERATOR_ASSISTED_CHATGPT',
+    reviewMethod: 'OPERATOR_ASSISTED_CHATGPT',
     completedAt: h.completed_at,
     limitations: typeof result.notes === 'string' ? result.notes.slice(0, 500) : undefined,
   };
