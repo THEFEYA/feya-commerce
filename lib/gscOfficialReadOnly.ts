@@ -120,13 +120,13 @@ export async function probeOfficialGscReadOnly(
     const seen=new Set<string>();
     let clicks=0,impressions=0,lastDate:string|null=null;
     for(const item of rows){
-      const row=asRecord(item),keys=row?.keys;
+      const row=asRecord(item);\n      const keys=row?.keys;
       const key=Array.isArray(keys)&&keys.length===1?keys[0]:null;
-      if(typeof key!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(key)
+      if(!row||typeof key!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(key)
         ||!Number.isFinite(Date.parse(key+'T00:00:00Z'))
         ||new Date(key+'T00:00:00Z').toISOString().slice(0,10)!==key
         ||key<window.start_date||key>window.end_date||seen.has(key)
-        ||!validCount(row?.clicks)||!validCount(row?.impressions)
+        ||!validCount(row.clicks)||!validCount(row.impressions)
         ||row.clicks>row.impressions)return fail('GSC_INVALID_GOOGLE_RESPONSE');
       seen.add(key);
       clicks+=row.clicks;
