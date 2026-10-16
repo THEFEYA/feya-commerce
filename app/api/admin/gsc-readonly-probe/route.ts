@@ -3,8 +3,6 @@ import { adminAccessDecision } from '@/lib/adminAccess';
 import { getAdminAuthConfigStatus, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { probeOfficialGscReadOnly } from '@/lib/gscOfficialReadOnly';
 
-export const runtime = 'nodejs';
-
 function response(code: string, status: number, extras: Record<string, unknown> = {}) {
   return NextResponse.json({ ok: status === 200, code, ...extras }, {
     status,
