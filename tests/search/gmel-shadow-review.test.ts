@@ -78,3 +78,31 @@ test('the Work and Today surfaces consume one shared verified handoff projection
   assert.match(presenter,/EVIDENCE_REVIEWED/);
   assert.match(detail,/не автономным GMEL-исполнителем/);
 });
+
+test('automatic Core reconciliation is shown as NON-AI preflight, never autonomous GMEL',()=>{
+  const result={
+    ...audit,
+    independent_review_method:'AUTOMATED_SQL_RECONCILIATION_NO_LLM',
+    autonomous_gmel_agent_executed:false,
+    deterministic_core_preflight_executed:true,
+    model_calls:0,
+    changes_applied:0,
+  };
+  const output=gmelShadowReviewForCase(caseRow,[handoff({result_json:result})]);
+  assert.equal(output?.state,'DETERMINISTIC_RECONCILED');
+  assert.equal(output?.reviewMethod,'AUTOMATED_SQL_RECONCILIATION_NO_LLM');
+  assert.equal(output?.businessOutcome,'NOT_MEASURABLE');
+  assert.equal(gmelShadowReviewForCase(caseRow,[handoff({result_json:{...result,model_calls:1}})])?.state,'UNVERIFIED');
+  assert.equal(gmelShadowReviewForCase(caseRow,[handoff({result_json:{...result,autonomous_gmel_agent_executed:true}})])?.state,'UNVERIFIED');
+  assert.equal(gmelShadowReviewForCase(caseRow,[handoff({result_json:{...result,deterministic_core_preflight_executed:false}})])?.state,'UNVERIFIED');
+});
+
+test('automatic case display keeps the owner decision and future model review distinct',()=>{
+  const presenter=readFileSync(new URL('../../lib/owner-ui/presenters.ts',import.meta.url),'utf8');
+  const labels=readFileSync(new URL('../../lib/owner-ui/terminology.ts',import.meta.url),'utf8');
+  const detail=readFileSync(new URL('../../app/admin/company/work/[id]/page.tsx',import.meta.url),'utf8');
+  assert.match(presenter,/DETERMINISTIC_RECONCILED/);
+  assert.match(presenter,/EVIDENCE_PREFLIGHT/);
+  assert.match(labels,/AI-проверка ещё не выполнена/);
+  assert.match(detail,/Автоматическая SQL-сверка · без AI/);
+});
