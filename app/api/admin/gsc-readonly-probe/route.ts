@@ -15,7 +15,13 @@ function response(code: string, status: number, extras: Record<string, unknown> 
 
 /** Owner diagnostic only: no persistence, no tokens returned, no automatic GMEL work. */
 export async function POST(request: NextRequest) {
-  if (!request.headers.get('origin') || request.headers.get('origin') !== request.nextUrl.origin) {
+  const host = request.headers.get('host');
+  const forwarded = request.headers.get('x-forwarded-proto');
+  const scheme = forwarded === 'https' || forwarded === 'http'
+    ? forwarded : request.nextUrl.protocol.replace(':', '');
+  const expectedOrigin = host && /^[-.a-zA-Z0-9]+(?::[0-9]+)?$/.test(host)
+    ? scheme + '://' + host : null;
+  if (!expectedOrigin || request.headers.get('origin') !== expectedOrigin) {
     return response('GSC_OWNER_ORIGIN_DENIED', 403);
   }
 
