@@ -90,12 +90,14 @@ const failureCodes: Record<string, GmelAiBlocker> = {
   COMMERCE_REVENUE_TRUTH: 'COMMERCE_REVENUE_TRUTH_UNAVAILABLE',
 };
 
-function liveSource(source: FeyaEvidenceSource | undefined): boolean {
-  return Boolean(source &&
-    source.health_state === 'HEALTHY' &&
-    source.freshness_state === 'FRESH' &&
-    source.checked_at &&
-    Number.isFinite(Date.parse(source.checked_at)));
+function liveSource(source: FeyaEvidenceSource | undefined, now: Date): boolean {
+  if (!source || source.health_state !== 'HEALTHY' ||
+      source.freshness_state !== 'FRESH' || !source.checked_at) return false;
+  const seen = Date.parse(source.checked_at);
+  const ageMs = now.getTime() - seen;
+  // Match the existing source-health V2 hard upper ceiling; future timestamps
+  // must not turn an unverified dataset into supposedly live evidence.
+  return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 7 * 24 * 60 * 60 * 1000;
 }
 
 function positiveFinite(value: unknown): value is number {
@@ -132,7 +134,10 @@ export function evaluateGmelAiAdmission(input: GmelAdmissionInput): GmelAdmissio
     const source = byCode.get(code);
     sourceStates[code] = source ? `${source.health_state}/${source.freshness_state}` : 'MISSING';
     if (!source) blockers.push('SOURCE_REGISTRY_MISSING');
-    if (!liveSource(source)) blockers.push(failureCodes[code]);
+    if (!liveSource(source, input.now)) {
+      blockers.push(failureCodes[code]);
+      if (source?.health_state === 'HEALTHY' && source.freshness_state === 'FRESH') blockers.push('SOURCE_EVIDENCE_NOT_FRESH');
+    }
   }
 
   if (!input.model_executor_enabled) blockers.push('MODEL_EXECUTOR_DISABLED');
