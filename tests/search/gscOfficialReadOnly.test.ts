@@ -93,6 +93,51 @@ test('untrusted provider errors are generic without token or upstream body',asyn
   assert.equal(JSON.stringify(result).includes('.private'),false);
 });
 
+
+test('Google OAuth failures are classified safely without echoing provider bodies or tokens',async()=>{
+  const cases:[
+    number,string,'GSC_OAUTH_CLIENT_REJECTED'|'GSC_OAUTH_REFRESH_REJECTED'|
+    'GSC_OAUTH_CLIENT_NOT_ALLOWED'|'GSC_OAUTH_REQUEST_INVALID'|
+    'GSC_OAUTH_REJECTED'|'GSC_GOOGLE_UNAVAILABLE'
+  ][]=[
+    [401,'invalid_client','GSC_OAUTH_CLIENT_REJECTED'],
+    [400,'invalid_grant','GSC_OAUTH_REFRESH_REJECTED'],
+    [400,'unauthorized_client','GSC_OAUTH_CLIENT_NOT_ALLOWED'],
+    [400,'invalid_request','GSC_OAUTH_REQUEST_INVALID'],
+    [403,'unexpected_error','GSC_OAUTH_REJECTED'],
+    [429,'rate_limited','GSC_GOOGLE_UNAVAILABLE'],
+    [503,'server_down','GSC_GOOGLE_UNAVAILABLE'],
+  ];
+  for(const [status,googleCode,expected] of cases){
+    let calls=0;
+    const provider=async(_url:string)=>{
+      calls++;
+      return new Response(JSON.stringify({
+        error:googleCode,
+        error_description:'PRIVATE_SECRET_VALUE_MUST_NOT_LEAK'
+      }),{status});
+    };
+    const result=await probeOfficialGscReadOnly(env,provider,now);
+    assert.equal(result.code,expected,googleCode);
+    assert.equal(result.ok,false);
+    assert.equal(calls,1,'failed token exchange must not request Google sites');
+    assert.equal(result.daily_rows,null);
+    const body=JSON.stringify(result);
+    assert.equal(body.includes('PRIVATE_SECRET_VALUE_MUST_NOT_LEAK'),false);
+    assert.equal(body.includes('refresh.private'),false);
+    assert.equal(body.includes('secret.private'),false);
+  }
+});
+
+test('malformed Google OAuth errors stay generic and private',async()=>{
+  const provider=async()=>new Response('Do not disclose refresh.private secret.private',{
+    status:400,headers:{'Content-Type':'text/plain'}
+  });
+  const result=await probeOfficialGscReadOnly(env,provider,now);
+  assert.equal(result.code,'GSC_OAUTH_REJECTED');
+  assert.equal(JSON.stringify(result).includes('secret.private'),false);
+});
+
 test('invalid dates, duplicates, impossible counts and contaminated groups are blocked',async()=>{
   const invalid=[
     [{keys:['2026-10-15'],clicks:2,impressions:9,position:5}],
