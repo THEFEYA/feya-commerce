@@ -8,6 +8,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
 import { OwnerShadowReadinessClient } from '@/components/admin/OwnerShadowReadinessClient';
+import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { getOwnerActionConfigStatus, requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
@@ -200,7 +201,10 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   const q = String(params.q || '').trim().toLowerCase();
   const statusFilter = String(params.status || 'active');
   const ownerFilter = String(params.owner || 'all');
-  const workVM = work.map(presentWorkItem);
+  const workVM = work.map((row) => presentWorkItem({
+    ...row,
+    gmel_review_state: gmelShadowReviewForCase(row, handoffs)?.state,
+  }));
   const activeWorkVM = workVM.filter((item) => !['COMPLETED', 'CLOSED'].includes(item.status));
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
