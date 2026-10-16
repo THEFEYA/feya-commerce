@@ -44,8 +44,8 @@ test('exact domain property and real rights are required, URL-prefix is insuffic
 });
 
 test('bounded verified reads use read-only site and final date-grouped query',async()=>{
-  const p=fixture([{keys:['2026-10-04'],clicks:2,impressions:51},
-    {keys:['2026-10-13'],clicks:1,impressions:9}]);
+  const p=fixture([{keys:['2026-10-04'],clicks:2,impressions:51,position:5},
+    {keys:['2026-10-13'],clicks:1,impressions:9,position:7}]);
   const result=await probeOfficialGscReadOnly(env,p.fetcher,now);
   assert.equal(result.ok,true);
   assert.equal(result.code,'GSC_VERIFIED_WITH_FINAL_ROWS');
@@ -54,6 +54,10 @@ test('bounded verified reads use read-only site and final date-grouped query',as
   assert.equal(result.impressions_in_observed_rows,60);
   assert.equal(result.last_observed_date,'2026-10-13');
   assert.equal(result.days_observed,2);
+  assert.deepEqual(result.daily_rows,[
+    {date:'2026-10-04',clicks:2,impressions:51,position:5},
+    {date:'2026-10-13',clicks:1,impressions:9,position:7}
+  ]);
   assert.equal(result.persisted,false);
   assert.equal(result.growth_os_source_healthy,false);
   assert.equal(result.indexed_urls_observed,false);
@@ -74,6 +78,7 @@ test('no final date rows is unknown activity, not measured zero',async()=>{
   const result=await probeOfficialGscReadOnly(env,p.fetcher,now);
   assert.equal(result.code,'GSC_VERIFIED_NO_FINAL_ROWS');
   assert.equal(result.days_observed,0);
+  assert.deepEqual(result.daily_rows,[]);
   assert.equal(result.clicks_in_observed_rows,null);
   assert.equal(result.impressions_in_observed_rows,null);
 });
@@ -90,12 +95,12 @@ test('untrusted provider errors are generic without token or upstream body',asyn
 
 test('invalid dates, duplicates, impossible counts and contaminated groups are blocked',async()=>{
   const invalid=[
-    [{keys:['2026-10-15'],clicks:2,impressions:9}],
-    [{keys:['2026-10-04'],clicks:2,impressions:9},{keys:['2026-10-04'],clicks:2,impressions:9}],
-    [{keys:['2026-10-04'],clicks:4,impressions:2}],
-    [{keys:['2026-10-04','US'],clicks:1,impressions:3}],
-    [{keys:['2026-02-30'],clicks:1,impressions:3}],
-    [{keys:['2026-10-04'],clicks:-1,impressions:3}],
+    [{keys:['2026-10-15'],clicks:2,impressions:9,position:5}],
+    [{keys:['2026-10-04'],clicks:2,impressions:9,position:5},{keys:['2026-10-04'],clicks:2,impressions:9,position:5}],
+    [{keys:['2026-10-04'],clicks:4,impressions:2,position:5}],
+    [{keys:['2026-10-04','US'],clicks:1,impressions:3,position:5}],
+    [{keys:['2026-02-30'],clicks:1,impressions:3,position:5}],
+    [{keys:['2026-10-04'],clicks:-1,impressions:3,position:5}],
   ];
   for(const rows of invalid){
     const p=fixture(rows);
@@ -103,6 +108,33 @@ test('invalid dates, duplicates, impossible counts and contaminated groups are b
     assert.equal(result.code,'GSC_INVALID_GOOGLE_RESPONSE',JSON.stringify(rows));
     assert.equal(result.persisted,false);
   }
+});
+
+
+test('Google Search Console uses Pacific calendar day across UTC midnight',async()=>{
+  const p=fixture();
+  const result=await probeOfficialGscReadOnly(env,p.fetcher,new Date('2026-10-16T02:00:00Z'));
+  assert.deepEqual(result.window,{start_date:'2026-09-29',end_date:'2026-10-12'});
+});
+
+test('provider position, zero traffic and date-shape validation are fail closed',async()=>{
+  for(const badRow of [
+    {keys:['2026-10-04'],clicks:2,impressions:9,position:NaN},
+    {keys:['2026-10-04'],clicks:2,impressions:9,position:-1},
+    {keys:['2026-10-04'],clicks:2,impressions:9,position:Infinity},
+    {keys:['2026-10-04'],clicks:0,impressions:0,position:4},
+    {keys:['2026-10-04'],clicks:1,impressions:9,position:0},
+    {keys:['2026-10-04'],clicks:2,impressions:9},
+  ]){
+    const result=await probeOfficialGscReadOnly(env,fixture([badRow]).fetcher,now);
+    assert.equal(result.code,'GSC_INVALID_GOOGLE_RESPONSE');
+    assert.equal(result.daily_rows,null);
+  }
+  const quiet=await probeOfficialGscReadOnly(env,fixture([
+    {keys:['2026-10-03'],clicks:0,impressions:0,position:0}
+  ]).fetcher,now);
+  assert.equal(quiet.code,'GSC_VERIFIED_WITH_FINAL_ROWS');
+  assert.deepEqual(quiet.daily_rows,[{date:'2026-10-03',clicks:0,impressions:0,position:0}]);
 });
 
 test('internal API route is protected and remains read-only; env example stays off',()=>{
