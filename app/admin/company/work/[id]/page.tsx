@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentWorkItem } from '@/lib/owner-ui/presenters';
+import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 type Row = Record<string, unknown>;
@@ -104,7 +105,8 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
   const { row, handoffs, workflowEvents, readinessReceipt, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
-  const item = row ? presentWorkItem(row) : null;
+  const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
+  const item = row ? presentWorkItem({ ...row, gmel_review_state: gmelReview?.state }) : null;
 
   return (
     <main className="owner-page">
@@ -120,6 +122,22 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
+        {gmelReview?.state === 'OPERATOR_REVIEWED' ? (
+          <section className="owner-card" aria-label="Оценка доказательств GMEL">
+            <div className="owner-status is-info">Проверка доказательств · с участием ChatGPT</div>
+            <h2 className="owner-card-title">GMEL: подтверждён только внутренний Search Release</h2>
+            <p className="owner-card-copy">
+              Повторный запрос к действующим данным подтвердил непротиворечивость планов index/noindex.
+              Уровень доказательств: L0 — наблюдение. Измеренного коммерческого результата пока нет.
+            </p>
+            <p className="owner-card-copy">
+              Проверка выполнена с помощью ChatGPT и сохранена в handoff, а не автономным GMEL-исполнителем.
+              Статистика индексации Google, GSC-клики и GA4-конверсии не подтверждены.
+              Это не разрешение менять SEO-тексты, метаданные или индексацию.
+            </p>
+            <div className="owner-status">Кейс остаётся открытым до корректного следующего решения</div>
+          </section>
+        ) : null}
         {readinessReceipt ? (
           <section className="owner-card" aria-label="Фактический отчёт TSEO">
             <div className="owner-status is-success">Снимок TSEO сохранён</div>
