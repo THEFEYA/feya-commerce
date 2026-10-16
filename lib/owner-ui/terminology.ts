@@ -39,7 +39,6 @@ const STATUS_LABELS: Record<string, string> = {
   WAITING_FOR_OWNER: 'Ждёт вашего решения',
   WAITING_REVIEW: 'Ожидает независимой проверки',
   EVIDENCE_REVIEWED: 'Доказательства сверены · кейс ещё открыт',
-  REVIEW_REQUIRED: 'Нужна повторная проверка',
   BLOCKED: 'Заблокировано',
   COMPLETED: 'Работа завершена',
   MEASURING: 'Измеряем результат',
