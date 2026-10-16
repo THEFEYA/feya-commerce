@@ -78,3 +78,46 @@ test('only service_role may read financial rows or execute budget functions',asy
  const r=await query("select proname,has_function_privilege('anon',oid,'EXECUTE') a,has_function_privilege('service_role',oid,'EXECUTE') s from pg_proc where proname like 'feya_fn_%gmel_ai_spend_v1'");
  assert.equal(r.length,4);for(const x of r)assert.deepEqual([x.a,x.s],[false,true]);
 });
+
+test('stale case, wrong target, or invalid worker lease cannot reserve funds',async()=>{
+ await query('update public.feya_growth_cases_v1 set ownership_epoch=2 where case_id=$1',[caseId]);
+ await assert.rejects(reserve(),/CASE_STALE/);
+ await query('update public.feya_growth_cases_v1 set ownership_epoch=1 where case_id=$1',[caseId]);
+ await query("update public.feya_growth_handoffs_v1 set target_domain='OSPM' where handoff_id=$1",[handoffId]);
+ await assert.rejects(reserve(),/HANDOFF_NOT_OPEN/);
+ await query("update public.feya_growth_handoffs_v1 set target_domain='GMEL' where handoff_id=$1",[handoffId]);
+ await assert.rejects(reserve({worker:'wrong-worker'}),/UNLEASED_WORK/);
+ await query("update public.feya_growth_workflow_runs_v1 set lease_expires_at=now()-interval '1 second' where workflow_run_id=$1",[runId]);
+ await assert.rejects(reserve(),/UNLEASED_WORK/);
+});
+
+test('role revocation or budget shutdown before submission blocks any provider call',async()=>{
+ const r=await reserve();
+ await query("update public.feya_growth_role_activation_v1 set runtime_status='INACTIVE'");
+ await assert.rejects(submit(r.reservation_id),/SCOPE_REVOKED/);
+ await query("update public.feya_growth_role_activation_v1 set runtime_status='SHADOW'");
+ await query("update public.feya_growth_ai_budget_policies_v1 set enabled=false");
+ await assert.rejects(submit(r.reservation_id),/POLICY_REVOKED/);
+});
+
+test('settlement uses frozen reservation rates even if the policy later changes',async()=>{
+ const r=await reserve();
+ await query("update public.feya_growth_ai_budget_policies_v1 set input_usd_per_million=9,output_usd_per_million=9");
+ await submit(r.reservation_id);
+ const done=await settle(r.reservation_id);
+ assert.equal(Number(done.settled_usd),0.0006);
+ const snap=(await query("select input_usd_per_million,output_usd_per_million,price_contract_version from public.feya_growth_ai_spend_reservations_v1 where reservation_id=$1",[r.reservation_id]))[0];
+ assert.equal(Number(snap.input_usd_per_million),2);
+ assert.equal(Number(snap.output_usd_per_million),4);
+ assert.equal(snap.price_contract_version,'fixture-price');
+});
+
+test('unsubmitted reservation can be released without deleting the audit record',async()=>{
+ const r=await reserve();
+ const yes=(await query("select public.feya_fn_release_unsent_gmel_ai_spend_v1($1::uuid,$2::text) released",[r.reservation_id,'worker-1']))[0].released;
+ assert.equal(yes,true);
+ assert.equal((await submit(r.reservation_id)).may_call_provider,false);
+ const no=(await query("select public.feya_fn_release_unsent_gmel_ai_spend_v1($1::uuid,$2::text) released",[r.reservation_id,'worker-1']))[0].released;
+ assert.equal(no,false);
+ await assert.rejects(settle(r.reservation_id),/NEVER_SUBMITTED/);
+});
