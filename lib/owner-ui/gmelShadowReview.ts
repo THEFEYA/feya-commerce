@@ -4,7 +4,7 @@ import type { GrowthHandoffRow } from '@/lib/types';
 
 type CaseRow = Record<string, unknown>;
 export type GmelShadowReview = {
-  state: 'PENDING' | 'OPERATOR_REVIEWED' | 'REJECTED' | 'STALE' | 'UNVERIFIED';
+  state: 'PENDING' | 'OPERATOR_REVIEWED' | 'DETERMINISTIC_RECONCILED' | 'REJECTED' | 'STALE' | 'UNVERIFIED';
   verdict?: string;
   evidenceLevel?: string;
   businessOutcome?: string;
@@ -56,14 +56,20 @@ export function gmelShadowReviewForCase(row: CaseRow, handoffs: GrowthHandoffRow
   const actualOperator = method === 'OPERATOR_ASSISTED_CHATGPT_SEPARATE_SQL_RECOUNT_NOT_AUTONOMOUS_GMEL_RUNTIME'
     && result.autonomous_gmel_agent_executed === false;
 
-  if (!actualOperator) return { state: 'UNVERIFIED' };
+  const deterministic = method === 'AUTOMATED_SQL_RECONCILIATION_NO_LLM'
+    && result.autonomous_gmel_agent_executed === false
+    && result.deterministic_core_preflight_executed === true
+    && result.model_calls === 0
+    && result.changes_applied === 0;
+
+  if (!actualOperator && !deterministic) return { state: 'UNVERIFIED' };
 
   return {
-    state: 'OPERATOR_REVIEWED',
+    state: deterministic ? 'DETERMINISTIC_RECONCILED' : 'OPERATOR_REVIEWED',
     verdict: String(result.verdict),
     evidenceLevel: String(result.evidence_level),
     businessOutcome: String(result.business_outcome_state),
-    reviewMethod: 'OPERATOR_ASSISTED_CHATGPT',
+    reviewMethod: deterministic ? 'AUTOMATED_SQL_RECONCILIATION_NO_LLM' : 'OPERATOR_ASSISTED_CHATGPT',
     completedAt: h.completed_at,
     limitations: typeof result.notes === 'string' ? result.notes.slice(0, 500) : undefined,
   };
