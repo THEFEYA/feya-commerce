@@ -159,10 +159,13 @@ export function evaluateGmelAiAdmission(input: GmelAdmissionInput): GmelAdmissio
   if (!budget?.price_contract_version) blockers.push('PRICING_POLICY_MISSING');
   if (!budget?.reserved_atomically) blockers.push('SPEND_RESERVATION_UNAVAILABLE');
 
+  // Not every *_UNAVAILABLE status refers to measurement data:
+  // SPEND_RESERVATION_UNAVAILABLE is a financial authorization blocker.
+  const dataSourceErrors = new Set<GmelAiBlocker>(Object.values(failureCodes));
   const dataBlocked = blockers.some(code =>
     code === 'SOURCE_REGISTRY_MISSING' ||
     code === 'SOURCE_EVIDENCE_NOT_FRESH' ||
-    code.endsWith('_UNAVAILABLE'));
+    dataSourceErrors.has(code));
 
   return {
     allowed_to_dispatch: blockers.length === 0,
