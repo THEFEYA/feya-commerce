@@ -122,6 +122,21 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
+        {gmelReview?.state === 'DETERMINISTIC_RECONCILED' ? (
+          <section className="owner-card" aria-label="Автоматическая сверка источников Growth OS">
+            <div className="owner-status is-info">Автоматическая SQL-сверка · без AI</div>
+            <h2 className="owner-card-title">Факты действующего Search Release согласованы</h2>
+            <p className="owner-card-copy">
+              Growth OS самостоятельно сверил уникальность URL, состояния index/noindex,
+              наличие утверждённых товарных привязок и оригинальный снимок TSEO.
+            </p>
+            <p className="owner-card-copy">
+              Это техническая предварительная проверка, а не независимый AI-анализ GMEL.
+              GSC, GA4 и результаты продаж здесь не измерялись. Уровень доказательств
+              ограничен L0, бизнес-результат не определён. Кейс остаётся открытым.
+            </p>
+          </section>
+        ) : null}
         {gmelReview?.state === 'OPERATOR_REVIEWED' ? (
           <section className="owner-card" aria-label="Оценка доказательств GMEL">
             <div className="owner-status is-info">Проверка доказательств · с участием ChatGPT</div>
