@@ -74,8 +74,12 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
     text(row.case_type) === 'TSEO_INDEXABILITY_SHADOW' &&
     text(row.workflow_status) === 'COMPLETED' &&
     !['CLOSED', 'CANCELLED'].includes(text(row.case_status));
+  const gmelReviewState = text(row.gmel_review_state);
   const status = shadowAwaitingReview
-    ? 'WAITING_REVIEW'
+    ? gmelReviewState === 'OPERATOR_REVIEWED' ? 'EVIDENCE_REVIEWED'
+      : gmelReviewState === 'AUTONOMOUS_REVIEWED' ? 'EVIDENCE_REVIEWED'
+      : gmelReviewState === 'REJECTED' || gmelReviewState === 'STALE' ? 'REVIEW_REQUIRED'
+      : 'WAITING_REVIEW'
     : text(row.workflow_status) || text(row.case_status, 'OPEN');
   return {
     id: text(row.case_id),
@@ -84,12 +88,14 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
     purpose: text(row.business_question, 'Проверить ситуацию и определить следующий шаг.'),
     status,
     statusLabel: statusLabel(status),
-    tone: ownerToneForStatus(status),
+    tone: status === 'EVIDENCE_REVIEWED' ? 'info' : ownerToneForStatus(status),
     priority: text(row.priority, 'P3'),
     priorityLabel: priorityLabel(row.priority),
     ownerLabel: roleLabel(row.current_accountable_domain),
     currentStep: text(row.current_step_code) || null,
-    waitReason: text(row.wait_reason) || null,
+    waitReason: status === 'EVIDENCE_REVIEWED'
+      ? 'Данные внутреннего релиза проверены. Это не означает, что Google проиндексировал страницы или что бизнес-эффект измерен.'
+      : text(row.wait_reason) || null,
     blockedReason: text(row.blocked_reason) || null,
     updatedAt: text(row.workflow_updated_at || row.updated_at) || null,
   };
