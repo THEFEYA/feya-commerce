@@ -19,6 +19,8 @@ import { getActiveSearchEvidence } from '@/lib/owner-ui/activeSearchReleaseEvide
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { admissionLabel, priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
+import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
+import type { GrowthHandoffRow } from '@/lib/types';
 type Row = Record<string, unknown>;
 
 type TodayData = {
@@ -26,6 +28,7 @@ type TodayData = {
   commerceApprovals: Row[];
   signals: Row[];
   work: Row[];
+  handoffs: GrowthHandoffRow[];
   workTotal: number;
   opportunities: Row[];
   readiness: Row[];
@@ -46,6 +49,7 @@ async function getTodayData(): Promise<TodayData> {
       commerceApprovals: [],
       signals: [],
       work: [],
+      handoffs: [],
       workTotal: 0,
       opportunities: [],
       readiness: [],
@@ -126,6 +130,20 @@ async function getTodayData(): Promise<TodayData> {
       .order('created_at', { ascending: true }),
   ]);
 
+  // Only a few active owner work items are on the Today screen. Query their
+  // canonical reviews, not every historical handoff in the database.
+  const recentCases = ((workResult.data || []) as Row[])
+    .filter(row => row.case_type === 'TSEO_INDEXABILITY_SHADOW')
+    .map(row => String(row.case_id || ''))
+    .filter(Boolean);
+  const reviewResult = recentCases.length
+    ? await supabase.from('feya_commerce_v_growth_handoffs_safe_v1')
+        .select('handoff_id,case_id,ownership_epoch,source_domain,target_domain,expected_output_schema_code,handoff_status,result_json,completed_at,created_at')
+        .in('case_id', recentCases)
+        .eq('target_domain', 'GMEL')
+        .order('created_at', { ascending: false }).limit(30)
+    : { data: [] as GrowthHandoffRow[], error: null };
+
   const firstError =
     attentionResult.error ||
     signalResult.error ||
@@ -136,13 +154,14 @@ async function getTodayData(): Promise<TodayData> {
     keywordReviewResult.error ||
     cqaActionableResult.error ||
     cqaAutomaticResult.error ||
-    commerceApprovalsResult.error;
+    commerceApprovalsResult.error || reviewResult.error;
   if (firstError) {
     return {
       attention: [],
       commerceApprovals: [],
       signals: [],
       work: [],
+      handoffs: [],
       workTotal: 0,
       opportunities: [],
       readiness: [],
@@ -156,6 +175,7 @@ async function getTodayData(): Promise<TodayData> {
     commerceApprovals: (commerceApprovalsResult.data || []) as Row[],
     signals: (signalResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
+    handoffs: (reviewResult.data || []) as GrowthHandoffRow[],
     workTotal: workResult.count || 0,
     opportunities: (opportunityResult.data || []) as Row[],
     readiness: (readinessResult.data || []) as Row[],
@@ -199,7 +219,7 @@ function pluralRu(value: number, one: string, few: string, many: string) {
 export default async function AdminHomePage() {
   await connection();
   const [today, activeSearch] = await Promise.all([getTodayData(), getActiveSearchEvidence()]);
-  const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = today;
+  const { attention, commerceApprovals, signals, work, handoffs, workTotal, opportunities, readiness, operations, error } = today;
 
   const attentionVM = attention.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));
   const commerceAttentionVM = presentCommerceExecutionApprovals(commerceApprovals);
@@ -215,7 +235,10 @@ export default async function AdminHomePage() {
     .slice(0, 4)
     .map((row) => ({ row, vm: presentSignal(row) }));
 
-  const workVM = work.map(presentWorkItem);
+  const workVM = work.map(row => presentWorkItem({
+    ...row,
+    gmel_review_state: gmelShadowReviewForCase(row, handoffs)?.state,
+  }));
   const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
   const totalBlockers = readiness.reduce((sum, row) => sum + Number(row.blocking_count || 0), 0);
   const operationalQueueTotal = operations.productFacts + operations.keywordReview + operations.cqaActionable;
