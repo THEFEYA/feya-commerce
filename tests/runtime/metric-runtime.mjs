@@ -218,6 +218,34 @@ try {
   assert.equal(await ownerPage.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow, nocache');
   assert.equal(await ownerPage.getByText('Не удалось получить полную сводку наблюдений:',{exact:false}).count(),0);
  });
+ await check('Owner GSC diagnostic is login-bound, same-origin, read-only and disabled without GSC read authority',async()=>{
+  const before=await counts(),endpoint=base+'/api/admin/gsc-readonly-probe';
+  const guest=await browser.newContext();
+  try {
+    const unauth=await guest.request.post(endpoint,{headers:{origin:base}});
+    assert.equal(unauth.status(),401);
+    assert.match(unauth.headers()['cache-control'],/no-store/);
+  }finally{await guest.close();}
+  const wrongOrigin=await ownerPage.request.post(endpoint,{headers:{origin:'https://other.example.invalid'}});
+  assert.equal(wrongOrigin.status(),403);
+  assert.equal((await wrongOrigin.json()).code,'GSC_OWNER_ORIGIN_DENIED');
+
+  const ownerCheck=await ownerPage.request.post(endpoint,{headers:{origin:base}});
+  assert.equal(ownerCheck.status(),503);
+  assert.match(ownerCheck.headers()['cache-control'],/no-store/);
+  assert.deepEqual(await ownerCheck.json(),{
+    ok:false,code:'GSC_READ_DISABLED',source_health_promoted:false
+  });
+  const diagnosticTab=await owner.newPage();
+  try{
+    const loaded=await diagnosticTab.goto(base+'/admin/system-readiness');
+    assert.equal(loaded.status(),200);
+    await diagnosticTab.getByRole('button',{name:'Проверить подключение GSC'}).click();
+    await diagnosticTab.getByText('Серверная проверка выключена.',{exact:false}).waitFor();
+  }finally{await diagnosticTab.close();}
+  assert.deepEqual(await counts(),before);
+ });
+
  await check('Disabled and absent Auth flags lock admin reads/writes even with an owner cookie; public routes remain available',async()=>{
   const before=await counts(),lockedBase='http://127.0.0.1:3001';
   for(const flag of ['false',undefined]){
