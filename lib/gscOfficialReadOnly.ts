@@ -120,7 +120,8 @@ export async function probeOfficialGscReadOnly(
     const seen=new Set<string>();
     let clicks=0,impressions=0,lastDate:string|null=null;
     for(const item of rows){
-      const row=asRecord(item);\n      const keys=row?.keys;
+      const row=asRecord(item);
+      const keys=row?.keys;
       const key=Array.isArray(keys)&&keys.length===1?keys[0]:null;
       if(!row||typeof key!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(key)
         ||!Number.isFinite(Date.parse(key+'T00:00:00Z'))
