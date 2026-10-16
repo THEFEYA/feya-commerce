@@ -190,7 +190,7 @@ BEGIN
     p_source_channel,p_property_url,p_query_start,p_query_end,p_finalized_through,
     v_length,v_rows,p_expected_clicks,p_expected_impressions,
     v_position_total,p_source_evidence_ref,v_digest
-  ) ON CONFLICT (payload_sha256) DO NOTHING
+  ) ON CONFLICT ON CONSTRAINT feya_growth_gsc_observation_receipts_v1_payload_sha256_key DO NOTHING
   RETURNING public.feya_growth_gsc_observation_receipts_v1.receipt_id INTO v_receipt_id;
   v_created:=v_receipt_id IS NOT NULL;
   IF NOT v_created THEN
