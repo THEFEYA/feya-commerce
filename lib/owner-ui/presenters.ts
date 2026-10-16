@@ -76,7 +76,8 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
     !['CLOSED', 'CANCELLED'].includes(text(row.case_status));
   const gmelReviewState = text(row.gmel_review_state);
   const status = shadowAwaitingReview
-    ? gmelReviewState === 'OPERATOR_REVIEWED' ? 'EVIDENCE_REVIEWED'
+    ? gmelReviewState === 'DETERMINISTIC_RECONCILED' ? 'EVIDENCE_PREFLIGHT'
+      : gmelReviewState === 'OPERATOR_REVIEWED' ? 'EVIDENCE_REVIEWED'
       : gmelReviewState === 'REJECTED' || gmelReviewState === 'STALE' ? 'REVIEW_REQUIRED'
       : 'WAITING_REVIEW'
     : text(row.workflow_status) || text(row.case_status, 'OPEN');
@@ -87,12 +88,14 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
     purpose: text(row.business_question, 'Проверить ситуацию и определить следующий шаг.'),
     status,
     statusLabel: statusLabel(status),
-    tone: status === 'EVIDENCE_REVIEWED' ? 'info' : ownerToneForStatus(status),
+    tone: ['EVIDENCE_REVIEWED','EVIDENCE_PREFLIGHT'].includes(status) ? 'info' : ownerToneForStatus(status),
     priority: text(row.priority, 'P3'),
     priorityLabel: priorityLabel(row.priority),
     ownerLabel: roleLabel(row.current_accountable_domain),
     currentStep: text(row.current_step_code) || null,
-    waitReason: status === 'EVIDENCE_REVIEWED'
+    waitReason: status === 'EVIDENCE_PREFLIGHT'
+      ? 'Автоматически сверена структура Search Release. Независимый AI-рецензент GMEL не запускался, бизнес-результат не измерен.'
+      : status === 'EVIDENCE_REVIEWED'
       ? 'Данные внутреннего релиза проверены. Это не означает, что Google проиндексировал страницы или что бизнес-эффект измерен.'
       : text(row.wait_reason) || null,
     blockedReason: text(row.blocked_reason) || null,

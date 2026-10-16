@@ -27,6 +27,13 @@ type Result = {
   error?: string;
   case_id?: string;
   receipt?: Receipt | null;
+  gmel_review?: {
+    status: string;
+    method: string;
+    handoff_id?: string;
+    model_calls: number;
+    changes_applied: number;
+  } | null;
   message?: string;
 };
 type Props = {
@@ -55,7 +62,8 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
       const data = (await response.json()) as Result;
       setResult(data);
       if (data.ok && data.status === 'COMPLETED') {
-        requestId.current = null;
+        // Preserve the request id while the second deterministic step awaits retry.
+        if (data.gmel_review?.status === 'COMPLETED') requestId.current = null;
         router.refresh();
       }
     } catch {
@@ -91,7 +99,7 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
               disabled={running}
               onClick={submit}
             >
-              {running ? 'Проверяется…' : 'Запустить проверку'}
+              {running ? 'Проверяется…' : result?.gmel_review?.status === 'PENDING' ? 'Повторить сохранённую проверку' : 'Запустить проверку'}
             </button>
           </div>
         </div>
@@ -122,6 +130,16 @@ export function OwnerShadowReadinessClient({ enabled, reason }: Props) {
                 <span>Утверждённых товаров: {result.receipt.approved_product_bindings}</span>
               </p>
               <p className="owner-card-copy">{result.receipt.conclusion}</p>
+              {result.gmel_review ? (
+                <p className="owner-card-copy">
+                  Проверка доказательств: {result.gmel_review.status === 'COMPLETED'
+                    ? result.gmel_review.method === 'AUTOMATED_SQL_RECONCILIATION_NO_LLM'
+                      ? 'автоматическая SQL-сверка завершена (без AI)'
+                      : 'ранее сохранённая проверка повторно использована'
+                    : 'ожидает безопасного повтора'}.
+                  GMEL-модель не запускалась; сайт не изменялся.
+                </p>
+              ) : null}
               <p className="owner-card-copy">Независимая агентная проверка: ещё не проводилась.</p>
             </>
           ) : null}
