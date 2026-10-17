@@ -1,6 +1,7 @@
 export const instant = false;
 
 import Link from 'next/link';
+import {connection} from 'next/server';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerDataSourceDrawerClient } from '@/components/admin/OwnerDataSourceDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
@@ -76,6 +77,7 @@ function healthClass(value: unknown) {
 }
 
 export default async function AdminDataHealthPage() {
+  await connection(); // Prevent Cache Components from prerendering dynamic source freshness.
   const [{rows,error},{quality:gscQuality,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
 
   const healthy = rows.filter((row) => row.health_state === 'HEALTHY').length;
