@@ -62,7 +62,7 @@ test('scheduler does not bootstrap source and cannot silently skip older final d
   }
 });
 
-test('cron route requires explicit CRON_SECRET before any backend call and has no active registration',()=>{
+test('cron route is separately OFF, signed and registered only once daily',()=>{
   const route=readFileSync('app/api/cron/gsc-daily/route.ts','utf8');
   const config=readFileSync('vercel.json','utf8');
   assert.match(route,/timingSafeEqual/);
@@ -81,10 +81,16 @@ test('cron route requires explicit CRON_SECRET before any backend call and has n
   for(const bad of ['OPENAI_API_KEY','cron.schedule','FEYA_ADMIN_ALLOWED_USER_IDS','FEYA_GSC_OAUTH_CLIENT_SECRET']){
     assert.equal(route.includes(bad),false,bad);
   }
-  assert.equal(JSON.parse(config).crons,undefined,'daily task must not register until owner grants rotation and cadence');
+  assert.deepEqual(JSON.parse(config).crons,[
+    {path:'/api/cron/gsc-daily',schedule:'0 10 * * *'}
+  ]);
+  // Vercel Hobby supports only one invocation per day. The cron registration
+  // must never authorize Google reads or writes without the independent flag.
+  assert.match(route,/FEYA_GSC_DAILY_ENABLED/);
+  assert.match(readFileSync('.env.example','utf8'),/FEYA_GSC_DAILY_ENABLED=false/);
 });
 
-test('config documents explicit OFF until later owner-approved schedule',()=>{
+test('production configuration remains OFF until explicitly authorized',()=>{
   const env=readFileSync('.env.example','utf8');
   assert.match(env,/FEYA_GSC_DAILY_ENABLED=false/);
   assert.match(env,/CRON_SECRET=/);
