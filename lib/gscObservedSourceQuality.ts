@@ -3,7 +3,7 @@
  * Source-health registry, buyer commerce and GMEL admission are NEVER inferred
  * from one receipt. Provider missing rows remain missing (not zero).
  */
-import { expectedFinalGscWindow } from './gscDailyCadencePolicy';
+import { expectedFinalGscWindow } from './gscDailyCadencePolicy.ts';
 
 export type GscQualityRow = {
   receipt_id: string;
