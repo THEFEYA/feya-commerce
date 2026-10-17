@@ -105,16 +105,19 @@ test('data with returned zero-impression days still differs from missing days',(
  }
 });
 
-test('new POST path uses existing internal auth and approved source gates, no Cron',()=>{
+test('internal POST uses the same guarded writer as owner, with independent capture flag',()=>{
  const route=readFileSync('app/api/internal/gsc-official-capture/route.ts','utf8');
- assert.match(route,/POST=withInternalApi\(handlePost\)/);
- assert.match(route,/FEYA_GSC_CAPTURE_ENABLED/);
- assert.match(route,/getSupabaseServiceRoleClient/);
- assert.match(route,/probeOfficialGscReadOnly/);
- assert.match(route,/planOfficialGscCapture/);
- assert.match(route,/feya_fn_stage_gsc_daily_observation_v1/);
- assert.ok(route.indexOf("FEYA_GSC_CAPTURE_ENABLED")<route.indexOf("probeOfficialGscReadOnly(process.env"));
- assert.doesNotMatch(route,/cron\.schedule|openai\.com|anthropic\.com|process\.env\.OPENAI_API_KEY/);
+ const writer=readFileSync('lib/gscOfficialCaptureServer.ts','utf8');
+ assert.match(route,/POST\s*=\s*withInternalApi\(handlePost\)/);
+ assert.match(route,/captureOfficialGscOnce\(/);
+ assert.match(writer,/FEYA_GSC_CAPTURE_ENABLED/);
+ assert.match(writer,/FEYA_GSC_READ_ENABLED/);
+ assert.match(writer,/getSupabaseServiceRoleClient\(/);
+ assert.match(writer,/probeOfficialGscReadOnly\(/);
+ assert.match(writer,/planOfficialGscCapture\(/);
+ assert.match(writer,/feya_fn_stage_gsc_daily_observation_v1/);
+ assert.ok(writer.indexOf("FEYA_GSC_CAPTURE_ENABLED") < writer.indexOf("probeOfficialGscReadOnly(process.env"));
+ assert.doesNotMatch(route+writer,/cron\.schedule|openai\.com|anthropic\.com|process\.env\.OPENAI_API_KEY/);
  const env=readFileSync('.env.example','utf8');
  assert.match(env,/FEYA_GSC_CAPTURE_ENABLED=false/);
  assert.match(env,/FEYA_GSC_READ_ENABLED=false/);

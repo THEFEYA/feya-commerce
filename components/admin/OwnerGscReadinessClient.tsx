@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { OwnerGscCaptureClient } from '@/components/admin/OwnerGscCaptureClient';
 
 type Check = {
   ok: boolean;
@@ -38,7 +39,7 @@ const explanation: Record<string, string> = {
   GSC_OWNER_AUTH_UNAVAILABLE: 'Служба авторизации временно недоступна.',
 };
 
-export function OwnerGscReadinessClient() {
+export function OwnerGscReadinessClient({captureEnabled}:{captureEnabled:boolean}) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Check | null>(null);
 
@@ -95,6 +96,7 @@ export function OwnerGscReadinessClient() {
           ) : null}
         </div>
       ) : null}
+      <OwnerGscCaptureClient readVerified={result?.ok===true} captureEnabled={captureEnabled} />
     </section>
   );
 }
