@@ -102,7 +102,7 @@ export default async function AdminSystemReadinessPage({ searchParams }: { searc
           </div>
         </section>
 
-        <OwnerGscReadinessClient />
+        <OwnerGscReadinessClient captureEnabled={process.env.FEYA_GSC_CAPTURE_ENABLED === 'true'} />
 
         <form action="/admin/system-readiness" className="owner-card" style={{ marginBottom: '18px' }}>
           <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
