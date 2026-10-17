@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
+import { catalogSourceTimingFields, createTimedCatalogFetch, newCatalogSourceTiming } from '@/lib/storefrontSourceTiming';
 import { buildStorefrontFacets } from '@/lib/storefrontFacets';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -72,7 +73,8 @@ const CARD_SELECT = [
  * the correct invalidation scope (catalog-wide for Shop, product-scoped for Home).
  */
 export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCardReadRowV1[]> {
-  const service = getSupabaseServiceRoleClient();
+  const timing = newCatalogSourceTiming();
+  const service = getSupabaseServiceRoleClient(createTimedCatalogFetch(timing, globalThis.fetch));
   if (!service) throw new Error('STOREFRONT_CARD_READ_MODEL_SERVICE_UNAVAILABLE');
 
   // Measure only a cache-miss/source request; no product, buyer or URL details are logged.
@@ -84,6 +86,7 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
     .select(CARD_SELECT)
     .order('canonical_product_id', { ascending: true });
   const elapsedMs = Math.max(0, Date.now() - readStartedAt);
+  const timingFields = catalogSourceTimingFields(timing, elapsedMs);
 
   if (error) {
     const sqlState = typeof error.code === 'string' && /^[0-9A-Z]{5}$/.test(error.code)
@@ -92,6 +95,7 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
       outcome: 'error',
       sql_state: sqlState,
       elapsed_ms: elapsedMs,
+      ...timingFields,
     }));
     throw new Error(`STOREFRONT_CARD_READ_MODEL_READ_FAILED:${error.code || 'unknown'}`);
   }
@@ -99,6 +103,7 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
     console.info('feya_catalog_source_read_v1', JSON.stringify({
       outcome: 'slow',
       elapsed_ms: elapsedMs,
+      ...timingFields,
       rows: Array.isArray(data) ? data.length : 0,
     }));
   }
