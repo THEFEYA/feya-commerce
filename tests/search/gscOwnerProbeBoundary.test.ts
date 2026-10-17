@@ -38,7 +38,8 @@ test('owner UI exposes a single on-demand diagnostic without credentials',()=>{
   assert.match(screen,/\/api\/admin\/gsc-readonly-probe/);
   assert.match(screen,/method: 'POST'/);
   assert.match(screen,/Проверить подключение GSC/);
-  assert.match(page,/<OwnerGscReadinessClient\s*\/>/);
+  assert.match(page,/<OwnerGscReadinessClient\b/);
+  assert.ok(page.includes("captureEnabled={process.env.FEYA_GSC_CAPTURE_ENABLED === 'true'}"));
   assert.match(page,/Google Ads API Basic подтверждён/);
   assert.doesNotMatch(screen,/client_secret|refresh_token|access_token/);
 });
