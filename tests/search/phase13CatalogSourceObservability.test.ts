@@ -27,3 +27,16 @@ test('Phase13 approved-card SQL tail diagnostics never change product truth or r
   assert.ok(!src.includes("FEYA_PUBLIC_APPROVED_PDP_COPY_RELEASE"));
   assert.ok(!src.includes('createPaymentSession'));
 });
+
+test('catalog source timing only extends existing slow/error event, never product output',()=>{
+ const src=readFileSync('lib/storefrontCardReadModelServer.ts','utf8');
+ const client=readFileSync('lib/supabaseAdmin.ts','utf8');
+ assert.ok(src.includes('newCatalogSourceTiming()'));
+ assert.ok(src.includes('createTimedCatalogFetch(timing, globalThis.fetch)'));
+ assert.ok(src.includes('catalogSourceTimingFields(timing, elapsedMs)'));
+ assert.equal(src.split('...timingFields').length-1,2);
+ assert.ok(client.includes('fetchImpl ? { global: { fetch: fetchImpl } } : {}'));
+ assert.ok(src.includes("if (elapsedMs >= 1500)"));
+ assert.ok(!src.includes('JSON.stringify(headers)'));
+ assert.ok(!src.includes('console.log(response)'));
+});
