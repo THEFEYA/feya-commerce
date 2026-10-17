@@ -14,11 +14,11 @@ export async function captureOfficialGscOnce(): Promise<{
 }> {
   const denied = (code: string, status = 503) => ({
     status,
-    body: { ok: false, code, source_health_promoted: false, ai_calls: 0 },
+    body: { ok: false, code, source_health_promoted: false },
   });
   if (process.env.FEYA_GSC_CAPTURE_ENABLED !== 'true'
     || process.env.FEYA_GSC_READ_ENABLED !== 'true') {
-    return denied('GSC_CAPTURE_DISABLED', 423);
+    return denied('GSC_CAPTURE_DISABLED');
   }
 
   const service = getSupabaseServiceRoleClient();
