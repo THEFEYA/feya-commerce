@@ -22,6 +22,11 @@ import { ShopCatalogWireClient } from '@/components/ShopCatalogWireClient';
 import { packStorefrontCatalog } from '@/lib/storefrontCatalogWire';
 import {OwnerShopSeoText} from '@/components/OwnerShopSeoText';
 
+/** Keep high-volume successful Shop traces opt-in; error/404 warnings stay on. */
+function shouldTraceShop() {
+  return process.env.VERCEL_ENV === 'production' && process.env.FEYA_SHOP_TRACE_ENABLED === 'true';
+}
+
 async function getProducts() {
   // The closed review must NEVER gate the public Production Shop. An old
   // review environment flag could otherwise cause an invisible streamed 404
@@ -30,7 +35,7 @@ async function getProducts() {
   const reviewGate = process.env.VERCEL_ENV === 'production'
     ? { status: 'disabled' as const, release: null }
     : await readClosedReviewPresentation();
-  if (process.env.VERCEL_ENV === 'production' || reviewGate.status === 'blocked') {
+  if (shouldTraceShop()) {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'review',isProduction:process.env.VERCEL_ENV === 'production',review:reviewGate.status}));
   }
   if (reviewGate.status === 'blocked') console.warn('feya_shop_not_found','review_gate_blocked');
@@ -87,7 +92,7 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   // Unknown auxiliary query keys cannot hide the entire public catalog.
   // Approved facet/page values remain validated by parseShopNavigation.
   const navigation = parseShopNavigation(params,{ignoreUnknownParams:process.env.VERCEL_ENV === 'production'});
-  if (process.env.VERCEL_ENV === 'production') {
+  if (shouldTraceShop()) {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'navigation',keys:Object.keys(params).length,valid:Boolean(navigation)}));
   }
   if (!navigation) console.warn('feya_shop_not_found','invalid_navigation');
@@ -97,7 +102,7 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   const filteredCount = filterShopProducts(products, navigation.filters).length;
   const utilityState = shopNavigationHasUtilityState(navigation);
 
-  if (process.env.VERCEL_ENV === 'production') {
+  if (shouldTraceShop()) {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
   }
   if (products.length && utilityState && filteredCount===0) console.warn('feya_shop_not_found','utility_without_results');
