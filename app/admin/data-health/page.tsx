@@ -6,6 +6,7 @@ import { OwnerDataSourceDrawerClient } from '@/components/admin/OwnerDataSourceD
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { inspectOfficialGscReceipts, type GscQualityRow } from '@/lib/gscObservedSourceQuality';
 async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
@@ -17,6 +18,19 @@ async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string 
 
   if (error) return { rows: [], error: error.message };
   return { rows: (data || []) as DataSourceHealthRow[] };
+}
+
+async function getGscObservationQuality(){
+  const supabase=getAdminReadClient();
+  if(!supabase)return{quality:inspectOfficialGscReceipts([]),error:'Доступ владельца к архиву GSC недоступен'};
+  const {data,error}=await supabase
+    .from('feya_growth_gsc_observation_receipts_v1')
+    .select('receipt_id,source_channel,property_url,search_type,data_state,query_start,query_end,finalized_through,observed_days,daily_rows_json,clicks_total,impressions_total,average_position,payload_sha256,recorded_at,source_health_promoted')
+    .eq('property_url','sc-domain:thefeya.com')
+    .order('recorded_at',{ascending:false})
+    .limit(35);
+  if(error)return{quality:inspectOfficialGscReceipts([]),error:'Чтение архива GSC недоступно'};
+  return{quality:inspectOfficialGscReceipts((data||[]) as GscQualityRow[]),error:null};
 }
 
 function asText(value: unknown, fallback = '—') {
@@ -62,7 +76,7 @@ function healthClass(value: unknown) {
 }
 
 export default async function AdminDataHealthPage() {
-  const { rows, error } = await getRows();
+  const [{rows,error},{quality:gscQuality,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
 
   const healthy = rows.filter((row) => row.health_state === 'HEALTHY').length;
   const degraded = rows.filter((row) => row.health_state === 'DEGRADED').length;
@@ -104,6 +118,37 @@ export default async function AdminDataHealthPage() {
           <div className="owner-status is-info">Как читать экран</div>
           <p className="owner-card-copy">Это последний сохранённый снимок состояния. Автоматический планировщик проверки источников пока не запущен, поэтому рядом с каждым источником показывается время последней проверки и последнего набора данных.</p>
         </div>
+
+        <section className="owner-card is-info" style={{ marginBottom: '18px' }}>
+          <div className="owner-card-meta"><span className="owner-status is-info">GDAE · наблюдение, не каноническое здоровье</span><span>Google Search Console</span></div>
+          <h2>Фактическая история органического поиска</h2>
+          {gscQualityError ? <p className="owner-card-copy">{gscQualityError}</p>
+           :gscQuality.state==='NO_OFFICIAL_OBSERVATION' ?
+            <p className="owner-card-copy">Официальных сохранённых наблюдений ещё нет. Отсутствие данных не означает ноль кликов.</p>
+           :gscQuality.state==='INVALID_OFFICIAL_OBSERVATION' ?
+            <p className="owner-card-copy">Последняя запись не прошла проверку дат и сумм. Показатели заблокированы до технической проверки.</p>
+           :gscQuality.state==='NO_FINAL_DATE_ROWS' ?
+            <p className="owner-card-copy">Google не вернул окончательных дневных наблюдений. Показатели неизвестны, не нулевые.</p>
+           :<>
+             <p className="owner-card-copy">
+               Последняя подтверждённая выборка: {gscQuality.startDate} — {gscQuality.finalDate},
+               {' '}{gscQuality.observedDays} дней, {gscQuality.clicks} кликов,
+               {' '}{gscQuality.impressions} показов. Средняя позиция: {gscQuality.averagePosition?.toFixed(2) ?? '—'}.
+             </p>
+             <p className="owner-card-copy">
+               {gscQuality.missingDays===0?'Пропусков дат внутри снимка нет.':
+                 `Пропущенных дат: ${gscQuality.missingDays}. Это отсутствие наблюдения, не нулевая активность.`}
+               {' '}Дата последнего Google-наблюдения: {gscQuality.finalDate}.
+               {gscQuality.uncoveredFinalDays? ` Ожидаемых, но ещё не покрытых окончательных дней: ${gscQuality.uncoveredFinalDays}.`:''}
+             </p>
+             <p className="owner-card-meta">
+               <span>Receipt: {gscQuality.receiptId}</span>
+               <span>SHA-256: {gscQuality.evidenceSha256?.slice(0,16)}…</span>
+             </p>
+           </>}
+          <p className="owner-role-note">Это уровень L0: наблюдение GSC. Наличие снимка не подтверждает конверсии, прибыль или причинный рост. Канонический статус источника не повышен; GMEL/AI-бюджет не активированы.</p>
+          <div className="owner-actions"><Link href="/admin/system-readiness" className="owner-button">Проверить прямое подключение GSC</Link></div>
+        </section>
 
         <section className="owner-section" style={{ marginTop: 0 }}>
           <div className="owner-section-head">
