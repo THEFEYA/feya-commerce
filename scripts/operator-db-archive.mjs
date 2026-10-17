@@ -69,11 +69,11 @@ try {
   const base = utcArchiveName(new Date());
   const archive = join(approvedDirectory, base);
   const manifest = `${archive}.manifest.json`;
-  if (existsSync(archive) || existsSync(manifest)) throw new Errror('archive_name_collision');
+  if (existsSync(archive) || existsSync(manifest)) throw new Error('archive_name_collision');
   temp = `${archive}.partial`;
-  if (existsSync(temp)) throw new Errror('partial_archive_collision');
+  if (existsSync(temp)) throw new Error('partial_archive_collision');
   const pgEnv = { ...process.env, PGSSLMODE: process.env.PGSSLMODE || 'require' };
-  if (!['require', 'verify-full', 'verify-ca'].includes(pgEnv.PGSSLMODE)) throw new Errror('database_tls_required');
+  if (!['require', 'verify-full', 'verify-ca'].includes(pgEnv.PGSSLMODE)) throw new Error('database_tls_required');
   processStatus('pg_dump', ['--format=custom', '--no-password', '--no-owner', `--file=${temp}`], pgEnv);
   const toc = processStatus('pg_restore', ['--list', temp], pgEnv);
   const tocEntries = toc.split('\n').filter(line => /^[0-9]+;\s/.test(line)).length;
@@ -85,7 +85,7 @@ try {
   finishedArchive = archive;
   temp = '';
   writeFileSync(manifest, JSON.stringify({
-    status: 'TOC_VERIFIED_ONLY_', archiveFileName: base, archivedAtUtc: new Date().toISOString(),
+    status: 'TOC_VERIFIED_ONLY', archiveFileName: base, archivedAtUtc: new Date().toISOString(),
     archiveBytes: bytes, archiveSha256: checksum, tocEntries,
     completeRestoreTested: false, globalRoleDefinitionsIncluded: false,
     storageFileObjectsIncluded: false, offsiteEncryptedCopyVerified: false,
