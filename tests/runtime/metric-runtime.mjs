@@ -119,10 +119,10 @@ try {
   const shortlist=await service.from('feya_commerce_v_page_ownership_shortlist_v1').select('seo_page_id,shortlist_method');assert.equal(shortlist.error,null);
   assert.equal(shortlist.data[0].seo_page_id,'20000000-0000-4000-8000-000000000024');assert.equal(shortlist.data[0].shortlist_method,'lexical_candidate_retrieval_not_ownership');
  });
- const internalToken=randomUUID(),storefrontRevalidationToken=randomUUID();runtimeSecrets.push(internalToken,storefrontRevalidationToken);
+ const internalToken=randomUUID(),storefrontRevalidationToken=randomUUID(),gscCronSecret=randomUUID()+randomUUID();runtimeSecrets.push(internalToken,storefrontRevalidationToken,gscCronSecret);
  googleProvider=await startGoogleProviderFixture();
  const internalRoutes=[['content-prechecks','POST'],['content-qa','POST'],['google-ads-health','GET'],['google-ads-keyword-metrics','GET'],['google-ads-keyword-metrics','POST'],['openai-health','GET'],['page-ownership-proposals','POST'],['query-cluster-proposals','POST'],['sco-shadow','POST'],['seo-keyword-cleanup','POST'],['seo-keyword-review','POST']];
- const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,FEYA_STOREFRONT_REVALIDATION_TOKEN:storefrontRevalidationToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
+ const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,FEYA_STOREFRONT_REVALIDATION_TOKEN:storefrontRevalidationToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,CRON_SECRET:gscCronSecret,FEYA_GSC_DAILY_ENABLED:'false',FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
  Object.assign(env,{FEYA_GOOGLE_ADS_IMPORT_ENABLED:'true',GOOGLE_ADS_CUSTOMER_ID:'1234567890',GOOGLE_ADS_CLIENT_ID:'synthetic-client-id',GOOGLE_ADS_CLIENT_SECRET:'synthetic-client-secret',GOOGLE_ADS_REFRESH_TOKEN:'synthetic-refresh-token',FEYA_TEST_GOOGLE_ORIGIN:googleProvider.origin,NODE_OPTIONS:'--require='+resolve('tests/runtime/google-fetch-preload.cjs')});
  console.log('Building the unchanged production Next application against the isolated stack.');
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
@@ -181,6 +181,26 @@ try {
   assert.match(response.headers.get('cache-control'),/private.*no-store/);
   assert.deepEqual(await response.json(),{
     ok:false,code:'GSC_CAPTURE_DISABLED',source_health_promoted:false
+  });
+  assert.deepEqual(await counts(),before);
+ });
+
+ await check('Dormant daily GSC worker rejects unauthorized calls and cannot read Google or write when OFF',async()=>{
+  const before=await counts(),path=base+'/api/cron/gsc-daily';
+  const guest=await fetch(path,{method:'GET'});
+  assert.equal(guest.status,401);
+  assert.match(guest.headers.get('cache-control'),/no-store/);
+  assert.equal((await guest.json()).code,'GSC_DAILY_AUTH_REQUIRED');
+
+  const wrong=await fetch(path,{headers:{authorization:'Bearer incorrect-cron-token'}});
+  assert.equal(wrong.status,401);
+  assert.equal((await wrong.json()).code,'GSC_DAILY_AUTH_REQUIRED');
+
+  const owner=await fetch(path,{headers:{authorization:'Bearer '+gscCronSecret}});
+  assert.equal(owner.status,423);
+  assert.deepEqual(await owner.json(),{
+    ok:false,code:'GSC_DAILY_DISABLED',
+    source_health_promoted:false,auto_gmel_enabled:false
   });
   assert.deepEqual(await counts(),before);
  });
