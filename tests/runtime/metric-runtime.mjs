@@ -246,6 +246,39 @@ try {
   assert.deepEqual(await counts(),before);
  });
 
+ await check('Owner first GSC capture requires login, matching origin, enabled capture gate and explicit intent',async()=>{
+  const before=await counts(), endpoint=base+'/api/admin/gsc-official-capture';
+  const intent={confirm:'SAVE_GSC_OBSERVATION_V1'};
+  const anonymous=await browser.newContext();
+  try {
+    const response=await anonymous.request.post(endpoint,{
+      headers:{origin:base,'Content-Type':'application/json'},data:intent
+    });
+    assert.equal(response.status(),401);
+  }finally{await anonymous.close();}
+  const cross=await ownerPage.request.post(endpoint,{
+    headers:{origin:'https://unknown.example.invalid','Content-Type':'application/json'},data:intent
+  });
+  assert.equal(cross.status(),403);
+  assert.equal((await cross.json()).code,'GSC_CAPTURE_OWNER_ORIGIN_DENIED');
+
+  const blocked=await ownerPage.request.post(endpoint,{
+    headers:{origin:base,'Content-Type':'application/json'},data:intent
+  });
+  assert.equal(blocked.status(),423);
+  assert.deepEqual(await blocked.json(),{
+    ok:false,code:'GSC_CAPTURE_DISABLED',source_health_promoted:false
+  });
+  const page=await owner.newPage();
+  try {
+    const loaded=await page.goto(base+'/admin/system-readiness');
+    assert.equal(loaded.status(),200);
+    await page.getByText('Запись пока заблокирована.',{exact:false}).waitFor();
+    assert.equal(await page.getByRole('button',{name:'Сохранить снимок GSC'}).isDisabled(),true);
+  }finally{await page.close();}
+  assert.deepEqual(await counts(),before);
+ });
+
  await check('Disabled and absent Auth flags lock admin reads/writes even with an owner cookie; public routes remain available',async()=>{
   const before=await counts(),lockedBase='http://127.0.0.1:3001';
   for(const flag of ['false',undefined]){
