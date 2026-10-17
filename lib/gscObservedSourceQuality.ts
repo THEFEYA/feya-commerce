@@ -25,7 +25,7 @@ export type GscQualityRow = {
 };
 
 export type GscObservedQuality = {
-  state: 'NO_OFFICIAL_OBSERVATION' | 'OBSERVED_L0' | 'PARTIAL_PROVIDER_COVERAGE' |
+  state: 'NO_OFFICIAL_OBSERVATION' | 'NO_FINAL_DATE_ROWS' | 'OBSERVED_L0' | 'PARTIAL_PROVIDER_COVERAGE' |
     'INVALID_OFFICIAL_OBSERVATION' | 'OUTDATED_OFFICIAL_OBSERVATION';
   receiptId: string | null;
   sourceChannel: 'GOOGLE_GSC_OFFICIAL_READONLY';
@@ -38,7 +38,7 @@ export type GscObservedQuality = {
   clicks: number | null;
   impressions: number | null;
   averagePosition: number | null;
-  crcEvidenceHash: string | null;
+  evidenceSha256: string | null;
   expectedFinalDate: string | null;
   uncoveredFinalDays: number | null;
   canonicalSourceHealthy: false;
@@ -79,7 +79,7 @@ export function inspectOfficialGscReceipts(
     sourceChannel:'GOOGLE_GSC_OFFICIAL_READONLY',property:'sc-domain:thefeya.com',
     recordedAt:null,startDate:null,finalDate:null,observedDays:null,
     missingDays:null,clicks:null,impressions:null,averagePosition:null,
-    crcEvidenceHash:null,expectedFinalDate:expectedFinalGscWindow(now)?.end_date||null,
+    evidenceSha256:null,expectedFinalDate:expectedFinalGscWindow(now)?.end_date||null,
     uncoveredFinalDays:null,canonicalSourceHealthy:false,gmElModelEligible:false,
   };
   const official=rows.filter(x=>x?.source_channel==='GOOGLE_GSC_OFFICIAL_READONLY')
@@ -95,6 +95,7 @@ export function inspectOfficialGscReceipts(
     ||!validDate(r.query_start)||!validDate(r.query_end)
     ||!validDate(r.finalized_through)
     ||r.finalized_through<r.query_end||r.query_end<r.query_start
+    ||(base.expectedFinalDate!==null&&r.query_end>base.expectedFinalDate)
     ||!Number.isFinite(Date.parse(r.recorded_at||''))
     ||Date.parse(r.recorded_at)>now.getTime()+30000
     ||!Array.isArray(r.daily_rows_json)
@@ -103,6 +104,12 @@ export function inspectOfficialGscReceipts(
   if(span<=0||span>32||!positiveInt(r.observed_days)
     ||r.daily_rows_json.length!==r.observed_days||r.observed_days>span)
     return invalid;
+  if(r.observed_days===0){
+    if(r.clicks_total!==null||r.impressions_total!==null||r.average_position!==null)return invalid;
+    return{...base,state:'NO_FINAL_DATE_ROWS',receiptId:r.receipt_id,
+      recordedAt:r.recorded_at,startDate:r.query_start,finalDate:r.query_end,
+      observedDays:0,missingDays:span,evidenceSha256:r.payload_sha256};
+  }
   const seen=new Set<string>();
   let clicks=0,impressions=0,weighted=0;
   for(const raw of r.daily_rows_json){
@@ -145,7 +152,7 @@ export function inspectOfficialGscReceipts(
     missingDays,
     clicks,impressions,
     averagePosition:impressions>0?weighted/impressions:null,
-    crcEvidenceHash:r.payload_sha256,
+    evidenceSha256:r.payload_sha256,
     uncoveredFinalDays:uncovered,
   };
 }
