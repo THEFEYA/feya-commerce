@@ -124,6 +124,27 @@ test('the real production-shaped HTTP receipt is L0, not a reviewer or Google in
   ] as const) assert.equal(result[claim],false);
 });
 
+test('actual pinned ACTIVE Search v12 fixture can be verified without synthetic URL inventory',()=>{
+  const manifest=JSON.parse(readFileSync(
+    'tests/runtime/fixtures/phase12-wave-a-v12-production-crawl.json','utf8'));
+  const f=fixture();
+  f.manifest=manifest;
+  (f.crawl as any).release=manifest.release;
+  (f.crawl as any).indexCandidates=manifest.indexCandidates.map((path:string)=>({
+    path,status:200,noindex:false,canonical:indexUrl(path),
+    expectedCanonical:indexUrl(path),pass:true,
+  }));
+  (f.crawl as any).productNoindex.samplePaths=manifest.productNoindexPaths.slice(0,24);
+  (f.pdp as any).samples=manifest.productNoindexPaths.slice(0,5).map(
+    (path:string)=>({path,pass:true,status:200,errors:[]}));
+  const r=projectG2cOriginEvidence(f);
+  assert.equal(manifest.release.version,12);
+  assert.equal(manifest.indexCandidates.length,18);
+  assert.equal(manifest.productNoindexPaths.length,207);
+  assert.equal(r.verdict,'PRODUCTION_HTTP_OBSERVED',r.reasonCodes.join(','));
+  assert.equal(r.coverage.productNoindex.untested,183);
+});
+
 test('a PR running against old production is NEVER a production attestation',()=>{
   for(const patch of [
     {event:'pull_request',ref:'refs/pull/183/merge'},
