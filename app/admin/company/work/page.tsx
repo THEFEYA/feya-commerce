@@ -556,7 +556,10 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                 <div className="owner-section-kicker">Кто за что отвечает, в каком режиме работает и чего реально ждёт</div>
               </div>
             </div>
-            <Link href="/admin/roles" className="owner-button owner-button-arrow">Вся команда <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
+            <div className="owner-actions" style={{marginTop:0}}>
+              <Link href="/admin/company/mission-control" className="owner-button owner-button-arrow">Mission Control <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
+              <Link href="/admin/roles" className="owner-button owner-button-arrow">Вся команда <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
+            </div>
           </div>
 
           <div className="owner-team-roster" aria-label="Состояние команды FEYA">
