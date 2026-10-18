@@ -12,6 +12,8 @@ test('owner data-health reads immutable official GSC receipts through existing a
  assert.match(page,/\.eq\('source_code','ORGANIC_SEARCH_PERFORMANCE'\)/);
  assert.match(page,/reconcileGscSourceReadiness\(gscReceipts/);
  assert.match(page,/gscReadiness\.registryStatus/);
+ assert.match(page,/gscReadiness\.evidenceStatus === 'IDENTITY_MISMATCH'/);
+ assert.match(page,/Подробные показатели заблокированы/);
  assert.match(page,/Почему вывод ограничен/);
  assert.match(page,/GSC: \{gscReadiness\.evidenceLevel\}/);
  assert.match(page,/\.limit\(35\)/);
