@@ -7,6 +7,8 @@ import { presentWorkItem } from '@/lib/owner-ui/presenters';
 import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growthGmelAiAdmission';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
+import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 type Row = Record<string, unknown>;
 
@@ -138,6 +140,7 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
   if (!row && !error) notFound();
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
   const item = row ? presentWorkItem({ ...row, gmel_review_state: gmelReview?.state }) : null;
+  const shadowReviewConfig = getOwnerActionConfigStatus('growth_shadow_work');
 
   return (
     <main className="owner-page">
@@ -183,6 +186,14 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
             </p>
             <div className="owner-status">Кейс остаётся открытым до корректного следующего решения</div>
           </section>
+        ) : null}
+        {item && row?.case_status === 'OPEN' && readinessReceipt &&
+          (gmelReview?.state === 'DETERMINISTIC_RECONCILED' || gmelReview?.state === 'OPERATOR_REVIEWED') ? (
+          <OwnerShadowReviewRequestClient
+            caseId={item.id}
+            enabled={shadowReviewConfig.ready}
+            blockers={shadowReviewConfig.blockers}
+          />
         ) : null}
         {gmelAiAdmission && !gmelAiAdmission.allowed_to_dispatch ? (
           <section className="owner-card" aria-label="Готовность автономного анализа GMEL">
