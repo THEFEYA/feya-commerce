@@ -66,7 +66,7 @@ export async function POST(request:NextRequest) {
   const verdict=validateShadowL0OwnerEvidence(
     attention,input.expected_status,c,workflowResult.data,h,review,active.value,
   );
-  if(!verdict.allowed) {
+  if(!verdict.allowed || !c || !workflowResult.data) {
     return reply({ok:false,code:'shadow_l0_evidence_stale',reason:verdict.reason},409);
   }
 
@@ -109,7 +109,6 @@ export async function POST(request:NextRequest) {
     attention_id:input.attention_id,
     attention_status:choice.status,
     decision_code:choice.code,
-    case_status:'OPEN',
-    message:'Решение владельца записано. TSEO-кейс остаётся открытым; AI, SEO и оплата не изменены.',
+    message:'Решение владельца записано. Это действие не закрывает TSEO-кейс и не меняет AI, SEO или оплату.',
   });
 }
