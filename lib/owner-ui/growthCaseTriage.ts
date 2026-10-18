@@ -39,13 +39,13 @@ type CaseEvent = {
 };
 type TriageWorkflow = ShadowWorkflow & { workflow_run_id: string; workflow_type: string };
 type Handoff = {
-  handoff_id: string;
-  case_id: string;
-  ownership_epoch: number;
-  source_domain: string;
-  target_domain: string;
-  handoff_status: string;
-  expected_output_schema_code: string;
+  handoff_id?: string;
+  case_id?: string;
+  ownership_epoch?: number | null;
+  source_domain?: string | null;
+  target_domain?: string | null;
+  handoff_status?: string | null;
+  expected_output_schema_code?: string | null;
 };
 type Attention = {
   attention_id: string;
