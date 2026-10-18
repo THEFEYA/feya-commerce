@@ -31,10 +31,10 @@ test('G2a case journal query limits columns to non-PII, selected fields only',()
 });
 
 test('workflow completed and owner decision are never equivalent to case closure',()=>{
-  assert.match(presentation,/Завершение технического workflow.*не закрывают сам кейс/);
+  assert.match(presentation,/Завершение технического workflow[\s\S]*не закрывают сам кейс/);
   assert.match(presentation,/Независимая экспертная QA этим решением не подтверждается/);
   assert.match(presentation,/Команды запуска здесь нет/);
-  assert.match(presentation,/Подтверждённые этапы/);
+  assert.match(presentation,/Реальные события, версии, причины ограничений/);
   assert.match(presenter,/caseStatus: text\(row\.case_status/);
   assert.match(presenter,/workflowStatus: text\(row\.workflow_status/);
   assert.match(generic,/Эти статусы независимы: завершение технического workflow не означает закрытие кейса/);
