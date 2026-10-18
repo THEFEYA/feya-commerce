@@ -110,7 +110,7 @@ Sources (Google/Site/Product/Orders) → GDAE ingestion+quality → versioned Me
 Предлагаемый стартовый «управленческий лист» (численные цели ещё не утверждены):
 - Qualified completed orders = count distinct verified completed transactions; paid authorization/refund status guard. Пока нет — NOT_OBSERVABLE.
 - Net revenue = confirmed gross less valid refunds/discounts/tax/shipping as agreed business formula; versioned, не выводить из GA4 purchase alone.
-- Conversion = verified orders / eligible consent-observed sessions; без надёжного знаменателя показывать ограниченную coverage, не общий sitewide rate.
+- Conversion (только сопоставимая когорта) = distinct verified orders, атрибутированные строго к той же разрешённой измеряемой выборке, / eligible sessions этой же выборки, одинаковые market/device/window/consent и проверенное сопоставление идентификаторов. **Запрещено** делить все Commerce DB заказы на consent-only GA4 sessions: разная популяция и selection bias создают фиктивный CVR. При неполной атрибуции выводить отдельно verified order count, наблюдаемую GA4 воронку, долю согласившихся, ограничения покрытия и статус `CVR_NOT_COMPARABLE`; не подменять это конверсией всего сайта.
 - Organic capture = GSC clicks/impressions for matched canonical pages, query ownership and comparable windows; CTR/average position diagnostic, не target by default.
 - Funnel drop-off = stage-qualified events with dedup + mapped consent cohorts; missing source ≠ zero.
 - Product performance = confirmed order lines by canonical product, configuration, market, price/discount/promo and season; prevent low-exposure punishment.
