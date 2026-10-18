@@ -67,6 +67,12 @@ test('core owner and commerce constraints cannot disappear from living specifica
   }
 });
 
+test('conversion KPI cannot mix population of all confirmed orders with GA4 consent-only sessions',()=>{
+  assert.match(text.blueprint,/CVR_NOT_COMPARABLE/);
+  assert.match(text.blueprint,/Commerce DB заказы на consent-only GA4 sessions/);
+  assert.match(text.gaps,/same consent-eligible attributed order\/session cohort/);
+});
+
 test('independent reviewer cannot rewrite canon or activate a provider',()=>{
   assert.match(text.review,/read-only/);
   assert.match(text.review,/Не создавай новую/);
