@@ -99,6 +99,8 @@ test('missing, invalid and future capability dates must not be represented as fr
 test('owner Team UI uses authoritative case and capability evidence with no public write path', () => {
   const page = readFileSync('app/admin/roles/page.tsx', 'utf8');
   const drawer = readFileSync('components/admin/OwnerRoleDrawerClient.tsx', 'utf8');
+  assert.match(page, /await connection\(\)/);
+  assert.ok(page.indexOf('await connection()') < page.indexOf('new Date()'));
   assert.match(page, /projectRoleWorkEvidence\(work\)/);
   assert.match(page, /inspectRoleCapabilityFreshness\(capabilities, role.code/);
   assert.match(page, /feya_commerce_v_growth_capability_status_safe_v1/);
