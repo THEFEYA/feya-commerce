@@ -40,7 +40,7 @@ export type G2cEvidenceResult = {
   observation: { startedAt:string|null; finishedAt:string|null };
   coverage: {
     indexIntent:{ expected:number; verified:number };
-    productNoindex:{ expected:number; sampled:number; reportedPassed:number; untested:number; proof:'AGGREGATE_CI_RECEIPT' };
+    productNoindex:{ expected:number; sampled:number; reportedPassed:number; perPathVerified:number; untested:number; proof:'AGGREGATE_CI_RECEIPT'|'PER_PATH_CI_RECEIPT' };
     shop:{ expected:number; verified:number };
     collections:{ expected:number; verified:number };
     pdpCopySample:{ expected:number; verified:number };
@@ -125,8 +125,8 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
   const counts={
     indexIntent:{expected:indexPaths.length,verified:0},
     productNoindex:{
-      expected:productPaths.length,sampled:0,reportedPassed:0,untested:productPaths.length,
-      proof:'AGGREGATE_CI_RECEIPT' as const,
+      expected:productPaths.length,sampled:0,reportedPassed:0,perPathVerified:0,untested:productPaths.length,
+      proof:'AGGREGATE_CI_RECEIPT' as 'AGGREGATE_CI_RECEIPT'|'PER_PATH_CI_RECEIPT',
     },
     shop:{expected:4,verified:0},
     collections:{expected:3,verified:0},
@@ -216,12 +216,20 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
   const noindex=row(crawl?.productNoindex);
   const sample=array(noindex?.samplePaths).filter(validPath);
   const sampleExpected=Math.min(24,productPaths.length);
+  // Historical v3 crawl archives recorded only aggregated successful samples.
+  // Newer producer emits explicit HTTP results for each sampled product URL.
+  // A partially present or tampered detailed receipt must FAIL, not fall back
+  // to a green aggregate. No records invented for old archived evidence.
+  const detailed=noindex && Array.isArray(noindex.observations) ? noindex.observations : null;
+  const individualOk=detailed===null || allMatches(detailed,sample,(r,p)=>
+    r.pass===true && r.status===200 && r.noindex===true &&
+    r.canonical===canonical(p) && r.error==null);
   const productOk=sourceOk && !!noindex &&
     noindex.manifestExpected===productPaths.length &&
     noindex.httpSampleExpected===sampleExpected &&
     noindex.checked===sampleExpected && noindex.passed===sampleExpected &&
     sample.length===sampleExpected && exactSet(sample,array(noindex.samplePaths) as string[]) &&
-    sample.every(p=>productPaths.includes(p)) &&
+    sample.every(p=>productPaths.includes(p)) && individualOk &&
     array(noindex.failed).length===0 &&
     row(crawl?.summary)?.productNoindexManifestExpected===productPaths.length &&
     row(crawl?.summary)?.productNoindexChecked===sampleExpected &&
@@ -231,6 +239,10 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
     counts.productNoindex.sampled=sampleExpected;
     counts.productNoindex.reportedPassed=sampleExpected;
     counts.productNoindex.untested=productPaths.length-sampleExpected;
+    if(detailed!==null){
+      counts.productNoindex.perPathVerified=sampleExpected;
+      counts.productNoindex.proof='PER_PATH_CI_RECEIPT';
+    }
   }
 
   const redirects=array(crawl?.retiredRedirects),utilities=array(crawl?.utilityNoindex),
