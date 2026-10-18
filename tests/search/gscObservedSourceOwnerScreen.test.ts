@@ -9,7 +9,13 @@ test('owner data-health reads immutable official GSC receipts through existing a
  assert.match(page,/getAdminReadClient\(/);
  assert.match(page,/feya_growth_gsc_observation_receipts_v1/);
  assert.match(page,/inspectOfficialGscReceipts\(/);
- assert.match(page,/\.eq\('property_url','sc-domain:thefeya.com'\)/);
+ assert.match(page,/\.eq\('source_code','ORGANIC_SEARCH_PERFORMANCE'\)/);
+ assert.match(page,/reconcileGscSourceReadiness\(gscReceipts/);
+ assert.match(page,/gscReadiness\.registryStatus/);
+ assert.match(page,/gscReadiness\.evidenceStatus === 'IDENTITY_MISMATCH'/);
+ assert.match(page,/Подробные показатели заблокированы/);
+ assert.match(page,/Почему вывод ограничен/);
+ assert.match(page,/GSC: \{gscReadiness\.evidenceLevel\}/);
  assert.match(page,/\.limit\(35\)/);
  assert.match(page,/Promise\.all\(\[getRows\(\),getGscObservationQuality\(\)\]\)/);
  assert.doesNotMatch(page,/SUPABASE_SERVICE_ROLE_KEY|FEYA_GSC_OAUTH_REFRESH_TOKEN|CRON_SECRET|OPENAI_API_KEY/);
