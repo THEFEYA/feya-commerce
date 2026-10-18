@@ -19,7 +19,8 @@ test('FEYA full-target blueprint and audit dossier is present and explicitly sub
     assert.ok(text[key].length>2500,key+' must not be an empty placeholder');
   }
   assert.match(text.blueprint,/CANONICAL/);
-  assert.match(text.blueprint,/Не.*восемь.*чат-ботов|восемь.*логических ролей|не восемь.*сервисов|восемь независимых чат-ботов/i);
+  assert.match(text.blueprint,/восемь CANONICAL Agent Passports/);
+  assert.match(text.blueprint,/девятую роль ради интерфейса/);
   assert.match(text.roles,/не новый CANONICAL паспорт/);
   assert.match(text.gaps,/нельзя.*пометить.*сделано|Нельзя.*пометить.*сделано/);
 });
