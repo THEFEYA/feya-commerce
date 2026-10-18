@@ -172,7 +172,7 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
     release.targetOrigin===ORIGIN &&
     typeof release.id==='string' && /^[0-9a-f-]{36}$/i.test(release.id) &&
     typeof release.code==='string' && release.code.length>1 &&
-    Number.isSafeInteger(release.version) && release.version>0 &&
+    typeof release.version==='number' && Number.isSafeInteger(release.version) && release.version>0 &&
     typeof release.hash==='string' && HASH.test(release.hash) &&
     indexPaths.length===18 && productPaths.length===207 &&
     exactSet(indexPaths,manifestIndex as string[]) &&
