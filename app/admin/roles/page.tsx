@@ -1,6 +1,7 @@
 export const instant = false;
 
 import Link from 'next/link';
+import { connection } from 'next/server';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
@@ -55,6 +56,8 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminRolesPage() {
+  // Freshness is request-time metadata; never read the clock during static prerender.
+  await connection();
   const { rows, work, capabilities, error } = await getRows();
   const roles = rows.map(presentRole);
   const roleRows = new Map(rows.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
