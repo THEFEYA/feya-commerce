@@ -6,21 +6,16 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { RoleActivationRow } from '@/lib/types';
 import { formatRelativeTime, presentRole } from '@/lib/owner-ui/presenters';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
-type WorkRow = {
-  current_accountable_domain?: string | null;
-  case_status?: string | null;
-  workflow_status?: string | null;
-  title?: string | null;
-  workflow_updated_at?: string | null;
-  updated_at?: string | null;
-  closed_at?: string | null;
-};
+import {
+  projectRoleWorkEvidence, inspectRoleCapabilityFreshness,
+  type RoleWorkEvidenceRow, type RoleCapabilityEvidenceRow,
+} from '@/lib/owner-ui/roleRuntimeEvidence';
 
-async function getRows(): Promise<{ rows: RoleActivationRow[]; work: WorkRow[]; error?: string }> {
+async function getRows(): Promise<{ rows: RoleActivationRow[]; work: RoleWorkEvidenceRow[]; capabilities: RoleCapabilityEvidenceRow[]; error?: string }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], work: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) return { rows: [], work: [], capabilities: [], error: getMissingAdminDataEnvMessage() };
 
-  const [rolesResult, workResult] = await Promise.all([
+  const [rolesResult, workResult, capabilityResult] = await Promise.all([
     supabase
       .from('feya_commerce_v_role_activation_safe_v1')
       .select('*')
@@ -28,16 +23,22 @@ async function getRows(): Promise<{ rows: RoleActivationRow[]; work: WorkRow[]; 
       .order('role_code', { ascending: true }),
     supabase
       .from('feya_commerce_v_owner_work_safe_v1')
-      .select('current_accountable_domain,case_status,workflow_status,title,workflow_updated_at,updated_at,closed_at')
+      .select('case_id,current_accountable_domain,case_status,workflow_status,title,workflow_updated_at,updated_at,closed_at')
       .order('updated_at', { ascending: false }),
+    supabase
+      .from('feya_commerce_v_growth_capability_status_safe_v1')
+      .select('owner_role,updated_at')
+      .in('owner_role', ['CPIM','CQA','GDAE','GMEL','GROWTH_DIRECTOR','OSPM','SCO','TSEO'])
+      .limit(200),
   ]);
 
-  const firstError = rolesResult.error || workResult.error;
-  if (firstError) return { rows: [], work: [], error: firstError.message };
+  const firstError = rolesResult.error || workResult.error || capabilityResult.error;
+  if (firstError) return { rows: [], work: [], capabilities: [], error: firstError.message };
 
   return {
     rows: (rolesResult.data || []) as RoleActivationRow[],
-    work: (workResult.data || []) as WorkRow[],
+    work: (workResult.data || []) as RoleWorkEvidenceRow[],
+    capabilities: (capabilityResult.data || []) as RoleCapabilityEvidenceRow[],
   };
 }
 
@@ -54,7 +55,7 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminRolesPage() {
-  const { rows, work, error } = await getRows();
+  const { rows, work, capabilities, error } = await getRows();
   const roles = rows.map(presentRole);
   const roleRows = new Map(rows.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
 
@@ -63,24 +64,10 @@ export default async function AdminRolesPage() {
   const inactive = roles.filter((role) => role.status === 'INACTIVE').length;
   const paused = roles.filter((role) => role.status === 'PAUSED').length;
 
-  const roleWork = new Map<string, { active: number; queued: number; waiting: number; latestTitle: string | null; latestAt: string | null }>();
-  for (const row of work) {
-    const code = String(row.current_accountable_domain || '').trim().toUpperCase();
-    if (!code) continue;
-    const current = roleWork.get(code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
-    const workflowStatus = String(row.workflow_status || row.case_status || '').toUpperCase();
-    const closed = ['CLOSED', 'MERGED', 'COMPLETED'].includes(workflowStatus) || ['CLOSED', 'MERGED'].includes(String(row.case_status || '').toUpperCase());
-    if (!closed) {
-      current.active += 1;
-      if (workflowStatus === 'QUEUED') current.queued += 1;
-      if (workflowStatus.startsWith('WAITING') || workflowStatus === 'BLOCKED') current.waiting += 1;
-    }
-    if (!current.latestAt) {
-      current.latestTitle = row.title || null;
-      current.latestAt = row.closed_at || row.workflow_updated_at || row.updated_at || null;
-    }
-    roleWork.set(code, current);
-  }
+  // A completed technical workflow can still belong to an OPEN business case.
+  // Show OPEN cases, truly running workflow and pending independent review separately.
+  const roleWork = projectRoleWorkEvidence(work);
+  const snapshotNow = new Date();
 
   return (
     <main className="owner-page">
@@ -117,9 +104,9 @@ export default async function AdminRolesPage() {
         <section className="owner-section" style={{ marginTop: 0 }}>
           <div className="owner-section-head">
             <div>
-              <h2>Роли и текущее состояние</h2>
+              <h2>Роли и проверяемое состояние</h2>
               <div className="owner-section-kicker">
-                Логическая роль не считается работающим агентом, пока не активированы её режим выполнения и необходимые возможности
+                Логическая роль — не отдельный постоянно работающий AI-процесс. Состояние, текущие задачи и свежесть реестра показываются отдельно
               </div>
             </div>
           </div>
@@ -128,7 +115,11 @@ export default async function AdminRolesPage() {
             {roles.map((role) => {
               const required = Math.max(0, role.requiredCapabilityCount || 0);
               const available = Math.min(required, role.availableCapabilityCount || 0);
-              const stats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+              const stats = roleWork.get(role.code) || {
+                active: 0, running: 0, queued: 0, waiting: 0, pendingReview: 0,
+                latestTitle: null, latestAt: null,
+              };
+              const snapshot = inspectRoleCapabilityFreshness(capabilities, role.code, snapshotNow);
               const lastActivity = stats.latestAt ? formatRelativeTime(stats.latestAt) : 'ещё не было';
 
               return (
@@ -136,7 +127,7 @@ export default async function AdminRolesPage() {
                   <div className="owner-card-meta">
                     <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
                     <span>{role.autonomyLabel}</span>
-                    <span>{stats.active ? `в работе: ${stats.active}` : 'активной работы нет'}</span>
+                    <span>{stats.active ? `открытых кейсов: ${stats.active}` : 'открытых кейсов нет'}</span>
                   </div>
 
                   <h3>{role.name}</h3>
@@ -144,7 +135,7 @@ export default async function AdminRolesPage() {
 
                   <div className="owner-role-readiness">
                     <div className="owner-mini-bar-label">
-                      <span>Необходимые возможности</span>
+                      <span>Возможности по реестру</span>
                       <strong>{role.availableCapabilityCount}/{role.requiredCapabilityCount}</strong>
                     </div>
                     <div className="owner-capability-dots" aria-label={`Доступно ${role.availableCapabilityCount} из ${role.requiredCapabilityCount} необходимых возможностей`}>
@@ -159,15 +150,23 @@ export default async function AdminRolesPage() {
                   </div>
 
                   <div className="owner-role-roster">
-                    <div><span>Сейчас</span><strong>{stats.active ? `${stats.active} активных` : 'нет активной работы'}</strong></div>
-                    <div><span>В очереди</span><strong>{stats.queued}</strong></div>
-                    <div><span>Ждёт / заблокировано</span><strong>{stats.waiting}</strong></div>
-                    <div><span>Последняя активность</span><strong>{lastActivity}</strong></div>
+                    <div><span>Открытых кейсов</span><strong>{stats.active}</strong></div>
+                    <div><span>Исполняется сейчас</span><strong>{stats.running}</strong></div>
+                    <div><span>Ждёт проверки результата</span><strong>{stats.pendingReview}</strong></div>
+                    <div><span>В очереди / заблокировано</span><strong>{stats.queued + stats.waiting}</strong></div>
+                    <div><span>Последнее событие</span><strong>{lastActivity}</strong></div>
                   </div>
                   {stats.latestTitle ? <p className="owner-role-note"><strong>Последняя работа:</strong> {stats.latestTitle}</p> : null}
+                  <p className="owner-role-note">
+                    {snapshot.state === 'STALE_REGISTRY_SNAPSHOT'
+                      ? `Реестр возможностей устарел (самая старая запись: ${snapshot.oldestRecordedAt?.slice(0, 10)}). Доступность нужно подтвердить заново.`
+                      : snapshot.state === 'RECENT_REGISTRY_SNAPSHOT'
+                        ? `Записи возможностей обновлялись не раньше ${snapshot.oldestRecordedAt?.slice(0, 10)}. Это реестр, не проверка live-исполнителя.`
+                        : 'Дата проверки возможностей неизвестна. Нельзя считать их готовыми без подтверждения.'}
+                  </p>
                   <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
                     <span>Блокеров возможностей: {role.blockedCapabilityCount}</span>
-                    <span>Доступно возможностей: {role.availableCapabilityCount}</span>
+                    <span>Доступно полностью по реестру: {role.availableCapabilityCount}</span>
                   </div>
                   <div className="owner-actions">
                     <Link href={`/admin/company/work?owner=${encodeURIComponent(role.name)}#work-list`} className="owner-button">Посмотреть работу</Link>
@@ -177,6 +176,7 @@ export default async function AdminRolesPage() {
                       allowedActionCount={Number(roleRows.get(role.code)?.allowed_action_count || 0)}
                       activationReason={roleRows.get(role.code)?.activation_reason || null}
                       updatedAt={roleRows.get(role.code)?.updated_at || null}
+                      capabilityEvidenceState={snapshot.state}
                     />
                   </div>
                 </article>
@@ -196,9 +196,10 @@ export default async function AdminRolesPage() {
             </summary>
             <div className="owner-disclosure-body">
               <p className="owner-card-copy">
-                «Активна» означает фактически включённую роль. «Безопасный режим» — работу без самостоятельного изменения рабочих данных.
-                «Не активирована» — роль существует в архитектуре, но ещё не готова к реальной работе. Количество возможностей показывает
-                техническую готовность, а не «интеллект» или качество роли.
+                «Активна» — статус разрешённой роли, но не доказательство фонового AI-вызова.
+                «Открытый кейс» ещё не означает, что исполнитель сейчас работает. Завершённый технический workflow
+                без независимой QA и решения владельца остаётся открытой задачей.
+                Количество возможностей — снимок реестра на указанные даты, а не автоматическая проверка текущих внешних сервисов.
               </p>
             </div>
           </details>
