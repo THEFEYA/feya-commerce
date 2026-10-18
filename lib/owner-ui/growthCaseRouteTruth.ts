@@ -136,9 +136,15 @@ export function projectGrowthCaseRoute(input: CaseRouteInput): CaseRouteTruth | 
   const matchingCaseEvents = timestampSort(input.caseEvents.filter(e =>
     uuid(e.case_id) === caseId && uuid(e.case_event_id) && date(e.created_at)));
   const latest = matchingCaseEvents.at(-1);
+  // Ownership handoffs can append a newer event without a status transition.
+  // Compare the current status against the latest actual status-bearing event,
+  // and the ownership epoch against the latest event of any kind.
+  const latestStatus = [...matchingCaseEvents].reverse().find(e =>
+    VALID_CASE_STATUS.has(value(e.to_status)));
   let eventContinuity: CaseRouteTruth['eventContinuity'] = 'VERIFIED_LATEST';
-  if (!latest) eventContinuity = 'NO_EVENT_HISTORY';
-  else if (value(latest.to_status) !== caseStatus) eventContinuity = 'EVENT_STATUS_MISMATCH';
+  if (!latest || !latestStatus) eventContinuity = 'NO_EVENT_HISTORY';
+  else if (value(latestStatus.to_status) !== caseStatus)
+    eventContinuity = 'EVENT_STATUS_MISMATCH';
   else if (positiveEpoch(latest.ownership_epoch) !== epoch || epoch === null)
     eventContinuity = 'EVENT_EPOCH_MISMATCH';
 
