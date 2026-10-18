@@ -110,6 +110,7 @@ test('the real production-shaped HTTP receipt is L0, not a reviewer or Google in
   assert.deepEqual(result.coverage.indexIntent,{expected:18,verified:18});
   assert.equal(result.coverage.productNoindex.expected,207);
   assert.equal(result.coverage.productNoindex.sampled,24);
+  assert.equal(result.coverage.productNoindex.perPathVerified,0);
   assert.equal(result.coverage.productNoindex.untested,183);
   assert.equal(result.coverage.productNoindex.proof,'AGGREGATE_CI_RECEIPT');
   assert.equal(result.coverage.shop.verified,4);
@@ -191,6 +192,43 @@ test('24/207 product sampling cannot be promoted to full product coverage',()=>{
   const changed=projectG2cOriginEvidence(f);
   assert.ok(changed.reasonCodes.includes('PRODUCT_NOINDEX_SAMPLE_UNVERIFIED'));
   assert.notEqual(changed.verdict,'PRODUCTION_HTTP_OBSERVED');
+});
+
+test('new per-path HTTP success receipts are individually verified, legacy aggregates stay explicit',()=>{
+  const f=fixture();
+  const legacy=projectG2cOriginEvidence(f);
+  assert.equal(legacy.coverage.productNoindex.proof,'AGGREGATE_CI_RECEIPT');
+  assert.equal(legacy.coverage.productNoindex.perPathVerified,0);
+  const sample=productPaths.slice(0,24);
+  (f.crawl as any).productNoindex.observations=sample.map(path=>({
+    path,status:200,noindex:true,canonical:indexUrl(path),pass:true,error:null,
+  }));
+  const newEvidence=projectG2cOriginEvidence(f);
+  assert.equal(newEvidence.verdict,'PRODUCTION_HTTP_OBSERVED');
+  assert.equal(newEvidence.coverage.productNoindex.proof,'PER_PATH_CI_RECEIPT');
+  assert.equal(newEvidence.coverage.productNoindex.perPathVerified,24);
+  assert.equal(newEvidence.coverage.productNoindex.untested,183);
+  (f.crawl as any).productNoindex.observations[3].noindex=false;
+  const failed=projectG2cOriginEvidence(f);
+  assert.equal(failed.verdict,'PRODUCTION_HTTP_MISMATCH');
+  assert.ok(failed.reasonCodes.includes('PRODUCT_NOINDEX_SAMPLE_UNVERIFIED'));
+  assert.equal(failed.coverage.productNoindex.perPathVerified,0);
+});
+
+test('partial or wrong-scope per-URL receipts cannot be hidden by aggregate CI counts',()=>{
+  const f=fixture();
+  (f.crawl as any).productNoindex.observations=[
+    {path:productPaths[0],status:200,noindex:true,canonical:indexUrl(productPaths[0]),pass:true,error:null},
+  ];
+  assert.ok(projectG2cOriginEvidence(f).reasonCodes
+    .includes('PRODUCT_NOINDEX_SAMPLE_UNVERIFIED'));
+  const g=fixture();
+  (g.crawl as any).productNoindex.observations=productPaths.slice(0,24).map(path=>({
+    path,status:200,noindex:true,canonical:indexUrl(path),pass:true,error:null,
+  }));
+  (g.crawl as any).productNoindex.observations[0].path='/shop/outside-release';
+  assert.ok(projectG2cOriginEvidence(g).reasonCodes
+    .includes('PRODUCT_NOINDEX_SAMPLE_UNVERIFIED'));
 });
 
 test('missing support observation and noncompliant Shop streaming are flagged',()=>{
