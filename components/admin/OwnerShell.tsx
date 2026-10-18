@@ -34,6 +34,7 @@ function ownerArea(pathname: string) {
   if (pathname === '/admin/company') return 'today';
   if (
     pathname.startsWith('/admin/company/work') ||
+    pathname.startsWith('/admin/company/mission-control') ||
     pathname.startsWith('/admin/roles') ||
     pathname.startsWith('/admin/company/owner-attention') ||
     pathname.startsWith('/admin/owner-attention') ||
@@ -100,6 +101,7 @@ function currentContext(pathname: string) {
   const detailed: Array<[string, string]> = [
     ['/admin/company/delivery', 'Доставка и изготовление'],
     ['/admin/company/owner-attention', 'Решения владельца'],
+    ['/admin/company/mission-control', 'Mission Control'],
     ['/admin/company/signals', 'Сигналы'],
     ['/admin/company/results/changes', 'Изменения'],
     ['/admin/roles', 'ИИ-команда'],
