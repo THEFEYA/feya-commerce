@@ -1,5 +1,3 @@
-export const instant=false;
-
 import { connection } from 'next/server';
 import Link from 'next/link';
 import { getAdminReadClient } from '@/lib/adminData';
