@@ -9,6 +9,7 @@ import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { inspectOfficialGscReceipts, type GscQualityRow } from '@/lib/gscObservedSourceQuality';
 import { inspectOfficialGscContinuity } from '@/lib/gscReceiptContinuity';
+import { reconcileGscSourceReadiness, type GscEvidenceStatus, type GscRegistryStatus } from '@/lib/gscSourceReadinessProjection';
 async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
@@ -24,17 +25,35 @@ async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string 
 
 async function getGscObservationQuality(){
   const supabase=getAdminReadClient();
-  if(!supabase)return{quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Доступ владельца к архиву GSC недоступен'};
+  if(!supabase)return{receipts:[] as GscQualityRow[],quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Доступ владельца к архиву GSC недоступен'};
   const {data,error}=await supabase
     .from('feya_growth_gsc_observation_receipts_v1')
     .select('receipt_id,source_channel,property_url,search_type,data_state,query_start,query_end,finalized_through,observed_days,daily_rows_json,clicks_total,impressions_total,average_position,payload_sha256,recorded_at,source_health_promoted')
-    .eq('property_url','sc-domain:thefeya.com')
+    .eq('source_code','ORGANIC_SEARCH_PERFORMANCE') // Do not hide wrong-property receipts before identity validation.
     .order('recorded_at',{ascending:false})
     .limit(35);
-  if(error)return{quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Чтение архива GSC недоступно'};
+  if(error)return{receipts:[] as GscQualityRow[],quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Чтение архива GSC недоступно'};
   const receipts = (data||[]) as GscQualityRow[];
-  return{quality:inspectOfficialGscReceipts(receipts),continuity:inspectOfficialGscContinuity(receipts),error:null};
+  return{receipts,quality:inspectOfficialGscReceipts(receipts),continuity:inspectOfficialGscContinuity(receipts),error:null};
 }
+
+
+const gscEvidenceLabels: Record<GscEvidenceStatus, string> = {
+  RECENT_OFFICIAL_L0_NOT_PROMOTED: 'Есть свежие официальные наблюдения (L0), но не подтверждена готовность всей аналитики',
+  PARTIAL_PROVIDER_COVERAGE: 'В официальной выборке есть пропуски дат — это не нулевой трафик',
+  STALE_OFFICIAL_L0: 'Последние официальные наблюдения устарели',
+  INVALID_OFFICIAL_EVIDENCE: 'Официальные снимки не прошли проверку целостности',
+  IDENTITY_MISMATCH: 'Идентичность источника или домена не совпадает — выводы заблокированы',
+  NO_FINAL_DATE_ROWS: 'Google не вернул окончательных дневных наблюдений',
+  UNAVAILABLE: 'Официальных наблюдений пока нет',
+};
+const gscRegistryLabels: Record<GscRegistryStatus, string> = {
+  STALE_REGISTRY: 'Реестр устарел по собственному правилу свежести',
+  REGISTRY_SNAPSHOT_CURRENT: 'Реестр проверен в пределах установленного срока',
+  REGISTRY_MISSING: 'Источник отсутствует в реестре',
+  IDENTITY_MISMATCH: 'Реестр ссылается на другую идентичность источника',
+  UNKNOWN_REGISTRY_CLOCK_OR_POLICY: 'У реестра не подтверждены часы проверки или правило свежести',
+};
 
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -80,7 +99,8 @@ function healthClass(value: unknown) {
 
 export default async function AdminDataHealthPage() {
   await connection(); // Prevent Cache Components from prerendering dynamic source freshness.
-  const [{rows,error},{quality:gscQuality,continuity:gscContinuity,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
+  const [{rows,error},{receipts:gscReceipts,quality:gscQuality,continuity:gscContinuity,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
+  const gscReadiness = reconcileGscSourceReadiness(gscReceipts, rows.find(row => row.source_code === 'ORGANIC_SEARCH_PERFORMANCE') ?? null);
 
   const healthy = rows.filter((row) => row.health_state === 'HEALTHY').length;
   const degraded = rows.filter((row) => row.health_state === 'DEGRADED').length;
@@ -126,6 +146,49 @@ export default async function AdminDataHealthPage() {
         <section className="owner-card is-info" style={{ marginBottom: '18px' }}>
           <div className="owner-card-meta"><span className="owner-status is-info">GDAE · наблюдение, не каноническое здоровье</span><span>Google Search Console</span></div>
           <h2>Фактическая история органического поиска</h2>
+          {!gscQualityError ? (
+            <div style={{ marginBottom: '12px' }}>
+              <div className="owner-card-meta">
+                <span className={gscReadiness.evidenceLevel === 'L0' ? 'owner-status is-info' : 'owner-status is-warning'}>
+                  GSC: {gscReadiness.evidenceLevel}
+                </span>
+                <span className={gscReadiness.registryStatus === 'REGISTRY_SNAPSHOT_CURRENT' ? 'owner-status is-info' : 'owner-status is-warning'}>
+                  {gscReadiness.registryStatus === 'STALE_REGISTRY' ? 'Реестр устарел' : 'Реестр: проверка'}
+                </span>
+              </div>
+              <p className="owner-card-copy">
+                <strong>{gscEvidenceLabels[gscReadiness.evidenceStatus]}.</strong>
+                {' '}Канонический реестр: {statusLabel(gscReadiness.canonicalHealthState)} / {dataFreshnessLabel(gscReadiness.canonicalFreshnessState)}.
+                {' '}{gscRegistryLabels[gscReadiness.registryStatus]}.
+              </p>
+              <details className="owner-disclosure owner-disclosure-section">
+                <summary>
+                  <span><strong>Почему вывод ограничен</strong><small>Источники, часы проверки, покрытие и доказательства</small></span>
+                </summary>
+                <div className="owner-disclosure-body">
+                  <p className="owner-card-copy">
+                    Официальный источник: {gscReadiness.officialProperty}. Последний сохранённый снимок: {dateTimeLabel(gscReadiness.recordedAt)}.
+                    {' '}Последний окончательный день Google: {gscReadiness.finalizedThrough ?? 'не подтверждён'}.
+                    {' '}Ожидаемый окончательный день: {gscReadiness.expectedFinalDate ?? 'не определён'}.
+                  </p>
+                  <p className="owner-card-copy">
+                    Канонический источник: {gscReadiness.sourceIdentity}.
+                    {' '}Реестр проверен: {dateTimeLabel(gscReadiness.canonicalCheckedAt)}.
+                    {' '}Максимальный возраст проверки: {gscReadiness.expectedRegistryMaxAgeSeconds == null ? 'не установлен' : gscReadiness.expectedRegistryMaxAgeSeconds + ' секунд'}.
+                  </p>
+                  <p className="owner-card-copy">
+                    Пропущено дней внутри снимка: {gscReadiness.missingDays ?? 'неизвестно'}.
+                    {' '}Ожидаемых окончательных дней без покрытия: {gscReadiness.uncoveredFinalDays ?? 'неизвестно'}.
+                    {' '}Сверка снимков: {gscReadiness.continuity.state === 'INSUFFICIENT_HISTORY' ? 'недостаточно истории' :
+                      gscReadiness.continuity.state === 'OVERLAP_MATCH' ? 'общие даты без изменений' :
+                      gscReadiness.continuity.state === 'OVERLAP_REVISED' ? 'Google уточнил данные за общие даты' :
+                      gscReadiness.continuity.state === 'NO_SHARED_DATES' ? 'нет общих наблюдаемых дат' : 'проверка не пройдена'}.
+                  </p>
+                  <p className="owner-role-note">Этот снимок нельзя использовать для выводов о заказах, конверсии, выручке или эффективности изменений. Переключение готовности источника и запуск GMEL — отдельные проверяемые действия, не результат этой страницы.</p>
+                </div>
+              </details>
+            </div>
+          ) : null}
           {gscQualityError ? <p className="owner-card-copy">{gscQualityError}</p>
            :gscQuality.state==='NO_OFFICIAL_OBSERVATION' ?
             <p className="owner-card-copy">Официальных сохранённых наблюдений ещё нет. Отсутствие данных не означает ноль кликов.</p>
