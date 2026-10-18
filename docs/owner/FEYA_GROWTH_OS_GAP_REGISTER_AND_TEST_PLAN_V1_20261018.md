@@ -125,7 +125,7 @@ Graph edge styles: *possible permitted handoff* dotted static, *persisted handof
 | SC07 | Existing winner shows transient traffic dip | protected_winner NO_CHANGE/measure before edit |
 | SC08 | Low exposure / one order | don't label validated commercial winner |
 | SC09 | Traffic rises, refunds rise more | GMEL MIXED/guardrail; Director not false win |
-| SC10 | High impressions / low orders with consent gaps | insufficient coverage; CPIM hypothesis, not price change |
+| SC10 | High impressions / low orders with consent gaps or a mismatched GA4 consent-only session denominator | compare the same consent-eligible attributed order/session cohort or mark CVR_NOT_COMPARABLE; no sitewide CVR inferred from all Commerce orders / consenting sessions; CPIM hypothesis, not price change |
 | SC11 | Duplicate owner button click | same Attention/Decision; no duplicate audits |
 | SC12 | Stale ownership_epoch handoff arrives | quarantine, never changes current case |
 | SC13 | Owner confirms internal L0 only | Attention resolved, Growth Case OPEN; no fake independent model |
