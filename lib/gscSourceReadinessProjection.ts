@@ -124,7 +124,7 @@ export function reconcileGscSourceReadiness(
   const evidenceLevel = ['RECENT_OFFICIAL_L0_NOT_PROMOTED',
     'STALE_OFFICIAL_L0', 'PARTIAL_PROVIDER_COVERAGE'].includes(evidenceStatus)
     ? 'L0' as const : 'NONE' as const;
-  const reasonCodes = [evidenceStatus, registryStatus];
+  const reasonCodes: string[] = [evidenceStatus, registryStatus];
   if (continuity.state === 'INSUFFICIENT_HISTORY' ||
       continuity.state === 'NO_SHARED_DATES') reasonCodes.push(continuity.state);
   if (continuity.state === 'OVERLAP_REVISED') reasonCodes.push('PROVIDER_REVISED_SHARED_DAYS');
