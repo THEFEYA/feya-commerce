@@ -29,7 +29,7 @@ TheFEYA — made-to-order fashion для сцены, фестивалей, ис�
 4. Technical Quality: live HTTP, intended vs observed vs Google-known search state, broken canonical/redirect, LCP/INP/CLS field p75, ошибки, latency backend.
 5. Operational Quality: время решения, ложные сигналы, число безосновательных правок winners, обратимость, полнота доказательств, стоимость одного полезного подтверждённого результата.
 
-НЕТ утверждённых абсолютных KPI-порогов/обещанного ROI — их версия и допустимые guardrails устанавливаются только после базовой линии и решения владельца. Различать *metric*, *KPI* и *target*. Метрика ≠ KPI без сознательного выбора бизнесом.
+НЕТ согласованных абсолютных KPI-порогов/обещанного ROI — их версия и допустимые guardrails устанавливаются только после базовой линии и решения владельца. Различать *metric*, *KPI* и *target*. Метрика ≠ KPI без сознательного выбора бизнесом.
 
 ## 2. Канонический цикл, одна задача — один ответственный
 
@@ -123,6 +123,8 @@ GMEL выбирает измерительный дизайн **до** action; �
 **Success taxonomy в каждой инициативе:** NO_DATA, READY_TO_MEASURE, RUNNING, VALIDATED_WIN, POSITIVE_ASSOCIATION, MIXED, REGRESSION, INCONCLUSIVE, NOT_MEASURABLE; «success» допустим только с outcome receipt и предзаданными условиями. Дополнительно guardrail violation и protected-winner breach имеют veto.
 
 ## 7. Взаимодействие восьми сотрудников (без девятой роли)
+
+Role codes из восьми Canonical Passports: GROWTH_DIRECTOR, OSPM, CPIM, GMEL, SCO, CQA, TSEO, GDAE. Они не являются отдельными daemon-processes.
 
 Human Owner ↔ Growth Director (только стратегия/high-risk) ↔ доменные владельцы.
 - OSPM owns search portfolio, page intent and opportunity. OSPM → SCO через утверждённый Content Brief; OSPM → TSEO при техническом mismatch; OSPM → CPIM если search healthy, коммерция weak.
