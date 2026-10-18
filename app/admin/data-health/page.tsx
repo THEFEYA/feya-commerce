@@ -190,6 +190,8 @@ export default async function AdminDataHealthPage() {
             </div>
           ) : null}
           {gscQualityError ? <p className="owner-card-copy">{gscQualityError}</p>
+           :gscReadiness.evidenceStatus === 'IDENTITY_MISMATCH' || gscReadiness.evidenceStatus === 'INVALID_OFFICIAL_EVIDENCE' ?
+            <p className="owner-card-copy">Подробные показатели заблокированы: идентичность источника или целостность квитанций не подтверждена. Не используйте эти данные для решений.</p>
            :gscQuality.state==='NO_OFFICIAL_OBSERVATION' ?
             <p className="owner-card-copy">Официальных сохранённых наблюдений ещё нет. Отсутствие данных не означает ноль кликов.</p>
            :gscQuality.state==='INVALID_OFFICIAL_OBSERVATION' ?
@@ -213,28 +215,28 @@ export default async function AdminDataHealthPage() {
                <span>SHA-256: {gscQuality.evidenceSha256?.slice(0,16)}…</span>
              </p>
            </>}
-          {!gscQualityError && gscContinuity.state === 'OVERLAP_MATCH' ? (
+          {!gscQualityError && gscReadiness.evidenceLevel === 'L0' && gscContinuity.state === 'OVERLAP_MATCH' ? (
             <p className="owner-card-copy">
               Сверка двух официальных снимков: {gscContinuity.sharedObservedDays} общих наблюдаемых дат,
               изменений дневных кликов, показов и позиции нет. Разные 14-дневные суммы не считаются ростом.
             </p>
-          ) : !gscQualityError && gscContinuity.state === 'OVERLAP_REVISED' ? (
+          ) : !gscQualityError && gscReadiness.evidenceLevel === 'L0' && gscContinuity.state === 'OVERLAP_REVISED' ? (
             <p className="owner-card-copy">
               В двух официальных снимках {gscContinuity.sharedObservedDays} общих дат,
               Google пересмотрел показатели за {gscContinuity.changedObservedDays} из них
               (клики: {gscContinuity.changedClickDays}, показы: {gscContinuity.changedImpressionDays},
               позиция: {gscContinuity.changedPositionDays}). Это изменение исходных данных, не бизнес-результат.
             </p>
-          ) : !gscQualityError && gscContinuity.state === 'UNVERIFIED_EVIDENCE' ? (
+          ) : !gscQualityError && gscReadiness.evidenceLevel === 'L0' && gscContinuity.state === 'UNVERIFIED_EVIDENCE' ? (
             <p className="owner-card-copy">
               Сравнение двух снимков заблокировано: один из источников не прошёл независимую проверку структуры.
             </p>
-          ) : !gscQualityError && gscContinuity.state === 'NO_SHARED_DATES' ? (
+          ) : !gscQualityError && gscReadiness.evidenceLevel === 'L0' && gscContinuity.state === 'NO_SHARED_DATES' ? (
             <p className="owner-card-copy">
               Два официальных снимка существуют, но не содержат общих наблюдаемых дат.
               Непрерывность и отсутствие исправлений пока не доказаны.
             </p>
-          ) : !gscQualityError ? (
+          ) : !gscQualityError && gscReadiness.evidenceLevel === 'L0' ? (
             <p className="owner-card-copy">
               Для проверки изменений нужен второй официальный снимок GSC; отсутствие истории не означает отсутствие поискового трафика.
             </p>
