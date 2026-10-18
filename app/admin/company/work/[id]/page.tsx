@@ -7,6 +7,8 @@ import { presentWorkItem } from '@/lib/owner-ui/presenters';
 import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growthGmelAiAdmission';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
+import { OwnerCaseRouteTruth } from '@/components/admin/OwnerCaseRouteTruth';
+import { projectGrowthCaseRoute, type CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
 import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
@@ -17,6 +19,8 @@ async function getWorkItem(id: string): Promise<{
   handoffs: GrowthHandoffRow[];
   workflowEvents: GrowthWorkflowEventRow[];
   gmelAiAdmission?: GmelAdmissionDecision;
+  caseRoute?: CaseRouteTruth;
+  caseRouteError?: string;
   readinessReceipt?: {
     releaseCode: string;
     releaseVersion: number;
@@ -53,6 +57,57 @@ async function getWorkItem(id: string): Promise<{
   const firstError = workResult.error || handoffResult.error || workflowEventResult.error;
   if (firstError) return { handoffs: [], workflowEvents: [], error: firstError.message };
   if (!workResult.data) return { handoffs: [], workflowEvents: [] };
+
+
+  // G2a: owner-server-only route evidence. Use bounded, column-allowlisted reads
+  // from existing Core tables and owner-safe views. No new raw evidence payloads
+  // or actor UUIDs reach the client and no source/case status is written.
+  const [caseEventResponse, attentionResponse, specResponse] = await Promise.all([
+    supabase.from('feya_growth_case_events_v1')
+      .select('case_event_id,case_id,event_type,from_status,to_status,ownership_epoch,created_at')
+      .eq('case_id', id).order('created_at', { ascending: false }).limit(80),
+    supabase.from('feya_commerce_v_owner_attention_safe_v3')
+      .select('attention_id,case_id,source_code,attention_status,created_at,resolved_at')
+      .eq('case_id', id).order('created_at', { ascending: false }).limit(30),
+    supabase.from('feya_growth_measurement_specs_v1')
+      .select('measurement_spec_id,case_id,spec_hash,locked_at,measurement_status,created_at')
+      .eq('case_id', id).order('created_at', { ascending: false }).limit(20),
+  ]);
+  let caseRoute: CaseRouteTruth | undefined;
+  let caseRouteError: string | undefined;
+  if (caseEventResponse.error || attentionResponse.error || specResponse.error) {
+    caseRouteError = 'Не удалось проверить полную историю кейса. Статусы нельзя считать согласованными.';
+  } else {
+    const attentionIds = (attentionResponse.data || []).map(a => a.attention_id);
+    const specIds = (specResponse.data || []).map(m => m.measurement_spec_id);
+    const [attentionEventsResponse, outcomeResponse] = await Promise.all([
+      attentionIds.length
+        ? supabase.from('feya_commerce_v_owner_attention_events_safe_v1')
+          .select('attention_event_id,attention_id,event_type,to_status,decision_code,created_at')
+          .in('attention_id', attentionIds).order('created_at', { ascending: false }).limit(80)
+        : Promise.resolve({ data: [], error: null }),
+      specIds.length
+        ? supabase.from('feya_growth_measurement_outcomes_v1')
+          .select('outcome_id,measurement_spec_id,measurement_spec_hash,outcome_state,created_at')
+          .in('measurement_spec_id', specIds).order('created_at', { ascending: false }).limit(40)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (attentionEventsResponse.error || outcomeResponse.error) {
+      caseRouteError = 'История решений или измерений недоступна. Переходы кейса не подтверждены.';
+    } else {
+      caseRoute = projectGrowthCaseRoute({
+        caseRow: workResult.data,
+        caseEvents: caseEventResponse.data || [],
+        workflowEvents: workflowEventResult.data || [],
+        handoffs: handoffResult.data || [],
+        attention: attentionResponse.data || [],
+        attentionEvents: attentionEventsResponse.data || [],
+        specs: specResponse.data || [],
+        outcomes: outcomeResponse.data || [],
+      }) || undefined;
+      if (!caseRoute) caseRouteError = 'Данные кейса не прошли проверку идентичности и статуса.';
+    }
+  }
 
   // The owner sees a persisted, bounded evidence summary after leaving the original chat.
   // No raw drafts or private workflow state are sent to the browser.
@@ -126,6 +181,8 @@ async function getWorkItem(id: string): Promise<{
   }
   return {
     row: workResult.data as Row,
+    caseRoute,
+    caseRouteError,
     gmelAiAdmission,
     readinessReceipt,
     handoffs: (handoffResult.data || []) as GrowthHandoffRow[],
@@ -135,7 +192,7 @@ async function getWorkItem(id: string): Promise<{
 
 export default async function OwnerWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, error } = await getWorkItem(id);
+  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, caseRoute, caseRouteError, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
@@ -155,6 +212,8 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
         </header>
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {caseRoute ? <OwnerCaseRouteTruth route={caseRoute} /> : null}
+        {caseRouteError ? <section className="owner-card is-warning" role="status"><h2 className="owner-card-title">История кейса не проверена</h2><p className="owner-card-copy">{caseRouteError}</p></section> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
         {gmelReview?.state === 'DETERMINISTIC_RECONCILED' ? (
           <section className="owner-card" aria-label="Автоматическая сверка источников Growth OS">
