@@ -7,6 +7,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { ownerDecisionPlan } from '@/lib/owner-ui/decisions';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 import { OwnerAttentionDecisionClient } from '@/components/admin/OwnerAttentionDecisionClient';
+import { OwnerShadowL0DecisionClient } from '@/components/admin/OwnerShadowL0DecisionClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 type Row = Record<string, unknown>;
 
@@ -65,7 +66,10 @@ export default async function OwnerDecisionDetailPage({ params }: { params: Prom
 
   const item = row ? presentOwnerAttention(row) : null;
   const plan = ownerDecisionPlan(row?.source_code);
-  const ownerActions = getOwnerActionConfigStatus();
+  const isShadowL0 = row?.source_code === 'TSEO_SHADOW_L0_QA_REQUEST';
+  // Reuse the separately enabled Growth Shadow step-up exclusively for this
+  // existing human L0 case. All other decisions retain the original broad OFF gate.
+  const ownerActions = getOwnerActionConfigStatus(isShadowL0?'growth_shadow_work':'owner_actions');
 
   return (
     <main className="owner-page">
@@ -151,14 +155,23 @@ export default async function OwnerDecisionDetailPage({ params }: { params: Prom
             </section>
 
             <section className="owner-section">
-              <OwnerAttentionDecisionClient
-                attentionId={item.id}
-                currentStatus={String(row?.attention_status || 'OPEN')}
-                title={item.title}
-                recommendation={plan.recommendation}
-                enabled={ownerActions.ready}
-                blockers={ownerActions.blockers}
-              />
+              {isShadowL0 ? (
+                <OwnerShadowL0DecisionClient
+                  attentionId={item.id}
+                  currentStatus={String(row?.attention_status || 'OPEN')}
+                  enabled={ownerActions.ready}
+                  blockers={ownerActions.blockers}
+                />
+              ) : (
+                <OwnerAttentionDecisionClient
+                  attentionId={item.id}
+                  currentStatus={String(row?.attention_status || 'OPEN')}
+                  title={item.title}
+                  recommendation={plan.recommendation}
+                  enabled={ownerActions.ready}
+                  blockers={ownerActions.blockers}
+                />
+              )}
             </section>
 
             <section className="owner-section">
