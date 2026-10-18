@@ -143,6 +143,14 @@ test('new idempotency key cannot bypass stale case status or ownership epoch',as
   assert.equal(await countEvents(),1);
 });
 
+test('NULL expected status/epoch and NULL actor cannot bypass canonical safety checks',async()=>{
+  await assert.rejects(transition({expected:null,key:'null-status'}),/Stale case status/);
+  await assert.rejects(transition({epoch:null,key:'null-epoch'}),/Stale ownership epoch/);
+  await assert.rejects(transition({actor:null,key:'null-actor'}),/Unsupported actor type/);
+  assert.equal(await countEvents(),0);
+  assert.equal(await caseStatus(),'OPEN');
+});
+
 test('canonical FSM unchanged: OPEN→CLOSED and OPEN→ACTIONING remain forbidden',async()=>{
   for(const target of ['CLOSED','ACTIONING','MEASURING','LEARNING']){
     await assert.rejects(transition({caseId:ids.b,target,key:target}),/Invalid Growth Case transition/);
