@@ -188,3 +188,42 @@ test('system actor with null user and null retry key retains legacy behavior',as
   await assert.rejects(transition(change),/Stale case status/);
   assert.equal(await countEvents(ids.b),1);
 });
+
+
+test('native PostgreSQL 17: two concurrent exact retries serialize to ONE immutable event',
+  {skip:!native},async()=>{
+  const sql='select * from public.feya_fn_transition_growth_case_v1($1::uuid,$2::text,$3::integer,$4::text,$5::text,$6::text,$7::uuid,$8::text)';
+  const args=[ids.a,'OPEN',1,'TRIAGED',LONG_REASON,'human',ids.human,'native-concurrent-same-intent'];
+  const a=new pg.Client({connectionString:native,connectionTimeoutMillis:5000});
+  const b=new pg.Client({connectionString:native,connectionTimeoutMillis:5000});
+  await Promise.all([a.connect(),b.connect()]);
+  try{
+    const [one,two]=await Promise.all([a.query(sql,args),b.query(sql,args)]);
+    assert.equal(one.rows.length,1);
+    assert.equal(two.rows.length,1);
+    assert.deepEqual(one.rows,two.rows);
+    assert.equal(one.rows[0].new_status,'TRIAGED');
+    assert.equal(await countEvents(),1);
+    assert.equal(await caseStatus(),'TRIAGED');
+  }finally{await Promise.all([a.end(),b.end()]);}
+});
+
+test('native PostgreSQL 17: conflicting targets with the SAME key cannot both succeed',
+  {skip:!native},async()=>{
+  const sql='select * from public.feya_fn_transition_growth_case_v1($1::uuid,$2::text,$3::integer,$4::text,$5::text,$6::text,$7::uuid,$8::text)';
+  const key='native-concurrent-conflict';
+  const first=[ids.b,'OPEN',1,'TRIAGED',LONG_REASON,'human',ids.human,key];
+  const second=[ids.b,'OPEN',1,'BLOCKED',LONG_REASON,'human',ids.human,key];
+  const a=new pg.Client({connectionString:native,connectionTimeoutMillis:5000});
+  const b=new pg.Client({connectionString:native,connectionTimeoutMillis:5000});
+  await Promise.all([a.connect(),b.connect()]);
+  try{
+    const r=await Promise.allSettled([a.query(sql,first),b.query(sql,second)]);
+    assert.equal(r.filter(x=>x.status==='fulfilled').length,1);
+    assert.equal(r.filter(x=>x.status==='rejected').length,1);
+    const rejected=r.find(x=>x.status==='rejected');
+    assert.match(String(rejected?.reason?.message),/growth_case_idempotency_intent_mismatch/);
+    assert.equal(await countEvents(ids.b),1);
+    assert.ok(['TRIAGED','BLOCKED'].includes(await caseStatus(ids.b)));
+  }finally{await Promise.all([a.end(),b.end()]);}
+});
