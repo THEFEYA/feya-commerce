@@ -8,6 +8,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { inspectOfficialGscReceipts, type GscQualityRow } from '@/lib/gscObservedSourceQuality';
+import { inspectOfficialGscContinuity } from '@/lib/gscReceiptContinuity';
 async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
@@ -23,15 +24,16 @@ async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string 
 
 async function getGscObservationQuality(){
   const supabase=getAdminReadClient();
-  if(!supabase)return{quality:inspectOfficialGscReceipts([]),error:'Доступ владельца к архиву GSC недоступен'};
+  if(!supabase)return{quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Доступ владельца к архиву GSC недоступен'};
   const {data,error}=await supabase
     .from('feya_growth_gsc_observation_receipts_v1')
     .select('receipt_id,source_channel,property_url,search_type,data_state,query_start,query_end,finalized_through,observed_days,daily_rows_json,clicks_total,impressions_total,average_position,payload_sha256,recorded_at,source_health_promoted')
     .eq('property_url','sc-domain:thefeya.com')
     .order('recorded_at',{ascending:false})
     .limit(35);
-  if(error)return{quality:inspectOfficialGscReceipts([]),error:'Чтение архива GSC недоступно'};
-  return{quality:inspectOfficialGscReceipts((data||[]) as GscQualityRow[]),error:null};
+  if(error)return{quality:inspectOfficialGscReceipts([]),continuity:inspectOfficialGscContinuity([]),error:'Чтение архива GSC недоступно'};
+  const receipts = (data||[]) as GscQualityRow[];
+  return{quality:inspectOfficialGscReceipts(receipts),continuity:inspectOfficialGscContinuity(receipts),error:null};
 }
 
 function asText(value: unknown, fallback = '—') {
@@ -78,7 +80,7 @@ function healthClass(value: unknown) {
 
 export default async function AdminDataHealthPage() {
   await connection(); // Prevent Cache Components from prerendering dynamic source freshness.
-  const [{rows,error},{quality:gscQuality,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
+  const [{rows,error},{quality:gscQuality,continuity:gscContinuity,error:gscQualityError}] = await Promise.all([getRows(),getGscObservationQuality()]);
 
   const healthy = rows.filter((row) => row.health_state === 'HEALTHY').length;
   const degraded = rows.filter((row) => row.health_state === 'DEGRADED').length;
@@ -118,7 +120,7 @@ export default async function AdminDataHealthPage() {
 
         <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
           <div className="owner-status is-info">Как читать экран</div>
-          <p className="owner-card-copy">Это последний сохранённый снимок состояния. Автоматический планировщик проверки источников пока не запущен, поэтому рядом с каждым источником показывается время последней проверки и последнего набора данных.</p>
+          <p className="owner-card-copy">Это последний сохранённый снимок канонического состояния источников. Общий планировщик проверки их здоровья пока не запущен. Отдельный ежедневный сбор GSC проверяется по фактически сохранённым квитанциям ниже и не повышает этот статус автоматически.</p>
         </div>
 
         <section className="owner-card is-info" style={{ marginBottom: '18px' }}>
@@ -148,6 +150,32 @@ export default async function AdminDataHealthPage() {
                <span>SHA-256: {gscQuality.evidenceSha256?.slice(0,16)}…</span>
              </p>
            </>}
+          {!gscQualityError && gscContinuity.state === 'OVERLAP_MATCH' ? (
+            <p className="owner-card-copy">
+              Сверка двух официальных снимков: {gscContinuity.sharedObservedDays} общих наблюдаемых дат,
+              изменений дневных кликов, показов и позиции нет. Разные 14-дневные суммы не считаются ростом.
+            </p>
+          ) : !gscQualityError && gscContinuity.state === 'OVERLAP_REVISED' ? (
+            <p className="owner-card-copy">
+              В двух официальных снимках {gscContinuity.sharedObservedDays} общих дат,
+              Google пересмотрел показатели за {gscContinuity.changedObservedDays} из них
+              (клики: {gscContinuity.changedClickDays}, показы: {gscContinuity.changedImpressionDays},
+              позиция: {gscContinuity.changedPositionDays}). Это изменение исходных данных, не бизнес-результат.
+            </p>
+          ) : !gscQualityError && gscContinuity.state === 'UNVERIFIED_EVIDENCE' ? (
+            <p className="owner-card-copy">
+              Сравнение двух снимков заблокировано: один из источников не прошёл независимую проверку структуры.
+            </p>
+          ) : !gscQualityError && gscContinuity.state === 'NO_SHARED_DATES' ? (
+            <p className="owner-card-copy">
+              Два официальных снимка существуют, но не содержат общих наблюдаемых дат.
+              Непрерывность и отсутствие исправлений пока не доказаны.
+            </p>
+          ) : !gscQualityError ? (
+            <p className="owner-card-copy">
+              Для проверки изменений нужен второй официальный снимок GSC; отсутствие истории не означает отсутствие поискового трафика.
+            </p>
+          ) : null}
           <p className="owner-role-note">Это уровень L0: наблюдение GSC. Наличие снимка не подтверждает конверсии, прибыль или причинный рост. Канонический статус источника не повышен; GMEL/AI-бюджет не активированы.</p>
           <div className="owner-actions"><Link href="/admin/system-readiness" className="owner-button">Проверить прямое подключение GSC</Link></div>
         </section>
