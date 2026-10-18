@@ -135,6 +135,7 @@ test('actual pinned ACTIVE Search v12 fixture can be verified without synthetic 
     expectedCanonical:indexUrl(path),pass:true,
   }));
   (f.crawl as any).productNoindex.samplePaths=manifest.productNoindexPaths.slice(0,24);
+  (f.crawl as any).sitemap.locs=manifest.indexCandidates.map(indexUrl);
   (f.pdp as any).samples=manifest.productNoindexPaths.slice(0,5).map(
     (path:string)=>({path,pass:true,status:200,errors:[]}));
   const r=projectG2cOriginEvidence(f);
