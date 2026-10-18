@@ -93,8 +93,17 @@ export function OwnerWorkDetailContent({
           <h3 className="owner-card-title">{item.statusLabel}</h3>
           <span>{dateTimeLabel(item.updatedAt)}</span>
         </div>
-        <p className="owner-card-copy">Ответственная роль: {item.ownerLabel}.</p>
-        <div className="owner-work-stage-track" aria-label={`Текущий этап: ${item.statusLabel}`}>
+        <p className="owner-card-copy">
+          Ответственная роль: {item.ownerLabel}.
+          {item.caseStatus ? ` Кейс: ${statusLabel(item.caseStatus)}.` : ''}
+          {item.workflowStatus ? ` Технический workflow: ${statusLabel(item.workflowStatus)}.` : ''}
+        </p>
+        {item.caseStatus && item.workflowStatus ? (
+          <p className="owner-work-stage-note">
+            Эти статусы независимы: завершение технического workflow не означает закрытие кейса.
+            Подтверждённые этапы и решения показаны в «Маршруте кейса» на странице подробностей.
+          </p>
+        ) : <div className="owner-work-stage-track" aria-label={`Текущий этап: ${item.statusLabel}`}>
           {LIFECYCLE_STAGES.map((label, index) => {
             const current = lifecyclePhase(item.status);
             const complete = index < current;
@@ -106,8 +115,8 @@ export function OwnerWorkDetailContent({
               </div>
             );
           })}
-        </div>
-        <p className="owner-work-stage-note">Этапы показывают фактическое состояние workflow. Это не процент готовности и не оценка времени.</p>
+        </div>}
+        {!item.caseStatus || !item.workflowStatus ? <p className="owner-work-stage-note">Этапы иллюстрируют рабочий контекст, не процент выполнения и не результат бизнеса.</p> : null}
       </section>
 
       <section className="owner-card">
