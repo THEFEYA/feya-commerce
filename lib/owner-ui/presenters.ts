@@ -88,6 +88,8 @@ export function presentWorkItem(row: Row): OwnerWorkItemVM {
     purpose: text(row.business_question, 'Проверить ситуацию и определить следующий шаг.'),
     status,
     statusLabel: statusLabel(status),
+    caseStatus: text(row.case_status, 'UNKNOWN'),
+    workflowStatus: text(row.workflow_status, 'UNKNOWN'),
     tone: ['EVIDENCE_REVIEWED','EVIDENCE_PREFLIGHT'].includes(status) ? 'info' : ownerToneForStatus(status),
     priority: text(row.priority, 'P3'),
     priorityLabel: priorityLabel(row.priority),
