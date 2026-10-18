@@ -28,6 +28,9 @@ export async function POST(request:NextRequest) {
     return reply({ok:false,code:'case_triage_origin_denied'},403);
   const actor=await requireOwnerActionActor('growth_case_triage');
   if (!actor.ok) return reply({ok:false,code:actor.code,error:actor.error},actor.status);
+  const service=actor.service;
+  const ownerId=actor.userId;
+  if (!service || !ownerId) return reply({ok:false,code:'owner_executor_unavailable'},503);
 
   let input:CaseTriageInput;
   try {
@@ -38,12 +41,12 @@ export async function POST(request:NextRequest) {
   // A human identity is bound into the immutable idempotency fingerprint.
   let key:string;
   try {
-    key=ownerCaseTriageIdempotencyKey(input,actor.userId);
+    key=ownerCaseTriageIdempotencyKey(input,ownerId);
   } catch {
     return reply({ok:false,code:'invalid_owner_identity'},403);
   }
 
-  const caseResponse=await actor.service.from('feya_growth_cases_v1')
+  const caseResponse=await service.from('feya_growth_cases_v1')
     .select('case_id,case_code,case_type,case_status,current_accountable_domain,ownership_epoch')
     .eq('case_id',input.case_id).maybeSingle();
   if (caseResponse.error) return reply({ok:false,code:'case_triage_case_unavailable'},503);
@@ -56,16 +59,16 @@ export async function POST(request:NextRequest) {
    */
   async function verifyPersisted(receipt:unknown) {
     const [caseState, eventResult] = await Promise.all([
-      actor.service.from('feya_growth_cases_v1')
+      service.from('feya_growth_cases_v1')
         .select('case_id,case_status,current_accountable_domain,ownership_epoch')
         .eq('case_id',input.case_id).maybeSingle(),
-      actor.service.from('feya_growth_case_events_v1')
+      service.from('feya_growth_case_events_v1')
         .select('case_id,event_type,from_status,to_status,ownership_epoch,actor_type,actor_user_id,reason,idempotency_key')
         .eq('case_id',input.case_id).eq('idempotency_key',key)
         .eq('event_type','STATUS_TRANSITIONED').limit(2),
     ]);
     if (caseState.error||eventResult.error) return 'UNKNOWN' as const;
-    const result=attestOwnerCaseTriageWrite(input,actor.userId,
+    const result=attestOwnerCaseTriageWrite(input,ownerId,
       (receipt && typeof receipt==='object' && !Array.isArray(receipt))
         ? receipt as Record<string,unknown> : null,
       caseState.data, eventResult.data||[]);
@@ -84,17 +87,17 @@ export async function POST(request:NextRequest) {
   if(c.case_status!=='OPEN')return reply({ok:false,code:'case_triage_not_open'},409);
 
   const [caseEvents, workflows, handoffs, attentions, active] = await Promise.all([
-    actor.service.from('feya_growth_case_events_v1')
+    service.from('feya_growth_case_events_v1')
       .select('case_event_id,case_id,event_type,to_status,ownership_epoch,created_at')
       .eq('case_id',input.case_id).order('created_at',{ascending:false}).limit(1),
-    actor.service.from('feya_growth_workflow_runs_v1')
+    service.from('feya_growth_workflow_runs_v1')
       .select('workflow_run_id,workflow_type,workflow_status,ownership_epoch,state_json')
       .eq('case_id',input.case_id).eq('workflow_type','RECORD_INDEXABILITY_PROPOSAL')
       .order('created_at',{ascending:false}).limit(1).maybeSingle(),
-    actor.service.from('feya_growth_handoffs_v1')
+    service.from('feya_growth_handoffs_v1')
       .select('handoff_id,case_id,ownership_epoch,source_domain,target_domain,handoff_status,expected_output_schema_code,result_json,created_at,completed_at')
       .eq('case_id',input.case_id).order('created_at',{ascending:false}).limit(8),
-    actor.service.from('feya_growth_owner_attention_v1')
+    service.from('feya_growth_owner_attention_v1')
       .select('attention_id,case_id,attention_type,attention_status,context_json,resolution_json,created_at')
       .eq('case_id',input.case_id).order('created_at',{ascending:false}).limit(8),
     getActiveSearchEvidence(),
@@ -117,7 +120,7 @@ export async function POST(request:NextRequest) {
   const ctx=(a.context_json||{}) as Record<string,unknown>;
   const h=hs.find(x=>x.handoff_id===ctx.handoff_id)??null;
 
-  const decisionEvents=await actor.service.from('feya_growth_owner_attention_events_v1')
+  const decisionEvents=await service.from('feya_growth_owner_attention_events_v1')
     .select('attention_id,event_type,to_status,decision_code,actor_user_id,created_at')
     .eq('attention_id',a.attention_id).order('created_at',{ascending:false}).limit(2);
   if (decisionEvents.error)
@@ -133,14 +136,14 @@ export async function POST(request:NextRequest) {
 
   // All non-DB guards passed. Existing Core checks status+ownership epoch
   // atomically, stores immutable human event, and rejects OPEN→CLOSED.
-  const {data,error}=await actor.service.rpc('feya_fn_transition_growth_case_v1',{
+  const {data,error}=await service.rpc('feya_fn_transition_growth_case_v1',{
     p_case_id:input.case_id,
     p_expected_status:'OPEN',
     p_expected_ownership_epoch:input.expected_ownership_epoch,
     p_new_status:'TRIAGED',
     p_reason:input.reason,
     p_actor_type:'human',
-    p_actor_user_id:actor.userId,
+    p_actor_user_id:ownerId,
     p_idempotency_key:key,
   });
   const receipt=Array.isArray(data)?data[0]:data;
