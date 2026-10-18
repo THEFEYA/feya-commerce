@@ -39,7 +39,7 @@ BEGIN
     RAISE EXCEPTION 'Transition reason is required';
   END IF;
 
-  IF p_actor_type NOT IN ('human','agent','system') THEN
+  IF p_actor_type IS NULL OR p_actor_type NOT IN ('human','agent','system') THEN
     RAISE EXCEPTION 'Unsupported actor type: %', p_actor_type;
   END IF;
 
@@ -101,12 +101,12 @@ BEGIN
     END IF;
   END IF;
 
-  IF v_case.case_status <> p_expected_status THEN
+  IF v_case.case_status IS DISTINCT FROM p_expected_status THEN
     RAISE EXCEPTION 'Stale case status: expected %, current %',
       p_expected_status,v_case.case_status;
   END IF;
 
-  IF v_case.ownership_epoch <> p_expected_ownership_epoch THEN
+  IF v_case.ownership_epoch IS DISTINCT FROM p_expected_ownership_epoch THEN
     RAISE EXCEPTION 'Stale ownership epoch: expected %, current %',
       p_expected_ownership_epoch,v_case.ownership_epoch;
   END IF;
