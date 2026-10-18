@@ -20,6 +20,9 @@ export type OwnerWorkItemVM = {
   purpose: string;
   status: string;
   statusLabel: string;
+  /** Canonical Case FSM and subordinate technical workflow are distinct. */
+  caseStatus?: string;
+  workflowStatus?: string;
   tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
   priority: string;
   priorityLabel: string;
