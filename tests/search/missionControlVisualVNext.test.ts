@@ -83,6 +83,9 @@ test('the Office is an actual roster, not the graph with painted rectangles',()=
   assert.ok(inspector.includes('onOpenCase'));
   assert.ok(inspector.includes('missionAutonomyLabel[role.autonomy]'));
   assert.ok(inspector.includes('handoffs'));
+  assert.ok(inspector.includes('Сохранённая активность роли'));
+  assert.ok(inspector.includes('recentActivity'));
+  assert.ok(inspector.includes('signalCopy(a.sourceCode'));
   assert.ok(inspector.includes('Метрики результата здесь не выводятся без проверенного источника'));
   assert.ok(inspector.includes('Открытие материалов не запускает AI или публикацию'));
 });
@@ -98,6 +101,10 @@ test('the Case route uses existing real snapshots, detailed steps and bounded ow
   assert.ok(route.includes('Решение владельца'));
   assert.ok(route.includes('setSelectedStage'));
   assert.ok(route.includes('routeExplanation'));
+  assert.ok(route.includes('routeDetailMap'));
+  assert.ok(route.includes('showAlternativePaths'));
+  assert.ok(route.includes('Показать альтернативные пути'));
+  assert.ok(route.includes('Это правило процесса, не зарегистрированный возврат данного кейса'));
   assert.ok(route.includes('onClick={onShowRole}'));
   assert.ok(projection.includes('Независимая проверка'));
   assert.ok(projection.includes('Execution Receipt здесь не проверен'));

@@ -11,6 +11,7 @@ import type {MissionSnapshot,MissionRoleCode,MissionCase,MissionEvent} from '@/l
 import {missionOrganizationalLinks,missionRolePresentation,missionAutonomyLabel}
   from '@/lib/owner-ui/missionRolePresentation';
 import {MissionRobotPortrait} from './MissionRobotPortrait';
+import {signalCopy} from '@/lib/owner-ui/terminology';
 import styles from './MissionControl.module.css';
 
 type Participant=MissionRoleCode|'OWNER';
@@ -57,6 +58,8 @@ export function MissionRoleInspector({
   const meta=selected==='OWNER'?null:missionRolePresentation[selected];
   const allCases=snapshot.cases.filter(x=>x.owner===selected);
   const assigned=caseFocus?allCases.filter(c=>c.id===caseFocus.id):allCases;
+  const recentActivity=snapshot.events.filter(e=>(e.source===selected||e.target===selected)
+    &&(!caseFocus||e.caseId===caseFocus.id)).slice(-3).reverse();
   const handoffs=snapshot.events.filter(e=>e.kind==='handoff'
     &&(e.source===selected||e.target===selected)
     &&(!caseFocus||e.caseId===caseFocus.id));
@@ -124,6 +127,15 @@ export function MissionRoleInspector({
           role?.mode==='INACTIVE'?'Роль зарегистрирована, но не активна':
           'Статус по записи Core'}</strong>
       </div>
+      <div className={styles.inspectorActivity}>
+        <h3><Activity size={16}/> Сохранённая активность роли</h3>
+        {recentActivity.length?recentActivity.map(e=><Link key={e.id}
+          href={'/admin/company/work/'+e.caseId} data-kind={e.kind}>
+          <span className={styles.inspectorActivityDot}/>
+          <span><strong>{e.title}</strong><small>{shortDate(e.at)} · {e.caseCode}</small></span>
+          <ArrowRight size={14}/>
+        </Link>):<p>По этой роли в выбранном фокусе ещё нет сохранённых событий.</p>}
+      </div>
       <div className={styles.nextAction}>
         <h3><ArrowRight size={15}/> Следующий полезный шаг</h3>
         {firstCase?<button type="button" onClick={()=>onOpenCase(firstCase.id)}>
@@ -169,7 +181,7 @@ export function MissionRoleInspector({
         ?snapshot.ownerAttention?.items.length?snapshot.ownerAttention.items.map(a=>
           <Link className={styles.caseLink} key={a.id} href={'/admin/company/owner-attention/'+a.id}>
             <strong>{a.priority} · {a.status==='OPEN'?'Ожидает решения':'Принято к рассмотрению'}</strong>
-            <span>{a.title}</span></Link>)
+            <span>{signalCopy(a.sourceCode,{title:a.title}).title}</span></Link>)
         :<p className={styles.note}>В этом снимке нет доступных вопросов. Откройте полную очередь.</p>
         :assigned.length?assigned.map(c=>
           <button type="button" key={c.id} className={styles.caseLink}

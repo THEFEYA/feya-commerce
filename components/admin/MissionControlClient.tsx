@@ -387,7 +387,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
             <div><span className={styles.kicker}>ОРГАНИЗАЦИЯ / КОМАНДА FEYA</span>
               <h2>Восемь ролей — единый процесс</h2>
               <p>Зоны ответственности, реальные режимы и закреплённые кейсы. Ни одна карточка не означает текущий AI-вызов.</p></div>
-            <span className={styles.officePill}><Users size={14}/>{activeRoles.length} зарегистрированы в доступных режимах</span>
+            <span className={styles.officePill}><Users size={14}/>{activeRoles.length} ролей не в статусе INACTIVE</span>
           </div>
           <div className={styles.officeGrid}>
             {snapshot.roles.map(r=><button type="button" key={r.code} data-role={r.code}

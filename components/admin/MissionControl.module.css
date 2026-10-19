@@ -230,6 +230,8 @@
 .officeOwner strong{font-size:13px;}
 .officeOwner small{font-size:10px;color:#b9c9dc;}
 .caseMode .controls{display:none;}
+.caseWorkspace{grid-template-columns:minmax(0,1.73fr) minmax(330px,.92fr);}
+.legendRecorded{color:#b0dafe;}
 
 /* The rich inspector is the primary role workspace, not a debugging card. */
 .dossier{display:flex;flex-direction:column;max-height:802px;overflow-y:auto;overflow-x:hidden;
@@ -593,3 +595,60 @@
  .agent::after{display:none;}
  .wrapper *{scroll-behavior:auto!important;}
 }
+
+/* Evidence-centered flow map (saved state versus conditional process). */
+.routeDetailMap{border:1px solid rgba(94,170,231,.34);border-radius:11px;padding:12px;
+ background:radial-gradient(ellipse at 20% 25%,rgba(20,97,158,.15),transparent 67%),#0a1b30;
+ display:grid;gap:12px;}
+.routeDetailHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+.routeDetailHead h3{margin:6px 0 4px;font-size:14px;color:#edf5ff;}
+.routeDetailHead p{margin:0;color:#b0c8e0;font-size:10px;line-height:1.4;}
+.routeDetailHead>button{display:flex;align-items:center;justify-content:center;gap:6px;
+ cursor:pointer;border:1px solid rgba(106,166,231,.37);background:rgba(34,67,103,.35);
+ color:#e7ca90;border-radius:8px;padding:8px 10px;font-size:10px;min-height:34px;}
+.routeDetailHead>button:hover{border-color:#ebc986;}
+.routeDetailHead>button[aria-expanded="true"] svg{transform:rotate(90deg);}
+.routeMapTrack{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.routeMapNode{position:relative;min-width:0;border:1px solid rgba(102,157,219,.42);
+ border-radius:10px;display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;
+ min-height:112px;padding:9px;background:linear-gradient(125deg,rgba(29,60,94,.65),rgba(13,29,51,.77));}
+.routeMapNode[data-state="recorded"]{border-color:rgba(57,223,180,.53);}
+.routeMapNode[data-state="current"]{border-color:rgba(242,183,74,.67);box-shadow:0 0 15px rgba(242,183,74,.11);}
+.routeMapNode[data-state="unknown"]{border-style:dashed;opacity:.72;}
+.routeMapNode strong{font-size:10px;color:#f0f5fe;line-height:1.25;}
+.routeMapNode small{font-size:9px;color:#bbccdf;}
+.routeMapNumber{font-size:9px;color:#dcc48d;position:absolute;top:7px;left:8px;}
+.routeMapIcon{display:grid;place-items:center;height:36px;width:36px;border-radius:10px;color:#64beff;
+ border:1px solid rgba(89,166,243,.33);background:rgba(39,112,188,.18);}
+.routeMapNode[data-state="recorded"] .routeMapIcon{color:#51e8c1;border-color:rgba(79,227,182,.47);}
+.routeMapNode[data-state="current"] .routeMapIcon{color:#f3c576;border-color:rgba(236,191,104,.46);}
+.routeMapArrow{position:absolute;right:-14px;top:46px;z-index:2;color:#b1dfff;
+ background:#0c2441;border:1px solid rgba(111,168,236,.61);border-radius:100%;}
+.routeAlternatives{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.routeAlternatives>div{display:flex;gap:9px;align-items:flex-start;border-radius:9px;
+ padding:11px;background:rgba(31,48,73,.65);border:1px dashed rgba(143,174,205,.39);}
+.routeAlternatives>div:first-child svg{color:#e5a187;}
+.routeAlternatives>div:nth-child(2) svg{color:#65e5bc;}
+.routeAlternatives svg{flex:0 0 17px;}
+.routeAlternatives span{display:grid;gap:5px;}
+.routeAlternatives strong{font-size:10px;color:#e8f0fa;}
+.routeAlternatives small{font-size:9px;line-height:1.5;color:#a8bfd6;}
+.inspectorActivity{display:grid;gap:8px;margin-top:1px;}
+.inspectorActivity h3{font-size:11px;color:#efd08c;margin:0;display:flex;align-items:center;gap:7px;}
+.inspectorActivity>a{display:flex;gap:8px;align-items:flex-start;padding:8px;
+ background:rgba(16,40,66,.76);border:1px solid rgba(104,164,214,.26);border-radius:8px;
+ text-decoration:none;color:#e7f2ff;}
+.inspectorActivity>a:hover{border-color:#d8b877;}
+.inspectorActivity>a>span:nth-child(2){display:grid;gap:4px;flex:1;}
+.inspectorActivity>a strong{font-size:10px;line-height:1.35;}
+.inspectorActivity>a small{font-size:9px;color:#b5cbdc;}
+.inspectorActivity>a>svg{flex:0 0 14px;color:#efd08d;}
+.inspectorActivity p{font-size:10px;color:#b6c9df;margin:0;}
+.inspectorActivityDot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#74b8f4;margin-top:4px;}
+.inspectorActivity>a[data-kind="handoff"] .inspectorActivityDot{background:#62e8c3;}
+.inspectorActivity>a[data-kind="owner"] .inspectorActivityDot{background:#f0c67a;}
+@media(max-width:1220px){.caseWorkspace{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:670px){.routeMapTrack{grid-template-columns:repeat(2,minmax(0,1fr));}
+ .routeAlternatives{grid-template-columns:minmax(0,1fr);}
+ .routeMapArrow{display:none;}}
+

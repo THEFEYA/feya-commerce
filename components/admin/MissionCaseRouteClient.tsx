@@ -43,6 +43,7 @@ export function MissionCaseRouteClient({
   asOf:string|null;onShowRole:()=>void;
 }){
   const [selectedStage,setSelectedStage]=useState(1);
+  const [showAlternativePaths,setShowAlternativePaths]=useState(false);
   if(!work)return <section className={styles.routeEmpty} role="status">
     <CircleHelp size={29}/><h3>Нет подтверждённого кейса</h3>
     <p>Сначала выберите реальный кейс. Мы не создаём демонстрационный процесс.</p>
@@ -56,8 +57,6 @@ export function MissionCaseRouteClient({
     .sort((a,b)=>b.at.localeCompare(a.at));
   const blocked=work.status==='BLOCKED'||Boolean(work.blockedReason);
   const techDone=work.workflowStatus==='COMPLETED'&&work.status==='OPEN';
-  const ownerDecision=history.find(e=>e.kind==='owner'&&e.phase==='owner_resolved');
-  const ownerRequested=history.some(e=>e.kind==='owner'&&e.phase==='owner_requested');
   return <section className={styles.routeExperience} aria-label={'Маршрут кейса '+work.code}>
     <header className={styles.routeHero}>
       <div className={styles.routeHeroMain}>
@@ -119,6 +118,40 @@ export function MissionCaseRouteClient({
         <h4>{currentStage.label} · {currentStage.caption}</h4>
         <p>{currentStage.basis}</p></div>
       <Link href={'/admin/company/work/'+work.id}>Все доказательства <ArrowRight size={14}/></Link>
+    </section>
+
+    <section className={styles.routeDetailMap} aria-label="Карта переходов кейса">
+      <div className={styles.routeDetailHead}>
+        <div><span className={styles.routeEyebrow}><GitBranch size={14}/> КАРТА СВЯЗАННОГО ПРОЦЕССА</span>
+          <h3>Переходы по этапам и условиям</h3>
+          <p>Подсветка означает сохранённый факт, пунктир — ещё не подтверждённый этап.</p></div>
+        <button type="button" aria-expanded={showAlternativePaths}
+          onClick={()=>setShowAlternativePaths(v=>!v)}>
+          {showAlternativePaths?'Скрыть альтернативы':'Показать альтернативные пути'}
+          <ChevronRight size={14}/>
+        </button>
+      </div>
+      <div className={styles.routeMapTrack}>
+        {stages.slice(0,6).map((stage,i)=>{
+          const Icon=stageIcons[i];
+          return <div key={stage.id} className={styles.routeMapNode} data-state={stage.status}>
+            <span className={styles.routeMapNumber}>{i+1}</span>
+            <span className={styles.routeMapIcon}><Icon size={21}/></span>
+            <strong>{stage.label}</strong>
+            <small>{stageStateText[stage.status]}</small>
+            {i<5?<ChevronRight className={styles.routeMapArrow} size={17} aria-hidden="true"/>:null}
+          </div>;
+        })}
+      </div>
+      {showAlternativePaths?<div className={styles.routeAlternatives}>
+        <div><AlertTriangle size={17}/><span>
+          <strong>Условная ветка: нужна доработка</strong>
+          <small>Если независимая проверка не подтвердит результат, изменения возвращаются на пересмотр.
+            Это правило процесса, не зарегистрированный возврат данного кейса.</small></span></div>
+        <div><ShieldCheck size={17}/><span>
+          <strong>Условная ветка: разрешённое исполнение</strong>
+          <small>Только после требуемых разрешений и отдельного Execution Receipt. Переход ещё не подтверждён.</small></span></div>
+      </div>:null}
     </section>
 
     <div className={styles.routeUnderGrid}>
