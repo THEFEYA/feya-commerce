@@ -84,6 +84,7 @@ export function buildGrowthHttpArchiveCandidate(
     g2c.caseMutationAllowed!==false ||
     g2c.sourceHealthPromoted!==false ||
     !SHA64.test(text(release.hash)) ||
+    !SHA40.test(text(release.manifestGitSha)) ||
     !Number.isSafeInteger(release.version)||Number(release.version)<=0 ||
     text(release.id).length!==36 ||
     crawl.origin!=='https://thefeya.com' ||
