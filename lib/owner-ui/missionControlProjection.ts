@@ -33,6 +33,7 @@ export type MissionSnapshot = {
   roles:MissionRole[];cases:MissionCase[];events:MissionEvent[];
   totalOpenCases:number;currentlyRunning:number;historicalHandoffs:number;
   historyOnly:true;liveAgentExecutionProven:false;
+  ownerAttention?:MissionOwnerAttentionSummary|null;
 };
 
 export type MissionRaw = {
@@ -199,3 +200,40 @@ export function missionEventsForCase(
   if(!snapshot.cases.some(c=>c.id===caseId))return [];
   return snapshot.events.filter(e=>e.caseId===caseId);
 }
+
+/** Small preview of existing Owner Attention, not an independent queue. */
+export type MissionOwnerAttentionSummary={
+  total:number;
+  items:Array<{
+    id:string;
+    priority:'P0'|'P1'|'P2'|'P3'|'UNKNOWN';
+    title:string;
+    status:'OPEN'|'ACKNOWLEDGED';
+  }>;
+};
+
+/** Null/failed/inconsistent source is UNKNOWN, never zero. */
+export function projectMissionOwnerAttention(
+  rows:readonly UnknownRow[],
+  count:unknown,
+):MissionOwnerAttentionSummary|null{
+  if(typeof count!=='number'||!Number.isSafeInteger(count)||count<0)return null;
+  if(!Array.isArray(rows)||rows.length>3||rows.length>count)return null;
+  if((count===0&&rows.length!==0)||(count>0&&rows.length===0))return null;
+  const items:MissionOwnerAttentionSummary['items']=[];
+  for(const row of rows){
+    if(!knownRow(row))return null;
+    const id=string(row.attention_id,48);
+    const status=string(row.attention_status,32).toUpperCase();
+    const priority=string(row.priority,16).toUpperCase();
+    if(!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id))return null;
+    if(status!=='OPEN'&&status!=='ACKNOWLEDGED')return null;
+    items.push({
+      id,status,
+      priority:/^P[0-3]$/.test(priority)?priority as 'P0'|'P1'|'P2'|'P3':'UNKNOWN',
+      title:string(row.title,125)||'Вопрос без названия',
+    });
+  }
+  return {total:count,items};
+}
+

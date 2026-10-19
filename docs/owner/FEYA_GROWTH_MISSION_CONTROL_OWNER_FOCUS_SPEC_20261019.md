@@ -33,7 +33,7 @@ Desktop: quick actions above source-limited counts, toolbar with case selector, 
 ## F. Component architecture / data contracts
 - Reuse \`MissionControlClient.tsx\`, \`MissionControl.module.css\`, \`missionControlProjection.ts\`.
 - New *pure local view selector*: \`missionEventsForCase(snapshot, caseId)\`; fail closed for unknown IDs; no new domain object/table/API.
-- Only server-derived \`MissionSnapshot.cases/events/roles\`, same six source views and safe fields. No raw PII, service role or unbounded query. Optional future feature: arrival timestamps/freshness and true run-lease model must be new reviewed bounded sources—not inferred from a case workflow state.
+- Only server-derived `MissionSnapshot.cases/events/roles` from six existing owner-safe sources **plus one bounded** SELECT on `feya_commerce_v_owner_attention_safe_v2` (OPEN/ACKNOWLEDGED, exact count, max three source-grounded IDs/priorities/titles). Failed optional read displays UNKNOWN, not zero. No new queue, raw PII, service role, or unbounded query. Optional future feature: true run-lease evidence and timestamp freshness.
 
 ## G. UI states & motion semantic contract
 - Logical role = registered, not active LLM. SHADOW = capability policy, not a background model call.
@@ -50,6 +50,7 @@ Desktop: quick actions above source-limited counts, toolbar with case selector, 
 | Agent button | 8 canonical role codes | Selects dossier | Client-only; not model-run control |
 | \`Открыть маршрут кейса\` | verified case_id | Navigates existing detail route | Existing authenticated owner boundary |
 | \`Мои решения\` | existing guarded route | Opens active owner queue | No approval issued by link |
+| `Открыть вопрос` | Persisted UUID from capped Owner Attention view | Navigates existing protected `/admin/company/owner-attention/[id]` | Read-only; no approval; count UNKNOWN if source fails; separate commerce approvals remain distinct |
 | Replay controls | persisted events in filtered Case | Historical sequence only | Disabled when empty; never calls worker |
 | Pan/zoom/reset | graph visible | Changes local viewport | Local-only, no backend |
 | Reload | user click | Rereads existing server snapshot | Existing auth; failure shows no fictional content |
@@ -57,15 +58,15 @@ Desktop: quick actions above source-limited counts, toolbar with case selector, 
 All owner Production mutations and approvals remain in existing exact Core/Execution Gateway. Future \`Запустить AI\` stays absent until runtime, budget, permissions, idempotency, receipt, release gate and explicit approval exist.
 
 ## I–K. Security, performance, accessibility and tests
-- No new data reads, schema, package, CSS global selectors, indexation changes, cron or paid calls.
+- One additional capped read from the **existing** owner-safe Owner Attention view used by Today and the owner queue; no schema, package, CSS global selectors, indexation changes, cron, paid calls or mutations.
 - Regression: 8 role codes, 2 OPEN despite workflow COMPLETE, real-edge-only, bad case ID fail-closed, one-case-only rail, zero-events disabled replay, shared timeline, no direct write/model endpoint, reduced motion, keyboard focus.
 - QA on Preview: laptop/tablet/mobile, choose Case A/Case B/all, reopen dossier, OWNER selection, focus/back, use keyboard and touch, reduced-motion. Exact SQL/HTTP/SSOT validations unchanged.
 - Keep bundle scoped; do not adopt React Flow merely for looks. Current SVG/CSS is already present. Re-evaluate library only after a reproducible accessibility/interaction limitation.
 - Benchmark evidence: GOV.UK sparse notices (https://design-system.service.gov.uk/components/notification-banner/); React Flow keyboard accessibility as design baseline (https://reactflow.dev/learn/advanced-use/accessibility), not proposed dependency; W3C animation from interactions (https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions) — SC 2.3.3 is AAA, while WCAG 2.2 AA remains project minimum; Toyota jidoka/andon (https://www.toyota-global.com/company/history_of_toyota/75years/text/entering_the_automotive_business/chapter1/section4/item4.html).
 
 ## L. Definition of done, gaps and release
-**P1 UI slice (this PR):** real case focus; role list alternative on mobile; truthful workflow-status copy; quick links to canonical existing routes; source/API/scope unchanged; typecheck, owner boundary, search tests, build, Preview verification. PR stays DRAFT, **not** merged without exact owner permission.
-**Next UI review:** typed source freshness, P0/P1 attention summary based on complete owner-safe source; clicked edge provenance, richer role passports and genuine selected-Case route preview; independently validate source before owner metrics or permissions.
+**P1 UI slice (this PR):** real case focus; mobile role list; truthful workflow-status copy; sparse read-only Owner Attention brief (exact total + maximum three links, no approval); canonical Case navigation; existing sources only, no new API/schema; typecheck, boundary, search tests, build and Preview. Draft PR requires exact owner merge authorization.
+**Next UI review:** typed source freshness, full cross-source approvals aggregation only after authority review (existing Owner Attention view is not the whole commerce approval queue), clicked edge provenance, richer role passports, real Case route visualization, mobile owner usability.
 **Deferred:** fake AI presence, invented ROI, synthetic robot activities, paid LLM loop, third-party animation library, new office avatar production assets, live running line without lease, global public V13 restyle.
 **Parallel P0 safety gate:** issue #166 / recovery evidence; no bulk RLS/grant writes without permission + restore. **Payments:** Seller Online still awaiting external confirmation; only provider-verified orders may enter commercial KPI. GSC L0 and HTTP observations cannot be labeled Google ranking success.
 

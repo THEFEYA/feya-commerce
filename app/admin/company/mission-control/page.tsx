@@ -3,7 +3,7 @@ export const instant = false;
 import { connection } from 'next/server';
 import Link from 'next/link';
 import { getAdminReadClient } from '@/lib/adminData';
-import { buildMissionSnapshot, type MissionRaw } from '@/lib/owner-ui/missionControlProjection';
+import { buildMissionSnapshot, projectMissionOwnerAttention, type MissionRaw } from '@/lib/owner-ui/missionControlProjection';
 import { MissionControlClient } from '@/components/admin/MissionControlClient';
 
 /**
@@ -14,7 +14,7 @@ async function getSnapshot(){
   const db=getAdminReadClient();
   if(!db)return null;
 
-  const [roles,cases,workflowEvents,handoffs,attention,attentionEvents]=await Promise.all([
+  const [roles,cases,workflowEvents,handoffs,attention,attentionEvents,ownerAttention]=await Promise.all([
     db.from('feya_commerce_v_role_activation_safe_v1')
       .select('role_code,runtime_status,autonomy_ceiling')
       .order('role_code',{ascending:true}).limit(8),
@@ -34,6 +34,13 @@ async function getSnapshot(){
     db.from('feya_commerce_v_owner_attention_events_safe_v1')
       .select('attention_event_id,attention_id,to_status,decision_code,created_at')
       .order('created_at',{ascending:false}).limit(80),
+    // Existing owner-safe source: capped preview; TSEO-only graph provenance above stays scoped.
+    // Optional read error must NOT erase the graph or manufacture a zero.
+    db.from('feya_commerce_v_owner_attention_safe_v2')
+      .select('attention_id,attention_status,priority,title',{count:'exact'})
+      .in('attention_status',['OPEN','ACKNOWLEDGED'])
+      .order('priority',{ascending:true})
+      .order('created_at',{ascending:true}).limit(3),
   ]);
   const outcomes=[roles,cases,workflowEvents,handoffs,attention,attentionEvents];
   if(outcomes.some(x=>x.error))return null;
@@ -46,7 +53,15 @@ async function getSnapshot(){
     attention:(attention.data||[]) as Record<string,unknown>[],
     attentionEvents:(attentionEvents.data||[]) as Record<string,unknown>[],
   };
-  return buildMissionSnapshot(data);
+  return {
+    ...buildMissionSnapshot(data),
+    ownerAttention:ownerAttention.error
+      ?null
+      :projectMissionOwnerAttention(
+        (ownerAttention.data||[]) as Record<string,unknown>[],
+        ownerAttention.count,
+      ),
+  };
 }
 
 export default async function MissionControlPage(){

@@ -118,6 +118,35 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
       {focusedCase?<Link href={'/admin/company/work/'+focusedCase.id}>Маршрут выбранного кейса →</Link>:null}
       <span>История и сохранённые статусы · не прямой эфир</span>
     </nav>
+    <section className={styles.attentionBrief} aria-label="Открытые вопросы владельца">
+      <div className={styles.attentionBriefHead}>
+        <div>
+          <strong>Ваше внимание</strong>
+          <span>{snapshot.ownerAttention
+            ? snapshot.ownerAttention.total+' открытых записей Owner Attention'
+            : 'Состояние Owner Attention не подтверждено'}</span>
+        </div>
+        <Link href="/admin/company/owner-attention">Открыть общую очередь →</Link>
+      </div>
+      {snapshot.ownerAttention?.items.length
+        ? <div className={styles.attentionBriefItems}>
+            {snapshot.ownerAttention.items.map(item=><Link
+              key={item.id} href={'/admin/company/owner-attention/'+item.id}
+              className={styles.attentionBriefItem}>
+              <span>{item.priority==='UNKNOWN'?'Приоритет не указан':item.priority}</span>
+              <strong>{item.title}</strong>
+              <small>{item.status==='ACKNOWLEDGED'?'Принято к рассмотрению':'Ожидает решения'} →</small>
+            </Link>)}
+            {snapshot.ownerAttention.total>snapshot.ownerAttention.items.length
+              ? <small>Показаны первые {snapshot.ownerAttention.items.length} из {snapshot.ownerAttention.total} записей</small>
+              : null}
+          </div>
+        : <p className={styles.attentionBriefEmpty}>
+            {snapshot.ownerAttention===null||snapshot.ownerAttention===undefined
+              ? 'Данные очереди недоступны. Откройте «Мои решения», чтобы проверить вопросы напрямую.'
+              : 'В Owner Attention открытых записей нет. Другие согласования смотрите в общей очереди.'}
+          </p>}
+    </section>
     <section className={styles.summary} aria-label="Проверенный статус FEYA">
       <div><strong>{snapshot.roles.length}</strong><span>Логических ролей</span></div>
       <div><strong>{snapshot.totalOpenCases}</strong><span>Открытых кейсов</span></div>
