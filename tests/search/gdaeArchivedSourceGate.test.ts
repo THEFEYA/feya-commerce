@@ -39,6 +39,9 @@ test('actual archived v12 L0 is linked to the TSEO Case without promotion',()=>{
  assert.equal(x.productExpected,207);
  assert.equal(x.productsUnobserved,183);
  assert.equal(x.evidenceLevel,'L0_OBSERVATION');
+ const postgrest=evaluate([{...source,workflow_run_id:39180879535,artifact_id:12155269341}]);
+ assert.equal(postgrest.status,'SOURCE_RETAINED_REVIEW_REQUIRED');
+ assert.equal(postgrest.sourceRunId,'39180879535');
  for(const field of ['independentQaConfirmed','googleIndexedConfirmed',
    'commercialOutcomeMeasured','canPromoteSource','canAdvanceCase',
    'canLockMeasurementSpec'] as const)assert.equal(x[field],false,field);
@@ -61,7 +64,7 @@ test('wrong release, non-private source, missing flags or invented coverage are 
   {independent_qa_passed:true},{google_indexed_state_known:true},
   {source_health_promoted:true},{business_outcome_measured:true},
   {product_urls_sampled:207},{product_urls_in_release:23},
-  {workflow_run_id:'not-a-run'},{artifact_zip_sha256:'invalid'},
+  {workflow_run_id:'not-a-run'},{workflow_run_id:9.5},{artifact_id:-1},{artifact_zip_sha256:'invalid'},
   {recorded_at:'invalid'},
  ]) {
   const x=evaluate([{...source,...edit}]);
@@ -83,5 +86,5 @@ test('owner page uses only a bounded server-only metadata SELECT and has no writ
  assert.match(visual,/GDAE · ЦЕПОЧКА ДОКАЗАТЕЛЬСТВ/);
  assert.match(visual,/Независимая QA не зарегистрирована/);
  assert.match(visual,/План GMEL/);
- assert.match(visual,/183/===null ? /dummy/ : /productsUnobserved/);
+ assert.match(visual,/productsUnobserved/);
 });

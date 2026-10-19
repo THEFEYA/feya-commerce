@@ -46,6 +46,11 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SHA64=/^[0-9a-f]{64}$/;
 const POSITIVE=/^[1-9][0-9]{0,15}$/;
 
+function positiveId(v:unknown):string|null {
+  const raw=typeof v==='number'&&Number.isSafeInteger(v)
+    ?String(v):typeof v==='string'?v:null;
+  return raw&&POSITIVE.test(raw)?raw:null;
+}
 function iso(v:unknown):string|null {
   if(typeof v!=='string'||v.length>65)return null;
   const t=Date.parse(v);
@@ -100,8 +105,8 @@ export function projectGdaeArchiveForCase(input:{
     typeof row.release_hash==='string'&&SHA64.test(row.release_hash)&&
     typeof row.artifact_zip_sha256==='string'&&SHA64.test(row.artifact_zip_sha256)&&
     typeof row.payload_sha256==='string'&&SHA64.test(row.payload_sha256)&&
-    typeof row.workflow_run_id==='string'&&POSITIVE.test(row.workflow_run_id)&&
-    typeof row.artifact_id==='string'&&POSITIVE.test(row.artifact_id)&&
+    positiveId(row.workflow_run_id)!==null&&
+    positiveId(row.artifact_id)!==null&&
     Number.isSafeInteger(index)&&index>0&&
     Number.isSafeInteger(product)&&product>0&&
     Number.isSafeInteger(total)&&total>product&&
@@ -112,7 +117,7 @@ export function projectGdaeArchiveForCase(input:{
   return {
     ...base('SOURCE_RETAINED_REVIEW_REQUIRED','L0-снимок сохранён, проверка GDAE ожидается',
       'Сохранён HTTP-снимок этого Search Release. Это не подтверждает Google-индексацию, завершение кейса или коммерческий эффект.'),
-    receiptId:row.receipt_id as string,sourceRunId:row.workflow_run_id as string,
+    receiptId:row.receipt_id as string,sourceRunId:positiveId(row.workflow_run_id),
     releaseCode:row.release_code as string,archivedAt:iso(row.recorded_at),
     observedAt:iso(row.finished_at),indexObserved:index as number,
     productObserved:product as number,productExpected:total as number,
