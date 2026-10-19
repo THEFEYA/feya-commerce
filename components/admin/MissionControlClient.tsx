@@ -29,6 +29,12 @@ function edgePath(from:Point,to:Point){
   return 'M '+from.x+' '+from.y+' C '+middle+' '+from.y+', '+middle+' '+to.y+', '+to.x+' '+to.y;
 }
 const joinClasses=(...s:Array<string|false|undefined>)=>s.filter(Boolean).join(' ');
+const personLabel=(code:MissionRoleCode|'OWNER'|null)=>code==='OWNER'?'Владелец':code?missionRolePresentation[code].name:'—';
+function openCaseCount(count:number){
+  const word=count%10===1&&count%100!==11?'открытый кейс':
+    count%10>=2&&count%10<=4&&(count%100<12||count%100>14)?'открытых кейса':'открытых кейсов';
+  return count+' '+word;
+}
 
 const specialtyIcons={
   GROWTH_DIRECTOR:Crown,OSPM:Search,SCO:FileText,CQA:ShieldCheck,
@@ -269,7 +275,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
                 <span className={styles.agentTitle}>{missionRolePresentation[r.code].name}</span>
                 <span className={styles.agentCode}>{missionRolePresentation[r.code].section}</span>
                 <span className={styles.agentStatus}>{modeLabel[r.mode]||'Режим неизвестен'}</span>
-                {r.openCases>0?<span className={styles.caseCount}>{r.openCases} открытых кейса</span>:null}
+                {r.openCases>0?<span className={styles.caseCount}>{openCaseCount(r.openCases)}</span>:null}
               </button>;
             })}
             <button type="button" aria-pressed={selected==='OWNER'}
@@ -307,7 +313,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
               <strong>{missionRolePresentation[r.code].name}</strong>
               <small>{missionRolePresentation[r.code].section}</small>
               <span>{modeLabel[r.mode]||'Не подтверждено'}</span>
-              <em>{r.openCases? r.openCases+' открытых кейса':'Нет закреплённых открытых кейсов'}</em>
+              <em>{r.openCases? openCaseCount(r.openCases):'Нет закреплённых открытых кейсов'}</em>
             </button>)}
           </div>
           <button type="button" data-role="OWNER" aria-pressed={selected==='OWNER'}
@@ -387,7 +393,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
           <p className={styles.note}>Показываются только реальные записи из Core. Организационные связи на схеме — другой тип информации.</p>
           {relevantHandoffs.length?relevantHandoffs.map(e=><Link key={e.id}
             href={'/admin/company/work/'+e.caseId} className={styles.handoffItem}>
-            <strong>{e.source==='OWNER'?'Владелец':e.source} → {e.target==='OWNER'?'Владелец':e.target||'—'}</strong>
+            <strong>{personLabel(e.source)} → {personLabel(e.target)}</strong>
             <small>{e.title} · {eventTime(e.at)}</small>
             <span>{e.caseCode} →</span>
           </Link>):<p className={styles.note}>Подтверждённых передач по выбранному фокусу нет.</p>}
@@ -424,7 +430,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
       <div className={styles.rail}>
         {focusedEvents.map((e,i)=><button key={e.id} type="button"
           className={joinClasses(styles.eventButton,step===i&&styles.eventCurrent)}
-          aria-current={step===i?'step':undefined} onClick={()=>choose(i)}>
+          data-kind={e.kind} aria-current={step===i?'step':undefined} onClick={()=>choose(i)}>
           <span className={styles.eventNumber}>{String(i+1).padStart(2,'0')}</span>
           <strong>{e.title}</strong><small>{eventTime(e.at)}</small>
         </button>)}
