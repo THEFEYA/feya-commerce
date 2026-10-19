@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useEffect,useMemo,useRef,useState,type PointerEvent as ReactPointerEvent} from 'react';
 import {ArrowLeft,ArrowRight,Pause,Play,RotateCcw,ZoomIn,ZoomOut,Crown,Search,FileText,ShieldCheck,Code2,BarChart3,Database,ShoppingBag,UserRound} from 'lucide-react';
 import {missionRolePresentation,missionOrganizationalLinks,missionAutonomyLabel} from '@/lib/owner-ui/missionRolePresentation';
+import {signalCopy} from '@/lib/owner-ui/terminology';
 import {missionEventsForCase,type MissionSnapshot,type MissionRoleCode} from '@/lib/owner-ui/missionControlProjection';
 import styles from './MissionControl.module.css';
 
@@ -174,7 +175,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
               key={item.id} href={'/admin/company/owner-attention/'+item.id}
               className={styles.attentionBriefItem}>
               <span>{item.priority==='UNKNOWN'?'Приоритет не указан':item.priority}</span>
-              <strong>{item.title}</strong>
+              <strong>{signalCopy(item.sourceCode,{title:item.title}).title}</strong>
               <small>{item.status==='ACKNOWLEDGED'?'Принято к рассмотрению':'Ожидает решения'} →</small>
             </Link>)}
             {snapshot.ownerAttention.total>snapshot.ownerAttention.items.length
@@ -378,7 +379,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
                   ? snapshot.ownerAttention.items.map(a=><Link key={a.id}
                       href={'/admin/company/owner-attention/'+a.id} className={styles.caseLink}>
                       <strong>{a.priority} · {a.status==='ACKNOWLEDGED'?'На рассмотрении':'Ожидает решения'}</strong>
-                      <span>{a.title}</span></Link>)
+                      <span>{signalCopy(a.sourceCode,{title:a.title}).title}</span></Link>)
                   : <p className={styles.note}>Здесь нет подтверждённого перечня. Полная очередь доступна в «Мои решения».</p>}
                 <Link href="/admin/company/owner-attention" className={styles.dossierActionLink}>Все решения →</Link>
               </div>
