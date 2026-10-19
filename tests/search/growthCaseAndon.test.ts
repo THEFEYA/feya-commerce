@@ -5,7 +5,7 @@ import {explainGrowthCaseAndon} from '../../lib/owner-ui/growthCaseAndon.ts';
 import {readFileSync} from 'node:fs';
 
 const baseline:CaseRouteTruth={
-  caseId:'11111111-1111-4111-8111-111111111111',
+  caseId:'11111111-1111-4111-8111-111111111111',lastCaseEventId:null,
   caseStatus:'OPEN',caseOwner:'TSEO',ownershipEpoch:1,
   workflowStatus:'COMPLETED',timeline:[],
   eventContinuity:'VERIFIED_LATEST',
