@@ -127,4 +127,7 @@ test('owner page uses only a bounded server-only metadata SELECT and has no writ
  assert.match(visual,/ID, SHA и домен архива совпадают/);
  assert.match(visual,/План GMEL/);
  assert.match(visual,/productsUnobserved/);
+ assert.match(visual,/Готовность определения метрики GMEL/);
+ assert.match(page,/projectGmelMetricGate\(/);
+ assert.match(page,/feya_commerce_v_growth_metric_registry_safe_v1/);
 });

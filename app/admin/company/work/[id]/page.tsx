@@ -10,6 +10,7 @@ import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailConten
 import { OwnerCaseRouteTruth } from '@/components/admin/OwnerCaseRouteTruth';
 import { OwnerGdaeArchivedEvidence } from '@/components/admin/OwnerGdaeArchivedEvidence';
 import { missionControlHref } from '@/lib/owner-ui/missionControlNavigation';
+import {projectGmelMetricGate,type MetricGate} from '@/lib/owner-ui/gmelMetricRegistryReadiness';
 import { projectGdaeArchiveForCase, type GdaeArchiveCaseGate } from '@/lib/owner-ui/gdaeArchivedSourceGate';
 import { projectGrowthCaseRoute, type CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
 import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
@@ -25,6 +26,7 @@ async function getWorkItem(id: string): Promise<{
   caseRoute?: CaseRouteTruth;
   caseRouteError?: string;
   gdaeArchive?: GdaeArchiveCaseGate;
+  metricGate?: MetricGate;
   readinessReceipt?: {
     releaseCode: string;
     releaseVersion: number;
@@ -118,6 +120,7 @@ async function getWorkItem(id: string): Promise<{
   // No raw drafts or private workflow state are sent to the browser.
   let readinessReceipt;
   let gdaeArchive: GdaeArchiveCaseGate | undefined;
+  let metricGate: MetricGate | undefined;
   let gmelAiAdmission: GmelAdmissionDecision | undefined;
   if (workResult.data.case_type === 'TSEO_INDEXABILITY_SHADOW') {
     const [workflowResponse, sourceResponse, roleResponse] = await Promise.all([
@@ -191,6 +194,14 @@ async function getWorkItem(id: string): Promise<{
     // Existing private append-only GDAE ledger, owner-server only. Exact
     // allowlisted columns; no payload_json, no private customer rows, no RPC.
     // Missing access is UNKNOWN, never a fabricated zero/verified QA.
+    const metricResponse = await supabase
+      .from('feya_commerce_v_growth_metric_registry_safe_v1')
+      .select('metric_code,metric_state,owner_role,authority_source,version_no')
+      .eq('metric_code','TSEO_HTTP_INTENT_MISMATCH_COUNT').limit(2);
+    metricGate = projectGmelMetricGate({
+      rows:metricResponse.error ? null : (metricResponse.data || null),
+      readError:Boolean(metricResponse.error),
+    });
     const [archiveResponse, canonicalResponse] = readinessReceipt
       ? await Promise.all([
         supabase.from('feya_growth_external_http_observation_receipts_v1')
@@ -220,6 +231,7 @@ async function getWorkItem(id: string): Promise<{
   return {
     row: workResult.data as Row,
     gdaeArchive,
+    metricGate,
     caseRoute,
     caseRouteError,
     gmelAiAdmission,
@@ -231,7 +243,7 @@ async function getWorkItem(id: string): Promise<{
 
 export default async function OwnerWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, caseRoute, caseRouteError, gdaeArchive, error } = await getWorkItem(id);
+  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, caseRoute, caseRouteError, gdaeArchive, metricGate, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
@@ -260,7 +272,8 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {caseRoute ? <OwnerCaseRouteTruth route={caseRoute} /> : null}
-        {gdaeArchive ? <OwnerGdaeArchivedEvidence gate={gdaeArchive} route={caseRoute || null} /> : null}
+        {gdaeArchive ? <OwnerGdaeArchivedEvidence gate={gdaeArchive}
+          route={caseRoute || null} metricGate={metricGate || null} /> : null}
         {caseRouteError ? <section className="owner-card is-warning" role="status"><h2 className="owner-card-title">История кейса не проверена</h2><p className="owner-card-copy">{caseRouteError}</p></section> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
         {gmelReview?.state === 'DETERMINISTIC_RECONCILED' ? (

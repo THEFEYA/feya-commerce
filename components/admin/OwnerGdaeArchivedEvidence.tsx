@@ -1,6 +1,7 @@
 import {Archive,CheckCircle2,Clock3,ShieldAlert,GitBranch,BarChart3,Info} from 'lucide-react';
 import type {GdaeArchiveCaseGate} from '@/lib/owner-ui/gdaeArchivedSourceGate';
 import type {CaseRouteTruth} from '@/lib/owner-ui/growthCaseRouteTruth';
+import type {MetricGate} from '@/lib/owner-ui/gmelMetricRegistryReadiness';
 import styles from './OwnerGdaeArchivedEvidence.module.css';
 
 function timeLabel(iso:string|null){
@@ -12,8 +13,8 @@ function timeLabel(iso:string|null){
   }).format(date);
 }
 /** The owner gets provenance and next gate only; no raw archive payload or button to mutate Core. */
-export function OwnerGdaeArchivedEvidence({gate,route}:{
-  gate:GdaeArchiveCaseGate;route:CaseRouteTruth|null;
+export function OwnerGdaeArchivedEvidence({gate,route,metricGate}:{
+  gate:GdaeArchiveCaseGate;route:CaseRouteTruth|null;metricGate:MetricGate|null;
 }){
   const saved=gate.status==='SOURCE_RETAINED_REVIEW_REQUIRED';
   const ownerL0=route?.ownerL0==='CONFIRMED_INTERNAL_ONLY';
@@ -62,6 +63,12 @@ export function OwnerGdaeArchivedEvidence({gate,route}:{
           'Есть запись Outcome, эффект не подтверждён'}</small>
       </li>
     </ol>
+    <section className={styles.metricStage} aria-label="Готовность определения метрики GMEL">
+      <strong>GMEL · Следующее условие</strong>
+      <p>{metricGate?.title || 'Реестр метрик пока недоступен'}</p>
+      <small>{metricGate?.next || 'Неизвестное состояние нельзя считать готовностью к измерению.'}</small>
+      <span>Метрика TSEO_HTTP_INTENT_MISMATCH_COUNT · без записи или запуска</span>
+    </section>
     <div className={styles.explanation}>
       <Info size={16}/>
       <p>{gate.message} Сохранение источника само по себе не меняет статус кейса

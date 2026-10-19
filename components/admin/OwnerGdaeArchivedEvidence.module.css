@@ -46,4 +46,11 @@
  color:#a7e4ce;margin:0;padding:8px 10px;border-radius:8px;
  background:rgba(28,101,86,.11);border:1px solid rgba(76,189,153,.27);}
 .authorityProof svg{flex:0 0 15px;margin-top:1px;}
+.metricStage{display:grid;gap:7px;padding:11px 13px;border-radius:9px;
+ border:1px solid rgba(224,179,91,.45);
+ background:linear-gradient(115deg,rgba(95,68,28,.18),rgba(12,30,51,.8));}
+.metricStage strong{color:#f1ce83;font-size:10px;letter-spacing:.05em;}
+.metricStage p{color:#e9f3ff;font-size:12px;line-height:1.4;margin:0;}
+.metricStage small{color:#b9cde0;font-size:11px;line-height:1.5;}
+.metricStage span{color:#98abc3;font-size:9px;overflow-wrap:anywhere;}
 
