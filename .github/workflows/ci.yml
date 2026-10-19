@@ -31,6 +31,9 @@ jobs:
       - name: Search policy simulations
         run: npm run test:search
 
+      - name: G2c external ZIP archive safety (no credentials)
+        run: python3 -m unittest discover -s tests/search-db -p 'test_growth_archive_zip_safety.py' -v
+
       - name: Approved catalog proposal evidence
         run: |
           node --experimental-strip-types scripts/audit-metadata-review.ts --check
@@ -60,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-http-observation-durable-ledger, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
     services:
       postgres:
         image: postgres:17.6
