@@ -62,7 +62,7 @@ test('premium SVG robots and command-first viewport replace generic geometric ro
   assert.ok(ui.includes('<MissionRobotPortrait role={r.code}/>'));
   assert.ok(ui.includes('<MissionRoleInspector'));
   assert.ok(!page.includes('<h1>Mission Control</h1>'));
-  assert.ok(page.includes('<MissionControlClient snapshot={snapshot}/>'));
+  assert.ok(page.includes('<MissionControlClient snapshot={snapshot} entry={entry}/>'));
   assert.ok(!css.includes('@import'));
   assert.ok(!css.includes('.product-card'));
 });

@@ -124,6 +124,7 @@ test('owner-only visual page reads bounded safe registries without privileged wr
   assert.match(component,/setPointerCapture/);
   assert.match(shell,/\/admin\/company\/mission-control/);
   assert.match(work,/href="\/admin\/company\/mission-control"/);
+  assert.match(work,/missionControlHref\(\)/);
   assert.doesNotMatch(page+component,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|OPENAI_API_KEY|api\.openai\.com|setInterval\([^]*fetch\(/);
   assert.doesNotMatch(page,/\.select\('\*'\)|result_json|context_json|authorization|SUPABASE_SERVICE_ROLE_KEY/);
 });

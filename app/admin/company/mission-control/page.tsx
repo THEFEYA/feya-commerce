@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getAdminReadClient } from '@/lib/adminData';
 import { buildMissionSnapshot, projectMissionOwnerAttention, type MissionRaw } from '@/lib/owner-ui/missionControlProjection';
 import { MissionControlClient } from '@/components/admin/MissionControlClient';
+import {resolveMissionEntry} from '@/lib/owner-ui/missionControlNavigation';
 
 /**
  * Owner-authenticated, capped, read-only projection. Zero new RPCs, migrations,
@@ -66,11 +67,16 @@ async function getSnapshot(){
   };
 }
 
-export default async function MissionControlPage(){
+export default async function MissionControlPage({
+  searchParams,
+}:{
+  searchParams:Promise<{view?:string|string[];case?:string|string[];role?:string|string[]}>;
+}){
   await connection();
-  const snapshot=await getSnapshot();
+  const [snapshot,params]=await Promise.all([getSnapshot(),searchParams]);
+  const entry=snapshot?resolveMissionEntry(params||{},snapshot):null;
   return <main className="owner-page"><div className="owner-page-inner">
-    {snapshot?<MissionControlClient snapshot={snapshot}/>:(
+    {snapshot&&entry?<MissionControlClient snapshot={snapshot} entry={entry}/>:(
       <section className="owner-card is-warning" role="status">
         <h1 className="owner-card-title">Командный центр недоступен</h1>
         <p className="owner-card-copy">Нет подтверждённого чтения owner-safe источников.

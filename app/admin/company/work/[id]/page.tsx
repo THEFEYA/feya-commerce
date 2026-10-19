@@ -9,6 +9,7 @@ import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growt
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import { OwnerCaseRouteTruth } from '@/components/admin/OwnerCaseRouteTruth';
 import { OwnerGdaeArchivedEvidence } from '@/components/admin/OwnerGdaeArchivedEvidence';
+import { missionControlHref } from '@/lib/owner-ui/missionControlNavigation';
 import { projectGdaeArchiveForCase, type GdaeArchiveCaseGate } from '@/lib/owner-ui/gdaeArchivedSourceGate';
 import { projectGrowthCaseRoute, type CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
 import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
@@ -246,7 +247,15 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
             <h1>{item?.title || 'Рабочая ситуация'}</h1>
             <p>Полный owner-facing контекст процесса. Технические коды и диагностика остаются ниже и не заменяют бизнес-смысл работы.</p>
           </div>
-          <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+          <div className="owner-actions" style={{alignSelf:'center'}}>
+            <Link href={missionControlHref({caseId:id})} className="owner-button primary">
+              Показать агента на схеме
+            </Link>
+            <Link href={missionControlHref({view:'case',caseId:id})} className="owner-button">
+              Маршрут в центре
+            </Link>
+            <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+          </div>
         </header>
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}

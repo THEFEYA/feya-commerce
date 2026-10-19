@@ -12,6 +12,7 @@ import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { getOwnerActionConfigStatus, requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { missionControlHref } from '@/lib/owner-ui/missionControlNavigation';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 type Row = Record<string, unknown>;
 
@@ -293,6 +294,11 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
             <h1>Работа</h1>
             <p>Что реально выполняется, чего ждёт система и где без владельца нельзя продолжить безопасно.</p>
           </div>
+          <div className="owner-actions" style={{alignSelf:'center'}}>
+            <Link href={missionControlHref()} className="owner-button primary">
+              <Bot size={16} strokeWidth={1.8}/> Показать команду на схеме <ArrowRight size={14}/>
+            </Link>
+          </div>
         </header>
 
         <OwnerShadowReadinessClient
@@ -531,6 +537,11 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                             handoffs={handoffsByCase.get(item.id) || []}
                             workflowEvents={workflowEventsByCase.get(item.id) || []}
                           />
+                          <Link href={missionControlHref({caseId:item.id})}
+                            className="owner-button owner-button-arrow"
+                            aria-label={'Показать ответственного агента и связи кейса '+item.title}>
+                            На схеме <Workflow size={14} strokeWidth={1.8}/>
+                          </Link>
                         </div>
                       </article>
                     ))}
@@ -591,6 +602,11 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                     <small>{hasLimits ? `${role.blockedCapabilityCount} ограничений` : role.autonomyLabel}</small>
                   </div>
                   <div className="owner-team-roster-action">
+                    <Link href={missionControlHref({role:role.code})}
+                      className="owner-button owner-button-arrow"
+                      aria-label={'Показать агента '+role.name+' на схеме'}>
+                      На схеме <ArrowRight size={13}/>
+                    </Link>
                     <OwnerRoleDrawerClient
                       role={role}
                       work={workStats}

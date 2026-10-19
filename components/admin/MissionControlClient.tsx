@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import {missionEventsForCase,type MissionSnapshot,type MissionRoleCode,type MissionEvent}
   from '@/lib/owner-ui/missionControlProjection';
+import type {MissionEntry} from '@/lib/owner-ui/missionControlNavigation';
 import {missionRolePresentation,missionOrganizationalLinks}
   from '@/lib/owner-ui/missionRolePresentation';
 import {filterMissionHistory,type MissionWindow,type MissionEventKind,type MissionActor}
@@ -68,10 +69,12 @@ function historyName(event:MissionEvent){
     event.kind==='handoff'?'Передача':'Техническая работа';
 }
 
-export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
-  const [mode,setMode]=useState<Mode>('graph');
-  const [caseFocus,setCaseFocus]=useState<string|null>(null);
-  const [selected,setSelected]=useState<Role>('TSEO');
+export function MissionControlClient({snapshot,entry}:{
+  snapshot:MissionSnapshot;entry:MissionEntry;
+}){
+  const [mode,setMode]=useState<Mode>(entry.view);
+  const [caseFocus,setCaseFocus]=useState<string|null>(entry.caseId);
+  const [selected,setSelected]=useState<Role>(entry.role);
   const [roleFilter,setRoleFilter]=useState<RoleFilter>('all');
   const [showPolicyLinks,setShowPolicyLinks]=useState(true);
   const [mobileMap,setMobileMap]=useState(false);
@@ -178,6 +181,9 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
       <div className={styles.commandHeadRight}>
         <span className={styles.sourceStatus}><Eye size={14}/> Сохранённые данные · не прямой эфир</span>
         <Link href="/admin/company/owner-attention"><ShieldCheck size={15}/> Решения: {caseAttention===undefined?'—':caseAttention}</Link>
+        {focusedCase?<Link href={'/admin/company/work/'+focusedCase.id}>
+          <BriefcaseBusiness size={15}/> Открыть {focusedCase.code}
+        </Link>:null}
         <Link href="/admin/company/work"><BriefcaseBusiness size={15}/> Все кейсы</Link>
         <Link href="/admin/roles"><Settings2 size={15}/> Права</Link>
       </div>
