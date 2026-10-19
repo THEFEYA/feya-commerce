@@ -1,6 +1,6 @@
 # TheFEYA Growth OS — Stage A: read-only access inventory
 
-**Date:** 2026-10-19. **Status:** REVIEW / DRAFT, no Production modification.
+**Date:** 2026-10-19. **Status:** REVIEW / DRAFT, no Production modification. **Owner screenshot later confirmed a physical Scheduled Backup dated 2026-10-19 03:08:17 UTC, but no restore was tested and Storage objects are outside that backup.**
 **Tracker:** MASTER #145 and security gate #166.
 **Business boundary:** one existing Supabase project hosts active TheFEYA Commerce and paused historical FEYA Sales, relocation and warehouse datasets. Do not mistake a shared database for permission to cross-share records.
 
@@ -39,7 +39,21 @@ Exact unpatched object/handler names, private risk assessment, consumer identiti
 4. **Separate proposed migration:** exact positive service-read and negative anon/auth tests on isolated native PostgreSQL 17, fail-closed drift gate, tested reverse/rollback and owner approval of the specific SQL. No bulk RLS toggles, GRANT expansion or mass REVOKE.
 5. **Postflight only after explicit authorization:** public Shop/SEO/Product Truth/207 PDP Search v12/V13, Owner Auth, Admin, carrier quote, approved Growth views and GSC checks remain sound; re-run advisor and compare catalog cohorts.
 
-## 5. Non-changes / checkpoints
+## 5. Additive guarded-caller proposal (NOT DEPLOYED)
+
+The static code review of some legacy paused Edge deployments identified a cohort where a privileged service client is used after a request is received. Some deployments have platform `verify_jwt=false`. This calls for private per-handler review of **request authentication before the first read/write**, not a public claim of exposed handlers, safe deactivation or a complete breach assessment.
+
+A small **opt-in pure policy primitive** now exists at `lib/security/legacyEdgeInboundGuard.ts`. It is deliberately *not wired into any deployed Edge Function*. A future reviewed migration may import or embed the equivalent guard **ahead of body parsing and ahead of creating a privileged database client**. It requires a separately provisioned high-entropy caller secret (never the Supabase service-role/anon key), validates strict POST/Bearer syntax and bounded length, compares SHA256 digests without early-exit byte checks, and fails closed (401/405/503) with generic responses. All code paths are covered by Node offline tests. The primitive cannot identify callers, revoke leaked secrets, replace complete JWT/HMAC/source authorization or verify which public HTTP routes are actually reachable. Do not treat its existence as remediation.
+
+**Mandatory release checklist per handler, before deployment:**
+- Owner-private exact handler identity, hash/version and full call-site inventory (including external automations and old clients), explicit legitimate owner and business purpose;
+- Trust contract: authenticated non-browser caller, key rotation and secret storage, replay/rate controls as needed. Never pass the dedicated token to a public storefront browser;
+- Test unauthorized request rejection **without invoking a production handler** (isolated Deno/PG17 environment), valid authorized functional behavior, no service writes before guard, and conservative fallback when secret missing;
+- Approval of exactly one deployed handler change, rollback plan and post-deploy verification that paused jobs stay paused. A handler's `verify_jwt=false` may be legitimate for signed webhooks; do NOT blanket-switch all 28 functions or revoke service grants.
+
+**Stage A still blocked:** Data API exposed-schema settings not yet independently verified; consumers and effective external reachability require separate private assessment. No deployed handler was contacted or modified in this PR.
+
+## 6. Non-changes / checkpoints
 
 The new code, unit tests and this runbook are read-only and create **no** DB migration, credential change, Edge deployment, cron, model/API spend, source health promotion, payment enablement or storefront change.
 
