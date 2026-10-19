@@ -361,3 +361,38 @@ test('native PG17 concurrent conflicting artifact payload has one success and on
   assert.equal(await count(),1);
  }finally{await Promise.all([a.end(),b.end()]);}
 });
+
+
+test('isolated PostgreSQL: surgical rollback blocks nonempty history, then removes only empty new objects',async()=>{
+ const rollback=await readFile(new URL(
+  '../../docs/owner/rollback/FEYA_GROWTH_HTTP_ARCHIVE_EMPTY_INSTALL_ONLY_ROLLBACK.sql',
+  import.meta.url),'utf8');
+ assert.doesNotMatch(rollback,/\bCASCADE\b|\bfeya_growth_cases_v1\b|\bfeya_growth_measurement_specs_v1\b/);
+ const beforeReleases=Number((await query(
+  'SELECT count(*)::integer AS n FROM public.feya_search_releases_v1'))[0].n);
+ const beforeItems=Number((await query(
+  'SELECT count(*)::integer AS n FROM public.feya_search_release_items_v1'))[0].n);
+ await stage();
+ await assert.rejects(db.exec(rollback),/GROWTH_HTTP_ROLLBACK_NONEMPTY_KEEP_IMMUTABLE_HISTORY/);
+ // An intentional SQL error inside BEGIN leaves native pg aborted until ROLLBACK.
+ await db.exec('ROLLBACK;');
+ assert.equal(await count(),1,'archived evidence was not deleted by denied rollback');
+
+ // Fixture-only: the production algorithm NEVER truncates archived evidence.
+ await db.exec('TRUNCATE public.feya_growth_external_http_observation_receipts_v1;');
+ await db.exec(rollback);
+ const objects=(await query(
+  "SELECT to_regclass('public.feya_growth_external_http_observation_receipts_v1') AS archive_table,"+
+  "to_regprocedure('public.feya_fn_stage_external_http_observation_v1(jsonb)') AS stage_function,"+
+  "to_regprocedure('public.feya_fn_reject_external_http_receipt_rewrite_v1()') AS rewrite_guard"
+ ))[0];
+ assert.equal(objects.archive_table,null);
+ assert.equal(objects.stage_function,null);
+ assert.equal(objects.rewrite_guard,null);
+ assert.equal(Number((await query(
+  'SELECT count(*)::integer AS n FROM public.feya_search_releases_v1'))[0].n),
+  beforeReleases);
+ assert.equal(Number((await query(
+  'SELECT count(*)::integer AS n FROM public.feya_search_release_items_v1'))[0].n),
+  beforeItems);
+});
