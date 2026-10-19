@@ -6,6 +6,8 @@ import {ArrowLeft,ArrowRight,Pause,Play,RotateCcw,ZoomIn,ZoomOut,Crown,Search,Fi
 import {missionRolePresentation,missionOrganizationalLinks,missionAutonomyLabel} from '@/lib/owner-ui/missionRolePresentation';
 import {signalCopy} from '@/lib/owner-ui/terminology';
 import {missionEventsForCase,type MissionSnapshot,type MissionRoleCode} from '@/lib/owner-ui/missionControlProjection';
+import {filterMissionHistory,type MissionWindow,type MissionEventKind,type MissionActor} from '@/lib/owner-ui/missionControlView';
+import {MissionCaseRouteClient} from '@/components/admin/MissionCaseRouteClient';
 import styles from './MissionControl.module.css';
 
 type Point={x:number;y:number};
@@ -61,7 +63,7 @@ function RolePortrait({code}:{code:MissionRoleCode|'OWNER'}){
 
 
 export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
-  const [mode,setMode]=useState<'graph'|'office'>('graph');
+  const [mode,setMode]=useState<'graph'|'office'|'case'>('graph');
   const [zoom,setZoom]=useState(1);
   const [pan,setPan]=useState<Point>({x:0,y:0});
   const [selected,setSelected]=useState<MissionRoleCode|'OWNER'>('TSEO');
@@ -72,25 +74,31 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   const [mobileMap,setMobileMap]=useState(false);
   const [showPolicyLinks,setShowPolicyLinks]=useState(true);
   const [dossierTab,setDossierTab]=useState<'overview'|'cases'|'links'>('overview');
+  const [historyWindow,setHistoryWindow]=useState<MissionWindow>('all');
+  const [historyKind,setHistoryKind]=useState<MissionEventKind>('all');
+  const [historyActor,setHistoryActor]=useState<MissionActor|null>(null);
   const drag=useRef<{id:number;x:number;y:number;start:Point}|null>(null);
   const focusedCase=snapshot.cases.find(c=>c.id===caseFocus)||null;
   const focusedEvents=useMemo(()=>missionEventsForCase(snapshot,caseFocus),[snapshot,caseFocus]);
+  const historyEvents=useMemo(()=>filterMissionHistory(focusedEvents,{
+    window:historyWindow,kind:historyKind,actor:historyActor,asOf:snapshot.capturedAt||null,
+  }),[focusedEvents,historyWindow,historyKind,historyActor,snapshot.capturedAt]);
 
   useEffect(()=>{
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)setMotion(false);
   },[]);
   useEffect(()=>{
-    if(!playing||!focusedEvents.length)return;
+    if(!playing||!historyEvents.length)return;
     const timer=window.setInterval(()=>{
       setStep(current=>{
-        if(current>=focusedEvents.length-1){setPlaying(false);return current;}
+        if(current>=historyEvents.length-1){setPlaying(false);return current;}
         return current+1;
       });
     },motion?1850:2600);
     return ()=>window.clearInterval(timer);
-  },[playing,motion,focusedEvents.length]);
+  },[playing,motion,historyEvents.length]);
 
-  const event=focusedEvents[step]||null;
+  const event=historyEvents[Math.min(step,historyEvents.length-1)]||null;
   const selectedRole=snapshot.roles.find(r=>r.code===selected);
   const relatedCases=snapshot.cases.filter(c=>c.owner===selected&&(!caseFocus||c.id===caseFocus));
   const selectedMeta=selected==='OWNER'?null:missionRolePresentation[selected];
@@ -115,20 +123,21 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     const nextId=c?.id||null;
     setCaseFocus(nextId);
     setPlaying(false);
-    setStep(Math.max(missionEventsForCase(snapshot,nextId).length-1,0));
+    setStep(0);
     if(c)setSelected(c.owner);
+    if(!c&&mode==='case')setMode('graph');
     setDossierTab('overview');
   }
   function choose(index:number){
-    const e=focusedEvents[index];
+    const e=historyEvents[index];
     if(!e)return;
     setPlaying(false);setStep(index);
     setSelected(e.source);
   }
   function play(){
-    if(!focusedEvents.length)return;
+    if(!historyEvents.length)return;
     setStep(0);
-    const source=focusedEvents[0].source;
+    const source=historyEvents[0].source;
     setSelected(source);
     setPlaying(true);
   }
@@ -146,7 +155,15 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     if(drag.current?.id===e.pointerId)drag.current=null;
   }
   const stepBack=()=>choose(Math.max(0,step-1));
-  const stepAhead=()=>choose(Math.min(focusedEvents.length-1,step+1));
+  const stepAhead=()=>choose(Math.min(historyEvents.length-1,step+1));
+  function openCaseRoute(){
+    const work=focusedCase||snapshot.cases[0];
+    if(work){setCaseFocus(work.id);setSelected(work.owner);}
+    setPlaying(false);setMode('case');
+  }
+  function setHistoryView(windowValue:MissionWindow){
+    setPlaying(false);setStep(0);setHistoryWindow(windowValue);
+  }
   function selectRole(code:MissionRoleCode|'OWNER'){
     setSelected(code);
     setDossierTab('overview');
@@ -197,11 +214,12 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     </section>
 
     <section className={styles.workspace} aria-label="Интерактивная карта Growth OS">
-      <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen,mode==='office'&&styles.officeMode)}>
+      <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen,mode==='office'&&styles.officeMode,mode==='case'&&styles.caseMode)}>
         <div className={styles.toolbar}>
           <div className={styles.switcher} role="group" aria-label="Режим просмотра команды">
             <button type="button" aria-pressed={mode==='graph'} onClick={()=>setMode('graph')}>Схема связей</button>
             <button type="button" aria-pressed={mode==='office'} onClick={()=>{setMode('office');setPlaying(false)}}>Офис · задачи</button>
+            <button type="button" aria-pressed={mode==='case'} onClick={openCaseRoute}>Маршрут кейса</button>
           </div>
           <label className={styles.casePicker}>
             Фокус кейса
@@ -299,7 +317,11 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
             Связи по паспортам</label>
           <label><input type="checkbox" checked={motion} onChange={e=>setMotion(e.target.checked)}/> Анимация истории</label>
         </div>
-        </>:<div className={styles.officeBoard}>
+        </>:mode==='case'?<MissionCaseRouteClient
+          work={focusedCase} events={focusedEvents}
+          asOf={snapshot.capturedAt||null}
+          onShowRole={()=>{if(focusedCase)selectRole(focusedCase.owner);setMode('graph')}}
+        />:<div className={styles.officeBoard}>
           <div className={styles.officeIntro}>
             <div><div className={styles.kicker}>ОФИС КОМАНДЫ</div>
               <strong>Кто за что отвечает и какие кейсы закреплены</strong>
@@ -418,24 +440,48 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
       <div className={styles.timelineTop}>
         <div><div className={styles.kicker}>ИСТОРИЯ · НЕ LIVE</div>
           <h2>Воспроизведение реальных событий</h2>
-          <p>Подсветка отражает сохранённые передачи и решения, а не непрерывную работу агентов.</p>
+          <p>Выберите период, участника или тип события. Это сохранённая история, не онлайн-трансляция агентов.</p>
         </div>
         <div className={styles.playControls}>
-          <button type="button" aria-label="Предыдущее" disabled={!focusedEvents.length} onClick={stepBack}><ArrowLeft size={15}/></button>
-          <button type="button" disabled={!focusedEvents.length} onClick={()=>playing?setPlaying(false):play()}>
+          <button type="button" aria-label="Предыдущее" disabled={!historyEvents.length} onClick={stepBack}><ArrowLeft size={15}/></button>
+          <button type="button" disabled={!historyEvents.length} onClick={()=>playing?setPlaying(false):play()}>
             {playing?<><Pause size={14}/> Пауза</>:<><Play size={14}/> С начала</>}
           </button>
-          <button type="button" aria-label="Следующее" disabled={!focusedEvents.length} onClick={stepAhead}><ArrowRight size={15}/></button>
+          <button type="button" aria-label="Следующее" disabled={!historyEvents.length} onClick={stepAhead}><ArrowRight size={15}/></button>
         </div>
       </div>
+      <div className={styles.historyFilters} aria-label="Фильтры подтверждённой истории">
+        <div className={styles.historyWindowSwitch} role="group" aria-label="Период истории">
+          {([
+            ['all','Вся история'],['24h','24 часа'],['7d','7 дней'],['10d','10 дней'],['30d','30 дней']
+          ] as const).map(([value,label])=><button key={value} type="button"
+            aria-pressed={historyWindow===value} onClick={()=>setHistoryView(value)}>{label}</button>)}
+        </div>
+        <label>События
+          <select value={historyKind} onChange={e=>{setHistoryKind(e.currentTarget.value as MissionEventKind);setStep(0);setPlaying(false)}}>
+            <option value="all">Все виды</option>
+            <option value="workflow">Технические этапы</option>
+            <option value="handoff">Передачи</option>
+            <option value="owner">Решения владельца</option>
+          </select>
+        </label>
+        <label>Участник
+          <select value={historyActor||''} onChange={e=>{setHistoryActor(e.currentTarget.value as MissionActor||null);setStep(0);setPlaying(false)}}>
+            <option value="">Все участники</option>
+            <option value="OWNER">Владелец FEYA</option>
+            {snapshot.roles.map(r=><option key={r.code} value={r.code}>{missionRolePresentation[r.code].name}</option>)}
+          </select>
+        </label>
+        <small>{historyEvents.length} записей в выбранном окне. Снимок обновляется при открытии страницы.</small>
+      </div>
       <div className={styles.rail}>
-        {focusedEvents.map((e,i)=><button key={e.id} type="button"
+        {historyEvents.map((e,i)=><button key={e.id} type="button"
           className={joinClasses(styles.eventButton,step===i&&styles.eventCurrent)}
           data-kind={e.kind} aria-current={step===i?'step':undefined} onClick={()=>choose(i)}>
           <span className={styles.eventNumber}>{String(i+1).padStart(2,'0')}</span>
           <strong>{e.title}</strong><small>{eventTime(e.at)}</small>
         </button>)}
-        {!focusedEvents.length?<p className={styles.note}>Нет записанных событий в этом представлении. Демонстрационных событий нет.</p>:null}
+        {!historyEvents.length?<p className={styles.note}>В выбранном периоде/фильтре нет подтверждённых событий. Это не означает, что кейсы закрыты.</p>:null}
       </div>
       <footer className={styles.timelineFooter}>Источник: owner-safe Supabase views. Снимок обновляется при открытии страницы.
         <button type="button" onClick={()=>window.location.reload()}>Обновить</button>

@@ -201,3 +201,14 @@ test('new attention summary only navigates to the original guarded queue, never 
     assert.ok(!ui.includes(forbidden),forbidden);
   }
 });
+
+test('Mission Control uses bounded current Case metadata and a server snapshot time, not invented SLAs',()=>{
+  const page=readFileSync('app/admin/company/mission-control/page.tsx','utf8');
+  assert.ok(page.includes('priority,due_at,updated_at,current_step_code,wait_reason,blocked_reason'));
+  assert.ok(page.includes('capturedAt:new Date().toISOString()'));
+  const snap=buildMissionSnapshot(raw());
+  assert.equal(snap.cases[0].priority,'UNKNOWN');
+  assert.equal(snap.cases[0].dueAt,null);
+  assert.equal(snap.cases[0].blockedReason,null);
+});
+

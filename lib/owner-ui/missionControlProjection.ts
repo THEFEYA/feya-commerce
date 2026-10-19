@@ -22,6 +22,8 @@ export type MissionRole = {
 export type MissionCase = {
   id:string;code:string;title:string;owner:MissionRoleCode;status:string;
   workflowStatus:string;attentionId:string|null;
+  priority:string;dueAt:string|null;updatedAt:string|null;currentStep:string|null;
+  waitReason:string|null;blockedReason:string|null;
 };
 export type MissionEvent = {
   id:string;caseId:string;caseCode:string;at:string;
@@ -33,6 +35,7 @@ export type MissionSnapshot = {
   roles:MissionRole[];cases:MissionCase[];events:MissionEvent[];
   totalOpenCases:number;currentlyRunning:number;historicalHandoffs:number;
   historyOnly:true;liveAgentExecutionProven:false;
+  capturedAt?:string;
   ownerAttention?:MissionOwnerAttentionSummary|null;
 };
 
@@ -83,6 +86,12 @@ export function buildMissionSnapshot(raw:MissionRaw):MissionSnapshot{
       title:string(row.title,140)||'Работа FEYA',
       workflowStatus:string(row.workflow_status,48).toUpperCase(),
       attentionId:attentionByCase.get(id)||null,
+      priority:/^P[0-3]$/.test(string(row.priority,8).toUpperCase())
+        ?string(row.priority,8).toUpperCase():'UNKNOWN',
+      dueAt:safeTime(row.due_at),updatedAt:safeTime(row.updated_at),
+      currentStep:string(row.current_step_code,80)||null,
+      waitReason:string(row.wait_reason,180)||null,
+      blockedReason:string(row.blocked_reason,180)||null,
     });
   }
 

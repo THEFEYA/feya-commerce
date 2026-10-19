@@ -67,3 +67,24 @@ test('premium visuals are scoped to the internal surface, with no added art asse
   assert.doesNotMatch(page+ui,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|api\.openai\.com|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(css,/body\s*\{|\.product-card\s*\{|@import|url\(/);
 });
+
+test('third Case route is a real snapshot-projected view and filters history by period and type',()=>{
+  const caseRoute=readFileSync('components/admin/MissionCaseRouteClient.tsx','utf8');
+  const view=readFileSync('lib/owner-ui/missionControlView.ts','utf8');
+  assert.ok(ui.includes("setMode('case')"));
+  assert.ok(ui.includes('<MissionCaseRouteClient'));
+  assert.ok(ui.includes("['7d','7 дней']"));
+  assert.ok(ui.includes("['10d','10 дней']"));
+  assert.ok(ui.includes('filterMissionHistory('));
+  assert.ok(view.includes("86400000"));
+  assert.ok(view.includes("source!==options.actor"));
+  assert.ok(view.includes("event.kind!==options.kind"));
+  assert.ok(caseRoute.includes('missionCaseDeadline'));
+  assert.ok(caseRoute.includes('Техническая работа завершена, но кейс остаётся OPEN'));
+  assert.ok(caseRoute.includes('Срок не установлен · просрочка не определяется'));
+  assert.ok(caseRoute.includes('Execution Receipt здесь не проверен')===false);
+  assert.ok(caseRoute.includes('Полная карточка'));
+  assert.ok(caseRoute.includes('Независимая'));
+  assert.doesNotMatch(caseRoute,/\.insert\(|\.update\(|\.rpc\(|OPENAI_API_KEY|setInterval\(/);
+});
+

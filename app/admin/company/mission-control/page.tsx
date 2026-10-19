@@ -19,7 +19,7 @@ async function getSnapshot(){
       .select('role_code,runtime_status,autonomy_ceiling')
       .order('role_code',{ascending:true}).limit(8),
     db.from('feya_commerce_v_owner_work_safe_v1')
-      .select('case_id,case_code,title,case_status,current_accountable_domain,workflow_status')
+      .select('case_id,case_code,title,case_status,current_accountable_domain,workflow_status,priority,due_at,updated_at,current_step_code,wait_reason,blocked_reason')
       .order('updated_at',{ascending:false}).limit(32),
     db.from('feya_commerce_v_growth_workflow_events_safe_v1')
       .select('workflow_event_id,case_id,event_type,created_at')
@@ -55,6 +55,8 @@ async function getSnapshot(){
   };
   return {
     ...buildMissionSnapshot(data),
+    // Read time only; never present this as a source freshness watermark.
+    capturedAt:new Date().toISOString(),
     ownerAttention:ownerAttention.error
       ?null
       :projectMissionOwnerAttention(
