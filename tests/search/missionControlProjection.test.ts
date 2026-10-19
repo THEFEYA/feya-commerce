@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {buildMissionSnapshot, MISSION_ROLE_CODES} from '../../lib/owner-ui/missionControlProjection.ts';
+import {buildMissionSnapshot, MISSION_ROLE_CODES, missionEventsForCase} from '../../lib/owner-ui/missionControlProjection.ts';
 
 const c1='23049f6b-35bd-4211-973c-d1ea3a82f708';
 const c2='b7d44cf3-7bc0-4b61-8ce7-d189bb323127';
@@ -124,4 +124,37 @@ test('owner-only visual page reads bounded safe registries without privileged wr
   assert.match(work,/href="\/admin\/company\/mission-control"/);
   assert.doesNotMatch(page+component,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|OPENAI_API_KEY|api\.openai\.com|setInterval\([^]*fetch\(/);
   assert.doesNotMatch(page,/\.select\('\*'\)|result_json|context_json|authorization|SUPABASE_SERVICE_ROLE_KEY/);
+});
+
+
+test('case focus isolates only persisted events and rejects nonexistent Case IDs',()=>{
+  const snapshot=buildMissionSnapshot(raw());
+  const all=missionEventsForCase(snapshot,null);
+  const first=missionEventsForCase(snapshot,c1);
+  const second=missionEventsForCase(snapshot,c2);
+  assert.deepEqual(all,snapshot.events);
+  assert.ok(first.length>0);
+  assert.ok(first.every(e=>e.caseId===c1));
+  assert.ok(first.length<all.length+1);
+  assert.equal(second.length,0); // An OPEN case can have no saved events.
+  assert.equal(missionEventsForCase(snapshot,'other-business-id').length,0);
+  assert.equal(missionEventsForCase(snapshot,''),[].length);
+  assert.equal(snapshot.totalOpenCases,2); // Focus is local; durable Case state is unchanged.
+});
+
+test('case-focused mobile owner interface navigates existing protected routes and stays non-executing',()=>{
+  const ui=readFileSync('components/admin/MissionControlClient.tsx','utf8');
+  const css=readFileSync('components/admin/MissionControl.module.css','utf8');
+  assert.match(ui,/missionEventsForCase\(snapshot,caseFocus\)/);
+  assert.match(ui,/Фокус кейса/);
+  assert.match(ui,/mobileRoster/);
+  assert.match(ui,/Мои решения/);
+  assert.match(ui,/\/admin\/company\/owner-attention/);
+  assert.match(ui,/\/admin\/company\/work/);
+  assert.match(ui,/RUNNING по записи/);
+  assert.match(ui,/Воспроизведение реальных событий/);
+  assert.match(css,/mobileMapOpen/);
+  assert.match(css,/stageArea:not\(\.mobileMapOpen\) \.stage/);
+  assert.match(css,/focus-visible/);
+  assert.doesNotMatch(ui,/api\.openai\.com|\.insert\(|\.update\(|\.upsert\(|\.delete\(|\/api\/agent\/run/);
 });
