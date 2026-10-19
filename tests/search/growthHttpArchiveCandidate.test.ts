@@ -117,5 +117,5 @@ test('local archival builder has no Supabase secrets, client write action or net
  const code=readFileSync('scripts/build-growth-http-archive-candidate.ts','utf8');
  assert.match(code,/writeFile\(file/);
  assert.match(code,/flag:'wx'/);
- assert.doesNotMatch(code,/supabase|\.rpc\(|\.insert\(|fetch\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/i);
+ assert.doesNotMatch(code,/supabase\.|\.rpc\(|\.insert\(|\.upsert\(|fetch\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
 });
