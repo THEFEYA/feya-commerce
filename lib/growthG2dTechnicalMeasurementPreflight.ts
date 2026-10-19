@@ -92,6 +92,9 @@ export type G2dMetricRegistry = {
 export type G2dReviewPolicy = {
   /** An explicitly approved limit. Omission is NOT an assumed default. */
   approvedMaxAgeHours: number | null;
+  /** Explicit comparison window; no default can be inferred post hoc. */
+  approvedBaselineMaxAgeDays: number | null;
+  minimumObservationSeparationHours: number | null;
   /** If a change has begun, its Measurement Spec must already be locked. */
   interventionStartedAt: string | null;
   lockedBeforeInterventionAt: string | null;
@@ -370,7 +373,20 @@ export function evaluateG2dTechnicalMeasurement(input:G2dInput):G2dPreflight {
   }
   let sameCohort=false;
   if(base){
-    sameCohort=base.comparable&&curr.comparable&&
+    const maxDays=input.policy.approvedBaselineMaxAgeDays;
+    const minHours=input.policy.minimumObservationSeparationHours;
+    const baseEnd=goodTime(base.observation.observedAt);
+    const currEnd=goodTime(curr.observation.observedAt);
+    const windowConfigured=typeof maxDays==='number' &&
+      Number.isFinite(maxDays) && maxDays>0 && maxDays<=365 &&
+      typeof minHours==='number' && Number.isFinite(minHours) &&
+      minHours>=0 && minHours<=maxDays*24;
+    const windowValid=windowConfigured && baseEnd!==null && currEnd!==null &&
+      currEnd-baseEnd>=minHours!*3600000 &&
+      currEnd-baseEnd<=maxDays!*86400000;
+    if(!windowConfigured)reasons.push('COMPARISON_WINDOW_POLICY_NOT_APPROVED');
+    else if(!windowValid)reasons.push('COMPARISON_OUTSIDE_APPROVED_WINDOW');
+    sameCohort=windowValid&&base.comparable&&curr.comparable&&
       base.observation.pathSetHash===curr.observation.pathSetHash&&
       base.observation.releaseHash===curr.observation.releaseHash&&
       base.observation.runId!==curr.observation.runId&&
