@@ -55,6 +55,7 @@ test('PDCA measurement cannot self-certify improvement without locked design and
   assert.equal(closed.state,'RECORDED');
   assert.ok(closed.missing.some(z=>z.includes('Независимый акт')));
   assert.equal(closed.canExecute,false);
+  assert.equal(inspect({caseStatus:'CLOSED',measurement:'LOCKED_NO_OUTCOME'}).state,'RECORDED');
   assert.equal(inspect({caseStatus:'DEFERRED'}).state,'RECORDED');
   assert.equal(inspect({caseStatus:'CANCELLED'}).state,'RECORDED');
 });
