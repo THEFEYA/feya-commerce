@@ -318,38 +318,92 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
         </div>}
       </div>
 
-      <aside className={styles.dossier} aria-label="Досье выбранного участника">
-        <div className={styles.kicker}>Паспорт роли</div>
-        <h2>{selected==='OWNER'?'Владелец FEYA':selectedRole?.label||'Участник'}</h2>
-        <span className={styles.pill}>{selected==='OWNER'?'Человек · решения':modeLabel[selectedRole?.mode||'UNKNOWN']||'Неизвестно'}</span>
-        {focusedCase?<p className={styles.note}>Фокус: {focusedCase.code}. <Link href={'/admin/company/work/'+focusedCase.id}>Открыть подробный маршрут →</Link></p>:null}
-        {selectedRole?<div>
-          <dl className={styles.facts}>
-            <div><dt>Роль</dt><dd>{selectedRole.code}</dd></div>
-            <div><dt>Самостоятельность</dt><dd>{selectedRole.autonomy}</dd></div>
-            <div><dt>Открытые кейсы</dt><dd>{selectedRole.openCases}</dd></div>
-            <div><dt>RUNNING по записи (не live)</dt><dd>{selectedRole.runningWorkflows}</dd></div>
-          </dl>
-          <p className={styles.note}>SHADOW — разрешённый режим наблюдения, а не доказательство фоновых AI-вызовов.</p>
-          <h3>Задачи роли</h3>
-          {relatedCases.length?relatedCases.map(c=><Link key={c.id}
-            href={'/admin/company/work/'+c.id} className={styles.caseLink}>
-            <strong>{c.code}</strong><span>{c.title}</span>
-            <small>Кейс {c.status} · технический шаг {c.workflowStatus||'неизвестен'}</small>
-          </Link>):<p className={styles.note}>Подтверждённых кейсов нет.</p>}
-        </div>:<p className={styles.note}>Человек подтверждает решения отдельно от результата AI. Записанное решение не закрывает Growth Case.</p>}
+      <aside className={styles.dossier} aria-label="Досье выбранного участника" data-role={selected}>
+        <header className={styles.dossierHero}>
+          <RolePortrait code={selected}/>
+          <div className={styles.dossierHeroText}>
+            <div className={styles.kicker}>{selected==='OWNER'?'РУКОВОДИТЕЛЬ':'КОМНАТА СОТРУДНИКА'}</div>
+            <h2>{selected==='OWNER'?'Владелец FEYA':selectedMeta?.name||'Роль FEYA'}</h2>
+            <p>{selectedMeta?.section||'Стратегические решения'}</p>
+            <span className={styles.pill}>{selected==='OWNER'?'Человек · решения':modeLabel[selectedRole?.mode||'UNKNOWN']||'Неизвестно'}</span>
+          </div>
+        </header>
+        {focusedCase?<p className={styles.focusNotice}>
+          Фокус: {focusedCase.code}. <Link href={'/admin/company/work/'+focusedCase.id}>Полный маршрут кейса →</Link>
+        </p>:null}
+        <div className={styles.dossierTabs} role="group" aria-label="Разделы досье">
+          <button type="button" aria-pressed={dossierTab==='overview'}
+            onClick={()=>setDossierTab('overview')}>Обзор</button>
+          <button type="button" aria-pressed={dossierTab==='cases'}
+            onClick={()=>setDossierTab('cases')}>Задачи</button>
+          <button type="button" aria-pressed={dossierTab==='links'}
+            onClick={()=>setDossierTab('links')}>Связи</button>
+        </div>
+        {dossierTab==='overview'?<div className={styles.dossierContent}>
+          <section className={styles.roleBrief}>
+            <h3>Что делает</h3>
+            <p>{selectedMeta?.mission||'Определяет бизнес-стратегию, утверждает ключевые изменения и контролирует решения команды.'}</p>
+          </section>
+          <section className={styles.roleBrief}>
+            <h3>Границы ответственности</h3>
+            <p>{selectedMeta?.scope||'Решения владельца записываются отдельно от исполнения, измерения и проверки результата.'}</p>
+          </section>
+          {selectedRole?<dl className={styles.facts}>
+            <div><dt>Режим роли</dt><dd>{modeLabel[selectedRole.mode]||'Не подтверждён'}</dd></div>
+            <div><dt>Полномочия</dt><dd>{missionAutonomyLabel[selectedRole.autonomy]||'Требуют уточнения'}</dd></div>
+            <div><dt>Открытых кейсов</dt><dd>{selectedRole.openCases}</dd></div>
+            <div><dt>RUNNING по записи</dt><dd>{selectedRole.runningWorkflows} · не live</dd></div>
+          </dl>:null}
+          <div className={styles.nextAction}>
+            <strong>Следующий доступный шаг</strong>
+            {selectedRole&&relatedCases.length
+              ? <Link href={'/admin/company/work/'+relatedCases[0].id}>Открыть закреплённый кейс →</Link>
+              : selected==='OWNER'
+                ? <Link href="/admin/company/owner-attention">Посмотреть ожидающие решения →</Link>
+                : <Link href="/admin/roles">Проверить права и ограничения роли →</Link>}
+            <small>Нажатие открывает сохранённые данные и не запускает AI.</small>
+          </div>
+        </div>:null}
+        {dossierTab==='cases'?<div className={styles.dossierContent}>
+          <h3>{selected==='OWNER'?'Вопросы владельца':'Закреплённые кейсы'}</h3>
+          {selected==='OWNER'
+            ? <div className={styles.ownerCaseList}>
+                {snapshot.ownerAttention?.items.length
+                  ? snapshot.ownerAttention.items.map(a=><Link key={a.id}
+                      href={'/admin/company/owner-attention/'+a.id} className={styles.caseLink}>
+                      <strong>{a.priority} · {a.status==='ACKNOWLEDGED'?'На рассмотрении':'Ожидает решения'}</strong>
+                      <span>{a.title}</span></Link>)
+                  : <p className={styles.note}>Здесь нет подтверждённого перечня. Полная очередь доступна в «Мои решения».</p>}
+                <Link href="/admin/company/owner-attention" className={styles.dossierActionLink}>Все решения →</Link>
+              </div>
+            : relatedCases.length?relatedCases.map(c=><Link key={c.id}
+                href={'/admin/company/work/'+c.id} className={styles.caseLink}>
+                <strong>{c.code}</strong><span>{c.title}</span>
+                <small>Кейс: {c.status==='OPEN'?'открыт':c.status} · workflow: {c.workflowStatus==='COMPLETED'?'этап завершён':c.workflowStatus||'не подтверждён'}</small>
+              </Link>):<p className={styles.note}>Закреплённых открытых кейсов сейчас нет. Это не означает, что агент работает в фоне.</p>}
+        </div>:null}
+        {dossierTab==='links'?<div className={styles.dossierContent}>
+          <h3>Сохранённые передачи</h3>
+          <p className={styles.note}>Показываются только реальные записи из Core. Организационные связи на схеме — другой тип информации.</p>
+          {relevantHandoffs.length?relevantHandoffs.map(e=><Link key={e.id}
+            href={'/admin/company/work/'+e.caseId} className={styles.handoffItem}>
+            <strong>{e.source==='OWNER'?'Владелец':e.source} → {e.target==='OWNER'?'Владелец':e.target||'—'}</strong>
+            <small>{e.title} · {eventTime(e.at)}</small>
+            <span>{e.caseCode} →</span>
+          </Link>):<p className={styles.note}>Подтверждённых передач по выбранному фокусу нет.</p>}
+        </div>:null}
         <div className={styles.separator}/>
-        <div className={styles.kicker}>Текущая точка истории</div>
+        <div className={styles.kicker}>ВЫБРАННОЕ СОБЫТИЕ · ИСТОРИЯ</div>
         {event?<div className={styles.currentEvent} aria-live="polite">
           <small>{eventTime(event.at)} · {event.caseCode}</small>
           <strong>{event.title}</strong>
-          <p>{event.kind==='handoff'?'Подтверждённая передача ролей':
-            event.kind==='owner'?'Сохранённое событие владельца':'Событие технического процесса'}</p>
+          <p>{event.kind==='handoff'?'Зарегистрированная передача, не доказательство AI-анализа':
+            event.kind==='owner'?'Сохранённое действие владельца':'Событие технического workflow'}</p>
           <div className={styles.links}>
             <Link href={'/admin/company/work/'+event.caseId}>Открыть кейс</Link>
             {event.attentionId?<Link href={'/admin/company/owner-attention/'+event.attentionId}>Решение владельца</Link>:null}
           </div>
-        </div>:<p className={styles.note}>История ещё не записана.</p>}
+        </div>:<p className={styles.note}>Подтверждённых событий в этом фокусе нет.</p>}
       </aside>
     </section>
 
