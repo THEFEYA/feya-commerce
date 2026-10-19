@@ -30,6 +30,7 @@ async function getWorkItem(id: string): Promise<{
     intendedIndex: number;
     intendedNoindex: number;
     approvedProducts: number;
+    targetOrigin: string;
     coverage: string;
     observedAt: string;
     note: string;
@@ -166,6 +167,7 @@ async function getWorkItem(id: string): Promise<{
           typeof receipt.intended_index === 'number' &&
           typeof receipt.intended_noindex === 'number' &&
           typeof receipt.approved_product_bindings === 'number' &&
+          receipt.target_origin === 'https://thefeya.com' &&
           receipt.release_version > 0 &&
           receipt.intended_index >= 0 &&
           receipt.intended_noindex >= 0 &&
@@ -176,6 +178,7 @@ async function getWorkItem(id: string): Promise<{
           intendedIndex: receipt.intended_index,
           intendedNoindex: receipt.intended_noindex,
           approvedProducts: receipt.approved_product_bindings,
+          targetOrigin: receipt.target_origin,
           coverage: typeof receipt.coverage === 'string' ? receipt.coverage : 'UNKNOWN',
           observedAt: typeof receipt.evidence_time === 'string' ? receipt.evidence_time : '',
           note: typeof receipt.conclusion === 'string' ? receipt.conclusion.slice(0, 350) : '',
@@ -187,21 +190,30 @@ async function getWorkItem(id: string): Promise<{
     // Existing private append-only GDAE ledger, owner-server only. Exact
     // allowlisted columns; no payload_json, no private customer rows, no RPC.
     // Missing access is UNKNOWN, never a fabricated zero/verified QA.
-    const archiveResponse = readinessReceipt
-      ? await supabase.from('feya_growth_external_http_observation_receipts_v1')
-        .select('receipt_id,source_code,source_channel,release_code,release_version,release_hash,evidence_level,verification_state,index_urls_observed,product_urls_sampled,product_urls_in_release,workflow_run_id,artifact_id,artifact_zip_sha256,payload_sha256,independent_qa_passed,google_indexed_state_known,business_outcome_measured,source_health_promoted,finished_at,recorded_at')
-        .eq('release_code', readinessReceipt.releaseCode)
-        .eq('release_version', readinessReceipt.releaseVersion)
-        .order('recorded_at', { ascending: false }).limit(3)
-      : null;
+    const [archiveResponse, canonicalResponse] = readinessReceipt
+      ? await Promise.all([
+        supabase.from('feya_growth_external_http_observation_receipts_v1')
+          .select('receipt_id,release_id,origin,source_code,source_channel,release_code,release_version,release_hash,evidence_level,verification_state,index_urls_observed,product_urls_sampled,product_urls_in_release,workflow_run_id,artifact_id,artifact_zip_sha256,payload_sha256,independent_qa_passed,google_indexed_state_known,business_outcome_measured,source_health_promoted,finished_at,recorded_at')
+          .eq('release_code', readinessReceipt.releaseCode)
+          .eq('release_version', readinessReceipt.releaseVersion)
+          .order('recorded_at', { ascending: false }).limit(3),
+        supabase.from('feya_search_releases_v1')
+          .select('release_id,release_code,release_version,release_hash,release_status,target_origin')
+          .eq('release_code', readinessReceipt.releaseCode)
+          .eq('release_version', readinessReceipt.releaseVersion).limit(2),
+      ])
+      : [null,null];
     gdaeArchive = projectGdaeArchiveForCase({
       caseType:String(workResult.data.case_type),
       expectedRelease:readinessReceipt
         ? {releaseCode:readinessReceipt.releaseCode,releaseVersion:readinessReceipt.releaseVersion,
-          intendedIndex:readinessReceipt.intendedIndex,approvedProducts:readinessReceipt.approvedProducts}
+          intendedIndex:readinessReceipt.intendedIndex,
+          approvedProducts:readinessReceipt.approvedProducts,
+          targetOrigin:readinessReceipt.targetOrigin}
         : null,
       rows:archiveResponse?.error ? null : (archiveResponse?.data || null),
-      readError:Boolean(archiveResponse?.error),
+      canonicalRows:canonicalResponse?.error ? null : (canonicalResponse?.data || null),
+      readError:Boolean(archiveResponse?.error || canonicalResponse?.error),
     });
   }
   return {

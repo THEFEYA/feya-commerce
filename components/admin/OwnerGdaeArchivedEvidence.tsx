@@ -28,6 +28,10 @@ export function OwnerGdaeArchivedEvidence({gate,route}:{
         <p>{gate.headline}</p>
       </div>
     </header>
+    {saved&&gate.canonicalReleaseMatched?<p className={styles.authorityProof}>
+      <CheckCircle2 size={15}/> ID, SHA и домен архива совпадают с действующим Search Release.
+      Это техническая сверка, не независимая QA.
+    </p>:null}
     {saved?<div className={styles.numbers}>
       <div><strong>{gate.indexObserved}/{gate.indexExpected}</strong><span>HTTP для index-intent</span></div>
       <div><strong>{gate.productObserved}/{gate.productExpected}</strong><span>HTTP для товаров noindex</span></div>

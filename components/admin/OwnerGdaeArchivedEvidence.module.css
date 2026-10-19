@@ -42,3 +42,8 @@
 @media(max-width:780px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));}.head h2{font-size:15px;}}
 @media(max-width:450px){.numbers{grid-template-columns:1fr;}.steps{grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce){.headIcon{box-shadow:none;}}
+.authorityProof{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.5;
+ color:#a7e4ce;margin:0;padding:8px 10px;border-radius:8px;
+ background:rgba(28,101,86,.11);border:1px solid rgba(76,189,153,.27);}
+.authorityProof svg{flex:0 0 15px;margin-top:1px;}
+
