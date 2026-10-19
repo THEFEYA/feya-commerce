@@ -44,7 +44,7 @@ test('unsupported method and unconfigured secret never reach the handler',async(
 
 test('failure of cryptographic verifier fails closed, not open',async()=>{
   const brokenDigest={
-    digest:async (_algorithm:string,_data:BufferSource):Promise<ArrayBuffer>=>{
+    digest:async (_algorithm:AlgorithmIdentifier,_data:BufferSource):Promise<ArrayBuffer>=>{
       throw new Error('simulated platform unavailable: do not disclose token');
     },
   };
