@@ -336,7 +336,9 @@ test('unrelated production robots/Shop guardrail failure cannot sneak in as a gr
 
 test('no power to publish, lock DB specs or approve spend can be inferred from a preflight',()=>{
   const s=readFileSync('lib/growthG2dTechnicalMeasurementPreflight.ts','utf8');
-  assert.doesNotMatch(s,/\.rpc\(|\.insert\(|\.update\(|\.delete\(|fetch\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
+  // Crypto Hash.update() is a pure checksum operation, not a DB write.
+  assert.match(s,/createHash\('sha256'\)/);
+  assert.doesNotMatch(s,/\.from\(|\.rpc\(|\.insert\(|\.upsert\(|\.delete\(|fetch\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(s,/canLockMeasurementSpec:false/);
   assert.match(s,/canWriteOutcome:false/);
   assert.match(s,/validatedWin:false/);
