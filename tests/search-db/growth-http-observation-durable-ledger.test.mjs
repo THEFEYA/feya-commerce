@@ -13,6 +13,7 @@ if(native){
 }
 const rid='2dc86d7c-6269-5327-9154-6b5178931254';
 const hash='05d79c4ddc07da7e7fc60045f6ad39fabea40cb16f702bcfb6ea3b154d4bcd0b';
+const originalGitSha='7699e7cdcfc1cdf75716f006d5533fe1efbdf4b7';
 const sha='533bc8e40f2fd1a9464495134459afde9308bd7d';
 const zipSha='198ba252a30b36471795aceefa5eecedf1364fd7fa440e628e9fbae5557d9ae7';
 const paths=['/','/about','/collections/shoulder-armor'];
@@ -42,11 +43,15 @@ function evidence(){
    origin:'https://thefeya.com',
    deploymentCommitSha:sha,
    release:{id:rid,code:'organic-wave-a-20260926',version:12,hash,
-    manifestGitSha:'7699e7cdcfc1cdf75716f006d5533fe1efbdf4b7'},
+    manifestGitSha:originalGitSha},
    observation:{startedAt:start,finishedAt:end},
    coverage:{
     indexIntent:{expected:3,verified:3},
-    productNoindex:{expected:4,sampled:2,perPathVerified:2,untested:2,proof:'PER_PATH_CI_RECEIPT'},
+    productNoindex:{expected:4,sampled:2,reportedPassed:2,
+      perPathVerified:2,untested:2,proof:'PER_PATH_CI_RECEIPT'},
+    shop:{expected:4,verified:4},
+    collections:{expected:3,verified:3},
+    pdpCopySample:{expected:5,verified:5},
    },
    source:{
     repository:'THEFEYA/feya-commerce',gitEvent:'push',gitRef:'refs/heads/main',
@@ -84,13 +89,13 @@ before(async()=>{
   'grant usage on schema public to anon,authenticated,service_role;',
   'create table public.feya_search_releases_v1(',
   'release_id uuid primary key,release_code text,release_version integer,',
-  'release_status text,release_hash text,target_origin text);',
+  'release_status text,release_hash text,git_sha text,target_origin text);',
   'create table public.feya_search_release_items_v1(',
   'release_id uuid references public.feya_search_releases_v1(release_id),',
   'url_path_snapshot text,intended_index_state text,page_type_snapshot text);',
   'insert into public.feya_search_releases_v1',
-  "(release_id,release_code,release_version,release_status,release_hash,target_origin) values",
-  "('"+rid+"','organic-wave-a-20260926',12,'ACTIVE','"+hash+"','https://thefeya.com');",
+  "(release_id,release_code,release_version,release_status,release_hash,git_sha,target_origin) values",
+  "('"+rid+"','organic-wave-a-20260926',12,'ACTIVE','"+hash+"','"+originalGitSha+"','https://thefeya.com');",
  ].join('\n'));
  for(const path of paths)await db.query(
   "insert into public.feya_search_release_items_v1 values ($1,$2,'index','landing')",
