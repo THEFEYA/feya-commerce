@@ -180,15 +180,23 @@ test('wrong source repo, branch, SHA, release, channel, or evidence claim denied
  assert.equal(await count(),0);
 });
 
-test('not ACTIVE, or two active releases, refuses source even with green CI',async()=>{
- await db.exec("update public.feya_search_releases_v1 set release_status='RETIRED'");
- await assert.rejects(stage(),/GROWTH_HTTP_ARCHIVE_RELEASE_NOT_CURRENT/);
- await db.exec("update public.feya_search_releases_v1 set release_status='ACTIVE'");
- await db.exec("insert into public.feya_search_releases_v1 values ('22222222-2222-4222-8222-222222222222','other',1,'ACTIVE','"+
-   'f'.repeat(64)+"','https://thefeya.com')");
- await assert.rejects(stage(),/GROWTH_HTTP_ARCHIVE_RELEASE_NOT_CURRENT/);
- await db.exec("delete from public.feya_search_releases_v1 where release_id='22222222-2222-4222-8222-222222222222'");
- assert.equal(await count(),0);
+test('DRAFT release is denied, but an authentic RETIRED release can be archived as history',async()=>{
+ await db.exec("update public.feya_search_releases_v1 set release_status='DRAFT'");
+ try{
+  await assert.rejects(stage(),/GROWTH_HTTP_ARCHIVE_RELEASE_NOT_CURRENT/);
+  assert.equal(await count(),0);
+  await db.exec("update public.feya_search_releases_v1 set release_status='RETIRED'");
+  const saved=(await stage())[0];
+  assert.equal(saved.created_new,true);
+  const row=(await query(
+   "select release_version,verification_state,independent_qa_passed from public.feya_growth_external_http_observation_receipts_v1"
+  ))[0];
+  assert.equal(row.release_version,12);
+  assert.equal(row.verification_state,'PROVENANCE_REVIEW_REQUIRED');
+  assert.equal(row.independent_qa_passed,false);
+ }finally{
+  await db.exec("update public.feya_search_releases_v1 set release_status='ACTIVE'");
+ }
 });
 
 test('missing, duplicate, wrong-scope paths or tampered canonical fail',async()=>{
