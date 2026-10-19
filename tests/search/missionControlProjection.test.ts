@@ -127,19 +127,25 @@ test('owner-only visual page reads bounded safe registries without privileged wr
 });
 
 
-test('case focus isolates only persisted events and rejects nonexistent Case IDs',()=>{
-  const snapshot=buildMissionSnapshot(raw());
+test('case focus isolates independently persisted cases and rejects nonexistent Case IDs',()=>{
+  const source=raw();
+  source.workflowEvents.push({
+    workflow_event_id:'event-case2',case_id:c2,event_type:'WORKFLOW_CREATED',
+    created_at:'2026-10-16T12:01:00Z',
+  });
+  const snapshot=buildMissionSnapshot(source);
   const all=missionEventsForCase(snapshot,null);
   const first=missionEventsForCase(snapshot,c1);
   const second=missionEventsForCase(snapshot,c2);
   assert.deepEqual(all,snapshot.events);
   assert.ok(first.length>0);
+  assert.ok(first.length<all.length);
   assert.ok(first.every(e=>e.caseId===c1));
-  assert.ok(first.length<all.length+1);
-  assert.equal(second.length,0); // An OPEN case can have no saved events.
+  assert.equal(second.length,1);
+  assert.ok(second.every(e=>e.caseId===c2));
   assert.equal(missionEventsForCase(snapshot,'other-business-id').length,0);
-  assert.equal(missionEventsForCase(snapshot,''),[].length);
-  assert.equal(snapshot.totalOpenCases,2); // Focus is local; durable Case state is unchanged.
+  assert.equal(missionEventsForCase(snapshot,'').length,0);
+  assert.equal(snapshot.totalOpenCases,2); // Focus does not change durable Case status.
 });
 
 test('case-focused mobile owner interface navigates existing protected routes and stays non-executing',()=>{
