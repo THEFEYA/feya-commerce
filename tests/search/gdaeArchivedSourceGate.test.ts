@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {projectGdaeArchiveForCase,type GdaeArchiveReceiptRow}
   from '../../lib/owner-ui/gdaeArchivedSourceGate.ts';
 
-const ready={releaseCode:'organic-wave-a-20260926',releaseVersion:12};
+const ready={releaseCode:'organic-wave-a-20260926',releaseVersion:12,intendedIndex:18,approvedProducts:207};
 const source:GdaeArchiveReceiptRow={
   receipt_id:'3a75f5c0-2724-4b4f-82cd-9c905bb2f0d8',
   source_code:'TSEO_PRODUCTION_HTTP_OBSERVATION',
@@ -35,6 +35,7 @@ test('actual archived v12 L0 is linked to the TSEO Case without promotion',()=>{
  assert.equal(x.status,'SOURCE_RETAINED_REVIEW_REQUIRED');
  assert.equal(x.receiptId,source.receipt_id);
  assert.equal(x.indexObserved,18);
+ assert.equal(x.indexExpected,18);
  assert.equal(x.productObserved,24);
  assert.equal(x.productExpected,207);
  assert.equal(x.productsUnobserved,183);
@@ -51,6 +52,8 @@ test('archive missing, release unavailable or HTTP read denied never becomes suc
  assert.equal(evaluate([]).status,'NOT_STAGED');
  assert.equal(evaluate(null,{readError:true}).status,'SOURCE_UNAVAILABLE');
  assert.equal(evaluate([source],{expectedRelease:null}).status,'CASE_RELEASE_UNCONFIRMED');
+ assert.equal(evaluate([source],{expectedRelease:{...ready,intendedIndex:19}}).status,'ARCHIVE_NOT_ADMISSIBLE');
+ assert.equal(evaluate([source],{expectedRelease:{...ready,approvedProducts:208}}).status,'ARCHIVE_NOT_ADMISSIBLE');
  assert.equal(evaluate([source],{caseType:'OTHER_CASE'}).status,'CASE_RELEASE_UNCONFIRMED');
  const hidden=evaluate(null,{readError:true});
  assert.equal(hidden.indexObserved,null);

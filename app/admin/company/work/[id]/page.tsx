@@ -197,7 +197,8 @@ async function getWorkItem(id: string): Promise<{
     gdaeArchive = projectGdaeArchiveForCase({
       caseType:String(workResult.data.case_type),
       expectedRelease:readinessReceipt
-        ? {releaseCode:readinessReceipt.releaseCode,releaseVersion:readinessReceipt.releaseVersion}
+        ? {releaseCode:readinessReceipt.releaseCode,releaseVersion:readinessReceipt.releaseVersion,
+          intendedIndex:readinessReceipt.intendedIndex,approvedProducts:readinessReceipt.approvedProducts}
         : null,
       rows:archiveResponse?.error ? null : (archiveResponse?.data || null),
       readError:Boolean(archiveResponse?.error),

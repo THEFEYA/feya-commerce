@@ -29,7 +29,7 @@ export function OwnerGdaeArchivedEvidence({gate,route}:{
       </div>
     </header>
     {saved?<div className={styles.numbers}>
-      <div><strong>{gate.indexObserved}/{gate.indexObserved}</strong><span>HTTP для index-intent</span></div>
+      <div><strong>{gate.indexObserved}/{gate.indexExpected}</strong><span>HTTP для index-intent</span></div>
       <div><strong>{gate.productObserved}/{gate.productExpected}</strong><span>HTTP для товаров noindex</span></div>
       <div><strong>{gate.productsUnobserved}</strong><span>Товары без наблюдений</span></div>
     </div>:null}

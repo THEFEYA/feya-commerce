@@ -18,6 +18,7 @@ export type GdaeArchiveCaseGate={
   observedAt:string|null;
   releaseCode:string|null;
   indexObserved:number|null;
+  indexExpected:number|null;
   productObserved:number|null;
   productExpected:number|null;
   productsUnobserved:number|null;
@@ -41,7 +42,7 @@ export type GdaeArchiveReceiptRow={
   business_outcome_measured?:unknown;source_health_promoted?:unknown;
   finished_at?:unknown;recorded_at?:unknown;
 };
-type RequestedRelease={releaseCode:string;releaseVersion:number}|null;
+type RequestedRelease={releaseCode:string;releaseVersion:number;intendedIndex:number;approvedProducts:number}|null;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SHA64=/^[0-9a-f]{64}$/;
 const POSITIVE=/^[1-9][0-9]{0,15}$/;
@@ -58,7 +59,7 @@ function iso(v:unknown):string|null {
 }
 function base(status:GdaeReceiptStatus,headline:string,message:string):GdaeArchiveCaseGate {
   return {status,headline,message,receiptId:null,sourceRunId:null,
-    archivedAt:null,observedAt:null,releaseCode:null,indexObserved:null,
+    archivedAt:null,observedAt:null,releaseCode:null,indexObserved:null,indexExpected:null,
     productObserved:null,productExpected:null,productsUnobserved:null,
     evidenceLevel:'UNKNOWN',
     missing:['Независимое заключение GDAE о происхождении и границах L0',
@@ -80,7 +81,9 @@ export function projectGdaeArchiveForCase(input:{
     'HTTP-архив Search Release не применяется автоматически к другим задачам.');
   const {expectedRelease}=input;
   if(!expectedRelease||!expectedRelease.releaseCode||
-    !Number.isSafeInteger(expectedRelease.releaseVersion)||expectedRelease.releaseVersion<1)
+    !Number.isSafeInteger(expectedRelease.releaseVersion)||expectedRelease.releaseVersion<1||
+    !Number.isSafeInteger(expectedRelease.intendedIndex)||expectedRelease.intendedIndex<1||
+    !Number.isSafeInteger(expectedRelease.approvedProducts)||expectedRelease.approvedProducts<1)
     return base('CASE_RELEASE_UNCONFIRMED','Связь с выпуском не подтверждена',
       'Нужен проверенный технический отчёт TSEO с идентичностью Search Release.');
   if(input.readError||!Array.isArray(input.rows))return base(
@@ -107,9 +110,9 @@ export function projectGdaeArchiveForCase(input:{
     typeof row.payload_sha256==='string'&&SHA64.test(row.payload_sha256)&&
     positiveId(row.workflow_run_id)!==null&&
     positiveId(row.artifact_id)!==null&&
-    Number.isSafeInteger(index)&&index>0&&
+    Number.isSafeInteger(index)&&index===expectedRelease.intendedIndex&&
     Number.isSafeInteger(product)&&product>0&&
-    Number.isSafeInteger(total)&&total>product&&
+    Number.isSafeInteger(total)&&total===expectedRelease.approvedProducts&&total>product&&
     iso(row.finished_at)!==null&&iso(row.recorded_at)!==null;
   if(!correct)return base('ARCHIVE_NOT_ADMISSIBLE',
     'Архив требует проверки или не соответствует выпуску',
@@ -120,7 +123,7 @@ export function projectGdaeArchiveForCase(input:{
     receiptId:row.receipt_id as string,sourceRunId:positiveId(row.workflow_run_id),
     releaseCode:row.release_code as string,archivedAt:iso(row.recorded_at),
     observedAt:iso(row.finished_at),indexObserved:index as number,
-    productObserved:product as number,productExpected:total as number,
+    indexExpected:expectedRelease.intendedIndex,productObserved:product as number,productExpected:total as number,
     productsUnobserved:(total as number)-(product as number),
     evidenceLevel:'L0_OBSERVATION',
   };
