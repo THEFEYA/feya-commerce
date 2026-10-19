@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import {useEffect,useMemo,useRef,useState,type PointerEvent as ReactPointerEvent} from 'react';
 import {ArrowLeft,ArrowRight,Pause,Play,RotateCcw,ZoomIn,ZoomOut} from 'lucide-react';
-import type {MissionSnapshot,MissionRoleCode} from '@/lib/owner-ui/missionControlProjection';
+import {missionEventsForCase,type MissionSnapshot,type MissionRoleCode} from '@/lib/owner-ui/missionControlProjection';
 import styles from './MissionControl.module.css';
 
 type Point={x:number;y:number};
@@ -37,47 +37,62 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   const [step,setStep]=useState(Math.max(snapshot.events.length-1,0));
   const [playing,setPlaying]=useState(false);
   const [motion,setMotion]=useState(true);
+  const [caseFocus,setCaseFocus]=useState<string|null>(null);
+  const [mobileMap,setMobileMap]=useState(false);
   const drag=useRef<{id:number;x:number;y:number;start:Point}|null>(null);
+  const focusedCase=snapshot.cases.find(c=>c.id===caseFocus)||null;
+  const focusedEvents=useMemo(()=>missionEventsForCase(snapshot,caseFocus),[snapshot,caseFocus]);
 
   useEffect(()=>{
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)setMotion(false);
   },[]);
   useEffect(()=>{
-    if(!playing||!snapshot.events.length)return;
+    if(!playing||!focusedEvents.length)return;
     const timer=window.setInterval(()=>{
       setStep(current=>{
-        if(current>=snapshot.events.length-1){setPlaying(false);return current;}
+        if(current>=focusedEvents.length-1){setPlaying(false);return current;}
         return current+1;
       });
     },motion?1850:2600);
     return ()=>window.clearInterval(timer);
-  },[playing,motion,snapshot.events.length]);
+  },[playing,motion,focusedEvents.length]);
 
-  const event=snapshot.events[step]||null;
+  const event=focusedEvents[step]||null;
   const selectedRole=snapshot.roles.find(r=>r.code===selected);
-  const relatedCases=snapshot.cases.filter(c=>c.owner===selected);
+  const relatedCases=snapshot.cases.filter(c=>c.owner===selected&&(!caseFocus||c.id===caseFocus));
+  const focusParticipants=new Set<MissionRoleCode|'OWNER'>();
+  if(focusedCase)focusParticipants.add(focusedCase.owner);
+  focusedEvents.forEach(e=>{focusParticipants.add(e.source);if(e.target)focusParticipants.add(e.target);});
   const edges=useMemo(()=>{
     const seen=new Map<string,{source:MissionRoleCode|'OWNER';target:MissionRoleCode|'OWNER'}>();
-    snapshot.events.forEach(e=>{
+    focusedEvents.forEach(e=>{
       if(e.target&&(e.kind==='handoff'||(e.kind==='owner'&&e.phase==='owner_requested'))){
         seen.set(e.source+'>'+e.target,{source:e.source,target:e.target});
       }
     });
     return [...seen.values()];
-  },[snapshot.events]);
+  },[focusedEvents]);
   const highlighted=event&&event.target?event.source+'>'+event.target:null;
 
+  function chooseCase(value:string){
+    const c=snapshot.cases.find(item=>item.id===value)||null;
+    const nextId=c?.id||null;
+    setCaseFocus(nextId);
+    setPlaying(false);
+    setStep(Math.max(missionEventsForCase(snapshot,nextId).length-1,0));
+    if(c)setSelected(c.owner);
+  }
   function choose(index:number){
-    const e=snapshot.events[index];
+    const e=focusedEvents[index];
     if(!e)return;
     setPlaying(false);setStep(index);
-    setSelected(e.source==='OWNER'?'TSEO':e.source);
+    setSelected(e.source);
   }
   function play(){
-    if(!snapshot.events.length)return;
+    if(!focusedEvents.length)return;
     setStep(0);
-    const source=snapshot.events[0].source;
-    setSelected(source==='OWNER'?'TSEO':source);
+    const source=focusedEvents[0].source;
+    setSelected(source);
     setPlaying(true);
   }
   function startDrag(e:ReactPointerEvent<HTMLDivElement>){
@@ -94,23 +109,40 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     if(drag.current?.id===e.pointerId)drag.current=null;
   }
   const stepBack=()=>choose(Math.max(0,step-1));
-  const stepAhead=()=>choose(Math.min(snapshot.events.length-1,step+1));
+  const stepAhead=()=>choose(Math.min(focusedEvents.length-1,step+1));
 
   return <div className={styles.wrapper}>
+    <nav className={styles.ownerShortcuts} aria-label="Переходы к реальным задачам">
+      <Link href="/admin/company/owner-attention">Мои решения →</Link>
+      <Link href="/admin/company/work">Все кейсы →</Link>
+      {focusedCase?<Link href={'/admin/company/work/'+focusedCase.id}>Маршрут выбранного кейса →</Link>:null}
+      <span>История и сохранённые статусы · не прямой эфир</span>
+    </nav>
     <section className={styles.summary} aria-label="Проверенный статус FEYA">
       <div><strong>{snapshot.roles.length}</strong><span>Логических ролей</span></div>
       <div><strong>{snapshot.totalOpenCases}</strong><span>Открытых кейсов</span></div>
-      <div><strong>{snapshot.currentlyRunning}</strong><span>RUNNING workflow</span></div>
+      <div><strong>{snapshot.currentlyRunning}</strong><span>RUNNING по записи, не live</span></div>
       <div><strong>{snapshot.historicalHandoffs}</strong><span>Реальных передач</span></div>
-      <p>Снимок, а не прямой эфир. События настоящие; анимация истории не означает работу AI в данный момент.</p>
+      <p>Снимок, а не прямой эфир. Статус RUNNING без проверки актуального lease не доказывает выполнение сейчас. Анимация отражает только историю.</p>
     </section>
 
     <section className={styles.workspace} aria-label="Интерактивная карта Growth OS">
-      <div className={styles.stageArea}>
+      <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen)}>
         <div className={styles.toolbar}>
           <div className={styles.switcher}>
             <button type="button" aria-pressed={mode==='graph'} onClick={()=>setMode('graph')}>Схема</button>
             <button type="button" aria-pressed={mode==='office'} onClick={()=>setMode('office')}>Офис</button>
+          </div>
+          <label className={styles.casePicker}>
+            Фокус кейса
+            <select value={caseFocus||''} onChange={e=>chooseCase(e.currentTarget.value)}>
+              <option value="">Все кейсы</option>
+              {snapshot.cases.map(c=><option key={c.id} value={c.id}>{c.code} · {c.title}</option>)}
+            </select>
+          </label>
+          <div className={styles.mobileMapToggle} role="group" aria-label="Мобильный режим карты">
+            <button type="button" aria-pressed={!mobileMap} onClick={()=>setMobileMap(false)}>Список</button>
+            <button type="button" aria-pressed={mobileMap} onClick={()=>setMobileMap(true)}>Карта</button>
           </div>
           <div className={styles.controls}>
             <button type="button" aria-label="Уменьшить" onClick={()=>setZoom(z=>Math.max(.7,Math.round((z-.15)*100)/100))}><ZoomOut size={15}/></button>
@@ -118,6 +150,16 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
             <button type="button" aria-label="Увеличить" onClick={()=>setZoom(z=>Math.min(1.6,Math.round((z+.15)*100)/100))}><ZoomIn size={15}/></button>
             <button type="button" aria-label="Сбросить положение" onClick={()=>{setPan({x:0,y:0});setZoom(1)}}><RotateCcw size={15}/></button>
           </div>
+        </div>
+        <div className={styles.mobileRoster} role="group" aria-label="Список сотрудников FEYA">
+          {snapshot.roles.map(r=><button type="button" key={r.code}
+            aria-pressed={selected===r.code} onClick={()=>setSelected(r.code)}>
+            <strong>{r.label}</strong><span>{modeLabel[r.mode]||'Не подтверждён'}</span>
+            <small>Открытых кейсов: {r.openCases}</small>
+          </button>)}
+          <button type="button" aria-pressed={selected==='OWNER'} onClick={()=>setSelected('OWNER')}>
+            <strong>Владелец FEYA</strong><span>Решения человека</span>
+          </button>
         </div>
         <div className={styles.stage} onPointerDown={startDrag} onPointerMove={moveDrag}
           onPointerUp={endDrag} onPointerCancel={endDrag}>
@@ -148,7 +190,8 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
                 onClick={()=>setSelected(r.code)}
                 style={{left:(pt.x/10)+'%',top:(pt.y/6.5)+'%'}}
                 className={joinClasses(styles.agent,r.mode==='INACTIVE'&&styles.inactive,
-                  focus&&styles.focused,replay&&styles.replayAgent)}>
+                  focus&&styles.focused,replay&&styles.replayAgent,
+                  caseFocus!==null&&!focusParticipants.has(r.code)&&styles.outsideFocus)}>
                 <span className={styles.symbol}>{r.code==='GROWTH_DIRECTOR'?'◆':r.code==='TSEO'?'⌘':'✦'}</span>
                 <span className={styles.agentTitle}>{r.label}</span>
                 <span className={styles.agentCode}>{r.code}</span>
@@ -158,13 +201,14 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
             })}
             <button type="button" aria-pressed={selected==='OWNER'}
               onClick={()=>setSelected('OWNER')}
-              className={joinClasses(styles.agent,styles.owner,selected==='OWNER'&&styles.focused)}
+              className={joinClasses(styles.agent,styles.owner,selected==='OWNER'&&styles.focused,
+                caseFocus!==null&&!focusParticipants.has('OWNER')&&styles.outsideFocus)}
               style={{left:(coords.OWNER.x/10)+'%',top:(coords.OWNER.y/6.5)+'%'}}>
               <span className={styles.symbol}>◎</span><span className={styles.agentTitle}>Владелец FEYA</span>
               <span className={styles.agentCode}>HUMAN OWNER</span><span className={styles.agentStatus}>Реальные решения</span>
             </button>
           </div>
-          {!snapshot.events.length?<div className={styles.noHistory}>Подтверждённых событий нет: воспроизведение недоступно.</div>:null}
+          {!focusedEvents.length?<div className={styles.noHistory}>Нет подтверждённых событий для выбранного фокуса.</div>:null}
         </div>
         <div className={styles.stageFooter}>
           <span>Перетащите свободное место карты · масштабирование кнопками</span>
@@ -176,12 +220,13 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
         <div className={styles.kicker}>Паспорт роли</div>
         <h2>{selected==='OWNER'?'Владелец FEYA':selectedRole?.label||'Участник'}</h2>
         <span className={styles.pill}>{selected==='OWNER'?'Человек · решения':modeLabel[selectedRole?.mode||'UNKNOWN']||'Неизвестно'}</span>
+        {focusedCase?<p className={styles.note}>Фокус: {focusedCase.code}. <Link href={'/admin/company/work/'+focusedCase.id}>Открыть подробный маршрут →</Link></p>:null}
         {selectedRole?<div>
           <dl className={styles.facts}>
             <div><dt>Роль</dt><dd>{selectedRole.code}</dd></div>
             <div><dt>Самостоятельность</dt><dd>{selectedRole.autonomy}</dd></div>
             <div><dt>Открытые кейсы</dt><dd>{selectedRole.openCases}</dd></div>
-            <div><dt>Выполняется сейчас</dt><dd>{selectedRole.runningWorkflows}</dd></div>
+            <div><dt>RUNNING по записи (не live)</dt><dd>{selectedRole.runningWorkflows}</dd></div>
           </dl>
           <p className={styles.note}>SHADOW — разрешённый режим наблюдения, а не доказательство фоновых AI-вызовов.</p>
           <h3>Задачи роли</h3>
@@ -213,21 +258,21 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
           <p>Подсветка отражает сохранённые передачи и решения, а не непрерывную работу агентов.</p>
         </div>
         <div className={styles.playControls}>
-          <button type="button" aria-label="Предыдущее" disabled={!snapshot.events.length} onClick={stepBack}><ArrowLeft size={15}/></button>
-          <button type="button" disabled={!snapshot.events.length} onClick={()=>playing?setPlaying(false):play()}>
+          <button type="button" aria-label="Предыдущее" disabled={!focusedEvents.length} onClick={stepBack}><ArrowLeft size={15}/></button>
+          <button type="button" disabled={!focusedEvents.length} onClick={()=>playing?setPlaying(false):play()}>
             {playing?<><Pause size={14}/> Пауза</>:<><Play size={14}/> С начала</>}
           </button>
-          <button type="button" aria-label="Следующее" disabled={!snapshot.events.length} onClick={stepAhead}><ArrowRight size={15}/></button>
+          <button type="button" aria-label="Следующее" disabled={!focusedEvents.length} onClick={stepAhead}><ArrowRight size={15}/></button>
         </div>
       </div>
       <div className={styles.rail}>
-        {snapshot.events.map((e,i)=><button key={e.id} type="button"
+        {focusedEvents.map((e,i)=><button key={e.id} type="button"
           className={joinClasses(styles.eventButton,step===i&&styles.eventCurrent)}
           aria-current={step===i?'step':undefined} onClick={()=>choose(i)}>
           <span className={styles.eventNumber}>{String(i+1).padStart(2,'0')}</span>
           <strong>{e.title}</strong><small>{eventTime(e.at)}</small>
         </button>)}
-        {!snapshot.events.length?<p className={styles.note}>Нет событий для воспроизведения. Демонстрационных событий нет.</p>:null}
+        {!focusedEvents.length?<p className={styles.note}>Нет записанных событий в этом представлении. Демонстрационных событий нет.</p>:null}
       </div>
       <footer className={styles.timelineFooter}>Источник: owner-safe Supabase views. Снимок обновляется при открытии страницы.
         <button type="button" onClick={()=>window.location.reload()}>Обновить</button>
