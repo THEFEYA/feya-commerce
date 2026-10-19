@@ -37,7 +37,7 @@ async function getSnapshot(){
     // Existing owner-safe source: capped preview; TSEO-only graph provenance above stays scoped.
     // Optional read error must NOT erase the graph or manufacture a zero.
     db.from('feya_commerce_v_owner_attention_safe_v2')
-      .select('attention_id,attention_status,priority,title',{count:'exact'})
+      .select('attention_id,attention_status,priority,title,source_code',{count:'exact'})
       .in('attention_status',['OPEN','ACKNOWLEDGED'])
       .order('priority',{ascending:true})
       .order('created_at',{ascending:true}).limit(3),
