@@ -173,6 +173,10 @@ test('wrong source repo, branch, SHA, release, channel, or evidence claim denied
   x=>{x.g2c.autonomousReviewerExecuted=true;},
   x=>{x.g2c.source.repository='different/repo';},
   x=>{x.g2c.source.workflowRunId='123456';},
+  x=>{delete x.g2c.source.artifactPayloadSha256;},
+  x=>{x.g2c.source.artifactPayloadSha256='bad';},
+  x=>{delete x.g2c.release.manifestGitSha;},
+  x=>{x.g2c.release.manifestGitSha='bad';},
   x=>{x.release.origin='https://other.example';},
   x=>{x.release.hash='c'.repeat(64);},
  ];
