@@ -226,6 +226,14 @@ function inspect(
      (!Array.isArray(e.reasonCodes)||e.reasonCodes.length===0)){
     reasons.push('MISMATCH_WITHOUT_REASON_CODES');
   }
+  const inScopeReasons=new Set([
+    'INDEX_INTENT_HTTP_COVERAGE_MISMATCH',
+    'PRODUCT_NOINDEX_SAMPLE_UNVERIFIED',
+  ]);
+  if(e.verdict==='PRODUCTION_HTTP_MISMATCH' &&
+     e.reasonCodes.some(r=>!inScopeReasons.has(r))){
+    reasons.push('UNRELATED_SOURCE_GUARDRAIL_FAILURE');
+  }
 
   // The attested repository and commit are checked independently; no envelope
   // field alone is an authenticated source signature.
@@ -304,13 +312,16 @@ function inspect(
         typeof found.canonical!=='string'){
         unknown++;continue;
       }
-      if(found.status===200 &&
-         found.noindex===expectedNoindex &&
-         found.canonical===expectedCanonical(p)){
-        knownPass++;
-      }else{
-        knownBad++;
+      const passes=found.status===200 &&
+        found.noindex===expectedNoindex &&
+        found.canonical===expectedCanonical(p);
+      // A producer claiming "pass" despite different observed HTTP fields
+      // is a consistency error, not a legitimate clean observation.
+      if(typeof found.pass==='boolean' && found.pass!==passes){
+        reasons.push('PER_URL_CRAWLER_RECEIPT_CONFLICT');
       }
+      if(passes)knownPass++;
+      else knownBad++;
     }
     observation.observedCount=knownPass+knownBad;
     observation.confirmedPass=knownPass;
@@ -319,6 +330,10 @@ function inspect(
     if(unknown===0 && knownPass+knownBad===observation.denominator){
       observation.mismatchRate=knownBad/observation.denominator;
     }else reasons.push('UNKNOWN_HTTP_OBSERVATION_NOT_ZERO');
+  }
+  if(observation.confirmedMismatch>0 &&
+     e.verdict==='PRODUCTION_HTTP_OBSERVED'){
+    reasons.push('ENVELOPE_CLAIMS_PASS_BUT_HTTP_MISMATCHES');
   }
   const validSource=reasons.length===0;
   return {observation,reasons,validSource,
