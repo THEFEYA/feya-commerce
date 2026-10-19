@@ -186,3 +186,16 @@ export function buildMissionSnapshot(raw:MissionRaw):MissionSnapshot{
     historyOnly:true,liveAgentExecutionProven:false,
   };
 }
+
+/**
+ * UI-only case focus: never changes Case state, owner, or event history.
+ * Unknown case IDs fail closed instead of showing another Case's records.
+ */
+export function missionEventsForCase(
+  snapshot:Pick<MissionSnapshot,'cases'|'events'>,
+  caseId:string|null,
+):MissionEvent[]{
+  if(caseId===null)return snapshot.events;
+  if(!snapshot.cases.some(c=>c.id===caseId))return [];
+  return snapshot.events.filter(e=>e.caseId===caseId);
+}
