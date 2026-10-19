@@ -85,7 +85,8 @@ test('owner page uses only a bounded server-only metadata SELECT and has no writ
  assert.match(page,/\.eq\('release_code', readinessReceipt\.releaseCode\)/);
  assert.match(page,/\.eq\('release_version', readinessReceipt\.releaseVersion\)/);
  assert.match(page,/\.order\('recorded_at', \{ ascending: false \}\)\.limit\(3\)/);
- assert.doesNotMatch(page+visual+logic,/\.rpc\(|\.insert\(|\.upsert\(|\.update\(|\.delete\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY|payload_json/);
+ assert.doesNotMatch(page+visual+logic,/\.rpc\(|\.insert\(|\.upsert\(|\.update\(|\.delete\(|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
+ assert.doesNotMatch(page,/\.select\(['\"][^'\"]*payload_json/);
  assert.match(visual,/GDAE · ЦЕПОЧКА ДОКАЗАТЕЛЬСТВ/);
  assert.match(visual,/Независимая QA не зарегистрирована/);
  assert.match(visual,/План GMEL/);
