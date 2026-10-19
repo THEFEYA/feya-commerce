@@ -191,12 +191,13 @@ test('new attention summary only navigates to the original guarded queue, never 
   const page=readFileSync('app/admin/company/mission-control/page.tsx','utf8');
   const ui=readFileSync('components/admin/MissionControlClient.tsx','utf8');
   const css=readFileSync('components/admin/MissionControl.module.css','utf8');
-  assert.match(page, /\\.in\\('attention_status',\\['OPEN','ACKNOWLEDGED'\\]\\)/);
-  assert.match(page, /\\.order\\('created_at',\\{ascending:true\\}\\)\\.limit\\(3\\)/);
-  assert.match(ui, /snapshot\\.ownerAttention\\.items\\.map/);
-  assert.match(ui, /Состояние Owner Attention не подтверждено/);
-  assert.match(ui, /Открыть общую очередь/);
-  assert.match(css,/attentionBrief/);
-  assert.doesNotMatch(ui,/approveEverything|sendPayment|runModel|\\.insert\\(|\\.update\\(/);
+  assert.ok(page.includes(".in('attention_status',['OPEN','ACKNOWLEDGED'])"));
+  assert.ok(page.includes(".order('created_at',{ascending:true}).limit(3)"));
+  assert.ok(ui.includes('snapshot.ownerAttention.items.map'));
+  assert.ok(ui.includes('Состояние Owner Attention не подтверждено'));
+  assert.ok(ui.includes('Открыть общую очередь'));
+  assert.ok(css.includes('attentionBrief'));
+  for(const forbidden of ['approveEverything','sendPayment','runModel','.insert(','.update(']){
+    assert.ok(!ui.includes(forbidden),forbidden);
+  }
 });
-
