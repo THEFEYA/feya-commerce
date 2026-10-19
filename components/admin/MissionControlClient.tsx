@@ -123,7 +123,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
         <div>
           <strong>Ваше внимание</strong>
           <span>{snapshot.ownerAttention
-            ? snapshot.ownerAttention.total+' открытых записей Owner Attention'
+            ? 'Открытых вопросов в Owner Attention: '+snapshot.ownerAttention.total
             : 'Состояние Owner Attention не подтверждено'}</span>
         </div>
         <Link href="/admin/company/owner-attention">Открыть общую очередь →</Link>
