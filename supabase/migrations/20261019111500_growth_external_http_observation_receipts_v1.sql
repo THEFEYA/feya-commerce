@@ -127,11 +127,13 @@ BEGIN
   IF p_payload IS NULL OR jsonb_typeof(p_payload)<>'object'
     OR octet_length(p_payload::text)>262144
     OR p_payload->>'contract' IS DISTINCT FROM 'FEYA_GROWTH_HTTP_ARCHIVE_V1'
-    OR jsonb_typeof(v_source)<>'object'
-    OR jsonb_typeof(v_release)<>'object'
-    OR jsonb_typeof(v_g2c)<>'object'
-    OR jsonb_typeof(v_index_rows)<>'array'
-    OR jsonb_typeof(v_product_rows)<>'array'
+    OR (SELECT count(*) FROM jsonb_object_keys(p_payload))<>6
+    OR NOT(p_payload ?& ARRAY['contract','source','release','g2c','indexRows','productRows'])
+    OR jsonb_typeof(v_source) IS DISTINCT FROM 'object'
+    OR jsonb_typeof(v_release) IS DISTINCT FROM 'object'
+    OR jsonb_typeof(v_g2c) IS DISTINCT FROM 'object'
+    OR jsonb_typeof(v_index_rows) IS DISTINCT FROM 'array'
+    OR jsonb_typeof(v_product_rows) IS DISTINCT FROM 'array'
   THEN
     RAISE EXCEPTION 'GROWTH_HTTP_ARCHIVE_INVALID_CONTRACT';
   END IF;
@@ -143,7 +145,18 @@ BEGIN
   v_zip := v_source->>'zipSha256';
   v_release_hash := v_release->>'hash';
 
-  IF v_repo IS DISTINCT FROM 'THEFEYA/feya-commerce'
+  IF (SELECT count(*) FROM jsonb_object_keys(v_source))<>8
+    OR NOT(v_source ?& ARRAY['repository','event','ref','origin','runId',
+                             'artifactId','deploymentSha','zipSha256'])
+    OR (SELECT count(*) FROM jsonb_object_keys(v_release))<>5
+    OR NOT(v_release ?& ARRAY['id','code','version','hash','origin'])
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c))<>17
+    OR NOT(v_g2c ?& ARRAY['schema','verdict','evidenceLevel','origin','deploymentCommitSha',
+                            'release','observation','coverage','source','reasonCodes',
+                            'googleIndexationConfirmed','autonomousReviewerExecuted',
+                            'independentHumanQaConfirmed','fullProductNoindexCoverageConfirmed',
+                            'measuredBusinessOutcome','caseMutationAllowed','sourceHealthPromoted'])
+    OR v_repo IS DISTINCT FROM 'THEFEYA/feya-commerce'
     OR v_source->>'event' IS DISTINCT FROM 'push'
     OR v_source->>'ref' IS DISTINCT FROM 'refs/heads/main'
     OR v_source->>'origin' IS DISTINCT FROM 'https://thefeya.com'
@@ -167,7 +180,10 @@ BEGIN
     OR jsonb_array_length(v_g2c->'reasonCodes')<>0
     OR v_g2c->>'googleIndexationConfirmed' IS DISTINCT FROM 'false'
     OR v_g2c->>'independentHumanQaConfirmed' IS DISTINCT FROM 'false'
+    OR v_g2c->>'fullProductNoindexCoverageConfirmed' IS DISTINCT FROM 'false'
     OR v_g2c->>'autonomousReviewerExecuted' IS DISTINCT FROM 'false'
+    OR v_g2c#>>'{source,artifactPayloadSha256}' !~ '^[0-9a-f]{64}$'
+    OR v_g2c#>>'{release,manifestGitSha}' !~ '^[0-9a-f]{40}$'
     OR v_g2c->>'measuredBusinessOutcome' IS DISTINCT FROM 'false'
     OR v_g2c->>'caseMutationAllowed' IS DISTINCT FROM 'false'
     OR v_g2c->>'sourceHealthPromoted' IS DISTINCT FROM 'false'
@@ -250,7 +266,9 @@ BEGIN
     END IF;
     FOR v_item IN SELECT value FROM jsonb_array_elements(v_root) AS x(value) LOOP
       v_path:=v_item->>'path';
-      IF jsonb_typeof(v_item)<>'object'
+      IF jsonb_typeof(v_item) IS DISTINCT FROM 'object'
+        OR (SELECT count(*) FROM jsonb_object_keys(v_item))<>6
+        OR NOT(v_item ?& ARRAY['path','status','noindex','canonical','pass','error'])
         OR v_path IS NULL OR length(v_path)>450
         OR left(v_path,1)<>'/' OR left(v_path,2)='//'
         OR position('?' in v_path)>0 OR position('#' in v_path)>0
