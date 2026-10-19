@@ -74,6 +74,12 @@ export function explainGrowthCaseAndon(route:CaseRouteTruth):GrowthCaseAndon{
       nextAction:'Проверить условия существующего владельческого шлюза переходов.',
       actor:'Владелец'};
   }
+  if(route.caseStatus==='CLOSED'){
+    return {...base,state:'RECORDED',title:'Кейс завершён по записи Core',
+      explanation:'Закрытие кейса не подтверждает эффект или независимую QA, если их нет в источниках.',
+      nextAction:'Проверить результат и допуск к повторению в цикле Kaizen.',
+      actor:'Независимая проверка'};
+  }
   if((route.caseStatus==='ACTIONING'||route.caseStatus==='MEASURING')
     &&(route.measurement==='NO_PLAN'||route.measurement==='DRAFT_ONLY')){
     return {...base,state:'STOP',title:'Нельзя объявлять измеряемый эффект',
@@ -86,12 +92,6 @@ export function explainGrowthCaseAndon(route:CaseRouteTruth):GrowthCaseAndon{
       explanation:'Outcome ещё не зарегистрирован; срок не выводится из отсутствующих данных.',
       nextAction:'Получить наблюдения из проверенного источника и независимую QA.',
       actor:'Измерения'};
-  }
-  if(route.caseStatus==='CLOSED'){
-    return {...base,state:'RECORDED',title:'Кейс завершён по записи Core',
-      explanation:'Закрытие кейса не подтверждает эффект или независимую QA, если их нет в источниках.',
-      nextAction:'Проверить результат и допуск к повторению в цикле Kaizen.',
-      actor:'Независимая проверка'};
   }
   return {...base,state:'REVIEW',title:'Нужен следующий проверенный шаг',
     explanation:'Есть сохранённое состояние кейса, но оно недостаточно для безусловного продолжения.',
