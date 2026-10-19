@@ -82,3 +82,36 @@ Choose **existing SVG/CSS + local Case focus + mobile semantic list** over (a) n
 
 ### Verification / checkpoint
 Source links: GitHub issue #145, merged PR #174, draft #175 and #186, 12 Library CANONICAL docs (2026-09-18), source files listed above. Record PR/head + CI + browser review in #145 only when verified.
+
+## Owner visual review → Visual pass vNext-B (2026-10-19; PROPOSAL / NOT PRODUCTION)
+**Why:** Owner compared Draft Preview at 1440×900 with three 1672×941 visual references and observed that the delivered screen was still a functional engineering skeleton. Previous «vNext» wording implied visual readiness which had NOT been achieved. This pass is a bounded product/UX response, not another AI architecture.
+
+**ADR-MC-002 — proposed amendment to visual direction:** one inexpensive, useful visual pass now, with premium dark navy, restrained semantic neon, differentiated employee portraits and a real Office work view. Photoreal 3D/continuous agent animations and final character artwork remain DEFERRED until source proof and owner value justify them. The older Company Visual Contract prohibited cartoons implying sentient work; the Oct 18 visual references change the *presentation goal*, but not that anti-fake-activity principle or the CANONICAL Core permissions.
+
+### Confirmed problems in Owner's screenshots
+- Eight small generic role rectangles and weak visual hierarchy failed to express the approved command-center aesthetic.
+- «Офис» was only four decorative overlays on the same diagram, without independent owner use.
+- Right dossier exposed enum/codes but did not group business description, true cases and persisted handoffs by task.
+- History was source-real but visually generic; on small screens it could require horizontal swiping.
+- Reference concepts contain fictional AI activity, successes, SEO improvement and percentage outcomes: never copy these as Production facts.
+
+### Delivered design/functional scope in this Draft
+1. **Relationships:** visually distinct static, **potential** CANONICAL communication paths (dashed, optional) versus **saved, case-linked** handoffs (solid, grounded in event IDs). The former are explicitly labeled «Регламент, не событие». Focusing on a Case suppresses generalized structure edges.
+2. **Office:** a separate role roster, grouped by the eight CANONICAL responsibilities with real role modes and Case counts. The owner remains Human, distinct from logical AI roles. No fabricated running state.
+3. **Portraits:** tiny original CSS-vector robot/avatar treatment, role-specific discipline emblems and color. Role colors identify specializations, never activity or security status. No copyrighted third-party art, image model, package or AI API expense.
+4. **Role Room v1:** «Обзор» (mission, limits and real mode), «Задачи» (true Case/Attention links), «Связи» (persisted handoff records only). Every clickable item navigates existing guarded routes; not a launcher for agents.
+5. **Timeline:** semantic icon/dot color based on saved event kind and selected historical event. Animation only from explicit Replay, with reduced-motion override.
+6. **Mobile:** list by default, graph/Office when requested. Visual CSS scoped to Mission Control, public V13/Product OS unchanged.
+
+### Concrete action/data rules
+- Role, office and dossier-tab clicks update client view state only.
+- A static dashed link means «can communicate per passport», not «has communicated». No stored row/lease is synthesized.
+- History playback advances only verified past events; a stored workflow RUNNING label is *not* proof of a current AI invocation.
+- Case and owner links lead to existing server-authenticated details. The UI never runs execution, confirms approval, publishes SEO, changes price or grants permission.
+- Missing role facts, Case evidence, data freshness or outcomes remain UNKNOWN; no synthetic zero or ROI.
+- Existing seven bounded owner-safe reads remain the complete backend for this pass.
+
+### Engineering and release gate
+Scope: MissionControlClient, its CSS Module, pure missionRolePresentation metadata and its source-contract tests; no DB migration, additional endpoints, dependency, credentials, model calls, billing, indexation, payment or seller data write. Typecheck, Next build, owner-safe boundary, Search v12/207 PDP freeze and screen-width/keyboard tests required. PR #188 remains DRAFT until exact HEAD verified and separate Owner approval.
+**Acceptance:** owner can distinguish potential vs real handoff, meaningful Office vs graph, selected Role mission/limits, actual Cases, and next truthful action in both desktop and mobile; no visual element implies unverified current AI or commercial success.
+**Next, separate:** fuller Agent Room Data/Capabilities/History if owner-safe sources proven; contextual Case Route within existing Case page; optional 3D authored avatar assets after real operating value is verified. Business P0 remains recovery point, least-privilege issue #166, external Seller Online integration and proof archive #186.
