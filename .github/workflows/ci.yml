@@ -31,6 +31,9 @@ jobs:
       - name: Search policy simulations
         run: npm run test:search
 
+      - name: G2c external ZIP archive safety (no credentials)
+        run: python3 -m unittest discover -s tests/search-db -p 'test_growth_archive_zip_safety.py' -v
+
       - name: Approved catalog proposal evidence
         run: |
           node --experimental-strip-types scripts/audit-metadata-review.ts --check
@@ -60,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-case-transition-idempotency-intent, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-case-transition-idempotency-intent, growth-http-observation-durable-ledger, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
     services:
       postgres:
         image: postgres:17.6
@@ -169,6 +172,12 @@ jobs:
           PHASE13_REQUIRE_PUBLISHED_COPY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
         run: node tests/runtime/phase13-public-pdp-copy-smoke.mjs
 
+      # Production push must prove its exact deployed SHA + completed HTTP
+      # observations. Pull requests are labeled PR_SNAPSHOT_ONLY; neither
+      # status is an independent human QA or Google indexing verdict.
+      - name: Growth OS G2c independent-origin evidence envelope
+        run: node --experimental-strip-types scripts/verify-growth-g2c-origin-evidence.ts
+
       - name: Production crawl evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -180,4 +189,5 @@ jobs:
             runtime-results/phase13-production-revision-gate.json
             runtime-results/phase13-public-pdp-copy-postflight.json
             runtime-results/phase13-collection-origin-smoke.json
+            runtime-results/growth-g2c-origin-observation.json
           retention-days: 30
