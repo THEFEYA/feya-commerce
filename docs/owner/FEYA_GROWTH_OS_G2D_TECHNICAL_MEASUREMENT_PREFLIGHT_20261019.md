@@ -5,7 +5,7 @@
 ## 1. Существующие данные и обязательные границы
 
 - ACTIVE Search Release v12: 18 маршрутов с намерением index; 207 товаров в утверждённом каталоге. Последний исторический Production-обход проверил все 18 index-маршрутов и **выборку** 24 из 207 noindex-товаров.
-- Исторический архив 18 октября содержит только агрегат 24/24 и список путей, а не отдельные положительные HTTP-результаты. **Это не per-product baseline.** Такая точка станет возможной только после нового Production main-push выпуска G2c [PR #183](https://github.com/THEFEYA/feya-commerce/pull/183) с PER_PATH_CI_RECEIPT. Нельзя задним числом изобретать недостающие строки.
+- Первый настоящий Production main-push после уже выпущенного G2c [PR #183](https://github.com/THEFEYA/feya-commerce/pull/183) сохранил отдельные HTTP L0-наблюдения для **18 index URL и 24 из 207 noindex-товаров**. Оригинальный GitHub-артефакт №12155269341 и его SHA проверены независимо, кандидат архива воспроизведён. Приватная архивная схема уже установлена [PR #186](https://github.com/THEFEYA/feya-commerce/pull/186), но **записей в ней пока ноль**: source staging и независимое заверение ещё не разрешены. Одна точка не позволяет вывести тренд или причинность.
 - Таблицы `feya_growth_measurement_specs_v1` / `feya_growth_measurement_outcomes_v1` и service-only функция `feya_fn_lock_measurement_spec_v1` уже существуют. Реальные Spec/Outcome = 0/0, они в этом PR не изменяются.
 - В Metric Registry 14 определений, но **нет** `TSEO_HTTP_INTENT_MISMATCH_COUNT`. Это проект нового технического показателя. До отдельного утверждения GMEL (методология) и GDAE (источник/числитель/знаменатель/качество) он остаётся `METRIC_GOVERNANCE_REQUIRED`. Не подменять его `ORGANIC_CLICKS` или заказами.
 - GA4/Commerce и полный измерительный конвейер остаются недоступными. HTTP canonical/noindex — не факт индексации Google и не показатель выручки.
@@ -53,7 +53,7 @@ Preflight, получающий уже подтверждённые данные
 
 ## 5. Последовательность внедрения без разрушения архитектуры
 
-1. После отдельного owner release approval внедрить read-only G2c [PR #183](https://github.com/THEFEYA/feya-commerce/pull/183), получить настоящий **main Production** артефакт, проверить его подлинность через GitHub.
+1. G2c [PR #183](https://github.com/THEFEYA/feya-commerce/pull/183) и Production main-артефакт с индивидуальными HTTP-строками уже получены. Проверить неизменность источника, затем отдельно разрешить один staging L0 в существующее приватное хранилище; пока источник не заверен GDAE, система не должна считать его принятой baseline.
 2. GMEL и GDAE утверждают versioned definition для новой технической метрики с точной формулой и источником. Не менять существующие 14 метрик «вместо» неё.
 3. До любой технической правки задокументировать hypothesis, cohort path-hash, источники SHA/даты, freshness/window/sample policies, contamination/known unknowns, guardrail Search v12 + 207 PDP + V13, и потолок доказательности `L0_OBSERVATION`. Только отдельно одобренный owner action может создать реальный DRAFT и lock существующий Measurement Spec RPC.
 4. После отдельно одобренного исполнения и второго достоверного наблюдения GMEL/GDAE выполняют детерминированное сравнение, проверяют факторы и могут вернуть только подтверждаемое `INCONCLUSIVE`/`NOT_OBSERVABLE`/описательную разницу. Рост выручки/конверсии и причинность здесь не выводятся.
