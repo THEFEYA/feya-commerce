@@ -314,9 +314,7 @@ BEGIN
     v_sha,v_zip,v_release_row.release_id,v_release_row.release_code,
     v_release_row.release_version,v_release_hash,v_start,v_finish,
     v_index,v_product,v_expected_product,p_payload,v_digest
-  ) ON CONFLICT ON CONSTRAINT
-    feya_growth_external_http_observation_receipts_source_unique_v1
-    DO NOTHING
+  ) ON CONFLICT DO NOTHING
   RETURNING public.feya_growth_external_http_observation_receipts_v1.receipt_id INTO v_id;
 
   v_created := v_id IS NOT NULL;
