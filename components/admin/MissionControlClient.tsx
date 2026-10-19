@@ -190,11 +190,11 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     </section>
 
     <section className={styles.workspace} aria-label="Интерактивная карта Growth OS">
-      <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen)}>
+      <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen,mode==='office'&&styles.officeMode)}>
         <div className={styles.toolbar}>
           <div className={styles.switcher} role="group" aria-label="Режим просмотра команды">
             <button type="button" aria-pressed={mode==='graph'} onClick={()=>setMode('graph')}>Схема связей</button>
-            <button type="button" aria-pressed={mode==='office'} onClick={()=>setMode('office')}>Офис · задачи</button>
+            <button type="button" aria-pressed={mode==='office'} onClick={()=>{setMode('office');setPlaying(false)}}>Офис · задачи</button>
           </div>
           <label className={styles.casePicker}>
             Фокус кейса
