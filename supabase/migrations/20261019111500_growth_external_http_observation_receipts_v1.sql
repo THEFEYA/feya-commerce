@@ -182,7 +182,16 @@ BEGIN
     OR v_g2c->>'independentHumanQaConfirmed' IS DISTINCT FROM 'false'
     OR v_g2c->>'fullProductNoindexCoverageConfirmed' IS DISTINCT FROM 'false'
     OR v_g2c->>'autonomousReviewerExecuted' IS DISTINCT FROM 'false'
+    OR jsonb_typeof(v_g2c->'source') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c->'source'))<>6
+    OR NOT(v_g2c->'source' ?& ARRAY['repository','workflowRunId','gitEvent',
+                                   'gitRef','artifactPayloadSha256','sourceType'])
+    OR jsonb_typeof(v_g2c->'release') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c->'release'))<>5
+    OR NOT(v_g2c->'release' ?& ARRAY['id','code','version','hash','manifestGitSha'])
+    OR v_g2c#>>'{source,artifactPayloadSha256}' IS NULL
     OR v_g2c#>>'{source,artifactPayloadSha256}' !~ '^[0-9a-f]{64}$'
+    OR v_g2c#>>'{release,manifestGitSha}' IS NULL
     OR v_g2c#>>'{release,manifestGitSha}' !~ '^[0-9a-f]{40}$'
     OR v_g2c->>'measuredBusinessOutcome' IS DISTINCT FROM 'false'
     OR v_g2c->>'caseMutationAllowed' IS DISTINCT FROM 'false'
