@@ -1,5 +1,6 @@
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import type { CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
+import { explainGrowthCaseAndon } from '@/lib/owner-ui/growthCaseAndon';
 import {CircleCheck,Hourglass,ShieldAlert,Waypoints,Scale,ShieldCheck,ChartNoAxesCombined,Info} from 'lucide-react';
 import styles from './OwnerCaseRouteVisual.module.css';
 
@@ -38,6 +39,7 @@ const EVENT_LABELS: Record<CaseRouteTruth['timeline'][number]['kind'],string> = 
  */
 export function OwnerCaseRouteTruth({route}:{route:CaseRouteTruth}) {
   const consistent = route.eventContinuity === 'VERIFIED_LATEST';
+  const andon = explainGrowthCaseAndon(route);
   const stages = [
     {id:'case',name:'Бизнес-кейс',detail:statusLabel(route.caseStatus),
       state:route.caseStatus==='CLOSED'?'recorded':'current',icon:CircleCheck},
@@ -89,6 +91,31 @@ export function OwnerCaseRouteTruth({route}:{route:CaseRouteTruth}) {
         <p>Зелёная отметка говорит только о записи конкретного этапа.
           Независимая проверка и публикация не следуют из завершения workflow или согласования владельца.</p>
       </div>
+
+      <section className={styles.andonPanel} data-state={andon.state} aria-label="Контроль следующего шага">
+        <div className={styles.andonHead}>
+          <div className={styles.andonIndicator} aria-hidden="true">●</div>
+          <div>
+            <div className={styles.andonEyebrow}>КОНТРОЛЬ ПРОЦЕССА · TOYOTA / ANDON</div>
+            <h3>{andon.title}</h3>
+            <p>{andon.explanation}</p>
+          </div>
+        </div>
+        <div className={styles.andonNext}>
+          <strong>Следующий шаг</strong>
+          <span>{andon.nextAction}</span>
+          <small>Ответственный: {andon.actor}. Выполнение автоматически не запускается.</small>
+        </div>
+        <details className={styles.andonDetails}>
+          <summary>Что необходимо для продолжения</summary>
+          <div>
+            {andon.missing.length
+              ? <ul>{andon.missing.map(item=><li key={item}>{item}</li>)}</ul>
+              : <p>Отсутствие требований здесь не является подтверждением готовности к публикации.</p>}
+            <p>Уровень доказательств: только сохранённые события Case. Статусы и права повторно проверяются защищённым Core.</p>
+          </div>
+        </details>
+      </section>
 
       <div className={'owner-grid two '+styles.truthGrid} style={{marginTop:'12px'}}>
         <div className="owner-card">
