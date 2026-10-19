@@ -192,9 +192,9 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     <section className={styles.workspace} aria-label="Интерактивная карта Growth OS">
       <div className={joinClasses(styles.stageArea,mobileMap&&styles.mobileMapOpen)}>
         <div className={styles.toolbar}>
-          <div className={styles.switcher}>
-            <button type="button" aria-pressed={mode==='graph'} onClick={()=>setMode('graph')}>Схема</button>
-            <button type="button" aria-pressed={mode==='office'} onClick={()=>setMode('office')}>Офис</button>
+          <div className={styles.switcher} role="group" aria-label="Режим просмотра команды">
+            <button type="button" aria-pressed={mode==='graph'} onClick={()=>setMode('graph')}>Схема связей</button>
+            <button type="button" aria-pressed={mode==='office'} onClick={()=>setMode('office')}>Офис · задачи</button>
           </div>
           <label className={styles.casePicker}>
             Фокус кейса
@@ -215,68 +215,107 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
           </div>
         </div>
         <div className={styles.mobileRoster} role="group" aria-label="Список сотрудников FEYA">
-          {snapshot.roles.map(r=><button type="button" key={r.code}
-            aria-pressed={selected===r.code} onClick={()=>setSelected(r.code)}>
-            <strong>{r.label}</strong><span>{modeLabel[r.mode]||'Не подтверждён'}</span>
+          {snapshot.roles.map(r=><button type="button" key={r.code} data-role={r.code}
+            aria-pressed={selected===r.code} onClick={()=>selectRole(r.code)}>
+            <RolePortrait code={r.code}/>
+            <strong>{missionRolePresentation[r.code].name}</strong>
+            <span>{modeLabel[r.mode]||'Не подтверждён'}</span>
             <small>Открытых кейсов: {r.openCases}</small>
           </button>)}
-          <button type="button" aria-pressed={selected==='OWNER'} onClick={()=>setSelected('OWNER')}>
-            <strong>Владелец FEYA</strong><span>Решения человека</span>
+          <button type="button" data-role="OWNER" aria-pressed={selected==='OWNER'} onClick={()=>selectRole('OWNER')}>
+            <RolePortrait code="OWNER"/><strong>Владелец FEYA</strong><span>Решения человека</span>
           </button>
         </div>
+        {mode==='graph'?<>
         <div className={styles.stage} onPointerDown={startDrag} onPointerMove={moveDrag}
           onPointerUp={endDrag} onPointerCancel={endDrag}>
-          <div className={joinClasses(styles.scene,mode==='office'&&styles.office)}
+          <div className={styles.scene}
             style={{transform:'translate('+pan.x+'px,'+pan.y+'px) scale('+zoom+')'}}>
-            {mode==='office'?<div className={styles.rooms} aria-hidden="true">
-              <div>Стратегия / SEO</div><div>Контент / качество</div>
-              <div>Инженерия / данные</div><div>Коммерция / владелец</div>
-            </div>:null}
             <svg className={styles.lines} viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true">
-              <defs><marker id="mission-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto">
-                <path d="M0 0 L7 3.5 L0 7" fill="none" stroke="#b1a084" strokeWidth="1.4"/>
-              </marker></defs>
+              <defs>
+                <marker id="mission-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto">
+                  <path d="M0 0 L7 3.5 L0 7" fill="none" stroke="#78c9ff" strokeWidth="1.5"/>
+                </marker>
+                <marker id="mission-policy-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto">
+                  <path d="M0 0 L7 3.5 L0 7" fill="none" stroke="#62738f" strokeWidth="1"/>
+                </marker>
+              </defs>
+              {showPolicyLinks&&!caseFocus?missionOrganizationalLinks.map((link,i)=>
+                <path key={'policy-'+i} d={edgePath(coords[link.source],coords[link.target])}
+                  className={styles.policyConnection} markerEnd="url(#mission-policy-arrow)"/>):null}
               {edges.map(e=>{
                 const key=e.source+'>'+e.target;
                 const focused=highlighted===key;
                 return <path key={key} d={edgePath(coords[e.source],coords[e.target])}
                   className={joinClasses(styles.connection,focused&&styles.focusedLine,
                     focused&&playing&&motion&&styles.movingLine)}
-                  markerEnd="url(#mission-arrow)"/>;
+                  markerEnd="url(#mission-arrow)">
+                  <title>Сохранённая передача: {e.source} → {e.target}</title>
+                </path>;
               })}
             </svg>
             {snapshot.roles.map(r=>{
               const pt=coords[r.code];
               const focus=r.code===selected;
               const replay=(event?.source===r.code||event?.target===r.code)&&playing&&motion;
-              return <button key={r.code} type="button" aria-pressed={focus}
-                onClick={()=>setSelected(r.code)}
+              return <button key={r.code} type="button" aria-pressed={focus} data-role={r.code}
+                aria-label={missionRolePresentation[r.code].name+'. '+(modeLabel[r.mode]||'Режим неизвестен')+'. Открытых кейсов: '+r.openCases}
+                onClick={()=>selectRole(r.code)}
                 style={{left:(pt.x/10)+'%',top:(pt.y/6.5)+'%'}}
                 className={joinClasses(styles.agent,r.mode==='INACTIVE'&&styles.inactive,
                   focus&&styles.focused,replay&&styles.replayAgent,
                   caseFocus!==null&&!focusParticipants.has(r.code)&&styles.outsideFocus)}>
-                <span className={styles.symbol}>{r.code==='GROWTH_DIRECTOR'?'◆':r.code==='TSEO'?'⌘':'✦'}</span>
-                <span className={styles.agentTitle}>{r.label}</span>
-                <span className={styles.agentCode}>{r.code}</span>
+                <RolePortrait code={r.code}/>
+                <span className={styles.agentTitle}>{missionRolePresentation[r.code].name}</span>
+                <span className={styles.agentCode}>{missionRolePresentation[r.code].section}</span>
                 <span className={styles.agentStatus}>{modeLabel[r.mode]||'Режим неизвестен'}</span>
-                {r.runningWorkflows>0?<span className={styles.running}>RUNNING {r.runningWorkflows}</span>:null}
+                {r.openCases>0?<span className={styles.caseCount}>{r.openCases} открытых кейса</span>:null}
               </button>;
             })}
             <button type="button" aria-pressed={selected==='OWNER'}
-              onClick={()=>setSelected('OWNER')}
+              onClick={()=>selectRole('OWNER')} data-role="OWNER"
               className={joinClasses(styles.agent,styles.owner,selected==='OWNER'&&styles.focused,
                 caseFocus!==null&&!focusParticipants.has('OWNER')&&styles.outsideFocus)}
               style={{left:(coords.OWNER.x/10)+'%',top:(coords.OWNER.y/6.5)+'%'}}>
-              <span className={styles.symbol}>◎</span><span className={styles.agentTitle}>Владелец FEYA</span>
-              <span className={styles.agentCode}>HUMAN OWNER</span><span className={styles.agentStatus}>Реальные решения</span>
+              <RolePortrait code="OWNER"/><span className={styles.agentTitle}>Владелец FEYA</span>
+              <span className={styles.agentCode}>Руководитель</span><span className={styles.agentStatus}>Реальные решения</span>
             </button>
           </div>
           {!focusedEvents.length?<div className={styles.noHistory}>Нет подтверждённых событий для выбранного фокуса.</div>:null}
         </div>
         <div className={styles.stageFooter}>
-          <span>Перетащите свободное место карты · масштабирование кнопками</span>
+          <div className={styles.connectionLegend}>
+            <span className={styles.legendRecorded}>Сохранённые передачи</span>
+            <span className={styles.legendPotential}>Регламент, не событие</span>
+          </div>
+          <label><input type="checkbox" checked={showPolicyLinks} onChange={e=>setShowPolicyLinks(e.target.checked)}/>
+            Связи по паспортам</label>
           <label><input type="checkbox" checked={motion} onChange={e=>setMotion(e.target.checked)}/> Анимация истории</label>
         </div>
+        </>:<div className={styles.officeBoard}>
+          <div className={styles.officeIntro}>
+            <div><div className={styles.kicker}>ОФИС КОМАНДЫ</div>
+              <strong>Кто за что отвечает и какие кейсы закреплены</strong>
+              <p>Карточки показывают регистрацию ролей и сохранённые задачи. Это не карта живых AI-вызовов.</p></div>
+            <span>Режим: обзор команды</span>
+          </div>
+          <div className={styles.officeGrid}>
+            {snapshot.roles.map(r=><button key={r.code} type="button" data-role={r.code}
+              aria-pressed={selected===r.code} onClick={()=>selectRole(r.code)}
+              className={joinClasses(styles.officeDesk,r.mode==='INACTIVE'&&styles.inactive)}>
+              <RolePortrait code={r.code}/>
+              <strong>{missionRolePresentation[r.code].name}</strong>
+              <small>{missionRolePresentation[r.code].section}</small>
+              <span>{modeLabel[r.mode]||'Не подтверждено'}</span>
+              <em>{r.openCases? r.openCases+' открытых кейса':'Нет закреплённых открытых кейсов'}</em>
+            </button>)}
+          </div>
+          <button type="button" data-role="OWNER" aria-pressed={selected==='OWNER'}
+            className={styles.officeOwner} onClick={()=>selectRole('OWNER')}>
+            <RolePortrait code="OWNER"/>
+            <span><strong>Владелец FEYA</strong><small>Принимает решения, утверждает границы и приоритеты</small></span>
+          </button>
+        </div>}
       </div>
 
       <aside className={styles.dossier} aria-label="Досье выбранного участника">
