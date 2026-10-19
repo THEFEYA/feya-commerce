@@ -189,6 +189,29 @@ BEGIN
     OR jsonb_typeof(v_g2c->'release') IS DISTINCT FROM 'object'
     OR (SELECT count(*) FROM jsonb_object_keys(v_g2c->'release'))<>5
     OR NOT(v_g2c->'release' ?& ARRAY['id','code','version','hash','manifestGitSha'])
+    OR jsonb_typeof(v_g2c->'observation') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c->'observation'))<>2
+    OR NOT(v_g2c->'observation' ?& ARRAY['startedAt','finishedAt'])
+    OR jsonb_typeof(v_g2c->'coverage') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c->'coverage'))<>5
+    OR NOT(v_g2c->'coverage' ?& ARRAY['indexIntent','productNoindex','shop',
+                                   'collections','pdpCopySample'])
+    OR jsonb_typeof(v_g2c#>'{coverage,indexIntent}') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c#>'{coverage,indexIntent}'))<>2
+    OR NOT((v_g2c#>'{coverage,indexIntent}') ?& ARRAY['expected','verified'])
+    OR jsonb_typeof(v_g2c#>'{coverage,productNoindex}') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c#>'{coverage,productNoindex}'))<>6
+    OR NOT((v_g2c#>'{coverage,productNoindex}') ?&
+           ARRAY['expected','sampled','reportedPassed','perPathVerified','untested','proof'])
+    OR jsonb_typeof(v_g2c#>'{coverage,shop}') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c#>'{coverage,shop}'))<>2
+    OR NOT((v_g2c#>'{coverage,shop}') ?& ARRAY['expected','verified'])
+    OR jsonb_typeof(v_g2c#>'{coverage,collections}') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c#>'{coverage,collections}'))<>2
+    OR NOT((v_g2c#>'{coverage,collections}') ?& ARRAY['expected','verified'])
+    OR jsonb_typeof(v_g2c#>'{coverage,pdpCopySample}') IS DISTINCT FROM 'object'
+    OR (SELECT count(*) FROM jsonb_object_keys(v_g2c#>'{coverage,pdpCopySample}'))<>2
+    OR NOT((v_g2c#>'{coverage,pdpCopySample}') ?& ARRAY['expected','verified'])
     OR v_g2c#>>'{source,artifactPayloadSha256}' IS NULL
     OR v_g2c#>>'{source,artifactPayloadSha256}' !~ '^[0-9a-f]{64}$'
     OR v_g2c#>>'{release,manifestGitSha}' IS NULL
@@ -226,6 +249,7 @@ BEGIN
     OR v_release_row.release_code IS DISTINCT FROM v_release->>'code'
     OR v_release_row.release_version IS DISTINCT FROM (v_release->>'version')::integer
     OR v_release_row.release_hash IS DISTINCT FROM v_release_hash
+    OR v_release_row.git_sha IS DISTINCT FROM v_g2c#>>'{release,manifestGitSha}'
     OR v_release_row.target_origin IS DISTINCT FROM 'https://thefeya.com'
   THEN
     RAISE EXCEPTION 'GROWTH_HTTP_ARCHIVE_RELEASE_NOT_CURRENT';
@@ -247,6 +271,7 @@ BEGIN
     OR v_g2c#>>'{coverage,indexIntent,verified}' IS DISTINCT FROM v_index::text
     OR v_g2c#>>'{coverage,productNoindex,expected}' IS DISTINCT FROM v_expected_product::text
     OR v_g2c#>>'{coverage,productNoindex,sampled}' IS DISTINCT FROM v_product::text
+    OR v_g2c#>>'{coverage,productNoindex,reportedPassed}' IS DISTINCT FROM v_product::text
     OR v_g2c#>>'{coverage,productNoindex,perPathVerified}' IS DISTINCT FROM v_product::text
     OR v_g2c#>>'{coverage,productNoindex,untested}' IS DISTINCT FROM (v_expected_product-v_product)::text
     OR v_g2c#>>'{coverage,productNoindex,proof}' IS DISTINCT FROM 'PER_PATH_CI_RECEIPT'
