@@ -31,6 +31,9 @@ jobs:
       - name: Search policy simulations
         run: npm run test:search
 
+      - name: G2c external ZIP archive safety (no credentials)
+        run: python3 -m unittest discover -s tests/search-db -p 'test_growth_archive_zip_safety.py' -v
+
       - name: Approved catalog proposal evidence
         run: |
           node --experimental-strip-types scripts/audit-metadata-review.ts --check
