@@ -17,6 +17,8 @@ test('G2a uses existing protected owner work route and current Core tables only'
   assert.match(detail,/feya_growth_measurement_specs_v1/);
   assert.match(detail,/feya_growth_measurement_outcomes_v1/);
   assert.match(detail,/projectGrowthCaseRoute\(/);
+  assert.match(detail,/projectGdaeArchiveForCase\(/);
+  assert.match(detail,/<OwnerGdaeArchivedEvidence gate={gdaeArchive} route={caseRoute \|\| null} \/>/);
   assert.match(detail,/<OwnerCaseRouteTruth route={caseRoute}/);
   assert.doesNotMatch(detail+logic+presentation,/\.rpc\(|\.insert\(|\.update\(|\.delete\(|\.upsert\(/);
   assert.doesNotMatch(detail+logic+presentation,/SUPABASE_SERVICE_ROLE_KEY|CRON_SECRET|FEYA_GSC_OAUTH_REFRESH_TOKEN|OPENAI_API_KEY/);
