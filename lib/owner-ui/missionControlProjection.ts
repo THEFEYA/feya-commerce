@@ -207,7 +207,7 @@ export type MissionOwnerAttentionSummary={
   items:Array<{
     id:string;
     priority:'P0'|'P1'|'P2'|'P3'|'UNKNOWN';
-    title:string;
+    title:string;sourceCode:string;
     status:'OPEN'|'ACKNOWLEDGED';
   }>;
 };
@@ -232,6 +232,7 @@ export function projectMissionOwnerAttention(
       id,status,
       priority:/^P[0-3]$/.test(priority)?priority as 'P0'|'P1'|'P2'|'P3':'UNKNOWN',
       title:string(row.title,125)||'Вопрос без названия',
+      sourceCode:string(row.source_code,90),
     });
   }
   return {total:count,items};
