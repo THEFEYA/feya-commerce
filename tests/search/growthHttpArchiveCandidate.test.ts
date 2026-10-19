@@ -16,11 +16,11 @@ function fixture(){
   crawl:{
    contract:'phase12_production_origin_crawl_evidence_v3',
    origin:'https://thefeya.com',release:manifest.release,
-   indexCandidates:ix.map(path=>({
+   indexCandidates:ix.map((path:string)=>({
     path,status:200,noindex:false,canonical:'https://thefeya.com'+path,
     pass:true,error:null,
    })),
-   productNoindex:{observations:product.map(path=>({
+   productNoindex:{observations:product.map((path:string)=>({
     path,status:200,noindex:true,canonical:'https://thefeya.com'+path,
     pass:true,error:null,
    }))},
@@ -59,7 +59,7 @@ test('real Search Release v12 fixture yields exact 18 / 24 URL evidence with 183
  assert.equal(x.payload.contract,'FEYA_GROWTH_HTTP_ARCHIVE_V1');
  assert.equal(x.payload.indexRows.length,18);
  assert.equal(x.payload.productRows.length,24);
- assert.equal(x.payload.g2c.coverage.productNoindex.untested,183);
+ assert.equal((x.payload.g2c.coverage as {productNoindex:{untested:number}}).productNoindex.untested,183);
  assert.equal(x.payload.source.runId,run);
  assert.equal(x.payload.source.zipSha256,zipSha);
  assert.match(x.candidateUtf8Sha256,/^[a-f0-9]{64}$/);
@@ -76,7 +76,7 @@ test('same input generates deterministic offline digest, not a trusted signature
  assert.notEqual(a.candidateUtf8Sha256,d.candidateUtf8Sha256);
 });
 test('preview run, fake origin and fake Google indexation or human review are refused',()=>{
- const cases=[
+ const cases:Array<(x:any)=>void>=[
   x=>{x.g2c.source.gitEvent='pull_request';},
   x=>{x.g2c.source.gitRef='refs/pull/185/merge';},
   x=>{x.g2c.source.repository='FORK/feya-commerce';},
@@ -91,7 +91,7 @@ test('preview run, fake origin and fake Google indexation or human review are re
   assert.throws(()=>buildGrowthHttpArchiveCandidate(x,ref));}
 });
 test('partial, duplicate, wrong canonical or timed-out rows cannot be archived as success',()=>{
- const cases=[
+ const cases:Array<(x:any)=>void>=[
   x=>{x.crawl.productNoindex.observations.pop();},
   x=>{x.crawl.indexCandidates[0].canonical='https://thefeya.com/wrong';},
   x=>{x.crawl.productNoindex.observations[0].status=404;},
