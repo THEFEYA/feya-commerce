@@ -112,6 +112,15 @@ test('the Case route uses existing real snapshots, detailed steps and bounded ow
   assert.doesNotMatch(route,/\.insert\(|\.update\(|\.rpc\(|setInterval\(|OPENAI_API_KEY/);
 });
 
+test('the visual graph is the first main working surface, summary does not displace it below the fold',()=>{
+  const cockpit=ui.indexOf('className={join(styles.workspace,');
+  const summary=ui.indexOf('className={styles.commandStats}');
+  const timeline=ui.indexOf('className={styles.timeline}');
+  assert.ok(cockpit>0 && summary>cockpit && timeline>cockpit);
+  assert.ok(ui.includes('Решения: {caseAttention'));
+  assert.ok(css.includes('Owner screenshot acceptance: graph-first fold'));
+});
+
 test('the command center filters exact saved timelines and takes no privileged actions',()=>{
   assert.ok(ui.includes("['7d','7 дней']"));
   assert.ok(ui.includes("['10d','10 дней']"));

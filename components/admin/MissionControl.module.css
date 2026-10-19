@@ -652,3 +652,18 @@
  .routeAlternatives{grid-template-columns:minmax(0,1fr);}
  .routeMapArrow{display:none;}}
 
+/* Owner screenshot acceptance: graph-first fold instead of KPI wall above it. */
+.commandHead{min-height:48px;padding:4px 12px;}
+.commandIdentity h1{font-size:21px;}
+.commandEyebrow{font-size:8px;}
+.commandHeadRight a{min-height:32px;padding:6px 9px;}
+.topModes{min-height:46px;padding:4px 8px;}
+.topModes button{min-height:35px;}
+.toolbar{min-height:45px;padding:6px 10px;}
+.graphStatusRow{min-height:32px;padding:5px 11px;}
+.stage{min-height:550px;height:550px;}
+.commandStats{margin-top:2px;}
+.attentionCompact{margin-top:0;}
+@media(max-width:1220px){.stage{min-height:545px;height:545px;}}
+@media(max-width:680px){.stage{min-height:510px;height:510px;}}
+

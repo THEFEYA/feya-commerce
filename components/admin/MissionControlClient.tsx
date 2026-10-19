@@ -177,6 +177,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
       </div>
       <div className={styles.commandHeadRight}>
         <span className={styles.sourceStatus}><Eye size={14}/> Сохранённые данные · не прямой эфир</span>
+        <Link href="/admin/company/owner-attention"><ShieldCheck size={15}/> Решения: {caseAttention===undefined?'—':caseAttention}</Link>
         <Link href="/admin/company/work"><BriefcaseBusiness size={15}/> Все кейсы</Link>
         <Link href="/admin/roles"><Settings2 size={15}/> Права</Link>
       </div>
@@ -193,59 +194,6 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
         onClick={()=>document.getElementById('feya-mission-history')?.scrollIntoView({behavior:'smooth',block:'start'})}>
         <Clock3 size={17}/> История и фильтры</button>
     </div>
-
-    <section className={styles.commandStats} aria-label="Подтверждённое состояние">
-      <button type="button" onClick={()=>{setMode('office');setRoleFilter('all')}}>
-        <Users size={21}/><strong>{snapshot.roles.length}</strong><span>Ролей FEYA</span>
-      </button>
-      <button type="button" onClick={()=>{setMode('office');setRoleFilter('shadow')}}>
-        <Activity size={20}/><strong>{shadowCount}</strong><span>В наблюдении</span>
-      </button>
-      <button type="button" onClick={()=>openCaseRoute()}>
-        <BriefcaseBusiness size={20}/><strong>{snapshot.totalOpenCases}</strong><span>Открытых кейсов</span>
-      </button>
-      <button type="button" onClick={()=>setOpenAttention(v=>!v)}>
-        <ShieldCheck size={21}/><strong>{caseAttention===undefined?'—':caseAttention}</strong>
-        <span>Вопросы владельцу</span>
-      </button>
-      <button type="button" onClick={()=>{setMode('graph');setShowPolicyLinks(false)}}>
-        <GitBranch size={21}/><strong>{historicalHandoffs}</strong><span>Передачи между ролями</span>
-      </button>
-    </section>
-    <div className={styles.attentionCompact}>
-      <div><span className={styles.attentionDot}/>
-        <strong>Мои решения</strong>
-        <span>{snapshot.ownerAttention
-          ?'Открытых вопросов: '+snapshot.ownerAttention.total
-          :'Состояние Owner Attention не подтверждено'}</span>
-      </div>
-      <div className={styles.attentionCompactActions}>
-        {snapshot.ownerAttention?.items.slice(0,2).map(item=>
-          <Link key={item.id} href={'/admin/company/owner-attention/'+item.id}>
-            <b>{item.priority}</b> {signalCopy(item.sourceCode,{title:item.title}).title} <ArrowRight size={13}/>
-          </Link>)}
-        <button type="button" aria-expanded={openAttention} onClick={()=>setOpenAttention(v=>!v)}>
-          {openAttention?'Свернуть':'Подробнее'} <ChevronRight size={13}/>
-        </button>
-      </div>
-    </div>
-    {openAttention?<section className={styles.attentionBrief} aria-label="Вопросы, ожидающие владельца">
-      <div className={styles.attentionBriefHead}><strong>Ваше внимание</strong>
-        <Link href="/admin/company/owner-attention">Открыть общую очередь →</Link></div>
-      {snapshot.ownerAttention?.items.length
-        ?<div className={styles.attentionBriefItems}>
-          {snapshot.ownerAttention.items.map(item=><Link key={item.id}
-            href={'/admin/company/owner-attention/'+item.id} className={styles.attentionBriefItem}>
-            <span>{item.priority} · {item.status==='OPEN'?'Ждёт решения':'На рассмотрении'}</span>
-            <strong>{signalCopy(item.sourceCode,{title:item.title}).title}</strong>
-            <small>Открыть вопрос <ArrowRight size={12}/></small>
-          </Link>)}
-        </div>
-        :<p className={styles.attentionBriefEmpty}>
-          {snapshot.ownerAttention===null||snapshot.ownerAttention===undefined
-            ?'Данные очереди недоступны. Откройте «Мои решения» напрямую.'
-            :'Сейчас подтверждённых открытых записей в этой очереди нет.'}</p>}
-    </section>:null}
 
     <div className={join(styles.workspace,inspectorExpanded&&styles.inspectorExpanded,mode==='case'&&styles.caseWorkspace)}>
       <section className={join(styles.stageArea,mode==='office'&&styles.officeMode,mode==='case'&&styles.caseMode,
@@ -480,6 +428,59 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
         <button type="button" onClick={()=>window.location.reload()}><RotateCcw size={14}/> Обновить</button>
       </div>
     </section>
+    <section className={styles.commandStats} aria-label="Подтверждённое состояние">
+      <button type="button" onClick={()=>{setMode('office');setRoleFilter('all')}}>
+        <Users size={21}/><strong>{snapshot.roles.length}</strong><span>Ролей FEYA</span>
+      </button>
+      <button type="button" onClick={()=>{setMode('office');setRoleFilter('shadow')}}>
+        <Activity size={20}/><strong>{shadowCount}</strong><span>В наблюдении</span>
+      </button>
+      <button type="button" onClick={()=>openCaseRoute()}>
+        <BriefcaseBusiness size={20}/><strong>{snapshot.totalOpenCases}</strong><span>Открытых кейсов</span>
+      </button>
+      <button type="button" onClick={()=>setOpenAttention(v=>!v)}>
+        <ShieldCheck size={21}/><strong>{caseAttention===undefined?'—':caseAttention}</strong>
+        <span>Вопросы владельцу</span>
+      </button>
+      <button type="button" onClick={()=>{setMode('graph');setShowPolicyLinks(false)}}>
+        <GitBranch size={21}/><strong>{historicalHandoffs}</strong><span>Передачи между ролями</span>
+      </button>
+    </section>
+    <div className={styles.attentionCompact}>
+      <div><span className={styles.attentionDot}/>
+        <strong>Мои решения</strong>
+        <span>{snapshot.ownerAttention
+          ?'Открытых вопросов: '+snapshot.ownerAttention.total
+          :'Состояние Owner Attention не подтверждено'}</span>
+      </div>
+      <div className={styles.attentionCompactActions}>
+        {snapshot.ownerAttention?.items.slice(0,2).map(item=>
+          <Link key={item.id} href={'/admin/company/owner-attention/'+item.id}>
+            <b>{item.priority}</b> {signalCopy(item.sourceCode,{title:item.title}).title} <ArrowRight size={13}/>
+          </Link>)}
+        <button type="button" aria-expanded={openAttention} onClick={()=>setOpenAttention(v=>!v)}>
+          {openAttention?'Свернуть':'Подробнее'} <ChevronRight size={13}/>
+        </button>
+      </div>
+    </div>
+    {openAttention?<section className={styles.attentionBrief} aria-label="Вопросы, ожидающие владельца">
+      <div className={styles.attentionBriefHead}><strong>Ваше внимание</strong>
+        <Link href="/admin/company/owner-attention">Открыть общую очередь →</Link></div>
+      {snapshot.ownerAttention?.items.length
+        ?<div className={styles.attentionBriefItems}>
+          {snapshot.ownerAttention.items.map(item=><Link key={item.id}
+            href={'/admin/company/owner-attention/'+item.id} className={styles.attentionBriefItem}>
+            <span>{item.priority} · {item.status==='OPEN'?'Ждёт решения':'На рассмотрении'}</span>
+            <strong>{signalCopy(item.sourceCode,{title:item.title}).title}</strong>
+            <small>Открыть вопрос <ArrowRight size={12}/></small>
+          </Link>)}
+        </div>
+        :<p className={styles.attentionBriefEmpty}>
+          {snapshot.ownerAttention===null||snapshot.ownerAttention===undefined
+            ?'Данные очереди недоступны. Откройте «Мои решения» напрямую.'
+            :'Сейчас подтверждённых открытых записей в этой очереди нет.'}</p>}
+    </section>:null}
+
   </div>;
 }
 function InfoIcon(){return <span aria-hidden="true">i</span>;}
