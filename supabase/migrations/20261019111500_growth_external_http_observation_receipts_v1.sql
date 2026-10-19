@@ -193,14 +193,15 @@ BEGIN
   FROM public.feya_search_releases_v1 r
   WHERE r.release_id=(v_release->>'id')::uuid
   FOR SHARE;
+  -- Archiving historical L0 observations must remain possible after
+  -- the approved release is RETIRED. This does not make those observations
+  -- admissible as current ACTIVE-release evidence for an agent/GMEL.
   IF NOT FOUND
-    OR v_release_row.release_status IS DISTINCT FROM 'ACTIVE'
+    OR v_release_row.release_status NOT IN ('ACTIVE','RETIRED')
     OR v_release_row.release_code IS DISTINCT FROM v_release->>'code'
     OR v_release_row.release_version IS DISTINCT FROM (v_release->>'version')::integer
     OR v_release_row.release_hash IS DISTINCT FROM v_release_hash
     OR v_release_row.target_origin IS DISTINCT FROM 'https://thefeya.com'
-    OR (SELECT count(*) FROM public.feya_search_releases_v1 r
-        WHERE r.release_status='ACTIVE')<>1
   THEN
     RAISE EXCEPTION 'GROWTH_HTTP_ARCHIVE_RELEASE_NOT_CURRENT';
   END IF;
