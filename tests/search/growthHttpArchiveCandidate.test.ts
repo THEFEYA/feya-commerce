@@ -33,7 +33,8 @@ function fixture(){
    schema:'FEYA_GROWTH_G2C_HTTP_OBSERVATION_V1',
    verdict:'PRODUCTION_HTTP_OBSERVED',evidenceLevel:'L0_OBSERVATION',
    origin:'https://thefeya.com',deploymentCommitSha:commit,
-   release:{id,code:manifest.release.code,version:12,hash},
+   release:{id,code:manifest.release.code,version:12,hash,
+    manifestGitSha:manifest.release.gitSha},
    observation:{startedAt:'2026-10-19T00:28:28.098Z',
      finishedAt:'2026-10-19T00:28:39.990Z'},
    coverage:{
