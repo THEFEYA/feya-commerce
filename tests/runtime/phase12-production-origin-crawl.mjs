@@ -32,6 +32,9 @@ const result={
     samplePaths:productNoindexSamplePaths,
     checked:0,
     passed:0,
+    // Per-path external HTTP evidence for future versioned technical measurement.
+    // No additional fetches, no raw HTML or credentials.
+    observations:[],
     failed:[]
   },
   utilityNoindex:[],
@@ -302,6 +305,14 @@ for(const item of manifest.retiredRedirects){
 const productEntries=await mapLimit(productNoindexSamplePaths,8,async path=>checkNoindexPath(path));
 for(const entry of productEntries){
   result.productNoindex.checked++;
+  result.productNoindex.observations.push({
+    path:entry.path,
+    status:entry.status??null,
+    noindex:entry.noindex??null,
+    canonical:entry.canonical??null,
+    pass:entry.pass===true,
+    error:entry.error??null,
+  });
   if(entry.pass)result.productNoindex.passed++;
   else{
     result.productNoindex.failed.push(entry);
