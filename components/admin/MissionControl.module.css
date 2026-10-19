@@ -227,7 +227,7 @@
 }
 .mobileMapToggle,.mobileRoster{display:none;}
 .agent.outsideFocus{opacity:.28;}
-.agent.outsideFocus:hover,.agent.outsideFocus:focus-visible{opacity:1;}
+.agent.outsideFocus:hover,.agent.outsideFocus:focus-visible,.agent.outsideFocus.focused{opacity:1;}
 @media(max-width:680px){
   .toolbar{flex-wrap:wrap;gap:9px;}
   .casePicker{order:3;flex:1 1 100%;justify-content:space-between;}
@@ -263,6 +263,11 @@
   .stageArea:not(.mobileMapOpen) .switcher{display:none;}
   .stageArea.mobileMapOpen .mobileRoster{display:none;}
   .ownerShortcuts span{margin-left:0;flex:1 1 100%;}
+  .rail{
+    display:grid;grid-template-columns:minmax(0,1fr);
+    max-height:390px;overflow-x:hidden;overflow-y:auto;
+  }
+  .eventButton{flex:auto;min-height:74px;}
 }
 @media(max-width:390px){
   .mobileRoster{grid-template-columns:minmax(0,1fr);}
