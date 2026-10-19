@@ -70,21 +70,12 @@ export default async function MissionControlPage(){
   await connection();
   const snapshot=await getSnapshot();
   return <main className="owner-page"><div className="owner-page-inner">
-    <header className="owner-page-head">
-      <div>
-        <div className="owner-eyebrow">FEYA · Growth OS / визуальный командный центр</div>
-        <h1>Mission Control</h1>
-        <p>Восемь ролей, реальные передачи и история решений. Это визуализация существующих данных, а не новый исполнитель AI.</p>
-      </div>
-      <div className="owner-actions" style={{marginTop:0}}>
-        <Link href="/admin/company/work" className="owner-button">К списку задач</Link>
-        <Link href="/admin/roles" className="owner-button">Роли и права</Link>
-      </div>
-    </header>
     {snapshot?<MissionControlClient snapshot={snapshot}/>:(
       <section className="owner-card is-warning" role="status">
-        <h2 className="owner-card-title">Данные команды временно недоступны</h2>
-        <p className="owner-card-copy">Нет подтверждённого чтения owner-safe источников. Не показываем выдуманную работу, граф и цифры.</p>
+        <h1 className="owner-card-title">Командный центр недоступен</h1>
+        <p className="owner-card-copy">Нет подтверждённого чтения owner-safe источников.
+          Мы не показываем предполагаемую работу, выдуманные задачи и метрики.</p>
+        <Link href="/admin/company/work">Вернуться к задачам</Link>
       </section>
     )}
   </div></main>;
