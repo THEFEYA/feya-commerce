@@ -601,7 +601,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                     <strong>{role.availableCapabilityCount}/{role.requiredCapabilityCount}</strong>
                     <small>{hasLimits ? `${role.blockedCapabilityCount} ограничений` : role.autonomyLabel}</small>
                   </div>
-                  <div className="owner-team-roster-action">
+                  <div className="owner-team-roster-action" style={{display:'flex',alignItems:'center',justifyContent:'flex-end',flexWrap:'wrap',gap:6}}>
                     <Link href={missionControlHref({role:role.code})}
                       className="owner-button owner-button-arrow"
                       aria-label={'Показать агента '+role.name+' на схеме'}>
