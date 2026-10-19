@@ -275,6 +275,15 @@ BEGIN
     OR v_g2c#>>'{coverage,productNoindex,perPathVerified}' IS DISTINCT FROM v_product::text
     OR v_g2c#>>'{coverage,productNoindex,untested}' IS DISTINCT FROM (v_expected_product-v_product)::text
     OR v_g2c#>>'{coverage,productNoindex,proof}' IS DISTINCT FROM 'PER_PATH_CI_RECEIPT'
+    OR v_g2c#>>'{coverage,shop,expected}' IS NULL
+    OR v_g2c#>>'{coverage,shop,expected}' !~ '^[1-9][0-9]{0,2}$'
+    OR v_g2c#>>'{coverage,shop,expected}' IS DISTINCT FROM v_g2c#>>'{coverage,shop,verified}'
+    OR v_g2c#>>'{coverage,collections,expected}' IS NULL
+    OR v_g2c#>>'{coverage,collections,expected}' !~ '^[1-9][0-9]{0,2}$'
+    OR v_g2c#>>'{coverage,collections,expected}' IS DISTINCT FROM v_g2c#>>'{coverage,collections,verified}'
+    OR v_g2c#>>'{coverage,pdpCopySample,expected}' IS NULL
+    OR v_g2c#>>'{coverage,pdpCopySample,expected}' !~ '^[1-9][0-9]{0,2}$'
+    OR v_g2c#>>'{coverage,pdpCopySample,expected}' IS DISTINCT FROM v_g2c#>>'{coverage,pdpCopySample,verified}'
   THEN
     RAISE EXCEPTION 'GROWTH_HTTP_ARCHIVE_COVERAGE_INVALID';
   END IF;
