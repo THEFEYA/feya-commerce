@@ -199,8 +199,6 @@ function inspect(
   const sourceIndex=source.indexIntentPaths,sourceProduct=source.productNoindexManifestPaths;
   const cohortPaths=cohort==='ALL_INDEX_INTENT_URLS'
     ?sourceIndex:source.productNoindexSamplePaths;
-  const authorizedCohort=cohort==='ALL_INDEX_INTENT_URLS'
-    ?liveIndex:source.productNoindexSamplePaths;
   if(!uniqueValid(cohortPaths) ||
      !identicalPaths(sourceIndex,liveIndex) ||
      !identicalPaths(sourceProduct,liveProduct) ||
@@ -224,6 +222,10 @@ function inspect(
     sourceIndex.length===e.coverage.indexIntent.expected&&
     sourceProduct.length===e.coverage.productNoindex.expected;
   if(!releaseValid)reasons.push('G2C_ENVELOPE_OR_LIVE_AUTHORITY_INVALID');
+  if(e.verdict==='PRODUCTION_HTTP_MISMATCH' &&
+     (!Array.isArray(e.reasonCodes)||e.reasonCodes.length===0)){
+    reasons.push('MISMATCH_WITHOUT_REASON_CODES');
+  }
 
   // The attested repository and commit are checked independently; no envelope
   // field alone is an authenticated source signature.
