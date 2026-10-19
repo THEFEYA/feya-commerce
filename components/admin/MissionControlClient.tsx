@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import {useEffect,useMemo,useRef,useState,type PointerEvent as ReactPointerEvent} from 'react';
-import {ArrowLeft,ArrowRight,Pause,Play,RotateCcw,ZoomIn,ZoomOut} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Pause,Play,RotateCcw,ZoomIn,ZoomOut,Crown,Search,FileText,ShieldCheck,Code2,BarChart3,Database,ShoppingBag,UserRound} from 'lucide-react';
+import {missionRolePresentation,missionOrganizationalLinks,missionAutonomyLabel} from '@/lib/owner-ui/missionRolePresentation';
 import {missionEventsForCase,type MissionSnapshot,type MissionRoleCode} from '@/lib/owner-ui/missionControlProjection';
 import styles from './MissionControl.module.css';
 
@@ -29,6 +30,29 @@ function edgePath(from:Point,to:Point){
 }
 const joinClasses=(...s:Array<string|false|undefined>)=>s.filter(Boolean).join(' ');
 
+const specialtyIcons={
+  GROWTH_DIRECTOR:Crown,OSPM:Search,SCO:FileText,CQA:ShieldCheck,
+  TSEO:Code2,GMEL:BarChart3,GDAE:Database,CPIM:ShoppingBag,OWNER:UserRound,
+};
+
+/** Lightweight locally rendered avatar: presentation, not a model/run status. */
+function RolePortrait({code}:{code:MissionRoleCode|'OWNER'}){
+  const Specialty=specialtyIcons[code];
+  return <span className={joinClasses(styles.portrait,code==='OWNER'&&styles.humanPortrait)}
+    aria-hidden="true" data-role={code}>
+    {code==='OWNER'
+      ? <span className={styles.humanFace}><Specialty size={27} strokeWidth={1.7}/></span>
+      : <>
+          <span className={styles.botAntenna}/>
+          <span className={styles.botHead}>
+            <span className={styles.botVisor}><i/><i/></span>
+          </span>
+          <span className={styles.botBody}><Specialty size={14} strokeWidth={2}/></span>
+        </>}
+  </span>;
+}
+
+
 export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   const [mode,setMode]=useState<'graph'|'office'>('graph');
   const [zoom,setZoom]=useState(1);
@@ -39,6 +63,8 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   const [motion,setMotion]=useState(true);
   const [caseFocus,setCaseFocus]=useState<string|null>(null);
   const [mobileMap,setMobileMap]=useState(false);
+  const [showPolicyLinks,setShowPolicyLinks]=useState(true);
+  const [dossierTab,setDossierTab]=useState<'overview'|'cases'|'links'>('overview');
   const drag=useRef<{id:number;x:number;y:number;start:Point}|null>(null);
   const focusedCase=snapshot.cases.find(c=>c.id===caseFocus)||null;
   const focusedEvents=useMemo(()=>missionEventsForCase(snapshot,caseFocus),[snapshot,caseFocus]);
@@ -60,6 +86,9 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   const event=focusedEvents[step]||null;
   const selectedRole=snapshot.roles.find(r=>r.code===selected);
   const relatedCases=snapshot.cases.filter(c=>c.owner===selected&&(!caseFocus||c.id===caseFocus));
+  const selectedMeta=selected==='OWNER'?null:missionRolePresentation[selected];
+  const relevantHandoffs=focusedEvents.filter(e=>e.kind==='handoff'
+    &&(e.source===selected||e.target===selected));
   const focusParticipants=new Set<MissionRoleCode|'OWNER'>();
   if(focusedCase)focusParticipants.add(focusedCase.owner);
   focusedEvents.forEach(e=>{focusParticipants.add(e.source);if(e.target)focusParticipants.add(e.target);});
@@ -81,6 +110,7 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
     setPlaying(false);
     setStep(Math.max(missionEventsForCase(snapshot,nextId).length-1,0));
     if(c)setSelected(c.owner);
+    setDossierTab('overview');
   }
   function choose(index:number){
     const e=focusedEvents[index];
@@ -110,6 +140,10 @@ export function MissionControlClient({snapshot}:{snapshot:MissionSnapshot}){
   }
   const stepBack=()=>choose(Math.max(0,step-1));
   const stepAhead=()=>choose(Math.min(focusedEvents.length-1,step+1));
+  function selectRole(code:MissionRoleCode|'OWNER'){
+    setSelected(code);
+    setDossierTab('overview');
+  }
 
   return <div className={styles.wrapper}>
     <nav className={styles.ownerShortcuts} aria-label="Переходы к реальным задачам">
