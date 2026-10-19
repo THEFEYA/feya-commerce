@@ -41,7 +41,8 @@ function evidence(){
    verdict:'PRODUCTION_HTTP_OBSERVED',evidenceLevel:'L0_OBSERVATION',
    origin:'https://thefeya.com',
    deploymentCommitSha:sha,
-   release:{id:rid,code:'organic-wave-a-20260926',version:12,hash},
+   release:{id:rid,code:'organic-wave-a-20260926',version:12,hash,
+    manifestGitSha:'7699e7cdcfc1cdf75716f006d5533fe1efbdf4b7'},
    observation:{startedAt:start,finishedAt:end},
    coverage:{
     indexIntent:{expected:3,verified:3},
@@ -50,9 +51,11 @@ function evidence(){
    source:{
     repository:'THEFEYA/feya-commerce',gitEvent:'push',gitRef:'refs/heads/main',
     workflowRunId:'39180879535',sourceType:'EXTERNAL_HTTP_GITHUB_CI',
+    artifactPayloadSha256:'a'.repeat(64),
    },
    reasonCodes:[],
    googleIndexationConfirmed:false,independentHumanQaConfirmed:false,
+   fullProductNoindexCoverageConfirmed:false,
    autonomousReviewerExecuted:false,measuredBusinessOutcome:false,
    caseMutationAllowed:false,sourceHealthPromoted:false,
   },
