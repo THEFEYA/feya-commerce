@@ -367,7 +367,8 @@ test('isolated PostgreSQL: surgical rollback blocks nonempty history, then remov
  const rollback=await readFile(new URL(
   '../../docs/owner/rollback/FEYA_GROWTH_HTTP_ARCHIVE_EMPTY_INSTALL_ONLY_ROLLBACK.sql',
   import.meta.url),'utf8');
- assert.doesNotMatch(rollback,/\bCASCADE\b|\bfeya_growth_cases_v1\b|\bfeya_growth_measurement_specs_v1\b/);
+ const executable=rollback.split('\n').filter(line=>!line.trim().startsWith('--')).join('\n');
+ assert.doesNotMatch(executable,/\bCASCADE\b|\bfeya_growth_cases_v1\b|\bfeya_growth_measurement_specs_v1\b/);
  const beforeReleases=Number((await query(
   'SELECT count(*)::integer AS n FROM public.feya_search_releases_v1'))[0].n);
  const beforeItems=Number((await query(
