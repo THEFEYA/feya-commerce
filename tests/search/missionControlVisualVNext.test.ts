@@ -8,83 +8,118 @@ import {missionRolePresentation,missionOrganizationalLinks,missionAutonomyLabel}
 const ui=readFileSync('components/admin/MissionControlClient.tsx','utf8');
 const css=readFileSync('components/admin/MissionControl.module.css','utf8');
 const page=readFileSync('app/admin/company/mission-control/page.tsx','utf8');
+const inspector=readFileSync('components/admin/MissionRoleInspector.tsx','utf8');
+const robot=readFileSync('components/admin/MissionRobotPortrait.tsx','utf8');
+const robotCss=readFileSync('components/admin/MissionRobotPortrait.module.css','utf8');
+const route=readFileSync('components/admin/MissionCaseRouteClient.tsx','utf8');
+const projection=readFileSync('lib/owner-ui/missionControlView.ts','utf8');
 
-test('visual layer uses eight existing canonical role contracts, not a ninth agent or new runtime',()=>{
+test('only eight canonical roles with human owner, no invented agent runtime or permissions',()=>{
   assert.deepEqual(Object.keys(missionRolePresentation).sort(),[...MISSION_ROLE_CODES].sort());
   assert.equal(missionOrganizationalLinks.length,11);
-  const roster=new Set<string>([...MISSION_ROLE_CODES,'OWNER']);
+  const roster=new Set([...MISSION_ROLE_CODES,'OWNER']);
   for(const edge of missionOrganizationalLinks){
     assert.ok(roster.has(edge.source),edge.source);
     assert.ok(roster.has(edge.target),edge.target);
     assert.notEqual(edge.source,edge.target);
   }
-  assert.ok(Object.values(missionRolePresentation).every(m=>m.name&&m.section&&m.mission&&m.scope));
   assert.equal(missionAutonomyLabel.PROPOSE_ONLY,'Может предлагать');
-  assert.ok(!Object.values(missionRolePresentation).some(m=>/\+\d+%|roi\s+\d|revenue\s+\d/i.test(m.mission)));
+  assert.ok(Object.values(missionRolePresentation).every(r=>r.name&&r.section&&r.mission&&r.scope));
+  assert.ok(!Object.values(missionRolePresentation).some(r=>/\+\d+%|roi\s+\d|revenue\s+\d/i.test(r.mission)));
+  assert.ok(ui.includes('snapshot.roles.map'));
+  assert.ok(robot.includes("role==='OWNER'"));
+  assert.ok(!ui.includes('new Agent('));
 });
 
-test('schema separates conceptual links from saved event links and animates only explicit replay',()=>{
-  assert.match(ui,/showPolicyLinks&&!caseFocus\?missionOrganizationalLinks\.map/);
-  assert.match(ui,/styles\.policyConnection/);
-  assert.match(ui,/styles\.connection/);
-  assert.match(ui,/Регламент, не событие/);
-  assert.match(ui,/Сохранённые передачи/);
-  assert.match(ui,/focused&&playing&&motion&&styles\.movingLine/);
-  assert.match(ui,/e\.kind==='handoff'/);
-  assert.match(ui,/Воспроизведение реальных событий/);
-  assert.match(css,/policyConnection[\s\S]*stroke-dasharray/);
+test('graph differentiates static passport links from persisted handoffs, animates only history',()=>{
+  assert.ok(ui.includes('showPolicyLinks&&!caseFocus?missionOrganizationalLinks.map'));
+  assert.ok(ui.includes('styles.policyConnection'));
+  assert.ok(ui.includes('styles.connection'));
+  assert.ok(ui.includes('Регламент, не событие'));
+  assert.ok(ui.includes('Сохранённые передачи'));
+  assert.ok(ui.includes('focused&&playing&&motion&&styles.movingLine'));
+  assert.ok(ui.includes("e.kind==='handoff'"));
+  assert.ok(ui.includes('Воспроизведение реальных событий'));
+  assert.match(css,/\.policyConnection\{[\s\S]*?stroke-dasharray/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-  assert.doesNotMatch(ui,/liveAgentExecutionProven\s*=\s*true/);
+  assert.ok(ui.includes('setPointerCapture'));
+  assert.ok(ui.includes('prefers-reduced-motion'));
+  assert.doesNotMatch(ui,/liveAgentExecutionProven\s*=\s*true|Math\.random\(|api\.openai\.com/);
 });
 
-test('Office is a real role/task overview rather than decorative duplicate of the graph',()=>{
-  assert.match(ui,/mode==='graph'\?<>/);
-  assert.match(ui,/styles\.officeBoard/);
-  assert.match(ui,/styles\.officeGrid/);
-  assert.match(ui,/snapshot\.roles\.map\(r=><button/);
-  assert.match(ui,/r\.openCases\?/);
-  assert.match(ui,/Нет закреплённых открытых кейсов/);
-  assert.match(ui,/selectRole\(r\.code\)/);
-  assert.match(ui,/role="group" aria-label="Разделы досье"/);
-  for(const label of ['Обзор','Задачи','Связи'])assert.ok(ui.includes('>'+label+'</button>'),label);
-  assert.match(ui,/relatedCases\.length/);
-  assert.match(ui,/relevantHandoffs\.length/);
-  assert.match(ui,/missionAutonomyLabel\[selectedRole\.autonomy\]/);
+test('premium SVG robots and command-first viewport replace generic geometric role placeholders',()=>{
+  assert.ok(robot.includes('linearGradient'));
+  assert.ok(robot.includes('radialGradient'));
+  assert.ok(robot.includes('MissionRobotPortrait'));
+  assert.ok(robotCss.includes('.ownerHalo'));
+  assert.ok(robotCss.includes('.specialty'));
+  assert.ok(css.includes('.agent:hover'));
+  assert.ok(css.includes('.edgeLabel'));
+  assert.ok(css.includes('.commandHead'));
+  assert.ok(css.includes('.topModes'));
+  assert.ok(css.includes('.commandStats'));
+  assert.ok(css.includes('.roleBrief'));
+  assert.ok(ui.includes('<MissionRobotPortrait role={r.code}/>'));
+  assert.ok(ui.includes('<MissionRoleInspector'));
+  assert.ok(!page.includes('<h1>Mission Control</h1>'));
+  assert.ok(page.includes('<MissionControlClient snapshot={snapshot}/>'));
+  assert.ok(!css.includes('@import'));
+  assert.ok(!css.includes('.product-card'));
 });
 
-test('premium visuals are scoped to the internal surface, with no added art assets or dependencies',()=>{
-  assert.match(css,/FEYA Mission Control vNext — verified-status visual pass/);
-  assert.match(css,/\.wrapper \[data-role="TSEO"\]/);
-  assert.match(css,/\.botHead/);
-  assert.match(css,/\.botVisor/);
-  assert.match(css,/\.officeDesk/);
-  assert.match(css,/\.dossierTabs/);
-  assert.match(css,/\.eventButton\[data-kind="handoff"\]/);
-  assert.match(ui,/data-kind=\{e\.kind\}/);
-  assert.match(ui,/RolePortrait code=\{r\.code\}/);
-  assert.match(ui,/setDossierTab\('overview'\)/);
-  assert.match(page,/getAdminReadClient\(\)/);
-  assert.doesNotMatch(page+ui,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|api\.openai\.com|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
-  assert.doesNotMatch(css,/body\s*\{|\.product-card\s*\{|@import|url\(/);
+test('the Office is an actual roster, not the graph with painted rectangles',()=>{
+  assert.ok(ui.includes("mode==='office'"));
+  assert.ok(ui.includes('styles.officeBoard'));
+  assert.ok(ui.includes('styles.officeGrid'));
+  assert.ok(ui.includes('snapshot.roles.map(r=><button'));
+  assert.ok(ui.includes('r.openCases>0'));
+  assert.ok(ui.includes('Нет закреплённых открытых кейсов'));
+  assert.ok(ui.includes('onClick={()=>selectRole(r.code)}'));
+  assert.ok(ui.includes('<MissionRoleInspector'));
+  assert.ok(inspector.includes('role="group" aria-label="Разделы комнаты"'));
+  for(const label of ['Обзор','Связи','Задачи','Метрики']){
+    assert.ok(inspector.includes("'"+label+"'"),label);
+  }
+  assert.ok(inspector.includes('onOpenCase'));
+  assert.ok(inspector.includes('missionAutonomyLabel[role.autonomy]'));
+  assert.ok(inspector.includes('handoffs'));
+  assert.ok(inspector.includes('Метрики результата здесь не выводятся без проверенного источника'));
+  assert.ok(inspector.includes('Открытие материалов не запускает AI или публикацию'));
 });
 
-test('third Case route is a real snapshot-projected view and filters history by period and type',()=>{
-  const caseRoute=readFileSync('components/admin/MissionCaseRouteClient.tsx','utf8');
-  const view=readFileSync('lib/owner-ui/missionControlView.ts','utf8');
+test('the Case route uses existing real snapshots, detailed steps and bounded owner decisions',()=>{
   assert.ok(ui.includes("setMode('case')"));
   assert.ok(ui.includes('<MissionCaseRouteClient'));
+  assert.ok(ui.includes('<MissionCaseDecisionPanel'));
+  assert.ok(route.includes('missionCaseDeadline'));
+  assert.ok(route.includes('Техническая работа завершена, но кейс остаётся OPEN'));
+  assert.ok(route.includes('Срок не установлен · просрочка не определяется'));
+  assert.ok(route.includes('Полная карточка'));
+  assert.ok(route.includes('Решение владельца'));
+  assert.ok(route.includes('setSelectedStage'));
+  assert.ok(route.includes('routeExplanation'));
+  assert.ok(route.includes('onClick={onShowRole}'));
+  assert.ok(projection.includes('Независимая проверка'));
+  assert.ok(projection.includes('Execution Receipt здесь не проверен'));
+  assert.ok(route.includes('не означает разрешение менять Production'));
+  assert.doesNotMatch(route,/\.insert\(|\.update\(|\.rpc\(|setInterval\(|OPENAI_API_KEY/);
+});
+
+test('the command center filters exact saved timelines and takes no privileged actions',()=>{
   assert.ok(ui.includes("['7d','7 дней']"));
   assert.ok(ui.includes("['10d','10 дней']"));
   assert.ok(ui.includes('filterMissionHistory('));
-  assert.ok(view.includes("86400000"));
-  assert.ok(view.includes("source!==options.actor"));
-  assert.ok(view.includes("event.kind!==options.kind"));
-  assert.ok(caseRoute.includes('missionCaseDeadline'));
-  assert.ok(caseRoute.includes('Техническая работа завершена, но кейс остаётся OPEN'));
-  assert.ok(caseRoute.includes('Срок не установлен · просрочка не определяется'));
-  assert.ok(caseRoute.includes('Execution Receipt здесь не проверен')===false);
-  assert.ok(caseRoute.includes('Полная карточка'));
-  assert.ok(view.includes('Независимая проверка'));
-  assert.doesNotMatch(caseRoute,/\.insert\(|\.update\(|\.rpc\(|OPENAI_API_KEY|setInterval\(/);
+  assert.ok(projection.includes('86400000'));
+  assert.ok(projection.includes('source!==options.actor'));
+  assert.ok(projection.includes('event.kind!==options.kind'));
+  assert.ok(ui.includes('Вся история'));
+  assert.ok(ui.includes("window.setInterval")); // historic play only, never a network poll
+  assert.doesNotMatch(ui,/setInterval\([^]*fetch\(/);
+  assert.ok(ui.includes('Состояние Owner Attention не подтверждено'));
+  assert.ok(ui.includes('snapshot.ownerAttention.items.map'));
+  assert.ok(ui.includes('Мои решения'));
+  assert.ok(ui.includes('/admin/company/work'));
+  assert.ok(ui.includes('/admin/company/owner-attention'));
+  assert.ok(page.includes('getAdminReadClient()'));
+  assert.doesNotMatch(page+ui+inspector+route,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|api\.openai\.com|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
 });
-
