@@ -84,7 +84,7 @@ test('third Case route is a real snapshot-projected view and filters history by 
   assert.ok(caseRoute.includes('Срок не установлен · просрочка не определяется'));
   assert.ok(caseRoute.includes('Execution Receipt здесь не проверен')===false);
   assert.ok(caseRoute.includes('Полная карточка'));
-  assert.ok(caseRoute.includes('Независимая'));
+  assert.ok(view.includes('Независимая проверка'));
   assert.doesNotMatch(caseRoute,/\.insert\(|\.update\(|\.rpc\(|OPENAI_API_KEY|setInterval\(/);
 });
 

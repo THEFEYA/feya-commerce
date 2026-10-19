@@ -14,7 +14,7 @@ const caseRow:MissionCase={
 const base={caseId,caseCode:'GC-test',attentionId:null} as const;
 const events:MissionEvent[]=[
   {id:'wf',...base,at:'2026-10-17T12:00:00Z',kind:'workflow',phase:'step_complete',title:'Технический шаг завершён',source:'TSEO',target:null},
-  {id:'handoff',...base,at:'2026-10-18T13:00:00Z',kind:'handoff',phase:'handoff_complete',title:'Передача записана',source:'TSEO',target:'GMEL'},
+  {id:'handoff',...base,at:'2026-10-18T11:00:00Z',kind:'handoff',phase:'handoff_complete',title:'Передача записана',source:'TSEO',target:'GMEL'},
   {id:'owner',...base,at:'2026-10-19T09:00:00Z',kind:'owner',phase:'owner_resolved',title:'Владелец подтвердил внутреннюю L0',source:'OWNER',target:null},
 ];
 
