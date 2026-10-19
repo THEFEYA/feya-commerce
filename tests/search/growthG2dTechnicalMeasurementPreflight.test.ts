@@ -77,6 +77,8 @@ function mkInput(cohort:G2dInput['cohort']='ALL_INDEX_INTENT_URLS'):G2dInput {
     metric:null,
     policy:{
       approvedMaxAgeHours:48,
+      approvedBaselineMaxAgeDays:14,
+      minimumObservationSeparationHours:1,
       interventionStartedAt:null,lockedBeforeInterventionAt:null,
       reviewerConfirmed:false,
     },
@@ -274,6 +276,25 @@ test('changing the 24-URL sample between runs blocks longitudinal comparison',()
   const r=evaluateG2dTechnicalMeasurement(x);
   assert.equal(r.state,'TWO_OBSERVATIONS_NOT_YET_COMPARABLE');
   assert.ok(r.reasonCodes.includes('BASELINE_FOLLOWUP_NOT_COMPARABLE'));
+});
+
+test('baseline comparison requires an approved measurement window, never guessed later',()=>{
+  const x=approved();x.baseline=mkSource('ALL_INDEX_INTENT_URLS',baselineAt,'39172600000');
+  x.policy.approvedBaselineMaxAgeDays=null;
+  let r=evaluateG2dTechnicalMeasurement(x);
+  assert.equal(r.state,'TWO_OBSERVATIONS_NOT_YET_COMPARABLE');
+  assert.ok(r.reasonCodes.includes('COMPARISON_WINDOW_POLICY_NOT_APPROVED'));
+
+  x.policy.approvedBaselineMaxAgeDays=1/4; // Only six hours permitted.
+  r=evaluateG2dTechnicalMeasurement(x);
+  assert.equal(r.state,'TWO_OBSERVATIONS_NOT_YET_COMPARABLE');
+  assert.ok(r.reasonCodes.includes('COMPARISON_OUTSIDE_APPROVED_WINDOW'));
+
+  x.policy.approvedBaselineMaxAgeDays=14;
+  x.policy.minimumObservationSeparationHours=48; // Requires >=48h; actual 24h.
+  r=evaluateG2dTechnicalMeasurement(x);
+  assert.ok(r.reasonCodes.includes('COMPARISON_OUTSIDE_APPROVED_WINDOW'));
+  assert.equal(r.canWriteOutcome,false);
 });
 
 test('baseline must precede follow-up, use distinct run, and cannot be a PR',()=>{
