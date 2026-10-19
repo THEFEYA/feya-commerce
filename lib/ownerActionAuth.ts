@@ -16,7 +16,7 @@ function parseCsv(value: string | undefined) {
 }
 
 export type OwnerActionConfigStatus = ReturnType<typeof getOwnerActionConfigStatus>;
-export type OwnerActionScope = 'owner_actions' | 'delivery_workspace_draft' | 'growth_shadow_work';
+export type OwnerActionScope = 'owner_actions' | 'delivery_workspace_draft' | 'growth_shadow_work' | 'growth_case_triage';
 
 export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_actions') {
   const auth = getAdminAuthConfigStatus();
@@ -27,11 +27,16 @@ export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_acti
     ? process.env.FEYA_DELIVERY_WORKSPACE_DRAFT_ENABLED === 'true'
     : scope === 'growth_shadow_work'
       ? process.env.FEYA_GROWTH_SHADOW_WORK_ENABLED === 'true'
-      : process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
+      : scope === 'growth_case_triage'
+        ? process.env.FEYA_GROWTH_CASE_TRIAGE_ENABLED === 'true' &&
+          process.env.FEYA_GROWTH_SHADOW_WORK_ENABLED === 'true'
+        : process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
   const actionAuthRequired = isOwnerActionAuthRequired(process.env);
 
   const blockers: string[] = [];
   if (!actionAuthRequired) blockers.push('защищённая авторизация owner actions ещё не включена');
+  if (scope === 'growth_case_triage' && process.env.FEYA_OWNER_ACTION_AUTH_REQUIRED !== 'true')
+    blockers.push('отдельная усиленная авторизация владельца для переходов кейсов выключена');
   if (!auth.allowlistConfigured) blockers.push('allowlist владельца не настроен');
   if (!auth.supabaseUrlConfigured || !auth.publicKeyConfigured) blockers.push('Supabase Auth настроен не полностью');
   if (!serviceRoleConfigured) blockers.push('серверный защищённый исполнитель не настроен');
@@ -39,7 +44,9 @@ export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_acti
     ? 'переключатель черновиков доставки остаётся выключенным'
     : scope === 'growth_shadow_work'
       ? 'ручная проверка Growth OS пока выключена'
-      : 'переключатель owner actions остаётся выключенным');
+      : scope === 'growth_case_triage'
+        ? 'управляемый переход Growth Case остаётся выключенным'
+        : 'переключатель owner actions остаётся выключенным');
 
   return {
     ...auth,
@@ -56,6 +63,9 @@ export function getOwnerActionConfigStatus(scope: OwnerActionScope = 'owner_acti
 export async function requireOwnerActionActor(scope: OwnerActionScope = 'owner_actions') {
   const config = getOwnerActionConfigStatus(scope);
 
+  if (scope === 'growth_case_triage' && process.env.FEYA_OWNER_ACTION_AUTH_REQUIRED !== 'true') {
+    return { ok: false as const, status: 423, code: 'case_triage_step_up_disabled', error: 'Extra owner step-up is required for case transition.' };
+  }
   if (!isOwnerActionAuthRequired(process.env)) {
     return { ok: false as const, status: 423, code: 'owner_action_auth_disabled', error: 'Owner actions are locked until protected step-up authentication is enabled.' };
   }
@@ -66,6 +76,9 @@ export async function requireOwnerActionActor(scope: OwnerActionScope = 'owner_a
     }
     if (scope === 'growth_shadow_work') {
       return { ok: false as const, status: 423, code: 'growth_shadow_work_disabled', error: 'Growth OS manual shadow work is intentionally disabled.' };
+    }
+    if (scope === 'growth_case_triage') {
+      return { ok: false as const, status: 423, code: 'growth_case_triage_disabled', error: 'Owner case triage is intentionally disabled.' };
     }
     return { ok: false as const, status: 423, code: 'owner_actions_disabled', error: 'Owner actions are intentionally disabled.' };
   }

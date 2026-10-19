@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {buildMissionSnapshot, MISSION_ROLE_CODES} from '../../lib/owner-ui/missionControlProjection.ts';
+import {buildMissionSnapshot, MISSION_ROLE_CODES, missionEventsForCase, projectMissionOwnerAttention} from '../../lib/owner-ui/missionControlProjection.ts';
 
 const c1='23049f6b-35bd-4211-973c-d1ea3a82f708';
 const c2='b7d44cf3-7bc0-4b61-8ce7-d189bb323127';
@@ -115,7 +115,9 @@ test('owner-only visual page reads bounded safe registries without privileged wr
     'feya_commerce_v_owner_attention_safe_v3',
     'feya_commerce_v_owner_attention_events_safe_v1',
   ])assert.ok(page.includes(view),view);
-  assert.equal((page.match(/\.limit\(/g)||[]).length,6);
+  assert.equal((page.match(/\.limit\(/g)||[]).length,7);
+  assert.match(page,/feya_commerce_v_owner_attention_safe_v2/);
+  assert.match(page,/count:'exact'/);
   assert.match(component,/setMode\('office'\)/);
   assert.match(component,/Воспроизведение реальных событий/);
   assert.match(component,/prefers-reduced-motion/);
@@ -125,3 +127,88 @@ test('owner-only visual page reads bounded safe registries without privileged wr
   assert.doesNotMatch(page+component,/\.rpc\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(|OPENAI_API_KEY|api\.openai\.com|setInterval\([^]*fetch\(/);
   assert.doesNotMatch(page,/\.select\('\*'\)|result_json|context_json|authorization|SUPABASE_SERVICE_ROLE_KEY/);
 });
+
+
+test('case focus isolates independently persisted cases and rejects nonexistent Case IDs',()=>{
+  const source=raw();
+  source.workflowEvents.push({
+    workflow_event_id:'event-case2',case_id:c2,event_type:'WORKFLOW_CREATED',
+    created_at:'2026-10-16T12:01:00Z',
+  });
+  const snapshot=buildMissionSnapshot(source);
+  const all=missionEventsForCase(snapshot,null);
+  const first=missionEventsForCase(snapshot,c1);
+  const second=missionEventsForCase(snapshot,c2);
+  assert.deepEqual(all,snapshot.events);
+  assert.ok(first.length>0);
+  assert.ok(first.length<all.length);
+  assert.ok(first.every(e=>e.caseId===c1));
+  assert.equal(second.length,1);
+  assert.ok(second.every(e=>e.caseId===c2));
+  assert.equal(missionEventsForCase(snapshot,'other-business-id').length,0);
+  assert.equal(missionEventsForCase(snapshot,'').length,0);
+  assert.equal(snapshot.totalOpenCases,2); // Focus does not change durable Case status.
+});
+
+test('case-focused mobile owner interface navigates existing protected routes and stays non-executing',()=>{
+  const ui=readFileSync('components/admin/MissionControlClient.tsx','utf8');
+  const css=readFileSync('components/admin/MissionControl.module.css','utf8');
+  assert.match(ui,/missionEventsForCase\(snapshot,caseFocus\)/);
+  assert.match(ui,/Фокус кейса/);
+  assert.match(ui,/mobileRoster/);
+  assert.match(ui,/Мои решения/);
+  assert.match(ui,/\/admin\/company\/owner-attention/);
+  assert.match(ui,/\/admin\/company\/work/);
+  assert.match(ui,/RUNNING по записи/);
+  assert.match(ui,/Воспроизведение реальных событий/);
+  assert.match(css,/mobileMapOpen/);
+  assert.match(css,/stageArea:not\(\.mobileMapOpen\) \.stage/);
+  assert.match(css,/focus-visible/);
+  assert.doesNotMatch(ui,/api\.openai\.com|\.insert\(|\.update\(|\.upsert\(|\.delete\(|\/api\/agent\/run/);
+});
+
+test('owner attention preview preserves exact count and fails closed on unverified data',()=>{
+  const a='c551c9a2-b099-4b5d-a8ed-7d6f34f603ce';
+  const b='cd76ffcd-e529-4fea-9406-4d10f2479a30';
+  const rows=[
+    {attention_id:a,attention_status:'OPEN',priority:'P1',title:'Policy review'},
+    {attention_id:b,attention_status:'ACKNOWLEDGED',priority:'P2',title:'Checkout review'},
+  ];
+  const result=projectMissionOwnerAttention(rows,2);
+  assert.equal(result?.total,2);
+  assert.deepEqual(result?.items.map(x=>x.priority),['P1','P2']);
+  assert.deepEqual(result?.items.map(x=>x.id),[a,b]);
+  assert.equal(projectMissionOwnerAttention([],0)?.total,0);
+  assert.equal(projectMissionOwnerAttention([],null),null);
+  assert.equal(projectMissionOwnerAttention([],2),null);
+  assert.equal(projectMissionOwnerAttention(rows,1),null);
+  assert.equal(projectMissionOwnerAttention([{...rows[0],attention_status:'RESOLVED'}],1),null);
+  assert.equal(projectMissionOwnerAttention([{...rows[0],attention_id:'unsafe'}],1),null);
+  assert.equal(projectMissionOwnerAttention([{...rows[0],priority:'unknown'}],1)?.items[0].priority,'UNKNOWN');
+});
+
+test('new attention summary only navigates to the original guarded queue, never approves',()=>{
+  const page=readFileSync('app/admin/company/mission-control/page.tsx','utf8');
+  const ui=readFileSync('components/admin/MissionControlClient.tsx','utf8');
+  const css=readFileSync('components/admin/MissionControl.module.css','utf8');
+  assert.ok(page.includes(".in('attention_status',['OPEN','ACKNOWLEDGED'])"));
+  assert.ok(page.includes(".order('created_at',{ascending:true}).limit(3)"));
+  assert.ok(ui.includes('snapshot.ownerAttention.items.map'));
+  assert.ok(ui.includes('Состояние Owner Attention не подтверждено'));
+  assert.ok(ui.includes('Открыть общую очередь'));
+  assert.ok(css.includes('attentionBrief'));
+  for(const forbidden of ['approveEverything','sendPayment','runModel','.insert(','.update(']){
+    assert.ok(!ui.includes(forbidden),forbidden);
+  }
+});
+
+test('Mission Control uses bounded current Case metadata and a server snapshot time, not invented SLAs',()=>{
+  const page=readFileSync('app/admin/company/mission-control/page.tsx','utf8');
+  assert.ok(page.includes('priority,due_at,updated_at,current_step_code,wait_reason,blocked_reason'));
+  assert.ok(page.includes('capturedAt:new Date().toISOString()'));
+  const snap=buildMissionSnapshot(raw());
+  assert.equal(snap.cases[0].priority,'UNKNOWN');
+  assert.equal(snap.cases[0].dueAt,null);
+  assert.equal(snap.cases[0].blockedReason,null);
+});
+

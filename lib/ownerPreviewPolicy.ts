@@ -16,6 +16,8 @@ const OWNER_PREVIEW_BRANCHES = new Set([
   'work/storefront-media-performance-phase10-20261001',
   'work/seo-content-structured-data-phase11-20261001',
   'work/search-release-phase12-readiness-20261001',
+  // Owner-reviewed Mission Control read-only Preview; scoped to the existing SSO-protected Vercel project.
+  'work/growth-mission-owner-focus-20261019',
 ]);
 
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {

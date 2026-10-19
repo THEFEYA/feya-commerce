@@ -63,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-http-observation-durable-ledger, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, delivery-workspace, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair, growth-os-bound-workflow, growth-case-transition-idempotency-intent, growth-http-observation-durable-ledger, growth-os-owner-shadow-intake, growth-os-deterministic-gmel-preflight, growth-ai-atomic-spend-gate, gmel-semantic-handoff-lease, growth-gsc-manual-evidence, growth-gsc-official-channel]
     services:
       postgres:
         image: postgres:17.6
