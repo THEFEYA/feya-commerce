@@ -75,3 +75,37 @@
 }
 @media(max-width:380px){.journey{grid-template-columns:minmax(0,1fr);}}
 @media(prefers-reduced-motion:reduce){.journeyStep{transition:none!important;}}
+
+/* Toyota/Jidoka operational truth — derived from real Case journal, no new runtime. */
+.andonPanel{display:grid;gap:10px;margin:15px 0 5px;padding:13px 15px;
+ border:1px solid rgba(222,176,93,.48);border-radius:12px;
+ background:linear-gradient(115deg,rgba(69,47,24,.32),rgba(14,28,47,.91));
+ box-shadow:inset 0 1px rgba(244,216,150,.08);}
+.andonPanel[data-state="STOP"]{border-color:rgba(232,128,98,.68);
+ background:linear-gradient(115deg,rgba(83,30,25,.26),rgba(14,28,47,.91));}
+.andonPanel[data-state="WAIT"]{border-color:rgba(236,184,90,.61);}
+.andonPanel[data-state="NEXT"]{border-color:rgba(94,206,176,.63);
+ background:linear-gradient(115deg,rgba(24,74,66,.27),rgba(14,28,47,.91));}
+.andonPanel[data-state="RECORDED"]{border-color:rgba(106,160,217,.55);}
+.andonHead{display:flex;gap:12px;align-items:flex-start;}
+.andonIndicator{flex:0 0 20px;height:20px;width:20px;display:grid;place-items:center;
+ border-radius:50%;color:#ffd588;background:rgba(243,194,90,.16);
+ box-shadow:0 0 11px rgba(244,190,83,.25);}
+.andonPanel[data-state="STOP"] .andonIndicator{color:#ffa48d;background:rgba(238,115,91,.2);}
+.andonPanel[data-state="NEXT"] .andonIndicator{color:#64e4bd;background:rgba(55,210,163,.18);}
+.andonHead>div:last-child{min-width:0;display:grid;gap:5px;}
+.andonEyebrow{font-size:10px;letter-spacing:.09em;color:#e9c481;}
+.andonHead h3{font-size:15px;color:#f4f2e6;line-height:1.3;margin:0;}
+.andonHead p{font-size:12px;line-height:1.5;color:#c8d8eb;margin:0;}
+.andonNext{display:grid;grid-template-columns:minmax(115px,.3fr) minmax(0,1fr);gap:4px 12px;
+ padding:10px;border:1px solid rgba(128,171,216,.22);border-radius:9px;background:rgba(11,27,46,.66);}
+.andonNext strong{font-size:12px;color:#f2d18a;}
+.andonNext span{font-size:12px;color:#e6eff9;line-height:1.45;}
+.andonNext small{font-size:10px;color:#b3c7da;grid-column:2;}
+.andonDetails{border-top:1px solid rgba(128,173,210,.18);padding-top:9px;}
+.andonDetails summary{font-size:12px;color:#e8cb90;cursor:pointer;}
+.andonDetails>div{padding:8px 4px 2px;}
+.andonDetails li,.andonDetails p{font-size:11px;color:#c1d2e4;line-height:1.5;margin:4px 0;}
+.andonDetails li{padding-left:3px;}
+@media(max-width:690px){.andonPanel{padding:12px;}.andonNext{grid-template-columns:1fr;}.andonNext small{grid-column:1;}}
+
