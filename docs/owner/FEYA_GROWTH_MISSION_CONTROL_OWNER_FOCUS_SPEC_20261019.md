@@ -128,3 +128,6 @@ Scope: MissionControlClient, its CSS Module, pure missionRolePresentation metada
 
 **J–L. Acceptance.** Existing role/Case/Owner projection tests remain; additional tests ensure exact event selection, invalid window fails closed, technical COMPLETE + Case OPEN, independent QA/measurement unknown, absent deadline NOT overdue. Desktop/tablet/mobile Preview + keyboard/contrast/reduced-motion review before owner merge approval. No Production/SEO V13/Search v12/Product Truth/prices/Seller Online/security changes. Future physical Site timing and true bottleneck/lease warnings require explicit trusted source health, dates and policy-defined SLA; not inferred here.
 
+### Case Detail visual continuity (same read-only PR, no new route)
+The existing trusted `OwnerCaseRouteTruth` already receives `projectGrowthCaseRoute`, including actual Case journal continuity, scoped Owner L0 receipts, independent QA `NOT_ATTESTED`, and exact measurement `NO_PLAN/DRAFT/LOCKED/OUTCOME`. This PR adds a six-step semantic ribbon, real state colors, responsive layout and event-kind markers above its original four independent factual cards. It does **not** add another FSM or data read and preserves its disclosure-only detailed audit history. No controls can approve/execute anything here.
+
