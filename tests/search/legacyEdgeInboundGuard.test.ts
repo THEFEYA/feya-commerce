@@ -19,7 +19,6 @@ test('missing, malformed, truncated, repeated, and wrong tokens all fail closed'
     null,'','Basic '+dedicated,'bearer '+dedicated,
     'Bearer '+dedicated.slice(0,-1),
     'Bearer '+dedicated.slice(0,12),
-    'Bearer '+dedicated+' ',
     'Bearer '+dedicated+',Bearer '+dedicated,
     'Bearer '+dedicated+'x',
     'Bearer '+('a'.repeat(1024)),
@@ -30,6 +29,20 @@ test('missing, malformed, truncated, repeated, and wrong tokens all fail closed'
     assert.equal(actual.status,401,header||'missing');
     assert.equal(JSON.stringify(actual).includes(dedicated),false);
   }
+});
+
+test('HTTP Headers canonicalization does not make a different token valid',async()=>{
+  // The platform normalizes outer whitespace before the handler receives
+  // the Header. Whitespace normalization of an otherwise exact secret is
+  // allowed HTTP behavior, not a caller authentication bypass.
+  assert.equal(
+    (await verifyLegacyEdgeCaller(req('Bearer '+dedicated+' '))).allowed,
+    true,
+  );
+  assert.equal(
+    (await verifyLegacyEdgeCaller(req('Bearer '+dedicated+'x '))).allowed,
+    false,
+  );
 });
 
 test('unsupported method and unconfigured secret never reach the handler',async()=>{
