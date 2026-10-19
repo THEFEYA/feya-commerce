@@ -3,7 +3,7 @@
  * an agent, grant permission, or mark a result completed.
  */
 import {MISSION_ROLE_CODES,type MissionSnapshot,type MissionRoleCode}
-  from './missionControlProjection';
+  from './missionControlProjection.ts';
 
 export type MissionView='graph'|'case'|'office';
 export type MissionParticipant=MissionRoleCode|'OWNER';
