@@ -280,6 +280,57 @@ test('no other Growth OS, Shop or GSC functions/tables are changed',async()=>{
  assert.equal(await count(),0);
 });
 
+test('actual frozen Search v12 release: all 18 index URLs and 24 of 207 product URLs archive as L0',async()=>{
+ const frozen=JSON.parse(await readFile(new URL(
+  '../runtime/fixtures/phase12-wave-a-v12-production-crawl.json',import.meta.url),'utf8'));
+ assert.equal(frozen.release.id,rid);
+ assert.equal(frozen.release.hash,hash);
+ assert.equal(frozen.release.gitSha,originalGitSha);
+ assert.equal(frozen.indexCandidates.length,18);
+ assert.equal(frozen.productNoindexPaths.length,207);
+ const candidate=evidence();
+ candidate.indexRows=frozen.indexCandidates.map(path=>({
+  path,status:200,noindex:false,canonical:'https://thefeya.com'+path,
+  pass:true,error:null,
+ }));
+ candidate.productRows=frozen.productNoindexPaths.slice(0,24).map(path=>({
+  path,status:200,noindex:true,canonical:'https://thefeya.com'+path,
+  pass:true,error:null,
+ }));
+ candidate.g2c.coverage.indexIntent={expected:18,verified:18};
+ candidate.g2c.coverage.productNoindex={
+  expected:207,sampled:24,reportedPassed:24,perPathVerified:24,
+  untested:183,proof:'PER_PATH_CI_RECEIPT',
+ };
+ await db.exec('BEGIN;');
+ try {
+  await db.exec('DELETE FROM public.feya_search_release_items_v1;');
+  for(const path of frozen.indexCandidates){
+   await db.query(
+    "insert into public.feya_search_release_items_v1 values ($1,$2,'index','landing')",
+    [rid,path]);
+  }
+  for(const path of frozen.productNoindexPaths){
+   await db.query(
+    "insert into public.feya_search_release_items_v1 values ($1,$2,'noindex','product')",
+    [rid,path]);
+  }
+  const inserted=(await stage(candidate))[0];
+  assert.equal(inserted.created_new,true);
+  assert.equal(inserted.index_urls_observed,18);
+  assert.equal(inserted.product_urls_sampled,24);
+  assert.equal(await count(),1);
+  const persisted=(await query(
+   'select product_urls_in_release,verification_state,independent_qa_passed from public.feya_growth_external_http_observation_receipts_v1'
+  ))[0];
+  assert.equal(persisted.product_urls_in_release,207);
+  assert.equal(persisted.independent_qa_passed,false);
+  assert.equal(persisted.verification_state,'PROVENANCE_REVIEW_REQUIRED');
+ }finally{
+  await db.exec('ROLLBACK;'); // The frozen evidence fixture NEVER persists in CI.
+ }
+});
+
 test('native PG17 concurrent exact retries create only one receipt',{skip:!native},async()=>{
  const p=JSON.stringify(evidence());
  const a=new pg.Client({connectionString:native,connectionTimeoutMillis:5000});
