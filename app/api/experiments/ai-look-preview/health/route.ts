@@ -48,13 +48,14 @@ async function probeModel(secret:string){
 }
 export async function GET(){
  if(!isAiLookOwnerPreview(process.env))return json({ok:false,status:'not_found'},404);
- const flagOn=process.env.FEYA_AI_LOOK_PREVIEW_ENABLED==='true';
+ // A server key already used by TheFEYA's SEO engine can be reused in
+ // this ONE exact SSO-protected Preview. No browser-supplied key is needed.
  const secret=resolveAiLookOwnerTestKey(process.env,null);
- if(!flagOn||!secret){
+ if(!secret){
   return json({
    ok:false,status:'setup_required',
-   flagEnabled:flagOn,keyConfigured:Boolean(secret),
-   message:'OpenAI is not connected to Vercel. In this protected owner Preview, you can paste a key for one test without storing it.',
+   keyConfigured:false,
+   message:'There is no server-side OpenAI key available on this exact private Preview. The owner-only temporary test input is available; customers never need this input.',
   });
  }
  return probeModel(secret);
