@@ -6,7 +6,7 @@ const v13Navigation=process.env.VERCEL==='1'
   &&process.env.VERCEL_PROJECT_ID==='prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
   &&(process.env.VERCEL_ENV==='production'
     ||(process.env.VERCEL_ENV==='preview'
-      &&['work/v13-public-presentation-release-20261012','work/v13-public-hubs-release-20261012','work/bonanza-color-variants-20261020'].includes(process.env.VERCEL_GIT_COMMIT_REF||'')
+      &&['work/v13-public-presentation-release-20261012','work/v13-public-hubs-release-20261012','work/bonanza-color-variants-20261020','work/ai-look-preview-prototype-20261020'].includes(process.env.VERCEL_GIT_COMMIT_REF||'')
       &&process.env.FEYA_OWNER_PREVIEW_DISABLED!=='true'));
 
 const nextConfig: NextConfig = {
