@@ -82,7 +82,7 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.doesNotMatch(pair,/size-pill/);
   assert.match(pdp,/womenSize=\{womenSize\} menSize=\{menSize\} sizes=\{SIZES\}/);
   assert.match(pdp,/onSizeChange=/);
-  assert.match(pdp,/\{!isCoupleSet \? <div className="mt-2">/);
+  assert.match(pdp,/\{!isCoupleSet && <div className="mt-2">/);
   assert.match(pdp,/womens_size: isCoupleSet \? womenSize : null/);
   assert.match(pdp,/mens_size: isCoupleSet \? menSize : null/);
 });

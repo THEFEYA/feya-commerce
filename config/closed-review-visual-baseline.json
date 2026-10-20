@@ -6,6 +6,6 @@
     "app/shop/page.tsx": "1c99a96c2cc81ebd095f643a5513f1dc07cf7dd467ac76ad412123b42ecbb3ae",
     "app/shop/[slug]/page.tsx": "730ebe65437ced0c8a5548bbbba3ba384b294cde9dd7eeb55ca0b1d69c2eefc3",
     "components/ShopClient.tsx": "93cd8dec5bb7d4585cc8f9a36effa92bf0673432651cc2a20160d8a4636300bc",
-    "components/ProductCard.tsx": "03ad9ea5b96b93c5260d648ab993d5c0029d387670d4ff869cb0b4f42ddd2cd5"
+    "components/ProductCard.tsx": "e231d2c2f8c245b6a1bf4d37ac380c3fe5d720d7aefc4feadb8c51b65a4a6d39"
   }
 }
