@@ -2,7 +2,7 @@
 
 import { Check, ChevronDown, Info, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { colorStyle } from '@/components/colors';
+import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { ProductCard } from '@/components/ProductCard';
 import { ShopPagination } from '@/components/ShopPagination';
 import type { StorefrontProduct } from '@/lib/types';
@@ -349,16 +349,11 @@ function CatalogFilterPanel({
               key={value}
               type="button"
               onClick={() => setColor(toggleValue(filters.color, value))}
+              aria-label={'Filter color: ' + value}
+              aria-pressed={filters.color.includes(value)}
               className="flex flex-col items-center gap-1 group"
             >
-              <span
-                className={`w-7 h-7 rounded-full border-2 transition-all ${
-                  filters.color.includes(value)
-                    ? 'border-white shadow-[0_0_0_3px_rgba(255,255,255,0.18)]'
-                    : 'border-[rgba(216,214,211,0.30)] group-hover:border-white'
-                }`}
-                style={colorStyle(value)}
-              />
+              <FeyaColorSwatch color={value} size={28} selected={filters.color.includes(value)} />
               <span className={`text-[9px] tracking-[0.12em] uppercase ${filters.color.includes(value) ? 'text-white' : 'text-[#9b988e]'}`}>
                 {value}
               </span>
