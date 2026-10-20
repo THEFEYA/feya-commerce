@@ -2,10 +2,13 @@ import {NextRequest,NextResponse} from 'next/server';
 import {isAiLookOwnerPreview,isAiLookScene,resolveAiLookOwnerTestKey} from '@/lib/aiLookPreviewPolicy';
 import {aiLookReadApprovedListing} from '@/lib/aiLookPreviewCatalogServer';
 import {generateAiLook,validPhotoFile} from '@/lib/aiLookPreviewGenerationServer';
+import {AiLookProviderError} from '@/lib/aiLookProviderDiagnostics';
+import type {AiLookProviderDiagnostic} from '@/lib/aiLookProviderDiagnostics';
 
 export const maxDuration=120;
 const deny={headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}};
-const failed=(reason:string,status:number)=>NextResponse.json({ok:false,reason},{status,...deny});
+const failed=(reason:string,status:number,diagnostic?:AiLookProviderDiagnostic)=>
+ NextResponse.json({ok:false,reason,...(diagnostic?{diagnostic}:null)},{status,...deny});
 
 export async function POST(request:NextRequest){
  if(!isAiLookOwnerPreview(process.env))return failed('not_found',404);
@@ -48,6 +51,9 @@ export async function POST(request:NextRequest){
   return NextResponse.json({ok:true,...output},{...deny});
  }catch(e){
   // Never log image bytes, customer names, selfies, prompts or third-party error bodies.
+  if(e instanceof AiLookProviderError){
+   return failed(e.diagnostic.reason,400,e.diagnostic);
+  }
   const reason=e instanceof Error?e.message:'unavailable';
   const allowed=new Set([
    'invalid_customer_photo','invalid_image_signature','listing_reference_unavailable',
@@ -56,6 +62,8 @@ export async function POST(request:NextRequest){
    'model_rejected_images','image_provider_unavailable','image_result_invalid',
    'image_api_authentication_failed','image_model_access_denied',
    'image_model_not_found','image_rate_limited',
+   'image_content_review_blocked','image_input_invalid',
+   'image_request_parameter_invalid','image_generation_bad_request',
   ]);
   return failed(allowed.has(reason)?reason:'generation_temporarily_unavailable',503);
  }
