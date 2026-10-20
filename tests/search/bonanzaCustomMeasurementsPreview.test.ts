@@ -94,8 +94,9 @@ test('Only protected Bonanza preview can open owner cart; Production and public 
   const cart=readFileSync('components/CartOwnerLiveReviewClient.tsx','utf8');
   assert.match(pdp,/custom_measurements_selected:customOutfits>0 && customMeasurementsEnabled/);
   assert.match(pdp,/customMeasurementSelectionNeedsReview\(sizingSelection,customMeasurementsEnabled\)/);
-  assert.match(pdp,/Custom size requires this service/);
-  assert.match(pdp,/const total=Math\.round\(sale\*100\)\*qty\/100 \+ customFitMinor\/100/);
+  assert.match(pdp,/Custom measurements \(\+€15 per customized outfit\) will be preselected in your bag/);
+  assert.match(pdp,/const total=Math\.round\(sale\*100\)\*qty\/100/);
+  assert.doesNotMatch(pdp,/<input type="checkbox" checked=\{customMeasurementsEnabled\}/);
   assert.match(pdp,/unit_price_amount: sale/);
   assert.match(cart,/item\.custom_measurements_selected/);
   assert.match(cart,/customMeasurementSelectionNeedsReview\(item,item\.custom_measurements_selected\)/);
