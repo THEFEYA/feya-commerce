@@ -60,6 +60,10 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
   };
   assert.equal(phase13PublicPdpCopyEnabled(ownerPreview,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/phase13-pdp-public-copy-v13-20261012'},correct),true);
+  // Owner color preview must show the exact same immutable 207 approved SEO blocks, not generic fallback copy.
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020'},correct),true);
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020',VERCEL_PROJECT_ID:'other'},correct),false);
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020',FEYA_OWNER_PREVIEW_DISABLED:'true'},correct),false);
   for(const bad of [
     {VERCEL_PROJECT_ID:'another-project'},
     {VERCEL_GIT_COMMIT_REF:'main'},
