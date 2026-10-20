@@ -3,6 +3,7 @@ import 'server-only';
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import { catalogSourceTimingFields, createTimedCatalogFetch, newCatalogSourceTiming } from '@/lib/storefrontSourceTiming';
 import { buildStorefrontFacets } from '@/lib/storefrontFacets';
+import { applyReviewedBonanzaColors } from '@/lib/bonanzaColorCatalogServer';
 import type { StorefrontProduct } from '@/lib/types';
 
 // Phase13 P1 fast physical read with exact original output schema and approvals.
@@ -147,7 +148,7 @@ function asStringArray(value: unknown): string[] {
 export async function readApprovedStorefrontCardProductsV1(): Promise<StorefrontProduct[]> {
   const rows = await readApprovedStorefrontCardRowsV1();
 
-  return rows.map((row) => ({
+  return rows.map((row) => applyReviewedBonanzaColors({
     canonical_product_id: row.canonical_product_id,
     product_slug: row.product_slug,
     matched_etsy_listing_id: null,
