@@ -112,7 +112,9 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  assert.equal(visual.files['components/ProductDetailClient.tsx'],'89fd184d732dc4702c6831ec35233e99cbd66db6');
+  // Explicit owner approval 20 October: retain published SEO/content behavior, but
+  // remove the duplicate PDP made-to-measure charge control and hand it to Cart.
+  assert.equal(visual.files['components/ProductDetailClient.tsx'],'428d5d9daf8bc6811a490d39335edec551cecd9f');
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);
