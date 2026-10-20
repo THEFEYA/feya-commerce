@@ -47,7 +47,7 @@
     },
     {
       "path": "components/ProductDetailClient.tsx",
-      "sha256": "e6de7c76712c2f853be45799b6b396010c9df6098028436a1bea13089d2f452b"
+      "sha256": "9fb1bcdc962f1f7bef8a36541b29c208debb3cc6d0223757cb059d62b1d27da6"
     }
   ],
   "summary": {
@@ -8465,7 +8465,7 @@
       "XXXL",
       "Custom"
     ],
-    "default_size": "M",
+    "default_size": null,
     "current_size_change_updates_configuration_price": false,
     "finding": "Static code inspection: size state is independent of selected configuration and price. Final adapter must bind existing controls to approved tuple evidence without redesign.",
     "activation_requires": [

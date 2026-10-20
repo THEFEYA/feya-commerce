@@ -3,10 +3,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { Check, ChevronDown, Download, RotateCcw, Search, SlidersHorizontal, Upload } from 'lucide-react';
+import { Check, ChevronDown, Download, Search, SlidersHorizontal, Upload } from 'lucide-react';
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import {
-  BONANZA_COLOR_PARTS, colorChoiceLabel, constituentColors, inferredDefaultColorCode,
+  colorChoiceLabel, constituentColors, inferredDefaultColorCode,
   isBonanzaColorCode,
 } from '@/lib/bonanzaColorChoices';
 
@@ -157,7 +157,7 @@ export function OwnerColorDefaultsReview({
       <div className="mb-7 rounded-xl border border-[#c9a864]/25 bg-[#c9a864]/[.055] p-4">
         <div className="h-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#d5b775] transition-[width]" style={{width:(ready?confirmed/ready*100:0)+'%'}}/></div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p role="status" className="max-w-[690px] text-xs leading-5 text-[#c6c1b5]">{info} Автосохранение действует в этом браузере. **Production остаётся без изменений.**</p>
+          <p role="status" className="max-w-[690px] text-xs leading-5 text-[#c6c1b5]">{info} Автосохранение действует в этом браузере. Production остаётся без изменений.</p>
           <div className="flex flex-wrap gap-2">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs hover:border-white/40"><Upload size={14}/> Импорт JSON
               <input aria-label="Импортировать ранее сохранённый JSON" type="file" accept="application/json,.json" className="sr-only" onChange={importFile}/>
