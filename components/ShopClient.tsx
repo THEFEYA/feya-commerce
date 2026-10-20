@@ -717,7 +717,7 @@ export function ShopClient({
           {color.length>0 ? <div role="status" className="mb-5 flex items-start gap-2.5 border-l-2 border-[#bfa26f]/60 bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--bone-dim)]">
             <Info size={14} className="mt-0.5 shrink-0 text-[#d6b56c]" />
             {colorMode==='photo'
-              ? <p>Showing looks photographed in the selected colors. For multi-color designs, select every color shown. Other shades may be available inside each product.</p>
+              ? <p>Results match the colors in each listing’s main preview. For multi-color looks, select all shown colors. Tick “Include other available colors” for additional variants.</p>
               : <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show another shade; choose the color inside the product.</p>}
           </div> : null}
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
