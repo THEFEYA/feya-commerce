@@ -1,5 +1,6 @@
 import 'server-only';
 import {buildAiLookPreviewPrompt} from './aiLookPreviewPrompt';
+import {AiLookProviderError,classifyAiLookImageError} from './aiLookProviderDiagnostics';
 import type {AiLookScene} from './aiLookPreviewPolicy';
 import type {AiLookReference,AiLookView} from './aiLookPreviewCatalogServer';
 
@@ -101,16 +102,14 @@ export async function generateAiLook(args:{
   if(!files.some(x=>x.index===args.manualReference))throw new Error('manual_reference_unavailable');
   selection={front:args.manualReference,detail:null};
  }else{
-  try{selection=await rankReferenceImages(files,args.key);}
-  catch{
-   // Only the inspected holographic listing has a confirmed front-facing
-   // thumbnail index. Never fabricate reference evidence for other products.
-   const knownFront=args.product.recommendedReferenceIndex;
-   if(knownFront>0&&files.some(file=>file.index===knownFront)){
-    selection={front:knownFront,detail:null};
-   }else{
-    throw new Error('automatic_front_detection_unavailable');
-   }
+  // For the owner-inspected product, skip the extra paid vision API call:
+  // photo #2 was already checked as frontal. Only send one real garment image.
+  const knownFront=args.product.recommendedReferenceIndex;
+  if(knownFront>0&&files.some(file=>file.index===knownFront)){
+   selection={front:knownFront,detail:null};
+  }else{
+   try{selection=await rankReferenceImages(files,args.key);}
+   catch{throw new Error('automatic_front_detection_unavailable');}
   }
  }
  const first=files.find(x=>x.index===selection.front);
@@ -135,26 +134,14 @@ export async function generateAiLook(args:{
   body:form,signal:AbortSignal.timeout(110000),cache:'no-store',
  });
  if(!response.ok){
-  const status=response.status;
-  // These are fixed, non-sensitive provider classifications. Never return the
-  // provider response body, image data or authorization headers to the browser.
-  if(status===401)throw new Error('image_api_authentication_failed');
-  if(status===403)throw new Error('image_model_access_denied');
-  if(status===404)throw new Error('image_model_not_found');
-  if(status===402)throw new Error('model_quota_or_billing');
-  if(status===429){
-   let code='';
-   try{
-    const data=await response.json() as {error?:{code?:unknown}};
-    if(typeof data.error?.code==='string')code=data.error.code;
-   }catch{}
-   const limits=new Set(['insufficient_quota','credit_balance_exhausted',
-    'project_spend_limit_exceeded','organization_spend_limit_exceeded',
-    'organization_usage_limit_exceeded']);
-   throw new Error(limits.has(code)?'model_quota_or_billing':'image_rate_limited');
-  }
-  if(status===400)throw new Error('model_rejected_images');
-  throw new Error('image_provider_unavailable');
+  // OpenAI 400 covers unsupported parameters, bad files AND safety decisions.
+  // Parse only stable, allowlisted diagnostics. No provider messages, photos,
+  // Authorization header or user details leave the server.
+  let providerBody:unknown=null;
+  try{providerBody=await response.json();}catch{}
+  throw new AiLookProviderError(classifyAiLookImageError(
+   response.status,providerBody,response.headers.get('x-request-id')
+  ));
  }
  const result=await response.json() as {data?:Array<{b64_json?:string}>};
  const data=result.data?.[0]?.b64_json;
