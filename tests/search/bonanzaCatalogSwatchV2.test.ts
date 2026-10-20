@@ -89,8 +89,8 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.match(pair,/document.addEventListener\('pointerdown'/);
   assert.match(pair,/event.key === 'Escape'/);
   assert.match(pair,/event.key === 'ArrowDown'/);
-  assert.match(pair,/Venus size=\{12\}/);
-  assert.match(pair,/Mars size=\{12\}/);
+  assert.match(pair,/PartnerGlyph partner=\{partner\.id\}/);
+  assert.match(pair,/partner === 'women'/);
   assert.match(pair,/text-\[#f7f3ec\]/);
   assert.doesNotMatch(pair,/<select value=/);
   assert.doesNotMatch(pair,/size-pill/);
