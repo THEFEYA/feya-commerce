@@ -27,6 +27,8 @@ test('private FEYA try-on route is scoped to one Preview project, not public pro
  }
  assert.equal(isAiLookGenerationConfigured({...ok,OPENAI_API_KEY:undefined}),false);
  assert.equal(isAiLookGenerationConfigured({...ok,FEYA_AI_LOOK_PREVIEW_ENABLED:'false'}),false);
+ assert.equal(isAiLookGenerationConfigured({...ok,FEYA_AI_LOOK_PREVIEW_ENABLED:undefined}),true);
+ assert.equal(isAiLookGenerationConfigured({...ok,FEYA_AI_LOOK_PREVIEW_ENABLED:undefined,VERCEL_ENV:'production'}),false);
  assert.match(file('app/experiments/ai-look-preview/page.tsx'),/robots:\{index:false,follow:false/);
  assert.match(file('app/experiments/ai-look-preview/page.tsx'),/isAiLookOwnerPreview\(process.env\)/);
  assert.match(file('next.config.ts'),/work\/ai-look-preview-prototype-20261020/);
@@ -75,7 +77,8 @@ test('experiment binds only reviewed 207 products to truthful variant identities
 test('owner Preview has a no-image OpenAI connectivity probe and never exposes secrets',()=>{
  const source=file('app/api/experiments/ai-look-preview/health/route.ts');
  assert.match(source,/isAiLookOwnerPreview\(process\.env\)/);
- assert.match(source,/FEYA_AI_LOOK_PREVIEW_ENABLED/);
+ assert.match(file('lib/aiLookPreviewPolicy.ts'),/FEYA_AI_LOOK_PREVIEW_ENABLED/);
+ assert.match(source,/server-side OpenAI key/);
  assert.match(source,/api\.openai\.com\/v1\/models\/gpt-image-1\.5/);
  assert.match(source,/Cache-Control/);
  assert.doesNotMatch(source,/console\.log\(|key:\s*secret|secret:\s*secret/);
