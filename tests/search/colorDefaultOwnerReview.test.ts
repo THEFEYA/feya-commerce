@@ -45,7 +45,8 @@ test('PDP requires deliberate size, auto-selects approved full set and preserves
   const page=readFileSync('components/ProductDetailClient.tsx','utf8');
   assert.match(page,/options\.length === 1 \? optionKey\(options\[0\], 0\) : ''/);
   assert.match(page,/const \[size, setSize\] = useState\(''\)/);
-  assert.match(page,/if \(!activeConfig \|\| \(isCoupleSet \? !womenSize \|\| !menSize : !size\)\) \{ setSelectionWarning\(true\); return; \}/);
+  assert.match(page,/if \(!activeConfig \|\| \(pricedColors!==null && !pricedColors\.some/);
+  assert.match(page,/\|\| \(isCoupleSet \? !womenSize \|\| !menSize : !size\)\) \{ setSelectionWarning\(true\); return; \}/);
   assert.match(page,/\{options\.length > 1 \? <div/);
   assert.match(page,/role="radiogroup" aria-label="Select a complete colorway"/);
   assert.match(page,/color_code: selectedColorCode/);
