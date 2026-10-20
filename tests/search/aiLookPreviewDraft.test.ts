@@ -91,6 +91,8 @@ test('customer reference images are verified, server-only; provider never gets c
  assert.match(server,/hostname==='i\.etsystatic\.com'/);
  assert.match(server,/redirect:'error'/);
  assert.match(server,/input_fidelity','high'/);
+ assert.match(server,/data\.length>3_700_000/);
+ assert.match(server,/output_compression','78'/);
  assert.match(route,/same_origin_required/);
  assert.match(route,/resolveAiLookOwnerTestKey\(process\.env,form\.get\('ownerApiKey'\)\)/);
  assert.match(route,/aiLookReadApprovedListing\(slug\)/);
@@ -122,6 +124,8 @@ test('browser sends only two user photos; no invented previews, no real payments
  assert.match(ui,/navigator\.mediaDevices\.getUserMedia/);
  assert.match(ui,/form\.set\('selfie',face\.file\)/);
  assert.match(ui,/form\.set\('fullBody',body\.file\)/);
+ assert.match(ui,/targetBytes=face\?750_000:1_550_000/);
+ assert.match(ui,/canvas\.toBlob/);
  assert.match(ui,/form\.set\('manualReference',manualReference===null\?'auto'/);
  assert.match(ui,/result\.imageDataUrl/);
  assert.match(ui,/One-time connection/);
