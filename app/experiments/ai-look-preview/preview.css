@@ -157,3 +157,14 @@
  .tryon-scene svg{height:20px;width:20px}
 }
 @media(prefers-reduced-motion:reduce){.tryon-page *, .tryon-page *::before,.tryon-page *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* Server connection is explicit; no fake generation when OpenAI is absent. */
+.tryon-connection{margin-top:14px;border:1px solid rgba(224,172,114,.47);background:linear-gradient(145deg,rgba(111,63,34,.13),rgba(23,17,17,.45));padding:15px;border-radius:10px;color:#edc8b2;font-size:11px;line-height:1.65}
+.tryon-connection-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#f6debb;margin-bottom:8px}
+.tryon-connection p{margin:5px 0;color:#cbbdb1;overflow-wrap:anywhere}
+.tryon-connection code{color:#f6d18d;font-size:10px;white-space:normal;overflow-wrap:anywhere}
+.tryon-connection button{border:1px solid rgba(235,198,132,.48);background:rgba(220,179,96,.12);color:#f5d799;min-height:38px;padding:9px 12px;border-radius:8px;margin-top:9px;display:inline-flex;align-items:center;gap:8px}
+.tryon-connection button:hover{background:rgba(220,179,96,.22)}
+.tryon-connection-ready{display:flex;align-items:center;gap:8px;color:#d8c89b;font-size:12px;margin-top:12px}
+.tryon-connection-ready svg{color:#c7d9ac}
