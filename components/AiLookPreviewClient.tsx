@@ -70,6 +70,10 @@ const errors:Record<string,string>={
  model_quota_or_billing:'OpenAI account credit or rate limit prevented generation. No result was created.',
  model_rejected_images:'The generator could not process these photos. Try different front-facing pictures.',
  image_provider_unavailable:'Image generation is temporarily unavailable. Try again.',
+ image_api_authentication_failed:'OpenAI rejected the API key during image generation. Check that the exact full secret is active.',
+ image_model_access_denied:'The OpenAI organization or project is not authorized for this image model. Check Platform model access and verification.',
+ image_model_not_found:'The selected image model is unavailable to this OpenAI project.',
+ image_rate_limited:'The image model is rate-limited. Please wait a minute and retry.',
  image_result_invalid:'The provider returned an incomplete image. Try again.',
  generation_temporarily_unavailable:'The preview could not be generated. Please try again later.',
 };
