@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {
- isAiLookOwnerPreview,isAiLookGenerationConfigured,resolveAiLookOwnerTestKey,AI_LOOK_PREVIEW_BRANCH,
+ isAiLookOwnerPreview,isAiLookGenerationConfigured,resolveAiLookOwnerTestKey,aiLookKeyInputIssue,AI_LOOK_PREVIEW_BRANCH,
 } from '../../lib/aiLookPreviewPolicy.ts';
 import {buildAiLookPreviewPrompt} from '../../lib/aiLookPreviewPrompt.ts';
 import approvedCatalog from '../../config/bonanzaColorReviewCatalog20261020.json' with {type:'json'};
@@ -44,6 +44,19 @@ test('ephemeral owner key never enables Production or a different branch',()=>{
  assert.equal(resolveAiLookOwnerTestKey(env,'not-a-key'),null);
  assert.equal(resolveAiLookOwnerTestKey(env,fake+' '),null);
  assert.equal(resolveAiLookOwnerTestKey(env,('sk-'+'A'.repeat(500))),null);
+});
+
+test('dashboard masks and tracking IDs must not be treated as authentication secrets',()=>{
+ assert.equal(aiLookKeyInputIssue('key_0123456789'),'tracking_id');
+ assert.equal(aiLookKeyInputIssue('sk-...-demo'),'masked_secret');
+ assert.equal(aiLookKeyInputIssue('OPENAI_API_KEY'),'bad_prefix');
+ assert.equal(aiLookKeyInputIssue('sk-too-short'),'key_too_short');
+ const full='sk-test-'+ 'Y'.repeat(80);
+ assert.equal(aiLookKeyInputIssue(full),null);
+ assert.equal(aiLookKeyInputIssue(full.slice(0,18)),'key_too_short');
+ const health=file('app/api/experiments/ai-look-preview/health/route.ts');
+ assert.match(health,/aiLookKeyIssueMessage\(issue\)/);
+ assert.match(health,/return json\(\{ok:false,status:issue/);
 });
 
 test('experiment binds only reviewed 207 products to truthful variant identities',()=>{
