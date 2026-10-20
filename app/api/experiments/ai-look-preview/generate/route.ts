@@ -3,7 +3,6 @@ import {isAiLookOwnerPreview,isAiLookGenerationConfigured,isAiLookScene} from '@
 import {aiLookReadApprovedListing} from '@/lib/aiLookPreviewCatalogServer';
 import {generateAiLook,validPhotoFile} from '@/lib/aiLookPreviewGenerationServer';
 
-export const runtime='nodejs';
 export const maxDuration=120;
 const deny={headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}};
 const failed=(reason:string,status:number)=>NextResponse.json({ok:false,reason},{status,...deny});
