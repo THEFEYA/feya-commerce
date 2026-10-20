@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
-import { BONANZA_COLOR_PARTS } from '@/lib/bonanzaColorChoices';
+import { BONANZA_COLOR_PARTS, productAvailableBaseColors } from '@/lib/bonanzaColorChoices';
 import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontProduct } from '@/lib/types';
@@ -106,6 +106,10 @@ export function ProductCard({ product: p, index = 0, matchingColors = [] }: { pr
     : shownCode && shownCode in BONANZA_COLOR_PARTS
       ? [...BONANZA_COLOR_PARTS[shownCode as keyof typeof BONANZA_COLOR_PARTS]]
       : colors.slice(0,1);
+  // Cards reveal the COMPLETE color availability; only the filter uses
+  // photographed colors by default. Never depict a combined SKU as one dot.
+  const allAvailableColors = productAvailableBaseColors(p);
+  const previewColors = allAvailableColors.length ? allAvailableColors : shownParts;
   const availableNotShown = matchingColors.filter((color) => p.color_filter_values?.includes(color));
   const requiresExplanation = availableNotShown.length > 0 && !matchingColors.some((color) => shownParts.includes(color));
   const display = mainRegularPrice(p);
@@ -150,8 +154,16 @@ export function ProductCard({ product: p, index = 0, matchingColors = [] }: { pr
         <h3 className="product-card-title text-bone text-[18px] lg:text-[19px] leading-[1.15] line-clamp-2 min-h-[2.45em]" title={title}>{title}</h3>
         <div className="flex items-center justify-between gap-2 mt-0.5">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--smoke)] min-w-0"><span className="truncate">{worldLabel(p)}</span></div>
-          {shownParts.length > 0 && <div className="flex items-center gap-1.5 shrink-0" aria-label={`Displayed color: ${shownParts.join(' + ')}. ${colors.length} available choices.`} title={`Displayed: ${shownParts.join(' + ')} · ${colors.length} available colorways`}><span className="text-[9px] tracking-[0.18em] uppercase text-[#9b988e]">Color</span>{shownParts.map((c) => <FeyaColorSwatch key={c} color={c} size={12} />)}</div>}
         </div>
+        {previewColors.length > 0 ? <div
+          className="flex min-h-4 items-center gap-2"
+          aria-label={`Available colors: ${previewColors.join(', ')}`}
+          title={`Available colors: ${previewColors.join(', ')}`}>
+          <span className="shrink-0 text-[9px] tracking-[0.18em] uppercase text-[#9b988e]">Colors</span>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-[5px] gap-y-1">
+            {previewColors.map((c) => <FeyaColorSwatch key={c} color={c} size={12} />)}
+          </div>
+        </div> : null}
         {requiresExplanation ? <div className="text-[10px] tracking-[0.04em] text-[#d4bb85]">Available in {availableNotShown.join(' or ')}</div> : null}
         <div className="flex items-end justify-between mt-2.5 pt-2.5 border-t border-[rgba(216,214,211,0.10)] gap-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="card" testidPrefix={`card-price-${slug}`} /><span className="inline-flex items-center gap-1 text-[10.5px] tracking-[0.22em] uppercase text-[#C8C2B5] group-hover:text-white group-hover:gap-1.5 transition-all shrink-0">View <ArrowUpRight size={12} /></span></div>
       </div>

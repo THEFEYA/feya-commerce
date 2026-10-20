@@ -410,11 +410,22 @@ export function ProductDetailClient({
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
         {isCoupleSet && couple
-          ? <CouplePartnerColorSelector available={couple.available} women={womenColorCode} men={menColorCode}
+          ? <CouplePartnerColorSelector
+              available={couple.available}
+              women={womenColorCode} men={menColorCode}
+              womenSize={womenSize} menSize={menSize} sizes={SIZES}
+              showSizeWarning={selectionWarning && (!womenSize || !menSize)}
               onChange={(partner,code)=>{
                 if(!couple.available.includes(code))return;
                 if(partner==='women')setWomenColorCode(code);
                 else setMenColorCode(code);
+                setSelectionWarning(false);
+              }}
+              onSizeChange={(partner,selectedSize)=>{
+                if(!SIZES.includes(selectedSize))return;
+                if(partner==='women')setWomenSize(selectedSize);
+                else setMenSize(selectedSize);
+                setSelectionWarning(false);
               }}/>
           : <>
           <div className="mt-2">
@@ -448,17 +459,7 @@ export function ProductDetailClient({
           </div>
             </>}
 
-        {isCoupleSet ? <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {([{kind:'women' as const,value:womenSize,apply:setWomenSize,title:"Women's Size"},
-            {kind:'men' as const,value:menSize,apply:setMenSize,title:"Men's Size"}]).map(group=><div key={group.kind}>
-            <div className="eyebrow mb-1.5 text-[10px]">{group.title} · {group.value||'Select size'}</div>
-            <div className="flex flex-wrap gap-1">{SIZES.map(s=><button type="button" key={s}
-              aria-pressed={group.value===s}
-              onClick={()=>{group.apply(s);setSelectionWarning(false);}}
-              className={`size-pill ${group.value===s?(s==='Custom'?'size-pill-custom':'size-pill-active'):''}`}>{s}</button>)}</div>
-          </div>)}
-          {selectionWarning && (!womenSize || !menSize) ? <p role="alert" className="text-[11px] text-[#e9bd95] sm:col-span-2">Choose a size for each outfit to continue.</p> : null}
-        </div> : <div className="mt-2">
+        {!isCoupleSet ? <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
           {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}

@@ -62,7 +62,9 @@ test('primary photo facet is distinct from availability for all 207 products',()
   assert.deepEqual(red.color_filter_values,['Gold','Silver','Black','White','Red']);
   const s=defaultShopFilters();
   assert.deepEqual(filterShopProducts([red],{...s,color:['Gold']}),[]);
-  assert.deepEqual(filterShopProducts([red],{...s,color:['Red']}),[red]);
+  assert.deepEqual(filterShopProducts([red],{...s,color:['Red']}),[]);
+  assert.deepEqual(filterShopProducts([red],{...s,color:['Black','Red']}),[red]);
+  assert.deepEqual(filterShopProducts([red],{...s,color:['Red','Gold']}),[]);
   assert.deepEqual(filterShopProducts([red],{...s,color:['Gold'],colorMode:'available'}),[red]);
 });
 

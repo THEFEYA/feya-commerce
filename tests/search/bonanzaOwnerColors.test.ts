@@ -103,8 +103,10 @@ test('filter Black + Red is OR, repeated click removes one color, options retain
     {colors:['blue_black'],held:false});
   const list=[red,blue];
   const filter={...defaultShopFilters(),color:['Black','Red']};
-  assert.deepEqual(filterShopProducts(list,filter),list,'OR: any selected atomic color matches');
-  assert.deepEqual(filterShopProducts(list,{...filter,color:['Red']}),[red]);
+  assert.deepEqual(filterShopProducts(list,filter),[red],'Multi-color photo requires every displayed color');
+  assert.deepEqual(filterShopProducts(list,{...filter,color:['Red']}),[]);
+  assert.deepEqual(filterShopProducts(list,{...filter,color:['Blue','Black']}),[blue]);
+  assert.deepEqual(filterShopProducts(list,{...filter,color:['Gold'],colorMode:'available'}),[red]);
   const url=shopPageHref(1,filter);
   assert.equal(url,'/shop?color=Black%2CRed');
   assert.deepEqual(parseShopNavigation({color:'red,black,red'})?.filters.color,['Black','Red']);

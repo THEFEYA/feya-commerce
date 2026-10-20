@@ -343,16 +343,6 @@ function CatalogFilterPanel({
       </FilterSection>
 
       <FilterSection title="Color" activeCount={filters.color.length} defaultOpen>
-        <div className="mb-3 grid grid-cols-2 gap-1 rounded-lg border border-white/10 bg-white/[.025] p-1" aria-label="Color filter mode">
-          <button type="button" aria-pressed={filters.colorMode==='photo'} onClick={()=>setColorMode('photo')}
-            className={`rounded-md px-2 py-2 text-[10px] transition-colors ${filters.colorMode==='photo'?'bg-[#c2a06a]/20 text-[#edc989]':'text-[#aaa6a0] hover:text-white'}`}>
-            Shown in photos
-          </button>
-          <button type="button" aria-pressed={filters.colorMode==='available'} onClick={()=>setColorMode('available')}
-            className={`rounded-md px-2 py-2 text-[10px] transition-colors ${filters.colorMode==='available'?'bg-[#c2a06a]/20 text-[#edc989]':'text-[#aaa6a0] hover:text-white'}`}>
-            All available colors
-          </button>
-        </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
@@ -375,6 +365,14 @@ function CatalogFilterPanel({
             </button>
           ))}
         </div>
+        <label title="Also include items available to order in your selected colors, even when the photo shows a different shade."
+          className="mt-3 flex cursor-pointer items-center gap-2 border-t border-white/[0.07] pt-3 text-[11px] leading-4 text-[var(--bone-dim)] hover:text-white">
+          <input type="checkbox" checked={filters.colorMode === 'available'}
+            onChange={(e)=>setColorMode(e.target.checked ? 'available' : 'photo')}
+            className="h-3.5 w-3.5 shrink-0 rounded border border-white/30 accent-[#c9a966]"
+            aria-label="Include other available colors" />
+          <span>Include other available colors</span>
+        </label>
       </FilterSection>
 
       <FilterSection title="Event" activeCount={filters.event.length} defaultOpen={defaultOpenFilterSections.includes('Event')}>
@@ -724,7 +722,7 @@ export function ShopClient({
           {color.length>0 ? <div role="status" className="mb-5 flex items-start gap-2.5 border-l-2 border-[#bfa26f]/60 bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--bone-dim)]">
             <Info size={14} className="mt-0.5 shrink-0 text-[#d6b56c]" />
             {colorMode==='photo'
-              ? <p>Showing items photographed in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Other shades may be available inside each product.</p>
+              ? <p>Showing looks photographed in the selected colors. For multi-color designs, select every color shown. Other shades may be available inside each product.</p>
               : <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show another shade; choose the color inside the product.</p>}
           </div> : null}
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}

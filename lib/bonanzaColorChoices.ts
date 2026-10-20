@@ -119,6 +119,19 @@ const BASE_TONES: Record<string,string> = {
 };
 
 /** Tiny jewelry-like metallic/iridescent finishes; no graphic file, no new image request. */
+/** Every available base color as an individual circle, with photographed
+ * colors first. This is a *display* projection, NEVER the photo filter.
+ * A two/three-tone selectable PDP colorway is not itself a catalog swatch.
+ */
+export function productAvailableBaseColors(product: StorefrontProduct): string[] {
+  const codes = product.color_choices || [];
+  if (!codes.length) return [];
+  const available = constituentColors(codes);
+  const photographed = (product.photo_color_filter_values || [])
+    .filter((color) => available.includes(color));
+  return [...new Set([...photographed, ...available])];
+}
+
 export function colorChoiceStyle(code: string): {backgroundImage?: string; background?: string} {
   const parts = CHOICES[code];
   if (!parts) return {background:'#55575d'};

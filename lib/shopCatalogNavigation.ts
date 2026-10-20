@@ -277,11 +277,18 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
     if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
 
     if (filters.color.length) {
-      const selected = filters.colorMode === 'available'
-        ? (product.color_filter_values ?? facets?.colors ?? [])
-        : (product.photo_color_filter_values ?? (product.canonical_color_label ? [product.canonical_color_label] : []));
-      // Color options OR together, other independent facet groups AND together.
-      if (!filters.color.some((color) => selected.includes(color))) return false;
+      if (filters.colorMode === 'available') {
+        // Broad discovery: one selected color occurring in any confirmed option.
+        const offered = product.color_filter_values ?? facets?.colors ?? [];
+        if (!filters.color.some((color) => offered.includes(color))) return false;
+      } else {
+        // Photo-first discovery: a photographed Black+Gold look needs BOTH
+        // filters. This preserves solid Gold looks for "Gold" and avoids
+        // pulling in Black+Silver when someone selects Gold+Black.
+        const photographed = product.photo_color_filter_values
+          ?? (product.canonical_color_label ? [product.canonical_color_label] : []);
+        if (!photographed.length || !photographed.every((color) => filters.color.includes(color))) return false;
+      }
     }
 
     if (!matchesAny(filters.event, facets?.events)) return false;
