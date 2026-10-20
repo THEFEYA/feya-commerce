@@ -54,6 +54,8 @@ export async function POST(request:NextRequest){
    'manual_reference_unavailable','automatic_front_detection_unavailable',
    'reference_not_found','reference_rank_failed','model_quota_or_billing',
    'model_rejected_images','image_provider_unavailable','image_result_invalid',
+   'image_api_authentication_failed','image_model_access_denied',
+   'image_model_not_found','image_rate_limited',
   ]);
   return failed(allowed.has(reason)?reason:'generation_temporarily_unavailable',503);
  }
