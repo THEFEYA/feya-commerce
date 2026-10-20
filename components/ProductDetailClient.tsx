@@ -26,6 +26,7 @@ import {
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
+import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
 import { productColorChoices, colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
@@ -127,9 +128,14 @@ export function ProductDetailClient({
   const options = useMemo(() => sortedOptions(p), [p]);
   const full = options.find((o, i) => isFullSetOption(o, i));
   const fullKey = full ? optionKey(full, options.indexOf(full)) : '';
+  const pricedColors = verifiedColorPriceRows(p.canonical_product_id,options);
+  const photographedPriceRow = pricedColors?.find(option=>option.configuration_color?.toLowerCase()
+    === colorChoiceLabel(p.default_color_choice||'').toLowerCase()) || null;
 
   const [idx, setIdx] = useState(0);
-  const [configKey, setConfigKey] = useState(fullKey || (options.length === 1 ? optionKey(options[0], 0) : ''));
+  const [configKey, setConfigKey] = useState(pricedColors!==null
+    ? (photographedPriceRow ? optionKey(photographedPriceRow,options.indexOf(photographedPriceRow)) : '')
+    : fullKey || (options.length === 1 ? optionKey(options[0], 0) : ''));
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [size, setSize] = useState('');
@@ -268,7 +274,8 @@ export function ProductDetailClient({
 
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
-    if (!activeConfig || (isCoupleSet ? !womenSize || !menSize : !size)) { setSelectionWarning(true); return; }
+    if (!activeConfig || (pricedColors!==null && !pricedColors.some(o=>optionKey(o,options.indexOf(o))===configKey))
+      || (isCoupleSet ? !womenSize || !menSize : !size)) { setSelectionWarning(true); return; }
     setSelectionWarning(false);
     const current = readCart();
     const id = `${p.canonical_product_id || slug}-${configKey}-${selectedSize}-${selectedColor}`;
@@ -379,9 +386,9 @@ export function ProductDetailClient({
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
         {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
-        <div className="mt-2">{activeConfig ? <SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /> : <span className="text-sm text-[var(--bone-dim)]">Select a configuration to see the price</span>}</div>
+        <div className="mt-2">{activeConfig ? <SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /> : <span className="text-sm text-[var(--bone-dim)]">{pricedColors!==null ? 'Color requires a custom quote' : 'Select a configuration to see the price'}</span>}</div>
 
-        {options.length > 1 ? <div className="mt-2 relative">
+        {options.length > 1 && pricedColors===null ? <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
           <button
             type="button"
@@ -416,6 +423,13 @@ export function ProductDetailClient({
               type="button" key={c + i} role="radio" aria-label={`Select ${c}`} aria-checked={c===selectedColor}
               onClick={() => {
                 if (reviewedColors.length) {
+                  if (pricedColors!==null) {
+                    const observed=pricedColors.find(o=>o.configuration_color?.toLowerCase()===c.toLowerCase());
+                    setColorIdx(i);
+                    setConfigKey(observed ? optionKey(observed,options.indexOf(observed)) : '');
+                    setSelectionWarning(false);
+                    return;
+                  }
                   const code=reviewedColors[i]?.code;
                   if (code && activePartner === 'women') setWomenColorCode(code);
                   else if (code && activePartner === 'men') setMenColorCode(code);
@@ -447,7 +461,7 @@ export function ProductDetailClient({
         </div> : <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
-          {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
+          {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
         </div>}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">

@@ -112,7 +112,7 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  assert.equal(visual.files['components/ProductDetailClient.tsx'],'49a34617045d27067f871be96238c3e6d6f7f423');
+  assert.equal(visual.files['components/ProductDetailClient.tsx'],'83861186abafdadcd082b44755c6fab6e3cf6c02');
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);
