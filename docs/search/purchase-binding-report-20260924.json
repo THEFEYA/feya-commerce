@@ -8466,7 +8466,7 @@
       "Custom"
     ],
     "default_size": null,
-    "current_size_change_updates_configuration_price": false,
+    "current_size_change_updates_configuration_price": null,
     "finding": "Static code inspection: size state is independent of selected configuration and price. Final adapter must bind existing controls to approved tuple evidence without redesign.",
     "activation_requires": [
       "current complete selection evidence",
