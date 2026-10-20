@@ -36,10 +36,28 @@ async function normalizePhoto(file:File,face:boolean):Promise<Photo>{
   const ctx=canvas.getContext('2d');
   if(!ctx)throw new Error('Your browser cannot prepare the image.');
   ctx.drawImage(element,0,0,canvas.width,canvas.height);
-  const blob=await new Promise<Blob>((resolve,reject)=>{
-   canvas.toBlob(b=>b?resolve(b):reject(new Error('Cannot prepare this photo.')),'image/jpeg',.84);
-  });
-  if(blob.size>6*1024*1024)throw new Error('Photo remains too large. Try a smaller file.');
+  // Two photos must stay below Vercel's 4.5 MB request-body limit.
+  // Resize/encode on the device rather than storing customer portraits online.
+  // Keep enough pixels for facial identity and garment/body proportions.
+  const targetBytes=face?750_000:1_550_000;
+  let blob:Blob|null=null;
+  let quality=.82;
+  for(let attempt=0;attempt<7;attempt++){
+   blob=await new Promise<Blob>((resolve,reject)=>{
+    canvas.toBlob(b=>b?resolve(b):reject(new Error('Cannot prepare this photo.')),'image/jpeg',quality);
+   });
+   if(blob.size<=targetBytes)break;
+   if(quality>.66){quality=Math.max(.62,quality-.08);}
+   else{
+    const downsized=document.createElement('canvas');
+    downsized.width=Math.round(canvas.width*.82);
+    downsized.height=Math.round(canvas.height*.82);
+    downsized.getContext('2d')?.drawImage(canvas,0,0,downsized.width,downsized.height);
+    canvas.width=downsized.width;canvas.height=downsized.height;
+    canvas.getContext('2d')?.drawImage(downsized,0,0);
+   }
+  }
+  if(!blob||blob.size>targetBytes)throw new Error('Photo remains too large. Try a less detailed JPG.');
   const normalized=new File([blob],face?'face.jpg':'full-body.jpg',{type:'image/jpeg'});
   return{file:normalized,url:URL.createObjectURL(normalized)};
  }finally{URL.revokeObjectURL(origin);}
