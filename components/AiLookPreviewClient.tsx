@@ -78,13 +78,15 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
  const [saved,setSaved]=useState(false);
  const [connection,setConnection]=useState<{ok:boolean;status:string;message:string}|null>(null);
  const [checkingConnection,setCheckingConnection]=useState(false);
+ const [ownerKeyVerified,setOwnerKeyVerified]=useState(false);
+ const ownerKeyInput=useRef<HTMLInputElement>(null);
  const selfieInput=useRef<HTMLInputElement>(null);
  const bodyInput=useRef<HTMLInputElement>(null);
  const videoRef=useRef<HTMLVideoElement>(null);
  const activeStream=useRef<MediaStream|null>(null);
  const abortRef=useRef<AbortController|null>(null);
  const remaining=Math.max(0,3-used);
- const connected=connection?.ok??configured;
+ const connected=ownerKeyVerified||(connection?.ok??configured);
  const price=look.configs.find(c=>c.id===configuration)?.price??null;
  const label=look.configs.find(c=>c.id===configuration)?.label||'Full Set';
  const chosenColor=look.colors.find(c=>c.code===color)?.label||'As photographed';
@@ -105,13 +107,25 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
  },[]);
  async function checkConnection(){
   if(checkingConnection)return;
-  setCheckingConnection(true);
+  setCheckingConnection(true);setError('');
+  // Read directly from the password input. The secret is never placed in URL,
+  // React state, local/session storage, image metadata or analytics.
+  const supplied=ownerKeyInput.current?.value.trim()||'';
+  const suppliedKey=Boolean(supplied);
   try{
-   const response=await fetch('/api/experiments/ai-look-preview/health',{cache:'no-store'});
+   const response=await fetch('/api/experiments/ai-look-preview/health',{
+    method:suppliedKey?'POST':'GET',
+    headers:suppliedKey?{'Content-Type':'application/json'}:undefined,
+    body:suppliedKey?JSON.stringify({apiKey:supplied}):undefined,
+    cache:'no-store',
+   });
    const json=await response.json() as {ok:boolean;status:string;message:string};
    setConnection(json);
-  }catch{setConnection({ok:false,status:'connection_check_failed',message:'Cannot reach the image service diagnostics. Try again.'});}
-  finally{setCheckingConnection(false);}
+   setOwnerKeyVerified(suppliedKey&&json.ok);
+  }catch{
+   setOwnerKeyVerified(false);
+   setConnection({ok:false,status:'connection_check_failed',message:'Cannot reach the image service diagnostics. Try again.'});
+  }finally{setCheckingConnection(false);}
  }
 
  useEffect(()=>{
@@ -183,6 +197,12 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
   form.set('configuration',configuration);form.set('color',color);
   form.set('manualReference',manualReference===null?'auto':String(manualReference));
   form.set('selfie',face.file);form.set('fullBody',body.file);
+  // Sent over HTTPS in this single private owner request only.
+  // No secret is stored by the app or added to a URL.
+  if(ownerKeyVerified){
+   const apiKey=ownerKeyInput.current?.value.trim();
+   if(apiKey)form.set('ownerApiKey',apiKey);
+  }
   try{
    const response=await fetch('/api/experiments/ai-look-preview/generate',{
     method:'POST',body:form,signal:ctrl.signal,cache:'no-store'
@@ -318,15 +338,24 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
        result?'Generated from real listing references. Review garment details before buying.':
        'Upload two photos and choose a scene to start.'}</p>
     </div>
-    {connection&&!connection.ok?<div className="tryon-connection" role="status">
-      <div className="tryon-connection-title"><Info size={17}/> OpenAI image generation is not connected</div>
-      <p>{connection.message}</p>
-      <p>Vercel → feya-commerce → Settings → Environment Variables → Preview, branch <code>work/ai-look-preview-prototype-20261020</code>.</p>
-      <p>Add encrypted <code>OPENAI_API_KEY</code> and <code>FEYA_AI_LOOK_PREVIEW_ENABLED=true</code>; redeploy this Preview.</p>
+    {!connected?<div className="tryon-connection" role="group" aria-labelledby="tryon-owner-connection-label">
+      <div className="tryon-connection-title" id="tryon-owner-connection-label"><Info size={17}/> One-time connection · private owner test</div>
+      <p>Enter your OpenAI API key here to activate real image generation in this protected Beta. You can use your existing key. It is held only while this browser tab stays open.</p>
+      <label className="tryon-owner-label" htmlFor="tryon-private-key">OpenAI API key</label>
+      <input id="tryon-private-key" ref={ownerKeyInput} type="password" name="feya-preview-owner-key"
+       autoComplete="off" spellCheck={false} maxLength={240}
+       className="tryon-owner-secret" placeholder="sk-proj-…"
+       onChange={()=>{setOwnerKeyVerified(false);setConnection({ok:false,status:'key_changed',message:'Press Verify connection to confirm this key.'});}}
+       aria-describedby="tryon-private-key-help"/>
+      <p id="tryon-private-key-help">Only your protected Preview can send it to OpenAI. It will not be saved, displayed, or used in Production. Generation incurs OpenAI API charges.</p>
+      {connection&&!connection.ok&&connection.status!=='setup_required'?<p className="tryon-owner-feedback" role="status">{connection.message}</p>:null}
       <button type="button" onClick={()=>void checkConnection()} disabled={checkingConnection}>
-        {checkingConnection?'Checking…':'Recheck connection'} <RefreshCcw size={14}/>
+        {checkingConnection?'Verifying connection…':'Verify connection'} <RefreshCcw size={14}/>
       </button>
-     </div>:connection?.ok?<p className="tryon-connection-ready"><Check size={16}/> OpenAI connected. You can generate a real preview.</p>:null}
+      <details className="tryon-owner-alternative"><summary>Alternatively, connect a Vercel Preview secret</summary>
+        <p>For a permanent owner-only setup, set encrypted <code>OPENAI_API_KEY</code> and <code>FEYA_AI_LOOK_PREVIEW_ENABLED=true</code> on this branch, then redeploy. This is not required for the one-time test.</p>
+      </details>
+     </div>:<p className="tryon-connection-ready"><Check size={16}/> OpenAI connection verified. Upload two photos and press Generate my preview.</p>}
     {error?<div className="tryon-error" role="alert">{error}</div>:null}
     <button type="button" className="tryon-generate" onClick={()=>void generate()} disabled={generating||remaining===0||!connected}>
      {generating?<LoaderCircle size={18} className="tryon-spin"/>:<Sparkles size={18}/>}
