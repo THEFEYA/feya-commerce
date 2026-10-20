@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { StorefrontProduct } from '@/lib/types';
+import { applyReviewedBonanzaColors } from '@/lib/bonanzaColorCatalogServer';
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import {
   buildStorefrontFacets,
@@ -164,7 +165,9 @@ export async function attachStorefrontFacets(products: StorefrontProduct[]): Pro
     readImmutableMembershipCodes(service, ids),
   ]);
 
-  return products.map((product) => ({
+  // Collections use an independent release-bound card source. Preserve its exact
+  // memberships/SEO axes, then attach the same owner-approved colorways as Shop.
+  return products.map((product) => applyReviewedBonanzaColors({
     ...product,
     facets: buildStorefrontFacets(
       snapshotByProduct.get(product.canonical_product_id),

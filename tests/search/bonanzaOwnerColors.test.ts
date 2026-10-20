@@ -111,3 +111,14 @@ test('filter Black + Red is OR, repeated click removes one color, options retain
   assert.deepEqual(parseShopNavigation({color:'red,black,red'})?.filters.color.filter(c=>c!=='Black'),['Red']);
   assert.equal(parseShopNavigation({color:'black,not-real'}),null);
 });
+
+
+test('released SEO collections share the same owner-approved colorway overlay as Shop',()=>{
+  const facets=readFileSync('lib/storefrontFacetsServer.ts','utf8');
+  const landing=readFileSync('lib/searchLandingPageServer.ts','utf8');
+  const card=readFileSync('lib/storefrontCardReadModelServer.ts','utf8');
+  assert.match(landing,/products:await attachStorefrontFacets\(release\.products\)/);
+  assert.match(facets,/products\.map\(\(product\) => applyReviewedBonanzaColors\(/);
+  assert.match(card,/rows\.map\(\(row\) => applyReviewedBonanzaColors\(/);
+  assert.doesNotMatch(facets,/\.insert\(|\.update\(|\.upsert\(|\.delete\(/);
+});
