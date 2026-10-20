@@ -132,13 +132,24 @@ export function productAvailableBaseColors(product: StorefrontProduct): string[]
   return [...new Set([...photographed, ...available])];
 }
 
+/**
+ * A continuous, luminous spectral finish. Radial layers soften the conic
+ * palette; nothing is clipped to a rectangular inner tile or canvas.
+ * The first and last conic stops agree to avoid a visible seam.
+ */
+const HOLO_SPECTRUM = 'conic-gradient(from 12deg at 50% 50%,#18cce0 0%,#477af4 17%,#ad52e5 34%,#f450b9 50%,#fac47d 68%,#43cda7 85%,#18cce0 100%)';
+const HOLO_BLOOM = [
+  'radial-gradient(ellipse at 23% 20%,rgba(94,238,228,.76) 0%,rgba(94,238,228,0) 57%)',
+  'radial-gradient(ellipse at 80% 22%,rgba(80,121,252,.64) 0%,rgba(80,121,252,0) 59%)',
+  'radial-gradient(ellipse at 73% 78%,rgba(248,77,205,.54) 0%,rgba(248,77,205,0) 58%)',
+  'radial-gradient(ellipse at 23% 77%,rgba(255,182,214,.61) 0%,rgba(255,182,214,0) 55%)',
+  'radial-gradient(ellipse at 54% 60%,rgba(255,223,138,.35) 0%,rgba(255,223,138,0) 66%)',
+].join(',');
+
 export function colorChoiceStyle(code: string): {backgroundImage?: string; background?: string} {
   const parts = CHOICES[code];
   if (!parts) return {background:'#55575d'};
-  const glint = 'linear-gradient(130deg,rgba(255,255,255,.24) 0%,rgba(255,255,255,.035) 34%,transparent 49%,rgba(0,0,0,.22) 100%)';
-  // Distinct saturated neon/metallic iridescence, legible even as a 12px dot.
-  // Avoid the original near-white pastels which visually merged with Silver.
-  const holo = 'conic-gradient(from 10deg,#08bddd 0%,#4167ee 14%,#b044ef 29%,#ef38b1 44%,#fc9969 58%,#f6cf64 68%,#22c99c 82%,#08bddd 100%)';
+  const glint = 'linear-gradient(130deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.025) 40%,transparent 62%,rgba(0,0,0,.16) 100%)';
   if (parts.length===1) {
     const base: Record<string,string> = {
       Gold: 'linear-gradient(128deg,#76511f 0%,#d9b160 25%,#fff0b0 43%,#b18131 59%,#edcf8b 79%,#826029 100%)',
@@ -151,28 +162,30 @@ export function colorChoiceStyle(code: string): {backgroundImage?: string; backg
       Blue: 'linear-gradient(125deg,#1d447e,#79b5e8 41%,#24588e 65%,#172f5e)',
       Brown: 'linear-gradient(126deg,#4c2c1e,#bc8a60 42%,#794a36 67%,#3c261d)',
     };
-    return {backgroundImage:parts[0]==='Holographic'?glint+','+holo:glint+','+(base[parts[0]]||base.Black)};
+    return {backgroundImage:parts[0]==='Holographic'
+      ? glint+','+HOLO_BLOOM+','+HOLO_SPECTRUM
+      : glint+','+(base[parts[0]]||base.Black)};
   }
-  // Conic sectors remain one inseparable colorway. Brightness/reflection is a
-  // separate overlay so Silver/Gold do not read as flat gray/yellow chips.
-  let cursor=0;const stops:string[]=[];
+
+  // Mixed variants remain ONE approved selectable colorway, with separate
+  // constituent sectors (Holographic + Black, Holographic + White, etc.).
+  // Unlike the former banded strips, every holographic sector interpolates
+  // smoothly across the complete spectrum; only material divisions are crisp.
+  let cursor=0;
+  const stops:string[]=[];
   for(const part of parts){
-    const start=cursor, end=cursor+100/parts.length;cursor=end;
+    const start=cursor, end=cursor+100/parts.length;
+    cursor=end;
     if(part==='Holographic'){
-      // Preserve the boundaries of an indivisible multi-color option while
-      // painting its Holographic sector as a genuine colorful finish.
-      const spectrum=['#08bddd','#4167ee','#b044ef','#ef38b1','#fc9969','#22c99c'];
-      const span=(end-start)/spectrum.length;
-      spectrum.forEach((tone,j)=>{
-        stops.push(tone+' '+(start+j*span).toFixed(2)+'%',tone+' '+(start+(j+1)*span).toFixed(2)+'%');
-      });
-    }else{
+      const spectrum=['#18cce0','#477af4','#ad52e5','#f450b9','#fac47d','#43cda7','#18cce0'];
+      spectrum.forEach((tone,j)=>stops.push(tone+' '+(start+(end-start)*j/(spectrum.length-1)).toFixed(3)+'%'));
+    } else {
       const tone=BASE_TONES[part]||'#888888';
-      stops.push(tone+' '+start.toFixed(2)+'%',tone+' '+end.toFixed(2)+'%');
+      stops.push(tone+' '+start.toFixed(3)+'%',tone+' '+end.toFixed(3)+'%');
     }
   }
-  const overlay='radial-gradient(circle at 25% 18%,rgba(255,255,255,.45),transparent 35%)';
-  return {backgroundImage:glint+','+overlay+',conic-gradient(from 225deg,'+stops.join(',')+')'};
+  const ambient='radial-gradient(ellipse at 23% 17%,rgba(255,255,255,.23),transparent 52%)';
+  return {backgroundImage:glint+','+ambient+',conic-gradient(from 225deg at 50% 50%,'+stops.join(',')+')'};
 }
 
 export function productColorChoices(product: StorefrontProduct): {code:string;label:string}[] {
