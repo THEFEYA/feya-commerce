@@ -117,6 +117,11 @@ export type StorefrontProduct = {
   world_label?: string | null;
   canonical_color_label?: string | null;
   color_options?: string[] | null;
+  /** Confirmed selectable entire colorways from the separate Bonanza owner source. */
+  color_choices?: string[];
+  default_color_choice?: string | null;
+  color_filter_values?: string[];
+  color_choice_source?: string | null;
   facets?: StorefrontFacetSet;
 };
 
