@@ -390,7 +390,7 @@ export function ProductDetailClient({
             title={c}>
               <FeyaColorSwatch color={c} selected={c===selectedColor} size={27}/>
             </button>)}</div>
-          {reviewedColors.length>1 ? <p className="mt-2 text-[10px] leading-4 text-[var(--smoke)]">Shown in {reviewedColors[0]?.label || selectedColor}. Other available finishes are made to order.</p> : null}
+
         </div>
 
         <div className="mt-2">

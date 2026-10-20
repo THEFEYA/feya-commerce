@@ -1,6 +1,7 @@
 import 'server-only';
 
 import reviewed from '@/config/bonanzaReviewedColors20261011.json';
+import overrides from '@/config/bonanzaColorDisplayOverrides.json';
 import { enrichStorefrontProductColors, type OwnerColorChoices } from '@/lib/bonanzaColorChoices';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -13,5 +14,10 @@ import type { StorefrontProduct } from '@/lib/types';
 const source = reviewed.products as Record<string, OwnerColorChoices>;
 
 export function applyReviewedBonanzaColors(product: StorefrontProduct): StorefrontProduct {
-  return enrichStorefrontProductColors(product, source[product.canonical_product_id]);
+  const original = source[product.canonical_product_id];
+  if (!original || original.held) return product;
+  // Only separately reviewed primary and base-color visibility may override the
+  // preserved Bonanza choices. Versioned JSON is committed after owner export review.
+  const override = (overrides.products as Record<string,{primary:string;filter_colors:string[]}>)[product.canonical_product_id];
+  return enrichStorefrontProductColors(product, override ? {...original,...override} : original);
 }
