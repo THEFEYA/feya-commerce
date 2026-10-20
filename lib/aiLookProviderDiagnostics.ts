@@ -45,6 +45,14 @@ const BAD_PARAMETERS=new Set([
  'invalid_type','missing_required_parameter',
 ]);
 const BLOCKED=new Set(['moderation_blocked','content_policy_violation']);
+export class AiLookProviderError extends Error{
+ readonly diagnostic:AiLookProviderDiagnostic;
+ constructor(diagnostic:AiLookProviderDiagnostic){
+  super(diagnostic.reason);
+  this.name='AiLookProviderError';
+  this.diagnostic=diagnostic;
+ }
+}
 export function classifyAiLookImageError(
  status:number,providerBody:unknown,providerRequestId:unknown
 ):AiLookProviderDiagnostic{
