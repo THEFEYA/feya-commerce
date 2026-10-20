@@ -365,7 +365,7 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
        className="tryon-owner-secret" placeholder="sk-proj-…"
        onChange={()=>{setOwnerKeyVerified(false);setConnection({ok:false,status:'key_changed',message:'Press Verify connection to confirm this key.'});}}
        aria-describedby="tryon-private-key-help"/>
-      <p id="tryon-private-key-help">Only your protected Preview can send it to OpenAI. It will not be saved, displayed, or used in Production. Generation incurs OpenAI API charges.</p>
+      <p id="tryon-private-key-help">Important: The API Keys table only shows a masked key and a Tracking ID. Neither can be used for authentication. You need the full secret value copied when the key was created. Never use the key name. The secret is not stored by TheFEYA; generation incurs OpenAI API charges.</p>
       {connection&&!connection.ok&&connection.status!=='setup_required'?<p className="tryon-owner-feedback" role="status">{connection.message}</p>:null}
       <button type="button" onClick={()=>void checkConnection()} disabled={checkingConnection}>
         {checkingConnection?'Verifying connection…':'Verify connection'} <RefreshCcw size={14}/>
