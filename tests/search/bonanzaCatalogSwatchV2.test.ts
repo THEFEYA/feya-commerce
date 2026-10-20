@@ -106,7 +106,7 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.match(swatch,/ring-\[1\.5px\] ring-\[#dfc07c\]/);
   assert.match(colors,/HOLO_BLOOM/);
   assert.match(colors,/HOLO_SPECTRUM/);
-  assert.doesNotMatch(colors,/stops\.push\(tone\+'.*%',tone\+'/);
+  assert.match(colors,/spectrum\.forEach\(\(tone,j\)=>stops\.push\(tone\+'/);
   assert.match(pdp,/womenSize=\{womenSize\} menSize=\{menSize\} sizes=\{SIZES\}/);
   assert.match(pdp,/onSizeChange=/);
   assert.match(pdp,/\{!isCoupleSet && <div className="mt-2">/);
