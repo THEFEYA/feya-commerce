@@ -77,7 +77,7 @@ test('photo prompt preserves customer identity and factual FEYA product details 
  assert.match(text,/without idealizing, thinning/);
  assert.match(text,/subtle, relaxed, confident natural smile/);
  assert.match(text,/Holographic \+ White/);
- assert.match(text,/blurred/);
+ assert.match(text,/defocused|depth of field/);
 });
 
 test('browser sends only two user photos; no invented previews, no real payments or live deployment by default',()=>{
