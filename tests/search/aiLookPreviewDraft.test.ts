@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {
- isAiLookOwnerPreview,isAiLookGenerationConfigured,AI_LOOK_PREVIEW_BRANCH,
+ isAiLookOwnerPreview,isAiLookGenerationConfigured,resolveAiLookOwnerTestKey,AI_LOOK_PREVIEW_BRANCH,
 } from '../../lib/aiLookPreviewPolicy.ts';
 import {buildAiLookPreviewPrompt} from '../../lib/aiLookPreviewPrompt.ts';
 import approvedCatalog from '../../config/bonanzaColorReviewCatalog20261020.json' with {type:'json'};
@@ -32,6 +32,20 @@ test('private FEYA try-on route is scoped to one Preview project, not public pro
  assert.match(file('next.config.ts'),/work\/ai-look-preview-prototype-20261020/);
 });
 
+test('ephemeral owner key never enables Production or a different branch',()=>{
+ const fake='sk-test-'+'X'.repeat(70);
+ const env={VERCEL:'1',VERCEL_ENV:'preview',
+  VERCEL_PROJECT_ID:'prj_ePIymo4sUG33wrRjHBxWrSlaxPID',
+  VERCEL_GIT_COMMIT_REF:AI_LOOK_PREVIEW_BRANCH};
+ assert.equal(resolveAiLookOwnerTestKey(env,fake),fake);
+ assert.equal(resolveAiLookOwnerTestKey({...env,VERCEL_ENV:'production'},fake),null);
+ assert.equal(resolveAiLookOwnerTestKey({...env,VERCEL_GIT_COMMIT_REF:'main'},fake),null);
+ assert.equal(resolveAiLookOwnerTestKey({...env,FEYA_OWNER_PREVIEW_DISABLED:'true'},fake),null);
+ assert.equal(resolveAiLookOwnerTestKey(env,'not-a-key'),null);
+ assert.equal(resolveAiLookOwnerTestKey(env,fake+' '),null);
+ assert.equal(resolveAiLookOwnerTestKey(env,('sk-'+'A'.repeat(500))),null);
+});
+
 test('experiment binds only reviewed 207 products to truthful variant identities',()=>{
  assert.equal(approvedCatalog.count,207);
  assert.equal(approvedCatalog.products.length,207);
@@ -55,7 +69,13 @@ test('owner Preview has a no-image OpenAI connectivity probe and never exposes s
  const ui=file('components/AiLookPreviewClient.tsx');
  assert.match(ui,/checkConnection\(\)/);
  assert.match(ui,/tryon-connection/);
- assert.match(ui,/Recheck connection/);
+ assert.match(ui,/Verify connection/);
+ assert.match(ui,/type="password"/);
+ assert.match(ui,/method:suppliedKey\?'POST':'GET'/);
+ assert.match(ui,/form\.set\('ownerApiKey',apiKey\)/);
+ assert.match(source,/export async function POST\(request:NextRequest\)/);
+ assert.match(source,/isOwnOrigin\(request\)/);
+ assert.match(source,/resolveAiLookOwnerTestKey\(process\.env,raw\)/);
  assert.match(ui,/Awaiting OpenAI connection/);
  assert.match(ui,/disabled=\{generating\|\|remaining===0\|\|!connected\}/);
 });
@@ -72,7 +92,7 @@ test('customer reference images are verified, server-only; provider never gets c
  assert.match(server,/redirect:'error'/);
  assert.match(server,/input_fidelity','high'/);
  assert.match(route,/same_origin_required/);
- assert.match(route,/isAiLookGenerationConfigured\(process\.env\)/);
+ assert.match(route,/resolveAiLookOwnerTestKey\(process\.env,form\.get\('ownerApiKey'\)\)/);
  assert.match(route,/aiLookReadApprovedListing\(slug\)/);
  assert.match(route,/product\.configs\.find/);
  assert.match(route,/product\.colors\.some/);
@@ -104,11 +124,11 @@ test('browser sends only two user photos; no invented previews, no real payments
  assert.match(ui,/form\.set\('fullBody',body\.file\)/);
  assert.match(ui,/form\.set\('manualReference',manualReference===null\?'auto'/);
  assert.match(ui,/result\.imageDataUrl/);
- assert.match(ui,/OpenAI generation is not connected/);
+ assert.match(ui,/One-time connection/);
  assert.match(ui,/Math\.min\(3,count\+1\)/);
  assert.match(ui,/Paid previews unavailable until checkout activation/);
  assert.doesNotMatch(ui,/new OpenAI\(/);
- assert.doesNotMatch(ui,/NEXT_PUBLIC_OPENAI_API_KEY|sk-proj-/);
+ assert.doesNotMatch(ui,/NEXT_PUBLIC_OPENAI_API_KEY|sk-proj-[A-Za-z0-9_-]{30,}/);
  const css=file('app/experiments/ai-look-preview/preview.css');
  assert.match(css,/prefers-reduced-motion/);
  assert.match(css,/max-width:760px/);
