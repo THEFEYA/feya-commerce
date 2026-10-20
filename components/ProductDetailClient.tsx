@@ -127,9 +127,10 @@ export function ProductDetailClient({
   const fullKey = full ? optionKey(full, options.indexOf(full)) : '';
 
   const [idx, setIdx] = useState(0);
-  const [configKey, setConfigKey] = useState(fullKey || (options[0] ? optionKey(options[0], 0) : ''));
+  const [configKey, setConfigKey] = useState(fullKey || (options.length === 1 ? optionKey(options[0], 0) : ''));
+  const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [size, setSize] = useState('M');
+  const [size, setSize] = useState('');
   const [colorIdx, setColorIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -139,9 +140,9 @@ export function ProductDetailClient({
   const lightboxCloseRef = useRef<HTMLButtonElement | null>(null);
   const measuredViewProductRef = useRef('');
 
-  const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
+  const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || (options.length === 1 ? options[0] : null);
   const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
-  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Full Set';
+  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Select configuration';
   const display = optionPrice(activeConfig) ?? p.full_set_display_price_amount ?? p.max_price ?? p.min_price ?? 0;
   const compareAt = optionCompareAtPrice(activeConfig);
   const hasCompareAt = compareAt != null && display != null && compareAt > display;
@@ -249,6 +250,8 @@ export function ProductDetailClient({
 
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
+    if (!activeConfig || !size) { setSelectionWarning(true); return; }
+    setSelectionWarning(false);
     const current = readCart();
     const id = `${p.canonical_product_id || slug}-${configKey}-${size}-${selectedColor}`;
     const existingIndex = current.findIndex((item: { id: string }) => item.id === id);
@@ -353,9 +356,9 @@ export function ProductDetailClient({
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
         {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
-        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
+        <div className="mt-2">{activeConfig ? <SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /> : <span className="text-sm text-[var(--bone-dim)]">Select a configuration to see the price</span>}</div>
 
-        <div className="mt-2 relative">
+        {options.length > 1 ? <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
           <button
             type="button"
@@ -370,10 +373,10 @@ export function ProductDetailClient({
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); setSelectionWarning(false); }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
             })}
           </div> : null}
-        </div>
+        </div> : null}
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
         <div className="mt-2">
@@ -394,15 +397,16 @@ export function ProductDetailClient({
         </div>
 
         <div className="mt-2">
-          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
-          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
+          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
+          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
+          {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
         </div>
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
         </div>
 
-        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
+        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale, currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total, currency) : '—'}</div></div>
         {previewMode
           ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
           : <>
