@@ -24,7 +24,9 @@ import {
   Truck,
 } from 'lucide-react';
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
-import { productColorChoices } from '@/lib/bonanzaColorChoices';
+import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
+import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
+import { productColorChoices, colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
@@ -131,6 +133,11 @@ export function ProductDetailClient({
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [size, setSize] = useState('');
+  const couple = useMemo(() => coupleColorSelection(p), [p]);
+  const [womenColorCode, setWomenColorCode] = useState(couple?.defaultPair.women || '');
+  const [menColorCode, setMenColorCode] = useState(couple?.defaultPair.men || '');
+  const [womenSize, setWomenSize] = useState('');
+  const [menSize, setMenSize] = useState('');
   const [colorIdx, setColorIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -152,10 +159,21 @@ export function ProductDetailClient({
   const total = sale * qty;
   const colors = colorOptions(p);
   const reviewedColors = productColorChoices(p);
-  const selectedColorCode = reviewedColors[colorIdx]?.code || null;
-  const selectedColor = reviewedColors.length
-    ? colors[colorIdx] || colors[0]
-    : activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
+  const isCoupleSet = Boolean(couple && activeConfig && isFullSetOption(activeConfig,activeConfigIndex));
+  const audience = String(activeConfig?.configuration_audience || '').toLowerCase();
+  const activePartner = couple && (audience === 'women' || audience === 'men') ? audience : null;
+  const selectedColorCode = isCoupleSet ? null
+    : activePartner === 'women' ? womenColorCode
+    : activePartner === 'men' ? menColorCode
+    : reviewedColors[colorIdx]?.code || null;
+  const selectedColor = isCoupleSet
+    ? couplePairLabel({women:womenColorCode,men:menColorCode})
+    : activePartner && selectedColorCode
+      ? colorChoiceLabel(selectedColorCode)
+      : reviewedColors.length
+        ? colors[colorIdx] || colors[0]
+        : activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
+  const selectedSize = isCoupleSet ? `Women's ${womenSize} · Men's ${menSize}` : size;
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -250,10 +268,10 @@ export function ProductDetailClient({
 
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
-    if (!activeConfig || !size) { setSelectionWarning(true); return; }
+    if (!activeConfig || (isCoupleSet ? !womenSize || !menSize : !size)) { setSelectionWarning(true); return; }
     setSelectionWarning(false);
     const current = readCart();
-    const id = `${p.canonical_product_id || slug}-${configKey}-${size}-${selectedColor}`;
+    const id = `${p.canonical_product_id || slug}-${configKey}-${selectedSize}-${selectedColor}`;
     const existingIndex = current.findIndex((item: { id: string }) => item.id === id);
     const nextItem = {
       id,
@@ -261,9 +279,14 @@ export function ProductDetailClient({
       title: shortHead,
       image: p.primary_image_url || main,
       config: activeConfigLabel,
-      size,
+      size: selectedSize,
+      // Whole-pair selections are independent choices, not invented price SKUs.
+      womens_size: isCoupleSet ? womenSize : null,
+      mens_size: isCoupleSet ? menSize : null,
       color: selectedColor,
       color_code: selectedColorCode,
+      womens_color_code: isCoupleSet ? womenColorCode : null,
+      mens_color_code: isCoupleSet ? menColorCode : null,
       qty,
       price: sale,
       currency,
@@ -379,28 +402,53 @@ export function ProductDetailClient({
         </div> : null}
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
-        <div className="mt-2">
-          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex flex-wrap items-center gap-3.5 py-1" role="radiogroup" aria-label="Select a complete colorway">{colors.map((c, i) => <button
-            type="button" key={c + i} role="radio" aria-label={`Select ${c}`} aria-checked={c===selectedColor}
-            onClick={() => {
-              if (reviewedColors.length) { setColorIdx(i); return; }
-              const variantIndex = options.findIndex(option => option.configuration_color === c);
-              if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
-              else setColorIdx(i);
-            }}
-            className="group inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3c887]"
-            title={c}>
-              <FeyaColorSwatch color={c} selected={c===selectedColor} size={27}/>
-            </button>)}</div>
+        {isCoupleSet && couple
+          ? <CouplePartnerColorSelector available={couple.available} women={womenColorCode} men={menColorCode}
+              onChange={(partner,code)=>{
+                if(!couple.available.includes(code))return;
+                if(partner==='women')setWomenColorCode(code);
+                else setMenColorCode(code);
+              }}/>
+          : <>
+          <div className="mt-2">
+            <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
+            <div className="flex flex-wrap items-center gap-3.5 py-1" role="radiogroup" aria-label="Select a complete colorway">{colors.map((c, i) => <button
+              type="button" key={c + i} role="radio" aria-label={`Select ${c}`} aria-checked={c===selectedColor}
+              onClick={() => {
+                if (reviewedColors.length) {
+                  const code=reviewedColors[i]?.code;
+                  if (code && activePartner === 'women') setWomenColorCode(code);
+                  else if (code && activePartner === 'men') setMenColorCode(code);
+                  else setColorIdx(i);
+                  return;
+                }
+                const variantIndex = options.findIndex(option => option.configuration_color === c);
+                if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
+                else setColorIdx(i);
+              }}
+              className="group inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3c887]"
+              title={c}>
+                <FeyaColorSwatch color={c} selected={c===selectedColor} size={27}/>
+              </button>)}</div>
+  
+          </div>
+            </>}
 
-        </div>
-
-        <div className="mt-2">
+        {isCoupleSet ? <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {([{kind:'women' as const,value:womenSize,apply:setWomenSize,title:"Women's Size"},
+            {kind:'men' as const,value:menSize,apply:setMenSize,title:"Men's Size"}]).map(group=><div key={group.kind}>
+            <div className="eyebrow mb-1.5 text-[10px]">{group.title} · {group.value||'Select size'}</div>
+            <div className="flex flex-wrap gap-1">{SIZES.map(s=><button type="button" key={s}
+              aria-pressed={group.value===s}
+              onClick={()=>{group.apply(s);setSelectionWarning(false);}}
+              className={`size-pill ${group.value===s?(s==='Custom'?'size-pill-custom':'size-pill-active'):''}`}>{s}</button>)}</div>
+          </div>)}
+          {selectionWarning && (!womenSize || !menSize) ? <p role="alert" className="text-[11px] text-[#e9bd95] sm:col-span-2">Choose a size for each outfit to continue.</p> : null}
+        </div> : <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
           {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
-        </div>
+        </div>}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
