@@ -17,6 +17,8 @@ test('Image rejection distinguishes invalid input and content review, no automat
  assert.equal(classifyAiLookImageError(400,{error:{code:'invalid_image',type:'invalid_request_error'}},null).reason,'image_input_invalid');
  assert.equal(classifyAiLookImageError(400,{error:{code:'moderation_blocked',type:'image_generation_user_error'}},null).reason,'image_content_review_blocked');
  assert.equal(classifyAiLookImageError(400,{error:{code:'unknown',param:null}},null).reason,'image_generation_bad_request');
+ assert.equal(classifyAiLookImageError(400,{error:{code:null,type:'invalid_request_error',param:'image[]'}},null).reason,'image_input_invalid');
+ assert.equal(classifyAiLookImageError(400,{error:{code:null,type:'invalid_request_error',message:'Unknown parameter: input_fidelity'}},null).reason,'image_request_parameter_invalid');
 });
 test('Only fixed diagnostic codes, parameters and request IDs may be exposed',()=>{
  const diag=classifyAiLookImageError(400,{error:{
