@@ -1,5 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
-import {isAiLookOwnerPreview,resolveAiLookOwnerTestKey} from '@/lib/aiLookPreviewPolicy';
+import {isAiLookOwnerPreview,resolveAiLookOwnerTestKey,aiLookKeyInputIssue,aiLookKeyIssueMessage} from '@/lib/aiLookPreviewPolicy';
 
 export const maxDuration=15;
 
@@ -69,8 +69,10 @@ export async function POST(request:NextRequest){
  let body:unknown;
  try{body=await request.json();}catch{return json({ok:false,status:'invalid_json'},400);}
  const raw=body&&typeof body==='object'?'apiKey' in body?(body as {apiKey?:unknown}).apiKey:null:null;
+ const issue=aiLookKeyInputIssue(raw);
+ if(issue)return json({ok:false,status:issue,message:aiLookKeyIssueMessage(issue)},400);
  const key=resolveAiLookOwnerTestKey(process.env,raw);
- if(!key)return json({ok:false,status:'owner_key_missing',message:'Paste a valid private OpenAI API key for this one browser session.'},400);
+ if(!key)return json({ok:false,status:'owner_key_missing',message:'Этот режим доступен только в защищённом предпросмотре владельца.'},403);
  // No key fragments, error bodies, or request contents are logged/returned.
  return probeModel(key);
 }
