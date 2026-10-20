@@ -85,7 +85,9 @@ test('owner Preview has a no-image OpenAI connectivity probe and never exposes s
  assert.match(ui,/Verify connection/);
  assert.match(ui,/type="password"/);
  assert.match(ui,/method:suppliedKey\?'POST':'GET'/);
- assert.match(ui,/form\.set\('ownerApiKey',apiKey\)/);
+ assert.match(ui,/form\.set\('ownerApiKey',verifiedOwnerKeyRef\.current\)/);
+ assert.match(ui,/verifiedOwnerKeyRef\.current=suppliedKey&&json\.ok\?supplied:''/);
+ assert.doesNotMatch(ui,/form\.set\('ownerApiKey',apiKey\)/);
  assert.match(source,/export async function POST\(request:NextRequest\)/);
  assert.match(source,/isOwnOrigin\(request\)/);
  assert.match(source,/resolveAiLookOwnerTestKey\(process\.env,raw\)/);
