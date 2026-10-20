@@ -28,8 +28,7 @@ import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelec
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
 import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
 import {
-  customMeasurementRequiredCount,customMeasurementLineMinor,
-  customMeasurementSelectionNeedsReview,
+  customMeasurementRequiredCount,customMeasurementSelectionNeedsReview,
 } from '@/lib/commerceCustomMeasurementsPreview';
 import { productColorChoices, colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
@@ -190,8 +189,9 @@ export function ProductDetailClient({
     mens_size:isCoupleSet?menSize:null,
   };
   const customOutfits=customMeasurementRequiredCount(sizingSelection);
-  const customFitMinor=customMeasurementLineMinor({...sizingSelection,qty},customMeasurementsEnabled && customOutfits>0);
-  const total=Math.round(sale*100)*qty/100 + customFitMinor/100;
+  // PDP shows the approved merchandise price only. The €15 per-customized-
+  // outfit add-on is selected/quoted exclusively in the nonpayable bag.
+  const total=Math.round(sale*100)*qty/100;
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -492,32 +492,15 @@ export function ProductDetailClient({
           {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
         </div>}
 
-        {customOutfits>0 ? <div className="mt-3 rounded-md border border-[#d4b26a]/25 bg-[#d4b26a]/[.045] px-3 py-2.5">
-          <label className="flex cursor-pointer items-start gap-2.5 text-[12px] leading-5 text-[#ede7dd]">
-            <input type="checkbox" checked={customMeasurementsEnabled}
-              onChange={(event)=>{setCustomMeasurementsEnabled(event.target.checked);setSelectionWarning(false);}}
-              className="mt-1 h-4 w-4 shrink-0 accent-[#d4b26a]"
-              aria-label="Custom measurements service" />
-            <span className="min-w-0 flex-1">Made to your measurements
-              <span className="block text-[10px] leading-4 text-[var(--bone-dim)]">
-                We'll contact you to confirm the measurements.
-              </span>
-            </span>
-            <strong className="shrink-0 font-medium text-[#e7c87e]">
-              +{formatPrice(customOutfits*15,currency)}
-            </strong>
-          </label>
-          {!customMeasurementsEnabled ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">
-            Custom size requires this service. Turn it on or choose a standard size.
-          </p> : null}
-        </div> : null}
+        {customOutfits>0 ? <p className="mt-2 text-[11px] leading-5 text-[#d4b26a]">
+          Custom measurements (+€15 per customized outfit) will be preselected in your bag. You can change the selection there.
+        </p> : null}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
         </div>
 
         <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale,currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total,currency) : '—'}</div></div>
-        {activeConfig && customFitMinor>0 ? <p className="mt-1 text-right text-[11px] text-[#d4b26a]" role="status">Includes custom measurements: +{formatPrice(customFitMinor/100,currency)}</p> : null}
         {previewMode
           ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
           : <>
