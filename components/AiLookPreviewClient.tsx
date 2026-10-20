@@ -395,7 +395,7 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
       <details className="tryon-owner-alternative"><summary>Alternatively, connect a Vercel Preview secret</summary>
         <p>For a permanent owner-only setup, set encrypted <code>OPENAI_API_KEY</code> and <code>FEYA_AI_LOOK_PREVIEW_ENABLED=true</code> on this branch, then redeploy. This is not required for the one-time test.</p>
       </details>
-     </div>:<p className="tryon-connection-ready"><Check size={16}/> OpenAI connection verified. Upload two photos and press Generate my preview.</p>}
+     </div>:<p className="tryon-connection-ready"><Check size={16}/> OpenAI API key accepted. The image-edit request will be checked when you press Generate.</p>}
     {error?<div className="tryon-error" role="alert">{error}</div>:null}
     <button type="button" className="tryon-generate" onClick={()=>void generate()} disabled={generating||remaining===0||!connected}>
      {generating?<LoaderCircle size={18} className="tryon-spin"/>:<Sparkles size={18}/>}
