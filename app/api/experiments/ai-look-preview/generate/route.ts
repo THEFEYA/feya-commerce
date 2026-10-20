@@ -1,5 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
-import {isAiLookOwnerPreview,isAiLookGenerationConfigured,isAiLookScene} from '@/lib/aiLookPreviewPolicy';
+import {isAiLookOwnerPreview,isAiLookScene,resolveAiLookOwnerTestKey} from '@/lib/aiLookPreviewPolicy';
 import {aiLookReadApprovedListing} from '@/lib/aiLookPreviewCatalogServer';
 import {generateAiLook,validPhotoFile} from '@/lib/aiLookPreviewGenerationServer';
 
@@ -9,7 +9,8 @@ const failed=(reason:string,status:number)=>NextResponse.json({ok:false,reason},
 
 export async function POST(request:NextRequest){
  if(!isAiLookOwnerPreview(process.env))return failed('not_found',404);
- if(!isAiLookGenerationConfigured(process.env))return failed('api_key_not_configured',503);
+ // Owner-only ephemeral key is supported on this EXACT protected Preview.
+ // Public Product Detail pages, production, and all other branches reject it.
  const requestOrigin=new URL(request.url).origin;
  if(request.headers.get('origin')!==requestOrigin
    ||request.headers.get('sec-fetch-site')==='cross-site'
@@ -22,6 +23,8 @@ export async function POST(request:NextRequest){
  const slug=form.get('slug'),scene=form.get('scene'),configId=form.get('configuration'),
   colorCode=form.get('color'),rawRef=form.get('manualReference');
  const selfie=form.get('selfie'),fullBody=form.get('fullBody');
+ const key=resolveAiLookOwnerTestKey(process.env,form.get('ownerApiKey'));
+ if(!key)return failed('api_key_not_configured',503);
  if(typeof slug!=='string'||!/^[a-z0-9-]{5,240}$/.test(slug)
    ||!isAiLookScene(scene)||typeof configId!=='string'||configId.length>120
    ||typeof colorCode!=='string'||colorCode.length>60
@@ -40,7 +43,7 @@ export async function POST(request:NextRequest){
   const output=await generateAiLook({
    product,configuration:config.label,
    color:product.colors.find(x=>x.code===colorCode)?.label||product.colors[0]?.label||'as photographed',
-   scene,selfie,fullBody,key:process.env.OPENAI_API_KEY!,manualReference,
+   scene,selfie,fullBody,key,manualReference,
   });
   return NextResponse.json({ok:true,...output},{...deny});
  }catch(e){
