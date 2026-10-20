@@ -60,8 +60,9 @@ export function resolveAiLookOwnerTestKey(
 ):string|null{
  if(!isAiLookOwnerPreview(env))return null;
  if(isAiLookGenerationConfigured(env))return env.OPENAI_API_KEY!;
+ if(typeof input!=='string'||input!==input.trim())return null;
  if(aiLookKeyInputIssue(input)!==null)return null;
- return typeof input==='string'?input.trim():null;
+ return input;
 }
 export const AI_LOOK_SCENES=['studio','festival','burning-man','stage','red-carpet'] as const;
 export type AiLookScene=typeof AI_LOOK_SCENES[number];
