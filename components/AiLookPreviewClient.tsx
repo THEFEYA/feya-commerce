@@ -98,6 +98,9 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
  const [checkingConnection,setCheckingConnection]=useState(false);
  const [ownerKeyVerified,setOwnerKeyVerified]=useState(false);
  const ownerKeyInput=useRef<HTMLInputElement>(null);
+ // Keep a verified credential only in the current tab's memory. The key input
+ // unmounts when connected; without this ref the generation request loses it.
+ const verifiedOwnerKeyRef=useRef('');
  const selfieInput=useRef<HTMLInputElement>(null);
  const bodyInput=useRef<HTMLInputElement>(null);
  const videoRef=useRef<HTMLVideoElement>(null);
@@ -138,9 +141,11 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
     cache:'no-store',
    });
    const json=await response.json() as {ok:boolean;status:string;message:string};
+   verifiedOwnerKeyRef.current=suppliedKey&&json.ok?supplied:'';
    setConnection(json);
    setOwnerKeyVerified(suppliedKey&&json.ok);
   }catch{
+   verifiedOwnerKeyRef.current='';
    setOwnerKeyVerified(false);
    setConnection({ok:false,status:'connection_check_failed',message:'Cannot reach the image service diagnostics. Try again.'});
   }finally{setCheckingConnection(false);}
@@ -217,9 +222,8 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
   form.set('selfie',face.file);form.set('fullBody',body.file);
   // Sent over HTTPS in this single private owner request only.
   // No secret is stored by the app or added to a URL.
-  if(ownerKeyVerified){
-   const apiKey=ownerKeyInput.current?.value.trim();
-   if(apiKey)form.set('ownerApiKey',apiKey);
+  if(ownerKeyVerified&&verifiedOwnerKeyRef.current){
+   form.set('ownerApiKey',verifiedOwnerKeyRef.current);
   }
   try{
    const response=await fetch('/api/experiments/ai-look-preview/generate',{
@@ -363,7 +367,7 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
       <input id="tryon-private-key" ref={ownerKeyInput} type="password" name="feya-preview-owner-key"
        autoComplete="off" spellCheck={false} maxLength={240}
        className="tryon-owner-secret" placeholder="sk-proj-…"
-       onChange={()=>{setOwnerKeyVerified(false);setConnection({ok:false,status:'key_changed',message:'Press Verify connection to confirm this key.'});}}
+       onChange={()=>{verifiedOwnerKeyRef.current='';setOwnerKeyVerified(false);setConnection({ok:false,status:'key_changed',message:'Press Verify connection to confirm this key.'});}}
        aria-describedby="tryon-private-key-help"/>
       <p id="tryon-private-key-help">Important: The API Keys table only shows a masked key and a Tracking ID. Neither can be used for authentication. You need the full secret value copied when the key was created. Never use the key name. The secret is not stored by TheFEYA; generation incurs OpenAI API charges.</p>
       {connection&&!connection.ok&&connection.status!=='setup_required'?<p className="tryon-owner-feedback" role="status">{connection.message}</p>:null}
