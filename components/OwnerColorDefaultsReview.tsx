@@ -59,10 +59,11 @@ export function OwnerColorDefaultsReview({
   const [search,setSearch]=useState('');
   const [status,setStatus]=useState<'all'|'pending'|'confirmed'|'held'>('all');
   const [page,setPage]=useState(1);
-  const [info,setInfo]=useState('Черновик ещё не опубликован на сайте.');
+  const [info,setInfo]=useState('Подтверждённые цвета применены к текущему Preview. Production пока не изменён.');
   const [expanded,setExpanded]=useState<string[]>([]);
-  const ready=rows.filter(r=>!r.held).length;
-  const confirmed=rows.filter(r=>!r.held && decisions[r.id]).length;
+  // Source marketplace HOLD remains visible even after on-site Gold correction.
+  const ready=rows.filter(r=>!r.bonanzaHeld).length;
+  const confirmed=rows.filter(r=>!r.bonanzaHeld && decisions[r.id]).length;
 
   useEffect(()=>{
     try {
