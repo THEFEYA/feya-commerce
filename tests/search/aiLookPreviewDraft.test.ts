@@ -45,6 +45,21 @@ test('experiment binds only reviewed 207 products to truthful variant identities
  assert.match(product,/recommendedReferenceIndex/);
 });
 
+test('owner Preview has a no-image OpenAI connectivity probe and never exposes secrets',()=>{
+ const source=file('app/api/experiments/ai-look-preview/health/route.ts');
+ assert.match(source,/isAiLookOwnerPreview\(process\.env\)/);
+ assert.match(source,/FEYA_AI_LOOK_PREVIEW_ENABLED/);
+ assert.match(source,/api\.openai\.com\/v1\/models\/gpt-image-1\.5/);
+ assert.match(source,/Cache-Control/);
+ assert.doesNotMatch(source,/console\.log\(|key:\s*secret|secret:\s*secret/);
+ const ui=file('components/AiLookPreviewClient.tsx');
+ assert.match(ui,/checkConnection\(\)/);
+ assert.match(ui,/tryon-connection/);
+ assert.match(ui,/Recheck connection/);
+ assert.match(ui,/Awaiting OpenAI connection/);
+ assert.match(ui,/disabled=\{generating\|\|remaining===0\|\|!connected\}/);
+});
+
 test('customer reference images are verified, server-only; provider never gets client-supplied product URL',()=>{
  const server=file('lib/aiLookPreviewGenerationServer.ts');
  const route=file('app/api/experiments/ai-look-preview/generate/route.ts');
