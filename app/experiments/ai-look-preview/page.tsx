@@ -1,4 +1,4 @@
-export const instant=true;
+export const instant=false;
 import type {Metadata} from 'next';
 import {connection} from 'next/server';
 import {notFound} from 'next/navigation';
