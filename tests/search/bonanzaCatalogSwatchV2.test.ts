@@ -76,7 +76,9 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.doesNotMatch(shop,/>\s*Shown in photos\s*</);
   const pair=readFileSync('components/CouplePartnerColorSelector.tsx','utf8');
   const pdp=readFileSync('components/ProductDetailClient.tsx','utf8');
-  assert.match(pair,/grid-cols-\[64px_minmax\(0,1fr\)_91px\]/);
+  assert.match(pair,/grid-cols-\[60px_minmax\(0,1fr\)_128px\]/);
+  assert.match(pair,/feya-config-trigger h-10/);
+  assert.match(pair,/text-\[13px\]/);
   assert.match(pair,/<select value=\{partner\.size\} required/);
   assert.match(pair,/onSizeChange\(partner\.id,e\.target\.value\)/);
   assert.doesNotMatch(pair,/size-pill/);
