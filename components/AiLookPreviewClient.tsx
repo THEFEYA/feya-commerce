@@ -76,12 +76,15 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
  const [result,setResult]=useState<Result|null>(null);
  const [used,setUsed]=useState(0);
  const [saved,setSaved]=useState(false);
+ const [connection,setConnection]=useState<{ok:boolean;status:string;message:string}|null>(null);
+ const [checkingConnection,setCheckingConnection]=useState(false);
  const selfieInput=useRef<HTMLInputElement>(null);
  const bodyInput=useRef<HTMLInputElement>(null);
  const videoRef=useRef<HTMLVideoElement>(null);
  const activeStream=useRef<MediaStream|null>(null);
  const abortRef=useRef<AbortController|null>(null);
  const remaining=Math.max(0,3-used);
+ const connected=connection?.ok??configured;
  const price=look.configs.find(c=>c.id===configuration)?.price??null;
  const label=look.configs.find(c=>c.id===configuration)?.label||'Full Set';
  const chosenColor=look.colors.find(c=>c.code===color)?.label||'As photographed';
@@ -90,6 +93,26 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
   const needle=query.trim().toLowerCase();
   return (needle?catalog.filter(x=>x.title.toLowerCase().includes(needle)||x.slug.includes(needle)):catalog).slice(0,30);
  },[query,catalog]);
+
+ useEffect(()=>{
+  let cancelled=false;
+  void fetch('/api/experiments/ai-look-preview/health',{cache:'no-store'})
+   .then(async(response)=>{
+    const json=await response.json() as {ok:boolean;status:string;message:string};
+    if(!cancelled)setConnection(json);
+   }).catch(()=>{if(!cancelled)setConnection({ok:false,status:'connection_check_failed',message:'Cannot check OpenAI connection. Retry.'});});
+  return()=>{cancelled=true;};
+ },[]);
+ async function checkConnection(){
+  if(checkingConnection)return;
+  setCheckingConnection(true);
+  try{
+   const response=await fetch('/api/experiments/ai-look-preview/health',{cache:'no-store'});
+   const json=await response.json() as {ok:boolean;status:string;message:string};
+   setConnection(json);
+  }catch{setConnection({ok:false,status:'connection_check_failed',message:'Cannot reach the image service diagnostics. Try again.'});}
+  finally{setCheckingConnection(false);}
+ }
 
  useEffect(()=>{
   const key='feya_tryon_beta_local_'+look.canonicalId;
@@ -152,7 +175,7 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
   if(generating)return;
   if(!face||!body){setError('Please upload your face selfie and front-facing full-body photo.');return;}
   if(remaining<1){setError('Three free demo previews for this listing were used in this browser. Additional previews are not available in the Beta.');return;}
-  if(!configured){setError(errors.api_key_not_configured);return;}
+  if(!connected){setError(connection?.message||errors.api_key_not_configured);return;}
   setError('');setResult(null);setGenerating(true);setElapsed(0);setSaved(false);
   const ctrl=new AbortController();abortRef.current=ctrl;
   const form=new FormData();
@@ -295,10 +318,19 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
        result?'Generated from real listing references. Review garment details before buying.':
        'Upload two photos and choose a scene to start.'}</p>
     </div>
+    {connection&&!connection.ok?<div className="tryon-connection" role="status">
+      <div className="tryon-connection-title"><Info size={17}/> OpenAI image generation is not connected</div>
+      <p>{connection.message}</p>
+      <p>Vercel → feya-commerce → Settings → Environment Variables → Preview, branch <code>work/ai-look-preview-prototype-20261020</code>.</p>
+      <p>Add encrypted <code>OPENAI_API_KEY</code> and <code>FEYA_AI_LOOK_PREVIEW_ENABLED=true</code>; redeploy this Preview.</p>
+      <button type="button" onClick={()=>void checkConnection()} disabled={checkingConnection}>
+        {checkingConnection?'Checking…':'Recheck connection'} <RefreshCcw size={14}/>
+      </button>
+     </div>:connection?.ok?<p className="tryon-connection-ready"><Check size={16}/> OpenAI connected. You can generate a real preview.</p>:null}
     {error?<div className="tryon-error" role="alert">{error}</div>:null}
-    <button type="button" className="tryon-generate" onClick={()=>void generate()} disabled={generating||remaining===0}>
+    <button type="button" className="tryon-generate" onClick={()=>void generate()} disabled={generating||remaining===0||!connected}>
      {generating?<LoaderCircle size={18} className="tryon-spin"/>:<Sparkles size={18}/>}
-     {generating?'Generating…':remaining===0?'Three previews used':'Generate my preview'}
+     {generating?'Generating…':remaining===0?'Three previews used':!connected?'Awaiting OpenAI connection':'Generate my preview'}
     </button>
     <p className="tryon-consent"><ShieldCheck size={15}/> Your photos are sent to OpenAI only when you generate. They are not saved in the FEYA catalog or attached to your order.</p>
     <div className="tryon-token-note">
