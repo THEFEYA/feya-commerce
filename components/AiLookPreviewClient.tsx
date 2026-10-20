@@ -68,7 +68,11 @@ const errors:Record<string,string>={
  listing_reference_unavailable:'The listing images could not be loaded. Try again later.',
  automatic_front_detection_unavailable:'Automatic front-view selection is temporarily unavailable. Select a frontal gallery photo manually and retry.',
  model_quota_or_billing:'OpenAI account credit or rate limit prevented generation. No result was created.',
- model_rejected_images:'The generator could not process these photos. Try different front-facing pictures.',
+ model_rejected_images:'The image generator returned an error. See the diagnostic details below.',
+ image_input_invalid:'OpenAI reports an unreadable or invalid image; use a different JPEG photo.',
+ image_request_parameter_invalid:'OpenAI rejected a request parameter. This is a server integration error, not a problem with your photos.',
+ image_content_review_blocked:'The image generator declined this content; no automatic retry. Consider a different permitted photo.',
+ image_generation_bad_request:'OpenAI rejected the image request. The code and parameter below identify the cause.',
  image_provider_unavailable:'Image generation is temporarily unavailable. Try again.',
  image_api_authentication_failed:'OpenAI rejected the API key during image generation. Check that the exact full secret is active.',
  image_model_access_denied:'The OpenAI organization or project is not authorized for this image model. Check Platform model access and verification.',
@@ -233,9 +237,19 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
    const response=await fetch('/api/experiments/ai-look-preview/generate',{
     method:'POST',body:form,signal:ctrl.signal,cache:'no-store'
    });
-   const payload=await response.json() as {ok:boolean;reason?:string}&Partial<Result>;
+   const payload=await response.json() as {
+    ok:boolean;reason?:string;diagnostic?:{
+     diagnosticCode?:string|null;diagnosticParam?:string|null;requestId?:string|null;
+    };
+   }&Partial<Result>;
    if(!response.ok||!payload.ok||!payload.imageDataUrl){
-    throw new Error(errors[payload.reason||'']||errors.generation_temporarily_unavailable);
+    const message=errors[payload.reason||'']||errors.generation_temporarily_unavailable;
+    const code=payload.diagnostic?.diagnosticCode;
+    const param=payload.diagnostic?.diagnosticParam;
+    const rid=payload.diagnostic?.requestId;
+    const details=[code?'OpenAI code: '+code:null,param?'Parameter: '+param:null,
+     rid?'Request ID: '+rid:null].filter(Boolean).join(' · ');
+    throw new Error(details?message+' ['+details+']':message);
    }
    setResult({imageDataUrl:payload.imageDataUrl,referenceIndex:payload.referenceIndex||0,
     referenceDetailIndex:payload.referenceDetailIndex??null});
