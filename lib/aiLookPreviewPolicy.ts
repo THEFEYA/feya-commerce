@@ -21,13 +21,47 @@ export function isAiLookGenerationConfigured(env:Record<string,string|undefined>
  * Never persisted in Git, environment, database, browser storage or logs.
  * This is NOT the customer-facing authentication or quota system.
  */
+export type AiLookKeyInputIssue=
+  |'key_missing'|'tracking_id'|'masked_secret'|'bad_prefix'
+  |'key_too_short'|'key_too_long'|'contains_whitespace'|'bad_characters';
+
+/**
+ * Validate only the public syntax; do NOT log, echo, hash, or persist the key.
+ * The OpenAI API must still verify that the full secret is active.
+ */
+export function aiLookKeyInputIssue(input:unknown):AiLookKeyInputIssue|null{
+ if(typeof input!=='string'||!input.trim())return 'key_missing';
+ const value=input.trim();
+ if(/^key_[a-z0-9_-]+$/i.test(value))return 'tracking_id';
+ if(/\.{2,}|\u2026|[\u2022\u25cf*]/.test(value))return 'masked_secret';
+ if(!value.startsWith('sk-'))return 'bad_prefix';
+ if(value.length<27)return 'key_too_short';
+ if(value.length>240)return 'key_too_long';
+ if(/\s/.test(value))return 'contains_whitespace';
+ if(!/^sk-[a-zA-Z0-9_-]+$/.test(value))return 'bad_characters';
+ return null;
+}
+
+export function aiLookKeyIssueMessage(issue:AiLookKeyInputIssue):string{
+ switch(issue){
+  case 'key_missing':return 'Вставьте полный секретный ключ OpenAI.';
+  case 'tracking_id':return 'Это Tracking ID (key_…), а не API-ключ. Нужен полный секрет sk-proj-… из окна создания ключа.';
+  case 'masked_secret':return 'Это сокращённая маска sk-… из списка ключей, а не полный секрет. Откройте сохранённое полное значение или создайте новый секретный ключ.';
+  case 'bad_prefix':return 'Нужен полный секретный ключ, начинающийся с sk-. Название ключа и Tracking ID не подходят.';
+  case 'key_too_short':return 'Ключ слишком короткий. Похоже, вставлена только видимая часть из списка OpenAI, а не полный секрет.';
+  case 'key_too_long':return 'Слишком длинное значение. Вставьте только секретный ключ без окружающего текста.';
+  case 'contains_whitespace':return 'Внутри ключа есть пробел или перенос строки. Скопируйте только полный секрет.';
+  default:return 'В ключе есть недопустимые символы. Скопируйте исходный секрет целиком.';
+ }
+}
+
 export function resolveAiLookOwnerTestKey(
  env:Record<string,string|undefined>,input:unknown
 ):string|null{
  if(!isAiLookOwnerPreview(env))return null;
  if(isAiLookGenerationConfigured(env))return env.OPENAI_API_KEY!;
- if(typeof input!=='string'||input.length>240||input!==input.trim())return null;
- return /^sk-[a-zA-Z0-9_-]{24,230}$/.test(input)?input:null;
+ if(aiLookKeyInputIssue(input)!==null)return null;
+ return typeof input==='string'?input.trim():null;
 }
 export const AI_LOOK_SCENES=['studio','festival','burning-man','stage','red-carpet'] as const;
 export type AiLookScene=typeof AI_LOOK_SCENES[number];
