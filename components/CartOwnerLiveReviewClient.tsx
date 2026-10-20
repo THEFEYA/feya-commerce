@@ -446,6 +446,7 @@ export function CartOwnerLiveReviewClient(){
           <div className="mt-5 flex flex-wrap gap-3 text-[12px]">
             <Link className="inline-flex min-h-11 items-center text-[#d4b26a] underline underline-offset-4" href="/shop">Continue shopping</Link>
             <Link className="inline-flex min-h-11 items-center text-[var(--bone-dim)] underline underline-offset-4" href="/contact">Contact support</Link>
+            <Link className="inline-flex min-h-11 items-center text-[11px] text-[var(--bone-dim)] underline decoration-white/25 underline-offset-4 hover:text-[#f7f3ec]" href="/privacy">Privacy policy</Link>
           </div>
 
         </section>
