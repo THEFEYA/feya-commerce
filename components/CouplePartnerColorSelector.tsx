@@ -1,11 +1,27 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { ChevronDown, Mars, Venus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 
 type Partner = 'women' | 'men';
+
+/** Small vector gender pictogram; use inline SVG to avoid Lucide version drift. */
+function PartnerGlyph({ partner }: { partner: Partner }) {
+  return <svg width={12} height={12} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth={1.65} strokeLinecap="round" strokeLinejoin="round"
+    aria-hidden="true"
+    className="shrink-0 text-[#e2c17e] drop-shadow-[0_0_4px_rgba(227,187,105,.42)]">
+    {partner === 'women' ? <>
+      <circle cx="12" cy="8" r="5.5" />
+      <path d="M12 13.5V22M8 18h8" />
+    </> : <>
+      <circle cx="9.5" cy="14.5" r="5.5" />
+      <path d="M13.5 10.5L21 3M15 3h6v6" />
+    </>}
+  </svg>;
+}
 
 type PairSizeProps = {
   partner: Partner;
@@ -148,11 +164,7 @@ export function CouplePartnerColorSelector({
         className="grid grid-cols-[60px_minmax(0,1fr)_128px] items-center gap-2 py-2 sm:grid-cols-[70px_minmax(0,1fr)_142px]">
         <div className="min-w-0">
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#f7f3ec]">
-            {partner.id === 'women'
-              ? <Venus size={12} strokeWidth={1.65} aria-hidden="true"
-                  className="shrink-0 text-[#e2c17e] drop-shadow-[0_0_4px_rgba(227,187,105,.42)]" />
-              : <Mars size={12} strokeWidth={1.65} aria-hidden="true"
-                  className="shrink-0 text-[#e2c17e] drop-shadow-[0_0_4px_rgba(227,187,105,.42)]" />}
+            <PartnerGlyph partner={partner.id} />
             <span>{partner.title}</span>
           </div>
           <div className="truncate text-[9px] text-[var(--smoke)]" title={colorChoiceLabel(partner.color)}>
