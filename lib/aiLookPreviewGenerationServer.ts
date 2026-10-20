@@ -136,7 +136,23 @@ export async function generateAiLook(args:{
  });
  if(!response.ok){
   const status=response.status;
-  if(status===402||status===429)throw new Error('model_quota_or_billing');
+  // These are fixed, non-sensitive provider classifications. Never return the
+  // provider response body, image data or authorization headers to the browser.
+  if(status===401)throw new Error('image_api_authentication_failed');
+  if(status===403)throw new Error('image_model_access_denied');
+  if(status===404)throw new Error('image_model_not_found');
+  if(status===402)throw new Error('model_quota_or_billing');
+  if(status===429){
+   let code='';
+   try{
+    const data=await response.json() as {error?:{code?:unknown}};
+    if(typeof data.error?.code==='string')code=data.error.code;
+   }catch{}
+   const limits=new Set(['insufficient_quota','credit_balance_exhausted',
+    'project_spend_limit_exceeded','organization_spend_limit_exceeded',
+    'organization_usage_limit_exceeded']);
+   throw new Error(limits.has(code)?'model_quota_or_billing':'image_rate_limited');
+  }
   if(status===400)throw new Error('model_rejected_images');
   throw new Error('image_provider_unavailable');
  }
