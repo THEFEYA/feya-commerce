@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Check, ChevronDown, Info, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
@@ -700,11 +700,15 @@ export function ShopClient({
             </div>
           ) : null}
 
+          {color.length>0 ? <div role="status" className="mb-5 flex items-start gap-2.5 border-l-2 border-[#bfa26f]/60 bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+            <Info size={14} className="mt-0.5 shrink-0 text-[#d6b56c]" />
+            <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show a different color; open any product to select your preferred available finish.</p>
+          </div> : null}
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
           {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} />)}
+            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} matchingColors={filters.color} />)}
           </div>
 
           {navigation ? (

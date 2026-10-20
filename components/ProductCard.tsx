@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { colorStyle } from '@/components/colors';
+import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
+import { BONANZA_COLOR_PARTS } from '@/lib/bonanzaColorChoices';
 import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontProduct } from '@/lib/types';
@@ -80,7 +81,7 @@ function galleryUrls(product: StorefrontProduct) {
   return uniqueUrls(collectUrls(product.media_gallery));
 }
 
-export function ProductCard({ product: p, index = 0 }: { product: StorefrontProduct; index?: number }) {
+export function ProductCard({ product: p, index = 0, matchingColors = [] }: { product: StorefrontProduct; index?: number; matchingColors?: string[] }) {
   const router = useRouter();
   const prefetched = useRef(false);
   const [hoverRequested, setHoverRequested] = useState(false);
@@ -99,6 +100,12 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
     ? 'primary-media transition-opacity duration-500 group-hover:opacity-0'
     : 'primary-static-media h-full w-full object-cover transition-transform duration-700';
   const colors = colorOptions(p);
+  const shownCode = p.default_color_choice;
+  const shownParts: string[] = shownCode && shownCode in BONANZA_COLOR_PARTS
+    ? [...BONANZA_COLOR_PARTS[shownCode as keyof typeof BONANZA_COLOR_PARTS]]
+    : colors.slice(0,1);
+  const availableNotShown = matchingColors.filter((color) => p.color_filter_values?.includes(color));
+  const requiresExplanation = availableNotShown.length > 0 && !matchingColors.some((color) => shownParts.includes(color));
   const display = mainRegularPrice(p);
   const compareAt = mainCompareAtPrice(p);
   const hasCompareAt = compareAt != null && display != null && compareAt > display;
@@ -141,8 +148,9 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
         <h3 className="product-card-title text-bone text-[18px] lg:text-[19px] leading-[1.15] line-clamp-2 min-h-[2.45em]" title={title}>{title}</h3>
         <div className="flex items-center justify-between gap-2 mt-0.5">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--smoke)] min-w-0"><span className="truncate">{worldLabel(p)}</span></div>
-          {colors.length > 0 && <div className="flex items-center gap-1.5 shrink-0" aria-label="Available colors"><span className="text-[9px] tracking-[0.18em] uppercase text-[#9b988e]">Color</span>{colors.slice(0,4).map((c) => <span key={c} title={c} className="w-3 h-3 rounded-full border border-[rgba(216,214,211,0.35)] shadow-inner" style={colorStyle(c)} />)}{colors.length > 4 ? <span className="text-[9px] text-[#9b988e]" title={colors.slice(4).join(', ')}>+{colors.length-4}</span> : null}</div>}
+          {shownParts.length > 0 && <div className="flex items-center gap-1.5 shrink-0" aria-label={`Displayed color: ${shownParts.join(' + ')}. ${colors.length} available choices.`} title={`Displayed: ${shownParts.join(' + ')} · ${colors.length} available colorways`}><span className="text-[9px] tracking-[0.18em] uppercase text-[#9b988e]">Color</span>{shownParts.map((c) => <FeyaColorSwatch key={c} color={c} size={12} />)}</div>}
         </div>
+        {requiresExplanation ? <div className="text-[10px] tracking-[0.04em] text-[#d4bb85]">Available in {availableNotShown.join(' or ')}</div> : null}
         <div className="flex items-end justify-between mt-2.5 pt-2.5 border-t border-[rgba(216,214,211,0.10)] gap-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="card" testidPrefix={`card-price-${slug}`} /><span className="inline-flex items-center gap-1 text-[10.5px] tracking-[0.22em] uppercase text-[#C8C2B5] group-hover:text-white group-hover:gap-1.5 transition-all shrink-0">View <ArrowUpRight size={12} /></span></div>
       </div>
     </Link>

@@ -104,27 +104,41 @@ export function enrichStorefrontProductColors(product: StorefrontProduct, decisi
   };
 }
 
-const SWATCH: Record<string, string> = {
-  Gold: '#d8ae58', Silver: '#bec8ce', Black: '#15171c', White: '#f5f4ed',
-  Red: '#b82e46', Pink: '#e883b7', Green: '#40876e', Blue: '#4e78b2', Brown: '#936950',
+const BASE_TONES: Record<string,string> = {
+  Gold: '#d2aa58', Silver: '#b5bec9', Black: '#191b21', White: '#f5f2e9',
+  Red: '#ba3045', Pink: '#e88bb8', Green: '#478a6c', Blue: '#457ab7', Brown: '#946949', Holographic: '#bdc9f0',
 };
-const HOLO = ['#9be2eb','#ddb6f4','#f7c6e2','#b0e4c7'];
-export function colorChoiceStyle(code: string): {background?: string; backgroundImage?: string} {
+
+/** Tiny jewelry-like metallic/iridescent finishes; no graphic file, no new image request. */
+export function colorChoiceStyle(code: string): {backgroundImage?: string; background?: string} {
   const parts = CHOICES[code];
-  if (!parts) return {background:'#7A7B7F'};
-  if (parts.length === 1 && parts[0] === 'Holographic') {
-    return {backgroundImage:'conic-gradient(#9be2eb,#ddb6f4,#f7c6e2,#b0e4c7,#9be2eb)'};
+  if (!parts) return {background:'#55575d'};
+  const glint = 'linear-gradient(130deg, rgba(255,255,255,.52) 0%, rgba(255,255,255,.06) 34%, transparent 49%, rgba(0,0,0,.31) 100%)';
+  const holo = 'conic-gradient(from 10deg,#b1e7f0 0%,#dcbded 17%,#ffe5ad 31%,#a7e3cb 48%,#b9c5f7 64%,#ffc6da 83%,#b1e7f0 100%)';
+  if (parts.length===1) {
+    const base: Record<string,string> = {
+      Gold: 'linear-gradient(128deg,#76511f 0%,#d9b160 25%,#fff0b0 43%,#b18131 59%,#edcf8b 79%,#826029 100%)',
+      Silver: 'linear-gradient(128deg,#5f6875 0%,#c6d0dc 25%,#fefeff 44%,#929caa 63%,#e3e7ec 80%,#707987 100%)',
+      Black: 'linear-gradient(126deg,#020305 0%,#2b2e38 35%,#484851 51%,#111216 70%,#030406 100%)',
+      White: 'linear-gradient(125deg,#cfcfd0,#ffffff 39%,#f1f0e9 62%,#c6c7c5)',
+      Red: 'linear-gradient(128deg,#611324,#e34b60 42%,#7b1b31 69%,#cc4254)',
+      Pink: 'linear-gradient(126deg,#ba557e,#ffd0e5 46%,#e889b6 68%,#9c4c77)',
+      Green: 'linear-gradient(126deg,#174f3c,#77c7a0 45%,#276a51 65%,#174b39)',
+      Blue: 'linear-gradient(125deg,#1d447e,#79b5e8 41%,#24588e 65%,#172f5e)',
+      Brown: 'linear-gradient(126deg,#4c2c1e,#bc8a60 42%,#794a36 67%,#3c261d)',
+    };
+    return {backgroundImage:parts[0]==='Holographic'?glint+','+holo:glint+','+(base[parts[0]]||base.Black)};
   }
-  if (parts.length === 1) return {background: SWATCH[parts[0]] || '#7A7B7F'};
-  const stops: string[]=[];
-  parts.forEach((part,i)=>{
-    const start = i * 100 / parts.length, end = (i+1) * 100 / parts.length;
-    const pieces = part === 'Holographic' ? HOLO : [SWATCH[part] || '#7A7B7F'];
-    pieces.forEach((shade,j)=>{
-      stops.push(shade+' '+(start+(end-start)*j/pieces.length).toFixed(2)+'% '+(start+(end-start)*(j+1)/pieces.length).toFixed(2)+'%');
-    });
-  });
-  return {backgroundImage:'linear-gradient(135deg,'+stops.join(',')+')'};
+  // Conic sectors remain one inseparable colorway. Brightness/reflection is a
+  // separate overlay so Silver/Gold do not read as flat gray/yellow chips.
+  let cursor=0;const stops:string[]=[];
+  for(const part of parts){
+    const start=cursor, end=cursor+100/parts.length;cursor=end;
+    const tone=BASE_TONES[part]||'#888888';
+    stops.push(tone+' '+start.toFixed(2)+'%',tone+' '+end.toFixed(2)+'%');
+  }
+  const overlay='radial-gradient(circle at 25% 18%,rgba(255,255,255,.45),transparent 35%)';
+  return {backgroundImage:glint+','+overlay+',conic-gradient(from 225deg,'+stops.join(',')+')'};
 }
 
 export function productColorChoices(product: StorefrontProduct): {code:string;label:string}[] {

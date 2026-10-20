@@ -23,7 +23,7 @@ import {
   Star,
   Truck,
 } from 'lucide-react';
-import { colorStyle } from '@/components/colors';
+import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { productColorChoices } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
@@ -378,22 +378,19 @@ export function ProductDetailClient({
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Available color options">{colors.map((c, i) => <button
-            type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor}
+          <div className="flex flex-wrap items-center gap-3.5 py-1" role="radiogroup" aria-label="Select a complete colorway">{colors.map((c, i) => <button
+            type="button" key={c + i} role="radio" aria-label={`Select ${c}`} aria-checked={c===selectedColor}
             onClick={() => {
-              // Bonanza-approved colorways are independent of configuration/price.
-              // Legacy configuration-bound colors retain the previous behavior.
               if (reviewedColors.length) { setColorIdx(i); return; }
               const variantIndex = options.findIndex(option => option.configuration_color === c);
               if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
               else setColorIdx(i);
             }}
-            className={`inline-flex min-h-9 items-center gap-2 rounded-md border px-2 py-1.5 transition-colors ${c === selectedColor ? 'border-white/70 bg-white/10 text-white' : 'border-[rgba(216,214,211,0.20)] text-[var(--bone-dim)] hover:border-white/50'}`}
+            className="group inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3c887]"
             title={c}>
-              <span className="inline-block h-5 w-5 shrink-0 rounded-full border border-white/25" style={colorStyle(c)} />
-              <span className="text-[11px] leading-4">{c}</span>
+              <FeyaColorSwatch color={c} selected={c===selectedColor} size={27}/>
             </button>)}</div>
-          {reviewedColors.length > 1 ? <p className="mt-2 text-[11px] text-[var(--smoke)]">Select one complete color combination. Product photos may show another available color.</p> : null}
+          {reviewedColors.length>1 ? <p className="mt-2 text-[10px] leading-4 text-[var(--smoke)]">Shown in {reviewedColors[0]?.label || selectedColor}. Other available finishes are made to order.</p> : null}
         </div>
 
         <div className="mt-2">
