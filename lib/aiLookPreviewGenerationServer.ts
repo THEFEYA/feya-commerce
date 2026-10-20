@@ -102,7 +102,16 @@ export async function generateAiLook(args:{
   selection={front:args.manualReference,detail:null};
  }else{
   try{selection=await rankReferenceImages(files,args.key);}
-  catch{throw new Error('automatic_front_detection_unavailable');}
+  catch{
+   // Only the inspected holographic listing has a confirmed front-facing
+   // thumbnail index. Never fabricate reference evidence for other products.
+   const knownFront=args.product.recommendedReferenceIndex;
+   if(knownFront>0&&files.some(file=>file.index===knownFront)){
+    selection={front:knownFront,detail:null};
+   }else{
+    throw new Error('automatic_front_detection_unavailable');
+   }
+  }
  }
  const first=files.find(x=>x.index===selection.front);
  if(!first)throw new Error('reference_not_found');
