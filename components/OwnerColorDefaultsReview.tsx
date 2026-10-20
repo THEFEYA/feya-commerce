@@ -11,7 +11,7 @@ import {
 } from '@/lib/bonanzaColorChoices';
 
 export type OwnerColorReviewRow = {
-  id:string;slug:string;title:string;image:string;choices:string[];held:boolean;
+  id:string;slug:string;title:string;image:string;choices:string[];held:boolean;bonanzaHeld?:boolean;
 };
 export type MerchandisingDecision = {primary:string;filter_colors:string[]};
 type ExportPayload = {
@@ -201,6 +201,7 @@ export function OwnerColorDefaultsReview({
                     :decision?<span className="inline-flex items-center gap-1 text-[10px] text-[#d6bc81]"><Check size={12}/> Проверено</span>
                     :<span className="text-[10px] text-[#8d8d90]">Предложение · требует проверки фото</span>}
                 </div>
+                {row.bonanzaHeld && !row.held ? <div className="mb-2 text-[10px] text-[#e0b78b]">Bonanza HOLD остаётся; в магазине цвет Gold уже подтверждён.</div> : null}
                 <div className="mb-3 flex flex-wrap items-center gap-3 text-[10px] text-[#88868c]">
                   <span>Etsy {row.slug.split('-').at(-1)}</span>
                   <Link href={`/shop/${row.slug}`} target="_blank" className="text-[#c5b28a] hover:text-white">Открыть товар ↗</Link>

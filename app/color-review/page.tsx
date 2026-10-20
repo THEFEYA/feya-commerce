@@ -37,7 +37,10 @@ export default async function ColorDefaultReviewPage() {
   const rows = catalog.products.map(p => ({
     ...p,
     choices: map[p.id].colors,
-    held: map[p.id].held,
+    bonanzaHeld: map[p.id].held,
+    // Local site color decision does not erase the original marketplace HOLD.
+    held: map[p.id].held && !(p.id === 'ffbf1db6-6fae-4606-afbe-013415d6421d'
+      && Boolean((overrides.products as Record<string,{owner_review_hold_color_only?:boolean}>)[p.id]?.owner_review_hold_color_only)),
   }));
   return <OwnerColorDefaultsReview
     rows={rows}

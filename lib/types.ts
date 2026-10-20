@@ -121,6 +121,8 @@ export type StorefrontProduct = {
   color_choices?: string[];
   default_color_choice?: string | null;
   color_filter_values?: string[];
+  /** Owner-approved visible color constituents of the photographed default. */
+  photo_color_filter_values?: string[];
   color_choice_source?: string | null;
   facets?: StorefrontFacetSet;
 };

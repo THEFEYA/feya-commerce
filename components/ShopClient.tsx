@@ -215,6 +215,7 @@ type FilterPanelProps = {
   setPriceMin: (value: number) => void;
   setPriceMax: (value: number) => void;
   setColor: (value: string[]) => void;
+  setColorMode: (value: 'photo' | 'available') => void;
   setEvent: (value: string[]) => void;
   setPerformance: (value: string[]) => void;
   setDance: (value: string[]) => void;
@@ -248,6 +249,7 @@ function CatalogFilterPanel({
   setPriceMin,
   setPriceMax,
   setColor,
+  setColorMode,
   setEvent,
   setPerformance,
   setDance,
@@ -341,6 +343,16 @@ function CatalogFilterPanel({
       </FilterSection>
 
       <FilterSection title="Color" activeCount={filters.color.length} defaultOpen>
+        <div className="mb-3 grid grid-cols-2 gap-1 rounded-lg border border-white/10 bg-white/[.025] p-1" aria-label="Color filter mode">
+          <button type="button" aria-pressed={filters.colorMode==='photo'} onClick={()=>setColorMode('photo')}
+            className={`rounded-md px-2 py-2 text-[10px] transition-colors ${filters.colorMode==='photo'?'bg-[#c2a06a]/20 text-[#edc989]':'text-[#aaa6a0] hover:text-white'}`}>
+            Shown in photos
+          </button>
+          <button type="button" aria-pressed={filters.colorMode==='available'} onClick={()=>setColorMode('available')}
+            className={`rounded-md px-2 py-2 text-[10px] transition-colors ${filters.colorMode==='available'?'bg-[#c2a06a]/20 text-[#edc989]':'text-[#aaa6a0] hover:text-white'}`}>
+            All available colors
+          </button>
+        </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
@@ -429,6 +441,7 @@ export function ShopClient({
   const [priceMin, setPriceMin] = useState(initial.priceMin);
   const [priceMax, setPriceMax] = useState(initial.priceMax);
   const [color, setColor] = useState<string[]>(initial.color);
+  const [colorMode, setColorMode] = useState<'photo' | 'available'>(initial.colorMode);
   const [event, setEvent] = useState<string[]>(initial.event);
   const [performance, setPerformance] = useState<string[]>(initial.performance);
   const [dance, setDance] = useState<string[]>(initial.dance);
@@ -467,6 +480,7 @@ export function ShopClient({
     if (nextStyle.length) setStyle(nextStyle);
     if (nextPersona.length) setPersona(nextPersona);
     if (nextAudience.length) setAudience(nextAudience);
+    if (params.get('color_mode') === 'available') setColorMode('available');
     const nextColor = allowedParamValues(params.get('color'), COLORS);
     if (nextColor.length) setColor(nextColor);
     if (nextMaterial.length) setMaterial(nextMaterial);
@@ -481,6 +495,7 @@ export function ShopClient({
       priceMin,
       priceMax,
       color,
+      colorMode,
       event,
       performance,
       dance,
@@ -492,7 +507,7 @@ export function ShopClient({
       search,
       sort,
     }),
-    [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort],
+    [piece, part, priceMin, priceMax, color, colorMode, event, performance, dance, style, persona, audience, material, effect, search, sort],
   );
 
   useEffect(() => {
@@ -510,6 +525,10 @@ export function ShopClient({
 
   const deferredFilters = useDeferredValue(filters);
   const filtered = useMemo(() => filterShopProducts(products, deferredFilters), [products, deferredFilters]);
+  const availableModeCount = useMemo(() =>
+    color.length && colorMode === 'photo'
+      ? filterShopProducts(products, {...deferredFilters,colorMode:'available'}).length
+      : 0, [products, deferredFilters, color.length, colorMode]);
 
   const availability = useMemo(() => {
     const collect = (key: keyof NonNullable<StorefrontProduct['facets']>) =>
@@ -540,7 +559,7 @@ export function ShopClient({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort]);
+  }, [piece, part, priceMin, priceMax, color, colorMode, event, performance, dance, style, persona, audience, material, effect, search, sort]);
 
   const visibleProducts = navigation
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -554,6 +573,7 @@ export function ShopClient({
     setPriceMin(0);
     setPriceMax(1000);
     setColor([]);
+    setColorMode('photo');
     setEvent([]);
     setPerformance([]);
     setDance([]);
@@ -590,6 +610,7 @@ export function ShopClient({
     setPriceMin,
     setPriceMax,
     setColor,
+    setColorMode,
     setEvent,
     setPerformance,
     setDance,
@@ -702,13 +723,21 @@ export function ShopClient({
 
           {color.length>0 ? <div role="status" className="mb-5 flex items-start gap-2.5 border-l-2 border-[#bfa26f]/60 bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--bone-dim)]">
             <Info size={14} className="mt-0.5 shrink-0 text-[#d6b56c]" />
-            <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show a different color; open any product to select your preferred available finish.</p>
+            {colorMode==='photo'
+              ? <p>Showing items photographed in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Other shades may be available inside each product.</p>
+              : <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show another shade; choose the color inside the product.</p>}
           </div> : null}
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
-          {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}
+          {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">
+            <p>No products shown in this color match your filters.</p>
+            {availableModeCount>0 ? <button type="button" onClick={()=>setColorMode('available')}
+              className="mt-3 text-[12px] text-[#e2c482] underline underline-offset-4 hover:text-white">
+              Show {availableModeCount} designs available to order in {color.join(' or ')} →
+            </button> : null}
+          </div> : null}
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} matchingColors={filters.color} />)}
+            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} matchingColors={filters.colorMode === 'available' ? filters.color : []} />)}
           </div>
 
           {navigation ? (

@@ -105,8 +105,9 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   if (shouldTraceShop()) {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
   }
-  if (products.length && utilityState && filteredCount===0) console.warn('feya_shop_not_found','utility_without_results');
-  if (products.length && utilityState && filteredCount===0) notFound();
+  // Empty filtered catalog is valid: customers can switch to color availability
+  // without a false 404. Utility/filter routes already carry noindex.
+  if (products.length && utilityState && filteredCount===0) console.info('feya_shop_filter_empty','valid_zero_matches');
   if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) console.warn('feya_shop_not_found','invalid_page_number');
   if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
 

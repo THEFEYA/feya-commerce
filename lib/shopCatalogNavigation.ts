@@ -50,6 +50,7 @@ export type ShopFilters = {
   priceMin: number;
   priceMax: number;
   color: string[];
+  colorMode: 'photo' | 'available';
   event: string[];
   performance: string[];
   dance: string[];
@@ -68,6 +69,7 @@ export const defaultShopFilters = (): ShopFilters => ({
   priceMin: 0,
   priceMax: 1000,
   color: [],
+  colorMode: 'photo',
   event: [],
   performance: [],
   dance: [],
@@ -83,7 +85,7 @@ export const defaultShopFilters = (): ShopFilters => ({
 export type ShopNavigation = { page: number; filters: ShopFilters };
 
 export const SHOP_FILTER_PARAM_ORDER = [
-  'piece','part','min','max','color','event','performance','dance',
+  'piece','part','min','max','color','color_mode','event','performance','dance',
   'style','persona','audience','material','effect','search','sort','page',
 ] as const;
 
@@ -157,6 +159,9 @@ export function parseShopNavigation(
   const colors = listParam(scalar('color'), COLORS);
   if (colors === null) return null;
   filters.color = colors;
+  const colorMode = scalar('color_mode');
+  if (colorMode && colorMode !== 'available') return null;
+  filters.colorMode = colorMode === 'available' ? 'available' : 'photo';
 
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
@@ -185,6 +190,7 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   if (filters.priceMin !== 0) params.set('min', String(filters.priceMin));
   if (filters.priceMax !== 1000) params.set('max', String(filters.priceMax));
   if (filters.color.length) params.set('color', COLORS.filter((value) => filters.color.includes(value)).join(','));
+  if (filters.colorMode === 'available') params.set('color_mode', 'available');
   if (filters.event.length) params.set('event', filters.event.join(','));
   if (filters.performance.length) params.set('performance', filters.performance.join(','));
   if (filters.dance.length) params.set('dance', filters.dance.join(','));
@@ -271,9 +277,11 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
     if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
 
     if (filters.color.length) {
-      const available = product.color_filter_values || (facets?.colors?.length ? facets.colors : (product.canonical_color_label ? [product.canonical_color_label] : []));
-      // Multi-select is OR within Color, AND against the other facet groups.
-      if (!filters.color.some((color) => available.includes(color))) return false;
+      const selected = filters.colorMode === 'available'
+        ? (product.color_filter_values ?? facets?.colors ?? [])
+        : (product.photo_color_filter_values ?? (product.canonical_color_label ? [product.canonical_color_label] : []));
+      // Color options OR together, other independent facet groups AND together.
+      if (!filters.color.some((color) => selected.includes(color))) return false;
     }
 
     if (!matchesAny(filters.event, facets?.events)) return false;

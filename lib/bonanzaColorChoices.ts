@@ -80,6 +80,10 @@ export function inferredDefaultColorCode(title: string, codes: readonly string[]
   return ranked[0]?.score > 0 ? ranked[0].code : codes[0];
 }
 
+export const PHOTOGRAPHED_MIXED_COUPLE_COLORS = {
+  // Explicit owner-described example: female in Gold, male in Silver.
+  'f012a88f-44db-4e17-ba57-7f60bb7b5719': {women:'gold',men:'silver'},
+} as const;
 export type OwnerColorChoices = {colors: string[]; held: boolean; primary?: string | null; filter_colors?: string[] | null};
 export function enrichStorefrontProductColors(product: StorefrontProduct, decision: OwnerColorChoices | null | undefined): StorefrontProduct {
   if (!decision || decision.held) return product;
@@ -93,11 +97,16 @@ export function enrichStorefrontProductColors(product: StorefrontProduct, decisi
     : [...new Set(decision.filter_colors)];
   const eligible = constituentColors(unique);
   if (filters.some((color) => !eligible.includes(color))) throw new Error('BONANZA_COLOR_FILTER_OUTSIDE_AVAILABLE_CHOICES');
+  const pair = PHOTOGRAPHED_MIXED_COUPLE_COLORS[product.canonical_product_id as keyof typeof PHOTOGRAPHED_MIXED_COUPLE_COLORS];
+  const photographed = pair && unique.includes(pair.women) && unique.includes(pair.men)
+    ? constituentColors([pair.women,pair.men])
+    : primary ? constituentColors([primary]) : [];
   return {
     ...product,
     color_choices: unique,
     default_color_choice: primary,
     color_filter_values: filters,
+    photo_color_filter_values: photographed,
     color_choice_source: 'bonanza-owner-confirmed-20261011',
     // The existing facets remain the source for ALL unrelated SEO/category axes.
     facets: product.facets ? {...product.facets, colors: filters} : product.facets,

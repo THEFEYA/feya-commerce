@@ -101,9 +101,11 @@ export function ProductCard({ product: p, index = 0, matchingColors = [] }: { pr
     : 'primary-static-media h-full w-full object-cover transition-transform duration-700';
   const colors = colorOptions(p);
   const shownCode = p.default_color_choice;
-  const shownParts: string[] = shownCode && shownCode in BONANZA_COLOR_PARTS
-    ? [...BONANZA_COLOR_PARTS[shownCode as keyof typeof BONANZA_COLOR_PARTS]]
-    : colors.slice(0,1);
+  const shownParts: string[] = p.photo_color_filter_values?.length
+    ? p.photo_color_filter_values
+    : shownCode && shownCode in BONANZA_COLOR_PARTS
+      ? [...BONANZA_COLOR_PARTS[shownCode as keyof typeof BONANZA_COLOR_PARTS]]
+      : colors.slice(0,1);
   const availableNotShown = matchingColors.filter((color) => p.color_filter_values?.includes(color));
   const requiresExplanation = availableNotShown.length > 0 && !matchingColors.some((color) => shownParts.includes(color));
   const display = mainRegularPrice(p);
