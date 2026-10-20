@@ -10,9 +10,16 @@ export function isAiLookOwnerPreview(env:Record<string,string|undefined>):boolea
   &&env.VERCEL_GIT_COMMIT_REF===AI_LOOK_PREVIEW_BRANCH
   &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
 }
+/**
+ * This ONE protected owner Preview can reuse an existing server-side
+ * OPENAI_API_KEY from the FEYA SEO integrations. The exact branch+project SSO
+ * gate is the explicit owner authorization; no paid request runs until the
+ * owner presses Generate. Setting the switch to false is a kill switch.
+ * Production and other previews remain completely blocked.
+ */
 export function isAiLookGenerationConfigured(env:Record<string,string|undefined>):boolean{
  return isAiLookOwnerPreview(env)
-  &&env.FEYA_AI_LOOK_PREVIEW_ENABLED==='true'
+  &&env.FEYA_AI_LOOK_PREVIEW_ENABLED!=='false'
   &&typeof env.OPENAI_API_KEY==='string'
   &&env.OPENAI_API_KEY.startsWith('sk-');
 }
