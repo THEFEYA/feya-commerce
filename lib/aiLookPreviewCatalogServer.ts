@@ -10,7 +10,7 @@ export type AiLookCatalogEntry={id:string;slug:string;title:string;image:string}
 export type AiLookReference={url:string;alt:string};
 export type AiLookConfiguration={id:string;label:string;price:number|null;isFullSet:boolean};
 export type AiLookView={
- slug:string;canonicalId:string;title:string;image:string;
+ slug:string;canonicalId:string;title:string;image:string;recommendedReferenceIndex:number;
  gallery:AiLookReference[];colors:{code:string;label:string}[];
  defaultColor:string;configs:AiLookConfiguration[];defaultConfig:string;currency:string;
 };
@@ -34,6 +34,9 @@ export async function aiLookReadApprovedListing(slug:string):Promise<AiLookView|
  const colors=productColorChoices(product);
  return {
   slug,canonicalId:row.id,title:row.title,image:row.image,
+  // The inspected Holographic product starts with a side portrait; gallery item #2
+  // is the frontal view. All other listings are AI-ranked at generation time.
+  recommendedReferenceIndex:slug===AI_LOOK_DEFAULT_SLUG?1:0,
   gallery:galleries.length?galleries:[{url:row.image,alt:row.title}],
   colors,defaultColor:colors[0]?.code||'',
   configs,defaultConfig:configs.find(x=>x.isFullSet)?.id||configs[0]?.id||'',
