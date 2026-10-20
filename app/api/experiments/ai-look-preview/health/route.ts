@@ -1,5 +1,5 @@
-import {NextResponse} from 'next/server';
-import {isAiLookOwnerPreview} from '@/lib/aiLookPreviewPolicy';
+import {NextRequest,NextResponse} from 'next/server';
+import {isAiLookOwnerPreview,resolveAiLookOwnerTestKey} from '@/lib/aiLookPreviewPolicy';
 
 export const maxDuration=15;
 
@@ -7,44 +7,70 @@ const HEADERS={
  'Cache-Control':'private, no-store, max-age=0',
  'X-Robots-Tag':'noindex, nofollow, noarchive',
 };
-
-export async function GET(){
- if(!isAiLookOwnerPreview(process.env)){
-  return NextResponse.json({ok:false,status:'not_found'},{status:404,headers:HEADERS});
- }
- const flagOn=process.env.FEYA_AI_LOOK_PREVIEW_ENABLED==='true';
- const secret=process.env.OPENAI_API_KEY||'';
- if(!flagOn||!secret.startsWith('sk-')){
-  // Only flags, never send or log the secret, partial secret, prefix or length.
-  return NextResponse.json({
-   ok:false,status:!flagOn&&!secret?'setup_required':!flagOn?'preview_flag_disabled':'api_key_missing',
-   flagEnabled:flagOn,keyConfigured:secret.startsWith('sk-'),
-   message:'Set both Preview-only Vercel environment variables and redeploy this exact branch.',
-  },{headers:HEADERS});
- }
+function json(data:Record<string,unknown>,status=200){
+ return NextResponse.json(data,{status,headers:HEADERS});
+}
+function isOwnOrigin(request:NextRequest){
+ const expected=new URL(request.url).origin;
+ return request.headers.get('origin')===expected
+   &&request.headers.get('sec-fetch-site')!=='cross-site';
+}
+async function probeModel(secret:string){
  try{
-  // Cheap no-image connectivity probe. This does not create images or consume
-  // a generation. It cannot guarantee quota or model-access for an actual edit.
+  // A no-image credentials check. This does not create an image or incur
+  // a generation charge. It cannot guarantee current image-edit quota.
   const response=await fetch('https://api.openai.com/v1/models/gpt-image-1.5',{
    method:'GET',headers:{Authorization:'Bearer '+secret},
-   cache:'no-store',signal:AbortSignal.timeout(8000)
+   cache:'no-store',signal:AbortSignal.timeout(8000),
   });
-  if(response.status===401)return NextResponse.json({
-   ok:false,status:'invalid_api_key',message:'This OpenAI API key is not accepted. Check the Platform project and replace it.',
-  },{headers:HEADERS});
-  if(response.status===403)return NextResponse.json({
-   ok:false,status:'provider_permission_denied',message:'The OpenAI Platform project cannot access the chosen image model.',
-  },{headers:HEADERS});
-  if(!response.ok)return NextResponse.json({
-   ok:false,status:'provider_unavailable',message:'The model probe was not accepted. Try again later or check Platform billing.',
-  },{headers:HEADERS});
-  return NextResponse.json({
-   ok:true,status:'provider_reachable',flagEnabled:true,keyConfigured:true,
-   message:'OpenAI is connected. Image generation still depends on available API credit and model permissions.',
-  },{headers:HEADERS});
+  if(response.status===401)return json({
+   ok:false,status:'invalid_api_key',
+   message:'OpenAI did not accept this key. Verify your Platform key.',
+  });
+  if(response.status===403)return json({
+   ok:false,status:'provider_permission_denied',
+   message:'The OpenAI project cannot access the image model.',
+  });
+  if(!response.ok)return json({
+   ok:false,status:'provider_unavailable',
+   message:'The OpenAI model could not be checked. Review Platform billing and try again.',
+  });
+  return json({
+   ok:true,status:'provider_reachable',
+   message:'OpenAI responds to the owner test key. You can start your first real image preview.',
+  });
  }catch{
-  return NextResponse.json({
-   ok:false,status:'provider_unreachable',message:'The image service could not be reached. Try again.',
-  },{headers:HEADERS});
+  return json({
+   ok:false,status:'provider_unreachable',
+   message:'Could not reach the OpenAI service. Try checking again.',
+  });
  }
+}
+export async function GET(){
+ if(!isAiLookOwnerPreview(process.env))return json({ok:false,status:'not_found'},404);
+ const flagOn=process.env.FEYA_AI_LOOK_PREVIEW_ENABLED==='true';
+ const secret=resolveAiLookOwnerTestKey(process.env,null);
+ if(!flagOn||!secret){
+  return json({
+   ok:false,status:'setup_required',
+   flagEnabled:flagOn,keyConfigured:Boolean(secret),
+   message:'OpenAI is not connected to Vercel. In this protected owner Preview, you can paste a key for one test without storing it.',
+  });
+ }
+ return probeModel(secret);
+}
+export async function POST(request:NextRequest){
+ // NEVER accept owner-key POST outside the exact SSO-protected experiment.
+ if(!isAiLookOwnerPreview(process.env))return json({ok:false,status:'not_found'},404);
+ if(!isOwnOrigin(request))return json({ok:false,status:'same_origin_required'},403);
+ if(!request.headers.get('content-type')?.startsWith('application/json'))return json({ok:false,status:'invalid_content_type'},415);
+ const size=Number(request.headers.get('content-length')||0);
+ if(size>1024)return json({ok:false,status:'invalid_payload'},413);
+ let body:unknown;
+ try{body=await request.json();}catch{return json({ok:false,status:'invalid_json'},400);}
+ const raw=body&&typeof body==='object'?'apiKey' in body?(body as {apiKey?:unknown}).apiKey:null:null;
+ const key=resolveAiLookOwnerTestKey(process.env,raw);
+ if(!key)return json({ok:false,status:'owner_key_missing',message:'Paste a valid private OpenAI API key for this one browser session.'},400);
+ // No key fragments, error bodies, or request contents are logged/returned.
+ return probeModel(key);
 }
