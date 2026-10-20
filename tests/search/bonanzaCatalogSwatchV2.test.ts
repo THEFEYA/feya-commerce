@@ -76,7 +76,7 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.doesNotMatch(shop,/>\s*Shown in photos\s*</);
   const pair=readFileSync('components/CouplePartnerColorSelector.tsx','utf8');
   const pdp=readFileSync('components/ProductDetailClient.tsx','utf8');
-  assert.match(pair,/grid-cols-\[60px_minmax\(0,1fr\)_128px\]/);
+  assert.match(pair,/grid-cols-\[78px_minmax\(0,1fr\)_128px\]/);
   assert.match(pair,/feya-config-trigger flex h-10/);
   assert.match(pair,/feya-config-menu absolute/);
   assert.match(pair,/feya-config-option-active/);
@@ -90,6 +90,13 @@ test('color availability checkbox is compact, and partner picker offers compact 
   assert.match(pair,/event.key === 'Escape'/);
   assert.match(pair,/event.key === 'ArrowDown'/);
   assert.match(pair,/PartnerGlyph partner=\{partner\.id\}/);
+  assert.match(pair,/Colors &amp; sizes · Paired set/);
+  assert.match(pair,/const summary=/);
+  assert.match(pair,/role="presentation"/);
+  assert.match(pair,/min-h-\[27px\]/);
+  assert.match(pair,/scrollbar-width:none/);
+  assert.match(pair,/width=\{16\} height=\{16\}/);
+  assert.doesNotMatch(pair,/truncate text-\[9px\]/);
   assert.match(pair,/partner === 'women'/);
   assert.match(pair,/text-\[#f7f3ec\]/);
   assert.doesNotMatch(pair,/<select value=/);
