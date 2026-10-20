@@ -110,7 +110,7 @@ export async function generateAiLook(args:{
  const form=new FormData();
  form.set('model',IMAGE_MODEL);form.set('size','1024x1536');
  form.set('quality','medium');form.set('output_format','jpeg');
- form.set('output_compression','85');form.set('input_fidelity','high');
+ form.set('output_compression','78');form.set('input_fidelity','high');
  form.set('n','1');
  const sources=[first,...(detail?[detail]:[]),body,face];
  for(const source of sources){
@@ -133,7 +133,8 @@ export async function generateAiLook(args:{
  }
  const result=await response.json() as {data?:Array<{b64_json?:string}>};
  const data=result.data?.[0]?.b64_json;
- if(!data||data.length>9_000_000)throw new Error('image_result_invalid');
+ // Vercel Functions cannot send JSON responses larger than 4.5 MB.
+ if(!data||data.length>3_700_000)throw new Error('image_result_invalid');
  return {imageDataUrl:'data:image/jpeg;base64,'+data,
   referenceIndex:selection.front,referenceDetailIndex:selection.detail};
 }
