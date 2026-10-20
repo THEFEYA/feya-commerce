@@ -73,10 +73,17 @@ export function classifyAiLookImageError(
  else if(status===429)reason='image_rate_limited';
  else if(status===400){
   const errorType=typeof nested.type==='string'?nested.type:'';
-  if(BLOCKED.has(rawCode)||errorType==='image_generation_user_error'&&!BAD_IMAGES.has(rawCode))
+  const safeForClassification=typeof nested.message==='string'?
+   nested.message.slice(0,1000):'';
+  if(BLOCKED.has(rawCode)||errorType==='image_generation_user_error'&&!BAD_IMAGES.has(rawCode)
+    ||/content policy|moderation blocked|safety system/i.test(safeForClassification))
    reason='image_content_review_blocked';
-  else if(BAD_IMAGES.has(rawCode))reason='image_input_invalid';
-  else if(BAD_PARAMETERS.has(rawCode)||param!==null)reason='image_request_parameter_invalid';
+  else if(BAD_IMAGES.has(rawCode)||param==='image'||param==='image[]'
+    ||/invalid image|unsupported image|could not (?:decode|process) image/i.test(safeForClassification))
+   reason='image_input_invalid';
+  else if(BAD_PARAMETERS.has(rawCode)||param!==null
+    ||/unknown parameter|unsupported parameter|invalid value/i.test(safeForClassification))
+   reason='image_request_parameter_invalid';
   else reason='image_generation_bad_request';
  }
  return{reason,diagnosticCode:code,diagnosticParam:param,requestId};
