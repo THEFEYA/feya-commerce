@@ -109,12 +109,21 @@ test('High-contrast holographic finish is present in base selector, card and mix
   const fallback=readFileSync('components/colors.ts','utf8');
   const swatch=readFileSync('components/FeyaColorSwatch.tsx','utf8');
   const pair=readFileSync('components/CouplePartnerColorSelector.tsx','utf8');
-  assert.match(colors,/#08bddd/);
-  assert.match(colors,/#ef38b1/);
+  // Bright seamless holographic palette: the selected colors and smooth bloom
+  // are shared by catalog filters, cards, PDP and the partner color selector.
+  assert.match(colors,/HOLO_SPECTRUM/);
+  assert.match(colors,/HOLO_BLOOM/);
+  assert.match(colors,/#18cce0/);
+  assert.match(colors,/#f450b9/);
   assert.match(colors,/if\(part==='Holographic'\)/);
   assert.match(fallback,/#b044ef/);
   assert.match(swatch,/holographic\|iridescent/);
-  assert.match(pair,/feya-config-trigger h-10/);
+  // Couple sizes must use the styled FEYA popup, never an OS-native white menu.
+  assert.match(pair,/feya-config-trigger flex h-10/);
+  assert.match(pair,/role="combobox"/);
+  assert.match(pair,/role="listbox"/);
+  assert.match(pair,/PartnerGlyph partner=\{partner\.id\}/);
   assert.match(pair,/text-\[13px\]/);
-  assert.match(pair,/<ChevronDown aria-hidden="true"/);
+  assert.match(pair,/<ChevronDown size=\{15\} aria-hidden="true"/);
+  assert.doesNotMatch(pair,/<select value=/);
 });
