@@ -24,6 +24,7 @@ import {
   Truck,
 } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
+import { productColorChoices } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
@@ -149,7 +150,11 @@ export function ProductDetailClient({
   const currency = activeConfig?.currency || p.currency || 'EUR';
   const total = sale * qty;
   const colors = colorOptions(p);
-  const selectedColor = activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
+  const reviewedColors = productColorChoices(p);
+  const selectedColorCode = reviewedColors[colorIdx]?.code || null;
+  const selectedColor = reviewedColors.length
+    ? colors[colorIdx] || colors[0]
+    : activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -255,6 +260,7 @@ export function ProductDetailClient({
       config: activeConfigLabel,
       size,
       color: selectedColor,
+      color_code: selectedColorCode,
       qty,
       price: sale,
       currency,
@@ -372,11 +378,22 @@ export function ProductDetailClient({
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex gap-2">{colors.map((c, i) => <button type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor} onClick={() => {
-            const variantIndex = options.findIndex(option => option.configuration_color === c);
-            if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
-            else setColorIdx(i);
-          }} className={`w-8 h-8 rounded-full border-2 ${c === selectedColor ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Available color options">{colors.map((c, i) => <button
+            type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor}
+            onClick={() => {
+              // Bonanza-approved colorways are independent of configuration/price.
+              // Legacy configuration-bound colors retain the previous behavior.
+              if (reviewedColors.length) { setColorIdx(i); return; }
+              const variantIndex = options.findIndex(option => option.configuration_color === c);
+              if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
+              else setColorIdx(i);
+            }}
+            className={`inline-flex min-h-9 items-center gap-2 rounded-md border px-2 py-1.5 transition-colors ${c === selectedColor ? 'border-white/70 bg-white/10 text-white' : 'border-[rgba(216,214,211,0.20)] text-[var(--bone-dim)] hover:border-white/50'}`}
+            title={c}>
+              <span className="inline-block h-5 w-5 shrink-0 rounded-full border border-white/25" style={colorStyle(c)} />
+              <span className="text-[11px] leading-4">{c}</span>
+            </button>)}</div>
+          {reviewedColors.length > 1 ? <p className="mt-2 text-[11px] text-[var(--smoke)]">Select one complete color combination. Product photos may show another available color.</p> : null}
         </div>
 
         <div className="mt-2">
