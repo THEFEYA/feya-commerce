@@ -214,7 +214,7 @@ type FilterPanelProps = {
   setPiece: (value: string[]) => void;
   setPriceMin: (value: number) => void;
   setPriceMax: (value: number) => void;
-  setColor: (value: string) => void;
+  setColor: (value: string[]) => void;
   setEvent: (value: string[]) => void;
   setPerformance: (value: string[]) => void;
   setDance: (value: string[]) => void;
@@ -340,24 +340,24 @@ function CatalogFilterPanel({
         </div>
       </FilterSection>
 
-      <FilterSection title="Color" activeCount={filters.color ? 1 : 0} defaultOpen>
+      <FilterSection title="Color" activeCount={filters.color.length} defaultOpen>
         <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
               key={value}
               type="button"
-              onClick={() => setColor(filters.color === value ? '' : value)}
+              onClick={() => setColor(toggleValue(filters.color, value))}
               className="flex flex-col items-center gap-1 group"
             >
               <span
                 className={`w-7 h-7 rounded-full border-2 transition-all ${
-                  filters.color === value
+                  filters.color.includes(value)
                     ? 'border-white shadow-[0_0_0_3px_rgba(255,255,255,0.18)]'
                     : 'border-[rgba(216,214,211,0.30)] group-hover:border-white'
                 }`}
                 style={colorStyle(value)}
               />
-              <span className={`text-[9px] tracking-[0.12em] uppercase ${filters.color === value ? 'text-white' : 'text-[#9b988e]'}`}>
+              <span className={`text-[9px] tracking-[0.12em] uppercase ${filters.color.includes(value) ? 'text-white' : 'text-[#9b988e]'}`}>
                 {value}
               </span>
             </button>
@@ -428,7 +428,7 @@ export function ShopClient({
   const [part, setPart] = useState<string[]>(initial.part);
   const [priceMin, setPriceMin] = useState(initial.priceMin);
   const [priceMax, setPriceMax] = useState(initial.priceMax);
-  const [color, setColor] = useState(initial.color);
+  const [color, setColor] = useState<string[]>(initial.color);
   const [event, setEvent] = useState<string[]>(initial.event);
   const [performance, setPerformance] = useState<string[]>(initial.performance);
   const [dance, setDance] = useState<string[]>(initial.dance);
@@ -467,6 +467,8 @@ export function ShopClient({
     if (nextStyle.length) setStyle(nextStyle);
     if (nextPersona.length) setPersona(nextPersona);
     if (nextAudience.length) setAudience(nextAudience);
+    const nextColor = allowedParamValues(params.get('color'), COLORS);
+    if (nextColor.length) setColor(nextColor);
     if (nextMaterial.length) setMaterial(nextMaterial);
     if (nextEffect.length) setEffect(nextEffect);
     if (nextSearch) setSearch(nextSearch);
@@ -551,7 +553,7 @@ export function ShopClient({
     setPart([]);
     setPriceMin(0);
     setPriceMax(1000);
-    setColor('');
+    setColor([]);
     setEvent([]);
     setPerformance([]);
     setDance([]);
@@ -568,7 +570,7 @@ export function ShopClient({
     piece.length +
     part.length +
     Number(priceMin > 0 || priceMax < 1000) +
-    Number(Boolean(color)) +
+    color.length +
     event.length +
     performance.length +
     dance.length +
@@ -606,7 +608,7 @@ export function ShopClient({
     ...part.map((value) => ({ key: `part:${value}`, label: value, remove: () => setPart((current) => current.filter((item) => item !== value)) })),
     ...piece.map((value) => ({ key: `piece:${value}`, label: value, remove: () => setPiece((current) => current.filter((item) => item !== value)) })),
     ...(priceMin > 0 || priceMax < 1000 ? [{ key: 'price', label: `€${priceMin}–€${priceMax}`, remove: () => { setPriceMin(0); setPriceMax(1000); } }] : []),
-    ...(color ? [{ key: 'color', label: color, remove: () => setColor('') }] : []),
+    ...color.map((value) => ({ key: `color:${value}`, label: value, remove: () => setColor((current) => current.filter((item) => item !== value)) })),
     ...event.map((value) => ({ key: `event:${value}`, label: value, remove: () => setEvent((current) => current.filter((item) => item !== value)) })),
     ...performance.map((value) => ({ key: `performance:${value}`, label: value, remove: () => setPerformance((current) => current.filter((item) => item !== value)) })),
     ...dance.map((value) => ({ key: `dance:${value}`, label: value, remove: () => setDance((current) => current.filter((item) => item !== value)) })),
