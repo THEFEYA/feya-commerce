@@ -27,6 +27,10 @@ import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
 import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
+import {
+  customMeasurementRequiredCount,customMeasurementLineMinor,
+  customMeasurementSelectionNeedsReview,
+} from '@/lib/commerceCustomMeasurementsPreview';
 import { productColorChoices, colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
@@ -139,6 +143,7 @@ export function ProductDetailClient({
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [size, setSize] = useState('');
+  const [customMeasurementsEnabled,setCustomMeasurementsEnabled]=useState(false);
   const couple = useMemo(() => coupleColorSelection(p), [p]);
   const [womenColorCode, setWomenColorCode] = useState(couple?.defaultPair.women || '');
   const [menColorCode, setMenColorCode] = useState(couple?.defaultPair.men || '');
@@ -162,7 +167,6 @@ export function ProductDetailClient({
   const regular = hasCompareAt ? compareAt : display;
   const sale = display;
   const currency = activeConfig?.currency || p.currency || 'EUR';
-  const total = sale * qty;
   const colors = colorOptions(p);
   const reviewedColors = productColorChoices(p);
   const isCoupleSet = Boolean(couple && activeConfig && isFullSetOption(activeConfig,activeConfigIndex));
@@ -180,6 +184,14 @@ export function ProductDetailClient({
         ? colors[colorIdx] || colors[0]
         : activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
   const selectedSize = isCoupleSet ? `Women's ${womenSize} · Men's ${menSize}` : size;
+  const sizingSelection = {
+    size:isCoupleSet?null:size,
+    womens_size:isCoupleSet?womenSize:null,
+    mens_size:isCoupleSet?menSize:null,
+  };
+  const customOutfits=customMeasurementRequiredCount(sizingSelection);
+  const customFitMinor=customMeasurementLineMinor({...sizingSelection,qty},customMeasurementsEnabled && customOutfits>0);
+  const total=Math.round(sale*100)*qty/100 + customFitMinor/100;
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -275,7 +287,10 @@ export function ProductDetailClient({
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
     if (!activeConfig || (pricedColors!==null && !pricedColors.some(o=>optionKey(o,options.indexOf(o))===configKey))
-      || (isCoupleSet ? !womenSize || !menSize : !size)) { setSelectionWarning(true); return; }
+      || (isCoupleSet ? !womenSize || !menSize : !size)
+      || customMeasurementSelectionNeedsReview(sizingSelection,customMeasurementsEnabled)) {
+      setSelectionWarning(true); return;
+    }
     setSelectionWarning(false);
     const current = readCart();
     const id = `${p.canonical_product_id || slug}-${configKey}-${selectedSize}-${selectedColor}`;
@@ -290,6 +305,9 @@ export function ProductDetailClient({
       // Whole-pair selections are independent choices, not invented price SKUs.
       womens_size: isCoupleSet ? womenSize : null,
       mens_size: isCoupleSet ? menSize : null,
+      // Preview-only addon selection. Never overwrite the approved merchandise
+      // price, configuration identity or server quote with a browser amount.
+      custom_measurements_selected:customOutfits>0 && customMeasurementsEnabled,
       color: selectedColor,
       color_code: selectedColorCode,
       womens_color_code: isCoupleSet ? womenColorCode : null,
@@ -320,9 +338,9 @@ export function ProductDetailClient({
       sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
       quantity:qty,
       item_price:sale,
-      item_value:total,
+      item_value:sale*qty,
       currency,
-    },{currency,value:total});
+    },{currency,value:sale*qty});
     setAdded(true);
     if (goToCart) {
       window.location.href = '/cart';
@@ -403,7 +421,10 @@ export function ProductDetailClient({
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); setSelectionWarning(false); }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
+              return <button key={key} type="button" onClick={() => {
+                setConfigKey(key); setConfigOpen(false); setSelectionWarning(false);
+                setSize('');setWomenSize('');setMenSize('');setCustomMeasurementsEnabled(false);
+              }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
             })}
           </div> : null}
         </div> : null}
@@ -423,8 +444,11 @@ export function ProductDetailClient({
               }}
               onSizeChange={(partner,selectedSize)=>{
                 if(!SIZES.includes(selectedSize))return;
+                const nextWomen=partner==='women'?selectedSize:womenSize;
+                const nextMen=partner==='men'?selectedSize:menSize;
                 if(partner==='women')setWomenSize(selectedSize);
                 else setMenSize(selectedSize);
+                setCustomMeasurementsEnabled(nextWomen==='Custom'||nextMen==='Custom');
                 setSelectionWarning(false);
               }}/>
           : <>
@@ -461,15 +485,39 @@ export function ProductDetailClient({
 
         {!isCoupleSet && <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
-          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
+          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => {
+            setSize(s); setCustomMeasurementsEnabled(s==='Custom');
+            setSelectionWarning(false);
+          }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
           {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
         </div>}
+
+        {customOutfits>0 ? <div className="mt-3 rounded-md border border-[#d4b26a]/25 bg-[#d4b26a]/[.045] px-3 py-2.5">
+          <label className="flex cursor-pointer items-start gap-2.5 text-[12px] leading-5 text-[#ede7dd]">
+            <input type="checkbox" checked={customMeasurementsEnabled}
+              onChange={(event)=>{setCustomMeasurementsEnabled(event.target.checked);setSelectionWarning(false);}}
+              className="mt-1 h-4 w-4 shrink-0 accent-[#d4b26a]"
+              aria-label="Custom measurements service" />
+            <span className="min-w-0 flex-1">Made to your measurements
+              <span className="block text-[10px] leading-4 text-[var(--bone-dim)]">
+                We'll contact you to confirm the measurements.
+              </span>
+            </span>
+            <strong className="shrink-0 font-medium text-[#e7c87e]">
+              +{formatPrice(customOutfits*15,currency)}
+            </strong>
+          </label>
+          {!customMeasurementsEnabled ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">
+            Custom size requires this service. Turn it on or choose a standard size.
+          </p> : null}
+        </div> : null}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
         </div>
 
-        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale, currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total, currency) : '—'}</div></div>
+        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale,currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total,currency) : '—'}</div></div>
+        {activeConfig && customFitMinor>0 ? <p className="mt-1 text-right text-[11px] text-[#d4b26a]" role="status">Includes custom measurements: +{formatPrice(customFitMinor/100,currency)}</p> : null}
         {previewMode
           ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
           : <>

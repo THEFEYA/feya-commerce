@@ -15,6 +15,8 @@ export function FeyaColorSwatch({
       : 'group-hover:shadow-[0_0_10px_rgba(220,198,155,.15)]'}`}
     style={{width:size,height:size} as CSSProperties}>
     <span className="absolute inset-0 overflow-hidden rounded-full border border-white/[0.12] shadow-[inset_0_1px_1px_rgba(255,255,255,.24),inset_0_-2px_4px_rgba(0,0,0,.22)]" style={colorStyle(color)}/>
-    <span className="pointer-events-none absolute inset-[1px] rounded-full bg-[radial-gradient(circle_at_28%_19%,rgba(255,255,255,.30),transparent_38%)]"/>
+    <span className={`pointer-events-none absolute inset-[1px] rounded-full ${/holographic|iridescent/i.test(color)
+      ? 'bg-[radial-gradient(circle_at_23%_17%,rgba(255,255,255,.16),transparent_34%)]'
+      : 'bg-[radial-gradient(circle_at_28%_19%,rgba(255,255,255,.30),transparent_38%)]'}`}/>
   </span>;
 }

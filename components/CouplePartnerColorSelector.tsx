@@ -1,5 +1,6 @@
 'use client';
 import {FeyaColorSwatch} from '@/components/FeyaColorSwatch';
+import {ChevronDown} from 'lucide-react';
 import {colorChoiceLabel} from '@/lib/bonanzaColorChoices';
 
 type Partner='women'|'men';
@@ -25,7 +26,7 @@ export function CouplePartnerColorSelector({
         {id:'women' as Partner,title:'Women',color:women,size:womenSize},
         {id:'men' as Partner,title:'Men',color:men,size:menSize},
       ]).map(partner=><div key={partner.id}
-        className="grid grid-cols-[64px_minmax(0,1fr)_91px] items-center gap-2 py-2">
+        className="grid grid-cols-[60px_minmax(0,1fr)_128px] items-center gap-2 py-2 sm:grid-cols-[70px_minmax(0,1fr)_142px]">
         <div className="min-w-0">
           <div className="text-[11px] text-[#d7d0c4]">{partner.title}</div>
           <div className="truncate text-[9px] text-[var(--smoke)]" title={colorChoiceLabel(partner.color)}>
@@ -48,10 +49,12 @@ export function CouplePartnerColorSelector({
           <select value={partner.size} required
             onChange={(e)=>onSizeChange(partner.id,e.target.value)}
             aria-label={partner.title+' outfit size'}
-            className="h-8 w-full rounded-md border border-white/[0.2] bg-[#16151a] px-2 text-[11px] text-[#ece7db] outline-none focus:border-[#d4b474] focus-visible:ring-1 focus-visible:ring-[#d4b474]">
+            className="feya-config-trigger h-10 w-full appearance-none rounded-md px-3 pr-8 text-[13px] font-medium tracking-[.02em] text-[#f7f3ec] outline-none focus:border-[#d4b474] focus-visible:ring-2 focus-visible:ring-[#d4b474]">
             <option value="">Size</option>
             {sizes.map(s=><option key={s} value={s}>{s}</option>)}
           </select>
+          <ChevronDown aria-hidden="true" size={15}
+            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#d2c7b6]"/>
         </label>
       </div>)}
     </div>

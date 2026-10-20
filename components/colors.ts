@@ -13,8 +13,8 @@ export const COLOR_HEX: Record<string, string> = {
   Pink: '#e883b7',
   Blue: '#4e78b2',
   Ruby: '#A02038',
-  Holographic: 'conic-gradient(from 180deg at 50% 50%, #FFD1F0, #B5C7FF, #C6FFE3, #FFEEC2, #FFD1F0)',
-  Iridescent: 'conic-gradient(from 180deg at 50% 50%, #FFD1F0, #B5C7FF, #C6FFE3, #FFEEC2, #FFD1F0)'
+  Holographic: 'conic-gradient(from 10deg,#08bddd,#4167ee,#b044ef,#ef38b1,#fc9969,#f6cf64,#22c99c,#08bddd)',
+  Iridescent: 'conic-gradient(from 10deg,#08bddd,#4167ee,#b044ef,#ef38b1,#fc9969,#f6cf64,#22c99c,#08bddd)'
 };
 
 export function colorStyle(name?: string | null) {

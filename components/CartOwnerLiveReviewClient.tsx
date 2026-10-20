@@ -12,6 +12,7 @@ import {
   ownerCartVisualTotals,ownerCartPreviewExtraEstimate,parseOwnerCartStorage,
   type OwnerCartPreviewItem,type OwnerCartPreviewMethod,
 } from '@/lib/commerceOwnerCartReview';
+import {customMeasurementSelectionNeedsReview} from '@/lib/commerceCustomMeasurementsPreview';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -54,7 +55,6 @@ export function CartOwnerLiveReviewClient(){
   const [extras,setExtras]=useState<string[]>([]);
   const [giftMessage,setGiftMessage]=useState('');
   const [wearerByItem,setWearerByItem]=useState<Record<string,'men'|'women'>>({});
-  const [customFitIds,setCustomFitIds]=useState<string[]>([]);
   const [coupon,setCoupon]=useState('');
   const [couponNotice,setCouponNotice]=useState(false);
   const toggleExtra=(id:string)=>setExtras(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
@@ -72,9 +72,9 @@ export function CartOwnerLiveReviewClient(){
 
   const totals=useMemo(()=>ownerCartVisualTotals(items,method),[items,method]);
   const visualExtras=useMemo(()=>ownerCartPreviewExtraEstimate(items,{
-    madeToMeasureItemIds:customFitIds.filter(id=>items.some(x=>x.id===id)),
+    madeToMeasureItemIds:items.filter(item=>item.custom_measurements_selected).map(item=>item.id),
     giftCard:extras.includes('card'),giftBox:extras.includes('box'),destination:form.country,
-  }),[items,customFitIds,extras,form.country]);
+  }),[items,extras,form.country]);
   // Do not guess remote-zone charges from a country name alone.
   const illustrativeTotal=totals.illustrative_before_tax_minor
     +visualExtras.made_to_measure_minor+visualExtras.gift_card_minor+visualExtras.gift_box_minor;
@@ -116,11 +116,16 @@ export function CartOwnerLiveReviewClient(){
     }));
   }
   function remove(id:string){
-    setCustomFitIds(cur=>cur.filter(x=>x!==id));
     setWearerByItem(cur=>{const next={...cur};delete next[id];return next;});
     persist(items.filter(x=>x.id!==id));
   }
-  function toggleCustomFit(id:string){setCustomFitIds(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);}
+  function toggleCustomFit(id:string){
+    // Browser-only preview toggle persists with the actual line. Recomputed
+    // once in the summary; a Custom size without service remains flagged.
+    persist(items.map(item=>item.id===id
+      ?{...item,custom_measurements_selected:!item.custom_measurements_selected}
+      :item));
+  }
 
   return <div data-testid="owner-cart-review" className="container-feya pt-20 pb-16 sm:pt-24 lg:pt-24 lg:pb-20">
     <header className="max-w-4xl">
@@ -175,6 +180,10 @@ export function CartOwnerLiveReviewClient(){
                 <p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
                   {item.config} · {item.color} · {item.size}
                 </p>
+                {customMeasurementSelectionNeedsReview(item,item.custom_measurements_selected)
+                  ? <p role="alert" className="mt-2 rounded-md border border-[#db9a78]/30 px-3 py-2 text-[11px] leading-5 text-[#f0bea5]">
+                    Custom size requires the measurements service. Re-enable it below or edit this item to a standard size.
+                  </p> : null}
                 <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
                   <legend className="mb-1 text-[11px]">Intended wearer for this item</legend>
                   {(['men','women'] as const).map(choice=><label key={choice} className="inline-flex cursor-pointer items-center gap-1.5">
@@ -248,15 +257,22 @@ export function CartOwnerLiveReviewClient(){
             {items.length>0&&<div className="rounded-lg border border-white/[.12] px-3 py-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <strong className="text-[13px] font-medium text-[#f7f3ec]">Made to your measurements</strong>
-                <span className="text-[13px] text-[#e4c87d]">+€15 per piece</span>
+                <span className="text-[13px] text-[#e4c87d]">+€15 per customized outfit</span>
               </div>
-              <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements.</p>
+              <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">
+                Choosing Custom size on the product automatically enables this service.
+                Your bag can change the selection; a Custom size requires it before checkout.
+              </p>
               <div className="mt-2 grid gap-x-3 gap-y-1 sm:grid-cols-2">
                 {items.map(item=><label key={item.id}
                   className="flex min-h-8 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
-                  <input type="checkbox" checked={customFitIds.includes(item.id)}
-                    onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
-                  <span className="min-w-0 flex-1 truncate" title={item.title}>{item.title}</span>
+                  <input type="checkbox" checked={item.custom_measurements_selected}
+                    onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"
+                    aria-label={`Made to your measurements: ${item.title}`}/>
+                  <span className="min-w-0 flex-1 truncate" title={item.title}>{item.title}
+                    {(item.size==='Custom'||item.womens_size==='Custom'||item.mens_size==='Custom')
+                      ? <span className="ml-1 text-[#d4b26a]">· Custom size</span> : null}
+                  </span>
                 </label>)}
               </div>
             </div>}

@@ -115,7 +115,7 @@ export function enrichStorefrontProductColors(product: StorefrontProduct, decisi
 
 const BASE_TONES: Record<string,string> = {
   Gold: '#d2aa58', Silver: '#b5bec9', Black: '#191b21', White: '#f5f2e9',
-  Red: '#ba3045', Pink: '#e88bb8', Green: '#478a6c', Blue: '#457ab7', Brown: '#946949', Holographic: '#bdc9f0',
+  Red: '#ba3045', Pink: '#e88bb8', Green: '#478a6c', Blue: '#457ab7', Brown: '#946949', Holographic: '#954fe4',
 };
 
 /** Tiny jewelry-like metallic/iridescent finishes; no graphic file, no new image request. */
@@ -135,8 +135,10 @@ export function productAvailableBaseColors(product: StorefrontProduct): string[]
 export function colorChoiceStyle(code: string): {backgroundImage?: string; background?: string} {
   const parts = CHOICES[code];
   if (!parts) return {background:'#55575d'};
-  const glint = 'linear-gradient(130deg, rgba(255,255,255,.52) 0%, rgba(255,255,255,.06) 34%, transparent 49%, rgba(0,0,0,.31) 100%)';
-  const holo = 'conic-gradient(from 10deg,#b1e7f0 0%,#dcbded 17%,#ffe5ad 31%,#a7e3cb 48%,#b9c5f7 64%,#ffc6da 83%,#b1e7f0 100%)';
+  const glint = 'linear-gradient(130deg,rgba(255,255,255,.24) 0%,rgba(255,255,255,.035) 34%,transparent 49%,rgba(0,0,0,.22) 100%)';
+  // Distinct saturated neon/metallic iridescence, legible even as a 12px dot.
+  // Avoid the original near-white pastels which visually merged with Silver.
+  const holo = 'conic-gradient(from 10deg,#08bddd 0%,#4167ee 14%,#b044ef 29%,#ef38b1 44%,#fc9969 58%,#f6cf64 68%,#22c99c 82%,#08bddd 100%)';
   if (parts.length===1) {
     const base: Record<string,string> = {
       Gold: 'linear-gradient(128deg,#76511f 0%,#d9b160 25%,#fff0b0 43%,#b18131 59%,#edcf8b 79%,#826029 100%)',
@@ -156,8 +158,18 @@ export function colorChoiceStyle(code: string): {backgroundImage?: string; backg
   let cursor=0;const stops:string[]=[];
   for(const part of parts){
     const start=cursor, end=cursor+100/parts.length;cursor=end;
-    const tone=BASE_TONES[part]||'#888888';
-    stops.push(tone+' '+start.toFixed(2)+'%',tone+' '+end.toFixed(2)+'%');
+    if(part==='Holographic'){
+      // Preserve the boundaries of an indivisible multi-color option while
+      // painting its Holographic sector as a genuine colorful finish.
+      const spectrum=['#08bddd','#4167ee','#b044ef','#ef38b1','#fc9969','#22c99c'];
+      const span=(end-start)/spectrum.length;
+      spectrum.forEach((tone,j)=>{
+        stops.push(tone+' '+(start+j*span).toFixed(2)+'%',tone+' '+(start+(j+1)*span).toFixed(2)+'%');
+      });
+    }else{
+      const tone=BASE_TONES[part]||'#888888';
+      stops.push(tone+' '+start.toFixed(2)+'%',tone+' '+end.toFixed(2)+'%');
+    }
   }
   const overlay='radial-gradient(circle at 25% 18%,rgba(255,255,255,.45),transparent 35%)';
   return {backgroundImage:glint+','+overlay+',conic-gradient(from 225deg,'+stops.join(',')+')'};
