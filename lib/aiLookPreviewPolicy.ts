@@ -16,6 +16,19 @@ export function isAiLookGenerationConfigured(env:Record<string,string|undefined>
   &&typeof env.OPENAI_API_KEY==='string'
   &&env.OPENAI_API_KEY.startsWith('sk-');
 }
+/** 
+ * Owner-provided one-use key for a protected SSO Vercel Preview only.
+ * Never persisted in Git, environment, database, browser storage or logs.
+ * This is NOT the customer-facing authentication or quota system.
+ */
+export function resolveAiLookOwnerTestKey(
+ env:Record<string,string|undefined>,input:unknown
+):string|null{
+ if(!isAiLookOwnerPreview(env))return null;
+ if(isAiLookGenerationConfigured(env))return env.OPENAI_API_KEY!;
+ if(typeof input!=='string'||input.length>240||input!==input.trim())return null;
+ return /^sk-[a-zA-Z0-9_-]{24,230}$/.test(input)?input:null;
+}
 export const AI_LOOK_SCENES=['studio','festival','burning-man','stage','red-carpet'] as const;
 export type AiLookScene=typeof AI_LOOK_SCENES[number];
 export function isAiLookScene(value:unknown):value is AiLookScene{
