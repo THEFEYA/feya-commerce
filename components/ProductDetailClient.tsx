@@ -459,7 +459,7 @@ export function ProductDetailClient({
           </div>
             </>}
 
-        {!isCoupleSet ? <div className="mt-2">
+        {!isCoupleSet && <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => { setSize(s); setSelectionWarning(false); }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
           {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
