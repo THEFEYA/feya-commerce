@@ -67,10 +67,12 @@ async function token(config:PartnerConfig,fetcher:typeof fetch):Promise<string>{
   }
 }
 export class PartnerConnectError extends Error{
-  constructor(public readonly code:
+  readonly code:
     'partner_not_approved'|'partner_provider_unavailable'|'partner_request_rejected'
-    |'partner_bad_response'|'partner_permission_not_granted'){
+    |'partner_bad_response'|'partner_permission_not_granted';
+  constructor(code:PartnerConnectError['code']){
     super(code);
+    this.code=code;
   }
 }
 function asRecord(x:unknown):Record<string,unknown>{
