@@ -95,7 +95,7 @@ test('owner Preview has a no-image OpenAI connectivity probe and never exposes s
  assert.match(source,/isOwnOrigin\(request\)/);
  assert.match(source,/resolveAiLookOwnerTestKey\(process\.env,raw\)/);
  assert.match(ui,/Awaiting OpenAI connection/);
- assert.match(ui,/disabled=\{generating\|\|remaining===0\|\|!connected\}/);
+ assert.match(ui,/disabled=\{generating\|\|remaining===0\|\|!connected\|\|blockedForCurrent\}/);
 });
 
 test('customer reference images are verified, server-only; provider never gets client-supplied product URL',()=>{
