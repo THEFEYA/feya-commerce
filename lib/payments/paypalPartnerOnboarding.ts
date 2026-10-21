@@ -1,5 +1,4 @@
-import 'server-only';
-import {PayPalClient} from './paypalRest.ts';
+import {PayPalClient,PayPalApiError,PayPalNetworkError} from './paypalRest.ts';
 
 /**
  * Official PayPal Partner Referrals (not "Log in with PayPal", which authenticates
@@ -57,8 +56,15 @@ async function token(config:PartnerConfig,fetcher:typeof fetch):Promise<string>{
     clientId:config.clientId,clientSecret:config.clientSecret,
     environment:config.environment,
   },fetcher);
-  const result=await paypal.accessToken(true);
-  return result.token;
+  try{
+    const result=await paypal.accessToken(true);
+    return result.token;
+  }catch(e){
+    if(e instanceof PayPalNetworkError)throw new PartnerConnectError('partner_provider_unavailable');
+    if(e instanceof PayPalApiError&&(e.info.status===401||e.info.status===403))
+      throw new PartnerConnectError('partner_not_approved');
+    throw new PartnerConnectError('partner_request_rejected');
+  }
 }
 export class PartnerConnectError extends Error{
   constructor(public readonly code:
@@ -96,9 +102,7 @@ export async function createPartnerOnboardingLink(
   config:PartnerConfig,trackingId:string,fetcher:typeof fetch=fetch
 ):Promise<PartnerReferral>{
   if(!UUID.test(trackingId))throw new PartnerConnectError('partner_request_rejected');
-  const access=await token(config,fetcher).catch(()=>{
-    throw new PartnerConnectError('partner_not_approved');
-  });
+  const access=await token(config,fetcher);
   const payload={
     tracking_id:trackingId,
     operations:[{
@@ -129,9 +133,7 @@ export async function verifyPartnerOnboardingWithPayPal(
 ):Promise<VerifiedPartnerMerchant>{
   if(!UUID.test(trackingId)||!MERCHANT.test(merchantId))
     throw new PartnerConnectError('partner_request_rejected');
-  const access=await token(config,fetcher).catch(()=>{
-    throw new PartnerConnectError('partner_not_approved');
-  });
+  const access=await token(config,fetcher);
   // Server-to-server evidence from PayPal, NOT unsigned query parameters.
   const path='/v1/customer/partners/'+encodeURIComponent(config.partnerMerchantId)
     +'/merchant-integrations/'+encodeURIComponent(merchantId);
