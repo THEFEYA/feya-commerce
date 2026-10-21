@@ -82,10 +82,12 @@ const errors:Record<string,string>={
  generation_temporarily_unavailable:'The preview could not be generated. Please try again later.',
 };
 
-export default function AiLookPreviewClient({look,catalog,configured}:{
+export default function AiLookPreviewClient({look:initialLook,catalog,configured}:{
  look:AiLookView;catalog:AiLookCatalogEntry[];configured:boolean;
 }){
+ const [look,setLook]=useState<AiLookView>(initialLook);
  const [searchOpen,setSearchOpen]=useState(false);
+ const [changingLook,setChangingLook]=useState(false);
  const [query,setQuery]=useState('');
  const [color,setColor]=useState(look.defaultColor);
  const [configuration,setConfiguration]=useState(look.defaultConfig);
@@ -221,6 +223,38 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
   const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,'image/jpeg',.85));
   if(blob)await choosePhoto(new File([blob],'camera.jpg',{type:'image/jpeg'}),'face');
   closeCamera();
+ }
+ async function chooseApprovedAlternative(slug:string){
+  if(generating||changingLook)return;
+  setChangingLook(true);
+  try{
+   const response=await fetch(
+    '/api/experiments/ai-look-preview/listing?slug='+encodeURIComponent(slug),
+    {cache:'no-store'}
+   );
+   const data=await response.json() as {ok:boolean;look?:AiLookView};
+   if(!response.ok||!data.ok||!data.look)throw new Error('Could not open this FEYA listing.');
+   const next=data.look;
+   setLook(next);
+   setColor(next.defaultColor);
+   setConfiguration(next.defaultConfig);
+   setDisplayReference(Math.min(next.recommendedReferenceIndex,next.gallery.length-1));
+   setManualReference(null);
+   setResult(null);
+   setBlockedInput(null);
+   setError('');
+   setSaved(false);
+   setSearchOpen(false);
+   setQuery('');
+   // Preserve customer photos and the verified owner API connection in memory.
+   // The URL shows the genuine approved listing for future navigation.
+   window.history.replaceState(null,'','/experiments/ai-look-preview?slug='+encodeURIComponent(slug));
+  }catch(e){
+   setError(e instanceof Error?e.message:'Listing temporarily unavailable.');
+   setSearchOpen(false);
+  }finally{
+   setChangingLook(false);
+  }
  }
  async function generate(){
   if(generating)return;
@@ -455,7 +489,7 @@ export default function AiLookPreviewClient({look,catalog,configured}:{
       <button type="button" onClick={()=>setSearchOpen(false)} aria-label="Close"><X/></button></div>
      <div className="tryon-search"><Search size={18}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search among 207 approved FEYA designs"/></div>
      <div className="tryon-product-list">
-      {filtered.map(item=><button key={item.id} type="button" onClick={()=>window.location.assign('/experiments/ai-look-preview?slug='+encodeURIComponent(item.slug))}>
+      {filtered.map(item=><button key={item.id} type="button" onClick={()=>void chooseApprovedAlternative(item.slug)} disabled={changingLook}>
        <img src={item.image} alt=""/><span>{item.title}</span><ArrowUpRight size={18}/></button>)}
       {filtered.length===0?<p>No matching FEYA products.</p>:null}
      </div>
