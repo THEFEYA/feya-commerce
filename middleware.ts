@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { adminAccessDecision } from '@/lib/adminAccess';
 import { isOwnerPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import { isSellerOnlineReadOnlyReview } from '@/lib/sellerOnlineReviewAccess';
 import {
   isOwnerActionStepUpPath,
   ownerPreviewMutationAllowed,
@@ -17,6 +18,30 @@ export async function middleware(request: NextRequest) {
   const isLogin = pathname === '/admin/login';
   const isStepUpOwnerAction = isOwnerActionStepUpPath(pathname);
   const ownerPreview = isOwnerPreviewDeployment(process.env);
+  const sellerReview = isSellerOnlineReadOnlyReview(process.env);
+
+  // TheFEYA Seller Online technical review (exact existing V13 preview branch).
+  // Anonymous reviewers need only the temporary Vercel share link: no Supabase login.
+  // This exception is GET/HEAD-only, noindex, never applies to Production.
+  if (sellerReview) {
+    const headers = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' };
+    if (isLogin && ['GET','HEAD'].includes(request.method)) {
+      const target = request.nextUrl.clone();
+      target.pathname = '/admin';
+      target.search = '';
+      return NextResponse.redirect(target, { headers });
+    }
+    if (!['GET','HEAD'].includes(request.method) || isStepUpOwnerAction) {
+      return NextResponse.json(
+        { ok:false, code:'seller_online_review_read_only', error:'Seller Online review: owner changes and API writes are disabled.' },
+        { status:423, headers },
+      );
+    }
+    const response = NextResponse.next({ request });
+    response.headers.set('Cache-Control','private, no-store');
+    response.headers.set('X-Robots-Tag','noindex, nofollow, noarchive');
+    return response;
+  }
 
   if (isLogin) {
     if (ownerPreview && !ownerPreviewMutationAllowed(pathname, request.method, process.env)) {
