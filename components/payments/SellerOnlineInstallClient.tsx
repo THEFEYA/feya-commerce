@@ -4,6 +4,11 @@ import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react';
 import {Check, CircleAlert, Loader2, Lock, Power, ShieldCheck} from 'lucide-react';
 
 const API = '/api/partner/seller-online';
+type PayPalPartnerStatus={
+  available:boolean;environment:'sandbox'|'live'|null;
+  last:{status:string;environment:'sandbox'|'live';authorizationVerified:boolean;verified_at:string|null}|null;
+  checkoutEnabledByThisFlow:false;
+};
 
 type Checks = {
   credentials: boolean; payee: boolean; payee_merchant_id: string | null; webhook: boolean;
@@ -88,6 +93,9 @@ export function SellerOnlineInstallClient() {
   const [busy, setBusy] = useState<'' | 'install' | 'test' | 'activate'>('');
   const [message, setMessage] = useState<{tone: 'ok' | 'warn'; text: string} | null>(null);
   const [results, setResults] = useState<CheckResult[] | null>(null);
+  const [partnerConnect, setPartnerConnect] = useState<PayPalPartnerStatus | null>(null);
+  const [partnerBusy,setPartnerBusy] = useState(false);
+  const [partnerNotice,setPartnerNotice] = useState<string | null>(null);
   const started = useRef(false);
 
   const applyStatus = useCallback((next: Status) => {
@@ -108,6 +116,32 @@ export function SellerOnlineInstallClient() {
     return data.status;
   }, [applyStatus]);
 
+  const loadPartner = useCallback(async()=>{
+    try{
+      const {data}=await api<{ok:boolean}&PayPalPartnerStatus>('/paypal-connect');
+      if(data.ok)setPartnerConnect(data);
+    }catch{/* optional approved-partner integration may be unavailable */}
+  },[]);
+
+  async function startPayPalPartnerAuthorization(){
+    setPartnerBusy(true);setPartnerNotice(null);
+    try{
+      const {data}=await api<{ok:boolean;action_url?:string;code?:string}>(
+        '/paypal-connect',{action:'start'});
+      if(!data.ok||!data.action_url){
+        setPartnerNotice(data.code==='partner_not_approved'
+          ?'PayPal не активировал для TheFEYA партнёрскую процедуру. Требуется одобрение PayPal Partner Referrals.'
+          :'PayPal не смог начать официальное подключение.');return;
+      }
+      const url=new URL(data.action_url);
+      if(url.protocol!=='https:'||!['www.paypal.com','www.sandbox.paypal.com'].includes(url.hostname)){
+        setPartnerNotice('Недостоверный адрес PayPal. Переход отменён.');return;
+      }
+      window.location.assign(url.href);
+    }catch{setPartnerNotice('Не удалось открыть авторизацию PayPal.');}
+    finally{setPartnerBusy(false);}
+  }
+
   useEffect(() => {
     if (started.current) return;
     started.current = true;
@@ -119,7 +153,23 @@ export function SellerOnlineInstallClient() {
         await api('/access', {token});
       }
       const current = await load();
+      if(current)await loadPartner();
       const params = new URLSearchParams(window.location.search);
+      const referralTracking=params.get('merchantId');
+      const referralMerchant=params.get('merchantIdInPayPal');
+      if(referralTracking){
+        window.history.replaceState(null,'',window.location.pathname);
+        if(referralMerchant&&current){
+          setPartnerBusy(true);
+          const {data}=await api<{ok:boolean;verified?:boolean;code?:string}>(
+            '/paypal-connect',{action:'complete',tracking_id:referralTracking,merchant_id:referralMerchant});
+          setPartnerNotice(data.ok&&data.verified
+            ?'PayPal подтвердил разрешения продавца. Это ещё не включает приём денег: нужна проверка платёжного адаптера и Seller Online.'
+            :'PayPal не подтвердил подключение. Проверьте разрешения или действительность партнёрской лицензии.');
+          setPartnerBusy(false);
+          await loadPartner();
+        }
+      }
       const test = params.get('test');
       const token = params.get('token');
       if (test) window.history.replaceState(null, '', window.location.pathname);
@@ -144,7 +194,7 @@ export function SellerOnlineInstallClient() {
         }
       }
     })();
-  }, [load]);
+  }, [load,loadPartner]);
 
   async function install() {
     if (!status) return;
@@ -233,6 +283,31 @@ export function SellerOnlineInstallClient() {
     {message && <p role="status" className={`rounded-xl border p-4 text-[13px] leading-6 ${message.tone === 'ok' ? 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.07)] text-[#f1e2bd]' : 'border-amber-500/30 bg-amber-500/5 text-amber-100'}`}>{message.text}</p>}
 
     <Step n={1} title="PayPal-аккаунт Seller Online, который принимает оплату" done={accountDone && !engineChanged}>
+      <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.04)] p-4">
+        <h3 className="text-[15px] font-medium text-[#f7f3ec]">Официальная авторизация непосредственно в PayPal</h3>
+        {partnerConnect?.available
+          ?<>
+            <p className={help}>
+              PayPal Partner Referrals ({partnerConnect.environment}): сотрудник входит на paypal.com,
+              подтверждает разрешения для магазина и возвращается сюда. Его пароль и Client Secret не вводятся на TheFEYA.
+            </p>
+            <button type="button" disabled={partnerBusy||Boolean(busy)}
+              onClick={()=>void startPayPalPartnerAuthorization()}
+              className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-[#d4b26a] px-5 text-[13px] text-[#e8d1a4] disabled:opacity-50">
+              {partnerBusy?'Проверяем…':'Войти в PayPal и подтвердить подключение ↗'}
+            </button>
+          </>
+          :<p className={help}>
+            Этот официальный способ требует одобренной партнёрской интеграции PayPal.
+            Пока партнёрское приложение TheFEYA не настроено, авторизацию запускать нельзя.
+            Обычный Client ID от PayPal не даёт таких разрешений.
+          </p>}
+        {partnerConnect?.last?.authorizationVerified&&<p className="mt-3 text-[12px] text-[#d4b26a]">
+          Последняя проверка PayPal: согласие подтверждено.
+          Активация реальной оплаты производится только отдельно после проверки Seller Online и заказа.
+        </p>}
+        {partnerNotice&&<p role="status" className="mt-3 text-[13px] text-[#e2c690]">{partnerNotice}</p>}
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Choice active={rest} onClick={() => setEngine('paypal_checkout')} title="PayPal Checkout (REST API) — рекомендуется"
           note="Современная интеграция PayPal. Система сама проверит аккаунт, установит уведомления и подтвердит каждый платёж через API."/>
