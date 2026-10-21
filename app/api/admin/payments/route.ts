@@ -6,6 +6,7 @@ import {providerStatusForPanel} from '@/lib/payments/installation';
 import {PAYMENTS_STATE_TAG} from '@/lib/payments/publicState';
 import {PAYMENTS_SITE_ORIGIN} from '@/lib/payments/runtime';
 import {paymentsStore} from '@/lib/payments/store';
+import {isPaidCommerceReleaseApproved} from '@/lib/payments/commerceRelease';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
     }
     if (body.action === 'set_active') {
       if (typeof body.active !== 'boolean') return json({ok: false, code: 'invalid_request'}, 400);
+      if (body.active && !isPaidCommerceReleaseApproved()) return json({ok:false,code:'commerce_release_pending'},423);
       const result = await paymentsStore.setActive(body.active, owner.name, 'owner');
       revalidateTag(PAYMENTS_STATE_TAG, 'max');
       return json(result.code ? {ok: false, code: result.code} : {ok: true}, result.code ? 409 : 200);
