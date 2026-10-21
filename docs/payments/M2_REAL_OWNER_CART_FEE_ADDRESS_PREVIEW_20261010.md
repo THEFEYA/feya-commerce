@@ -28,3 +28,15 @@
 ## Owner review
 
 Open the branch's **Vercel protected preview** product page, select an actual size/color/configuration and press `Add to bag` or `Buy it now`. On this branch only, the existing `/cart` becomes the real UI review. Try 1 listing with different variants and 2/3 distinct product listings, Standard/Express and all address fields. This preview cannot charge or create an order, and it never asks for actual customer details.
+
+## Color-branch custom measurements QA (2026-10-20, PREPAYMENT ONLY)
+
+The owner confirmed the existing **€15 made-to-measurements** service proposal (not a new merchandise price row). In the private Color PR #191 preview only:
+
+- Holographic circles receive a more saturated multicolor iridescent gradient in filters, catalog chips and product variants. No external image or base-brand design assets are changed.
+- Women's / Men's paired-outfit size controls share the approved `feya-config-trigger` visual language at 40px height with a larger font; color choices and both required sizes remain independent.
+- Selecting `Custom` on a PDP auto-selects a **per-outfit** made-to-measurements preview service at **€15 × customized outfits × quantity**. With both outfits in a pair set to Custom the extra is €30 per paired set; one Custom partner adds €15. This service is a separate descriptive line in the PDP illustrative total and the cart summary; current original merchandise `price`, `unit_price_amount`, configuration ID, colorways and frozen approved SEO remain untouched.
+- `feya_visual_cart_v1` carries one preview-only boolean `custom_measurements_selected` plus existing single/partner sizes. The safeguarded owner cart parser reads the selection, checks type and quantity, and defaults pre-existing Custom items (no boolean yet) to service selected. The cart checkbox can be toggled and persists **only browser-local non-PII selection**. It cannot produce a payable session. If the owner/customer unchecks the service while retaining Custom size, the UI raises an explicit invalid-selection warning and advises re-enabling or choosing a standard size; it must NEVER silently sell free custom manufacturing.
+- The scoped Color Vercel Preview may render the **existing read-only owner cart** only when exact Git branch/project/preview/deployment protection gates pass. Public `/cart` behavior, payment/order flags, delivery/tax/legal contracts and transaction-party state remain unchanged.
+- User-visible preview total adds custom services once, outside the merchandise subtotal. Existing gift box/card, shipping, handling, discounts and nonpayable status remain separate. Backend Seller Online checkout requires a new **server-authorized eligibility, signed fee/service receipt and order snapshot** before any actual custom charge can be accepted.
+- Evidence required before merge: inspect product Custom on PDP → bag checkbox initially checked → reversible toggle/invalid Custom guard → quoted preview totals for qty2 and both partners Custom; 207 exact SEO pins unchanged. Await separate approval to port into the owner's FINAL confirmed production visual branch, not this old Preview shell.

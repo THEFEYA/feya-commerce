@@ -25,7 +25,8 @@ test('Phase 7 direct-filter validation, normalization and review auth stay outsi
   assert.match(page,/const navigation = parseShopNavigation\(params,\{ignoreUnknownParams:process\.env\.VERCEL_ENV === 'production'\}\)/);
   assert.match(page,/if \(!navigation\) notFound\(\)/);
   assert.match(page,/shopNavigationHasUtilityState/);
-  assert.match(page,/filteredCount===0\) notFound\(\)/);
+  assert.match(page,/feya_shop_filter_empty/);
+  assert.doesNotMatch(page,/filteredCount===0\) notFound\(\)/);
   assert.match(page,/shopNavigationNeedsNormalization/);
   assert.match(page,/redirect\(shopHrefWithTracking\(normalizedHref,params\)\)/);
   assert.match(page,/initialNavigation=\{initialNavigation\}/);

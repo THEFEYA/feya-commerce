@@ -20,7 +20,7 @@ export const PIECES = [
 ];
 
 export const PARTS = BODY_AREA_TREE.map((group) => group.part);
-export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
+export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Pink', 'Green', 'Blue', 'Brown', 'Holographic'];
 export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
 export const PERFORMANCE = ['Stage & Fashion', 'Showgirl', 'Drag Queen'];
 export const DANCE = ['Go-Go Dancer', 'Pole Dancer'];
@@ -49,7 +49,8 @@ export type ShopFilters = {
   part: string[];
   priceMin: number;
   priceMax: number;
-  color: string;
+  color: string[];
+  colorMode: 'photo' | 'available';
   event: string[];
   performance: string[];
   dance: string[];
@@ -67,7 +68,8 @@ export const defaultShopFilters = (): ShopFilters => ({
   part: [],
   priceMin: 0,
   priceMax: 1000,
-  color: '',
+  color: [],
+  colorMode: 'photo',
   event: [],
   performance: [],
   dance: [],
@@ -83,7 +85,7 @@ export const defaultShopFilters = (): ShopFilters => ({
 export type ShopNavigation = { page: number; filters: ShopFilters };
 
 export const SHOP_FILTER_PARAM_ORDER = [
-  'piece','part','min','max','color','event','performance','dance',
+  'piece','part','min','max','color','color_mode','event','performance','dance',
   'style','persona','audience','material','effect','search','sort','page',
 ] as const;
 
@@ -154,12 +156,12 @@ export function parseShopNavigation(
   filters.material = material!;
   filters.effect = effect!;
 
-  const color = scalar('color');
-  if (color) {
-    const value = allowed(color, COLORS);
-    if (!value) return null;
-    filters.color = value;
-  }
+  const colors = listParam(scalar('color'), COLORS);
+  if (colors === null) return null;
+  filters.color = colors;
+  const colorMode = scalar('color_mode');
+  if (colorMode && colorMode !== 'available') return null;
+  filters.colorMode = colorMode === 'available' ? 'available' : 'photo';
 
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
@@ -187,7 +189,8 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   if (filters.part.length) params.set('part', filters.part.join(','));
   if (filters.priceMin !== 0) params.set('min', String(filters.priceMin));
   if (filters.priceMax !== 1000) params.set('max', String(filters.priceMax));
-  if (filters.color) params.set('color', filters.color);
+  if (filters.color.length) params.set('color', COLORS.filter((value) => filters.color.includes(value)).join(','));
+  if (filters.colorMode === 'available') params.set('color_mode', 'available');
   if (filters.event.length) params.set('event', filters.event.join(','));
   if (filters.performance.length) params.set('performance', filters.performance.join(','));
   if (filters.dance.length) params.set('dance', filters.dance.join(','));
@@ -273,9 +276,19 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
     if (!matchesAny(filters.part, facets?.parts)) return false;
     if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
 
-    if (filters.color) {
-      const canonical = facets?.colors?.length ? facets.colors : (product.canonical_color_label ? [product.canonical_color_label] : []);
-      if (!canonical.includes(filters.color)) return false;
+    if (filters.color.length) {
+      if (filters.colorMode === 'available') {
+        // Broad discovery: one selected color occurring in any confirmed option.
+        const offered = product.color_filter_values ?? facets?.colors ?? [];
+        if (!filters.color.some((color) => offered.includes(color))) return false;
+      } else {
+        // Photo-first discovery: a photographed Black+Gold look needs BOTH
+        // filters. This preserves solid Gold looks for "Gold" and avoids
+        // pulling in Black+Silver when someone selects Gold+Black.
+        const photographed = product.photo_color_filter_values
+          ?? (product.canonical_color_label ? [product.canonical_color_label] : []);
+        if (!photographed.length || !photographed.every((color) => filters.color.includes(color))) return false;
+      }
     }
 
     if (!matchesAny(filters.event, facets?.events)) return false;

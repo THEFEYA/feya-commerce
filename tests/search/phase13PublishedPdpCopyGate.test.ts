@@ -60,6 +60,10 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
   };
   assert.equal(phase13PublicPdpCopyEnabled(ownerPreview,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/phase13-pdp-public-copy-v13-20261012'},correct),true);
+  // Owner color preview must show the exact same immutable 207 approved SEO blocks, not generic fallback copy.
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020'},correct),true);
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020',VERCEL_PROJECT_ID:'other'},correct),false);
+  assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/bonanza-color-variants-20261020',FEYA_OWNER_PREVIEW_DISABLED:'true'},correct),false);
   for(const bad of [
     {VERCEL_PROJECT_ID:'another-project'},
     {VERCEL_GIT_COMMIT_REF:'main'},
@@ -108,7 +112,9 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  assert.equal(visual.files['components/ProductDetailClient.tsx'],'729514b30288a38429bad3900c025c69d452eea1');
+  // Explicit owner approval 20 October: retain published SEO/content behavior, but
+  // remove the duplicate PDP made-to-measure charge control and hand it to Cart.
+  assert.equal(visual.files['components/ProductDetailClient.tsx'],'428d5d9daf8bc6811a490d39335edec551cecd9f');
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);

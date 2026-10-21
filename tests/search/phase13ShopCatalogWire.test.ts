@@ -54,7 +54,7 @@ test('all 207 exact identities, rich facet structures, prices and nulls survive 
   const b=JSON.stringify(wire).length;
   assert.ok(b < a * 0.85, 'lossless wire format must reduce repeated field names');
   for(const config of [
-    {color:'Gold'}, {color:'Silver'}, {piece:['Skirt']},
+    {color:['Gold']}, {color:['Silver']}, {piece:['Skirt']},
     {search:'stage'}, {part:['Arms']},
     {priceMax:120}, {sort:'Price · low to high'},
   ]) {

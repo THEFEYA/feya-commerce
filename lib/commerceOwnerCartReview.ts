@@ -1,12 +1,17 @@
 import {DELIVERY_COUNTRIES} from './commerceDeliveryWorkspace.ts';
 import {isFeyaBlockedExportDestination} from './commerceShippingBlockedDestinations.ts';
 import {isOwnerUnifiedStorefrontPreview} from './ownerUnifiedStorefrontPreview.ts';
+import {
+  customMeasurementRequiredCount,customMeasurementLineMinor,
+  CUSTOM_MEASUREMENTS_PREVIEW_EUR_MINOR,
+} from './commerceCustomMeasurementsPreview.ts';
 
 export const OWNER_CART_REVIEW_CONTRACT='feya_owner_real_cart_review_v1' as const;
 export const OWNER_CART_STORAGE_KEY='feya_visual_cart_v1' as const;
 export const OWNER_BAG_COUNT_STORAGE_KEY='feya_visual_bag' as const;
 export const OWNER_CART_REVIEW_BRANCH='work/m2-real-bag-owner-preview-20261010' as const;
 export const OWNER_CART_REVIEW_PROJECT='prj_ePIymo4sUG33wrRjHBxWrSlaxPID' as const;
+export const OWNER_COLOR_REVIEW_CART_BRANCH='work/bonanza-color-variants-20261020' as const;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const SLUG=/^[a-z0-9-]{1,240}$/;
@@ -30,7 +35,11 @@ export function isOwnerRealCartReviewDeployment(env:Record<string,string|undefin
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
   // A second EXACT Vercel-owner branch consolidates previews on one browser
   // origin. Public Production continues to display disabled nonpayable bag.
-  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env);
+  const scopedColorPreview=env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
+    &&env.VERCEL_PROJECT_ID===OWNER_CART_REVIEW_PROJECT
+    &&env.VERCEL_GIT_COMMIT_REF===OWNER_COLOR_REVIEW_CART_BRANCH
+    &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env)||scopedColorPreview;
 }
 
 export type OwnerCartPreviewItem={
@@ -38,6 +47,8 @@ export type OwnerCartPreviewItem={
   canonical_product_id:string;
   slug:string;title:string;image:string;config:string;
   size:string;color:string;qty:number;price:number;currency:'EUR';
+  womens_size:string|null;mens_size:string|null;
+  custom_measurements_selected:boolean;
   configuration_id:string|null;
   // Display comparison only, never authoritative discount/checkout money.
   compare_at_unit_price_amount:number|null;
@@ -61,6 +72,9 @@ export function parseOwnerCartStorage(raw:unknown):{
       ||!short(slug,240)||!SLUG.test(slug)
       ||!short(v.title,250)||!short(v.config,180)
       ||!short(v.size,70)||!short(v.color,100)
+      ||(v.womens_size!=null&&!short(v.womens_size,25))
+      ||(v.mens_size!=null&&!short(v.mens_size,25))
+      ||(v.custom_measurements_selected!=null&&typeof v.custom_measurements_selected!=='boolean')
       ||typeof rawPrice!=='number'||!Number.isFinite(rawPrice)
       ||rawPrice<0.01||rawPrice>50_000||currency!=='EUR'
       ||typeof v.qty!=='number'||!Number.isSafeInteger(v.qty)||v.qty<1||v.qty>100
@@ -79,10 +93,16 @@ export function parseOwnerCartStorage(raw:unknown):{
       invalid_count++;continue;
     }
     used.add(id);
+    const womens_size=typeof v.womens_size==='string'?v.womens_size.trim():null;
+    const mens_size=typeof v.mens_size==='string'?v.mens_size.trim():null;
+    const custom_measurements_selected=typeof v.custom_measurements_selected==='boolean'
+      ?v.custom_measurements_selected
+      :customMeasurementRequiredCount({size:v.size,womens_size,mens_size})>0;
     items.push({
       id,canonical_product_id:canonicalId,slug,title:v.title.trim(),
       image:safeImage(v.image),config:v.config.trim(),size:v.size.trim(),
       color:v.color.trim(),qty:v.qty,price:unitMinor/100,currency:'EUR',
+      womens_size,mens_size,custom_measurements_selected,
       configuration_id:v.configuration_id??null,
       compare_at_unit_price_amount:
         typeof v.compare_at_price_amount==='number'
@@ -132,7 +152,7 @@ export function ownerCartVisualTotals(items:readonly OwnerCartPreviewItem[],meth
 
 /** Owner Preview only: proposed EUR upsells have NO payment authority. */
 export const OWNER_PREVIEW_EXTRA_EUR_MINOR={
-  made_to_measure:1500,gift_card:1000,gift_box:2500,remote_one_parcel_example:2000,
+  made_to_measure:CUSTOM_MEASUREMENTS_PREVIEW_EUR_MINOR,gift_card:1000,gift_box:2500,remote_one_parcel_example:2000,
 } as const;
 export function ownerCartPreviewExtraEstimate(
   items:readonly OwnerCartPreviewItem[],
@@ -146,7 +166,12 @@ export function ownerCartPreviewExtraEstimate(
   if(selected.size!==input.madeToMeasureItemIds.length||
     [...selected].some(id=>!active.has(id)))throw new Error('owner_preview_extra_line_invalid');
   const ready=items.length>0;
-  const made_to_measure_minor=ready?selected.size*OWNER_PREVIEW_EXTRA_EUR_MINOR.made_to_measure:0;
+  // Fee is once per actually customized outfit PER unit; a paired set may
+  // contain two custom-sized outfits. Merchandise unit price stays untouched.
+  const made_to_measure_minor=ready
+    ?items.filter(x=>selected.has(x.id)).reduce(
+      (sum,item)=>sum+customMeasurementLineMinor(item,true),0)
+    :0;
   const gift_card_minor=ready&&input.giftCard?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_card:0;
   const gift_box_minor=ready&&input.giftBox?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_box:0;
   const remote_example_minor=ready&&['AU','MX','NZ'].includes(input.destination)

@@ -1,4 +1,5 @@
 import type { StorefrontConfiguration, StorefrontMedia, StorefrontProduct } from '@/lib/types';
+import { productColorChoices } from './bonanzaColorChoices.ts';
 import { applyOwnerReviewedStorefrontCorrections } from './storefrontOwnerReviewedCorrections.ts';
 
 export const STOREFRONT_VIEW_V4 = 'feya_commerce_v_step7_storefront_products_api_v4';
@@ -241,6 +242,8 @@ export function colorLabel(product: StorefrontProduct) {
   return (product.color || '').split(',')[0] || 'Mirror';
 }
 export function colorOptions(product: StorefrontProduct) {
+  const ownerChoices = productColorChoices(product);
+  if (ownerChoices.length) return ownerChoices.map((choice) => choice.label);
   if (Array.isArray(product.color_options) && product.color_options.length) return product.color_options.filter(Boolean);
   const text = `${product.color || ''} ${productTitle(product)} ${product.material || ''}`.toLowerCase();
   const values = ['Gold','Silver','Black','White','Red','Brown','Green','Holographic'].filter((c) => c === 'Holographic' ? /holo|iridescent/.test(text) : text.includes(c.toLowerCase()));

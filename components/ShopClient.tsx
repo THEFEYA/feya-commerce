@@ -1,8 +1,8 @@
 'use client';
 
-import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Check, ChevronDown, Info, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { colorStyle } from '@/components/colors';
+import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { ProductCard } from '@/components/ProductCard';
 import { ShopPagination } from '@/components/ShopPagination';
 import type { StorefrontProduct } from '@/lib/types';
@@ -214,7 +214,8 @@ type FilterPanelProps = {
   setPiece: (value: string[]) => void;
   setPriceMin: (value: number) => void;
   setPriceMax: (value: number) => void;
-  setColor: (value: string) => void;
+  setColor: (value: string[]) => void;
+  setColorMode: (value: 'photo' | 'available') => void;
   setEvent: (value: string[]) => void;
   setPerformance: (value: string[]) => void;
   setDance: (value: string[]) => void;
@@ -248,6 +249,7 @@ function CatalogFilterPanel({
   setPriceMin,
   setPriceMax,
   setColor,
+  setColorMode,
   setEvent,
   setPerformance,
   setDance,
@@ -340,29 +342,32 @@ function CatalogFilterPanel({
         </div>
       </FilterSection>
 
-      <FilterSection title="Color" activeCount={filters.color ? 1 : 0} defaultOpen>
+      <FilterSection title="Color" activeCount={filters.color.length} defaultOpen>
         <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
               key={value}
               type="button"
-              onClick={() => setColor(filters.color === value ? '' : value)}
+              onClick={() => setColor(toggleValue(filters.color, value))}
+              aria-label={'Filter color: ' + value}
+              aria-pressed={filters.color.includes(value)}
               className="flex flex-col items-center gap-1 group"
             >
-              <span
-                className={`w-7 h-7 rounded-full border-2 transition-all ${
-                  filters.color === value
-                    ? 'border-white shadow-[0_0_0_3px_rgba(255,255,255,0.18)]'
-                    : 'border-[rgba(216,214,211,0.30)] group-hover:border-white'
-                }`}
-                style={colorStyle(value)}
-              />
-              <span className={`text-[9px] tracking-[0.12em] uppercase ${filters.color === value ? 'text-white' : 'text-[#9b988e]'}`}>
+              <FeyaColorSwatch color={value} size={28} selected={filters.color.includes(value)} />
+              <span className={`text-[9px] tracking-[0.12em] uppercase ${filters.color.includes(value) ? 'text-white' : 'text-[#9b988e]'}`}>
                 {value}
               </span>
             </button>
           ))}
         </div>
+        <label title="Also include items available to order in your selected colors, even when the photo shows a different shade."
+          className="mt-3 flex cursor-pointer items-center gap-2 border-t border-white/[0.07] pt-3 text-[11px] leading-4 text-[var(--bone-dim)] hover:text-white">
+          <input type="checkbox" checked={filters.colorMode === 'available'}
+            onChange={(e)=>setColorMode(e.target.checked ? 'available' : 'photo')}
+            className="h-3.5 w-3.5 shrink-0 rounded border border-white/30 accent-[#c9a966]"
+            aria-label="Include other available colors" />
+          <span>Include other available colors</span>
+        </label>
       </FilterSection>
 
       <FilterSection title="Event" activeCount={filters.event.length} defaultOpen={defaultOpenFilterSections.includes('Event')}>
@@ -428,7 +433,8 @@ export function ShopClient({
   const [part, setPart] = useState<string[]>(initial.part);
   const [priceMin, setPriceMin] = useState(initial.priceMin);
   const [priceMax, setPriceMax] = useState(initial.priceMax);
-  const [color, setColor] = useState(initial.color);
+  const [color, setColor] = useState<string[]>(initial.color);
+  const [colorMode, setColorMode] = useState<'photo' | 'available'>(initial.colorMode);
   const [event, setEvent] = useState<string[]>(initial.event);
   const [performance, setPerformance] = useState<string[]>(initial.performance);
   const [dance, setDance] = useState<string[]>(initial.dance);
@@ -467,6 +473,9 @@ export function ShopClient({
     if (nextStyle.length) setStyle(nextStyle);
     if (nextPersona.length) setPersona(nextPersona);
     if (nextAudience.length) setAudience(nextAudience);
+    if (params.get('color_mode') === 'available') setColorMode('available');
+    const nextColor = allowedParamValues(params.get('color'), COLORS);
+    if (nextColor.length) setColor(nextColor);
     if (nextMaterial.length) setMaterial(nextMaterial);
     if (nextEffect.length) setEffect(nextEffect);
     if (nextSearch) setSearch(nextSearch);
@@ -479,6 +488,7 @@ export function ShopClient({
       priceMin,
       priceMax,
       color,
+      colorMode,
       event,
       performance,
       dance,
@@ -490,7 +500,7 @@ export function ShopClient({
       search,
       sort,
     }),
-    [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort],
+    [piece, part, priceMin, priceMax, color, colorMode, event, performance, dance, style, persona, audience, material, effect, search, sort],
   );
 
   useEffect(() => {
@@ -508,6 +518,10 @@ export function ShopClient({
 
   const deferredFilters = useDeferredValue(filters);
   const filtered = useMemo(() => filterShopProducts(products, deferredFilters), [products, deferredFilters]);
+  const availableModeCount = useMemo(() =>
+    color.length && colorMode === 'photo'
+      ? filterShopProducts(products, {...deferredFilters,colorMode:'available'}).length
+      : 0, [products, deferredFilters, color.length, colorMode]);
 
   const availability = useMemo(() => {
     const collect = (key: keyof NonNullable<StorefrontProduct['facets']>) =>
@@ -538,7 +552,7 @@ export function ShopClient({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort]);
+  }, [piece, part, priceMin, priceMax, color, colorMode, event, performance, dance, style, persona, audience, material, effect, search, sort]);
 
   const visibleProducts = navigation
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -551,7 +565,8 @@ export function ShopClient({
     setPart([]);
     setPriceMin(0);
     setPriceMax(1000);
-    setColor('');
+    setColor([]);
+    setColorMode('photo');
     setEvent([]);
     setPerformance([]);
     setDance([]);
@@ -568,7 +583,7 @@ export function ShopClient({
     piece.length +
     part.length +
     Number(priceMin > 0 || priceMax < 1000) +
-    Number(Boolean(color)) +
+    color.length +
     event.length +
     performance.length +
     dance.length +
@@ -588,6 +603,7 @@ export function ShopClient({
     setPriceMin,
     setPriceMax,
     setColor,
+    setColorMode,
     setEvent,
     setPerformance,
     setDance,
@@ -606,7 +622,7 @@ export function ShopClient({
     ...part.map((value) => ({ key: `part:${value}`, label: value, remove: () => setPart((current) => current.filter((item) => item !== value)) })),
     ...piece.map((value) => ({ key: `piece:${value}`, label: value, remove: () => setPiece((current) => current.filter((item) => item !== value)) })),
     ...(priceMin > 0 || priceMax < 1000 ? [{ key: 'price', label: `€${priceMin}–€${priceMax}`, remove: () => { setPriceMin(0); setPriceMax(1000); } }] : []),
-    ...(color ? [{ key: 'color', label: color, remove: () => setColor('') }] : []),
+    ...color.map((value) => ({ key: `color:${value}`, label: value, remove: () => setColor((current) => current.filter((item) => item !== value)) })),
     ...event.map((value) => ({ key: `event:${value}`, label: value, remove: () => setEvent((current) => current.filter((item) => item !== value)) })),
     ...performance.map((value) => ({ key: `performance:${value}`, label: value, remove: () => setPerformance((current) => current.filter((item) => item !== value)) })),
     ...dance.map((value) => ({ key: `dance:${value}`, label: value, remove: () => setDance((current) => current.filter((item) => item !== value)) })),
@@ -698,11 +714,23 @@ export function ShopClient({
             </div>
           ) : null}
 
+          {color.length>0 ? <div role="status" className="mb-5 flex items-start gap-2.5 border-l-2 border-[#bfa26f]/60 bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+            <Info size={14} className="mt-0.5 shrink-0 text-[#d6b56c]" />
+            {colorMode==='photo'
+              ? <p>Results match the colors in each listing’s main preview. For multi-color looks, select all shown colors. Tick “Include other available colors” for additional variants.</p>
+              : <p>Available to order in <span className="text-[#e6d5b0]">{color.join(' or ')}</span>. Some photos show another shade; choose the color inside the product.</p>}
+          </div> : null}
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
-          {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}
+          {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">
+            <p>No products shown in this color match your filters.</p>
+            {availableModeCount>0 ? <button type="button" onClick={()=>setColorMode('available')}
+              className="mt-3 text-[12px] text-[#e2c482] underline underline-offset-4 hover:text-white">
+              Show {availableModeCount} designs available to order in {color.join(' or ')} →
+            </button> : null}
+          </div> : null}
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} />)}
+            {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} matchingColors={filters.colorMode === 'available' ? filters.color : []} />)}
           </div>
 
           {navigation ? (
