@@ -6,6 +6,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {getPublicLegalIdentity} from '@/lib/publicLegalIdentity';
 import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
+import {readPaymentsPublicActive} from '@/lib/payments/publicState';
 
 const CONTACT_EMAIL='manager.feya@gmail.com';
 
@@ -17,9 +18,10 @@ export const metadata:Metadata={
   robots:{index:false,follow:true},
 };
 
-export default function TermsPage(){
+export default async function TermsPage(){
   const identity=getPublicLegalIdentity();
-  const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
+  // Live once Seller Online payments are activated on thefeya.com (verified live test payment).
+  const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled()||await readPaymentsPublicActive();
 
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
@@ -47,7 +49,9 @@ export default function TermsPage(){
               <p className="pt-2">Email: <a className="text-bone hover:text-white" href={`mailto:${identity.contactEmail}`}>{identity.contactEmail}</a></p>
             </>:<>
               <p>TheFEYA is the public brand and studio contact for this catalog website.</p>
-              <p>Online checkout and payment processing are not active. No inactive sole-proprietor registration is presented as the current seller, and no payment service is presented as an active transaction party before its integration is confirmed.</p>
+              {sellerOnlineEnabled
+                ?<p>Online checkout is active. Payments are made on PayPal&apos;s secure pages and received by {SELLER_ONLINE_PROVIDER.legalName}, our authorized payment recipient and logistics partner. No inactive sole-proprietor registration is presented as the current seller.</p>
+                :<p>Online checkout and payment processing are not active. No inactive sole-proprietor registration is presented as the current seller, and no payment service is presented as an active transaction party before its integration is confirmed.</p>}
               <p>Storefront contact: <a className="text-bone hover:text-white" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
             </>}
           </div>
@@ -99,6 +103,7 @@ export default function TermsPage(){
           <h2 className="text-bone text-xl">Seller Online transaction service</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>For the enabled Seller Online checkout flow, {SELLER_ONLINE_PROVIDER.legalName} may act as buyer, reseller, shipper and direct payment recipient under the terms applicable to that service. TheFEYA does not label Seller Online as “merchant of record” unless that exact role is separately confirmed for thefeya.com.</p>
+            <p>An order is placed when you complete payment on PayPal and the payment is confirmed. The total shown before payment includes the selected product options, delivery, any additional packaging, remote-destination delivery and selected extras, in euros. Import duties or local taxes, where applicable, are paid by the recipient as described in the Shipping &amp; Delivery policy. Card details are entered on PayPal&apos;s pages, not on thefeya.com.</p>
             <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
           </div>
         </article>:<article className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.035)] p-6 lg:col-span-2 lg:p-7">

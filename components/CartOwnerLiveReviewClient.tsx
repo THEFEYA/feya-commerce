@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {
   ArrowRight,Check,Clock3,LockKeyhole,Minus,Package,Plus,ShieldCheck,
   ShoppingBag,Trash2,Truck,
@@ -12,6 +12,10 @@ import {
   ownerCartVisualTotals,ownerCartPreviewExtraEstimate,parseOwnerCartStorage,
   type OwnerCartPreviewItem,type OwnerCartPreviewMethod,
 } from '@/lib/commerceOwnerCartReview';
+import {
+  checkoutApi,newIdempotencyKey,redirectToProvider,rememberPendingCheckout,submitProviderForm,
+  type QuoteResult,
+} from '@/lib/payments/checkoutBrowser';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -58,6 +62,20 @@ export function CartOwnerLiveReviewClient(){
   const [coupon,setCoupon]=useState('');
   const [couponNotice,setCouponNotice]=useState(false);
   const toggleExtra=(id:string)=>setExtras(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
+  // Live checkout: availability and totals are decided by the server, never by this page.
+  const [checkoutActive,setCheckoutActive]=useState(false);
+  const [quote,setQuote]=useState<QuoteResult|null>(null);
+  const [quoteLoading,setQuoteLoading]=useState(false);
+  const [paying,setPaying]=useState(false);
+  const [payError,setPayError]=useState('');
+  const quoteSeq=useRef(0);
+
+  useEffect(()=>{
+    let alive=true;
+    checkoutApi.status().then(state=>{if(alive)setCheckoutActive(state.checkout_active===true);})
+      .catch(()=>{if(alive)setCheckoutActive(false);});
+    return()=>{alive=false;};
+  },[]);
 
   useEffect(()=>{
     const sync=()=>{
@@ -88,6 +106,60 @@ export function CartOwnerLiveReviewClient(){
     &&(!addressRegions.length||form.region)
     &&form.city.trim()&&form.postal_code.trim()&&form.address_line1.trim()
   );
+
+  const checkoutLines=useMemo(()=>items.map(item=>({
+    id:item.id,slug:item.slug,configuration_id:item.configuration_id,size:item.size,color:item.color,
+    quantity:item.qty,wearer:wearerByItem[item.id]??null,made_to_measure:customFitIds.includes(item.id),
+    client_unit_minor:Math.round(item.price*100),
+  })),[items,wearerByItem,customFitIds]);
+  const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
+
+  useEffect(()=>{
+    if(!checkoutActive||!hydrated||!linesOrderable){setQuote(null);return;}
+    const seq=++quoteSeq.current;
+    setQuoteLoading(true);
+    const timer=window.setTimeout(()=>{
+      checkoutApi.quote({lines:checkoutLines,method,gift_card:extras.includes('card'),
+        gift_box:extras.includes('box'),country:form.country||''})
+        .then(result=>{if(seq===quoteSeq.current)setQuote(result);})
+        .catch(()=>{if(seq===quoteSeq.current)setQuote({ok:false,message:'We could not confirm the total right now. Please try again.'});})
+        .finally(()=>{if(seq===quoteSeq.current)setQuoteLoading(false);});
+    },250);
+    return()=>window.clearTimeout(timer);
+  },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country]);
+
+  const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
+  const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
+
+  async function pay(){
+    if(!canPay)return;
+    setPaying(true);setPayError('');
+    const request={
+      idempotency_key:newIdempotencyKey(),lines:checkoutLines,method,
+      gift_card:extras.includes('card'),gift_message:extras.includes('card')?giftMessage:'',
+      gift_box:extras.includes('box'),
+      buyer:{first_name:form.first_name,last_name:form.last_name,email:form.email,phone:form.phone},
+      address:{country:form.country,region:form.region,city:form.city,postal_code:form.postal_code,
+        line1:form.address_line1,line2:form.address_line2},
+      note:form.order_comment,accepted_terms:acceptedTerms,marketing_opt_in:marketingConsent,
+    };
+    try{
+      let result=await checkoutApi.start(request);
+      // One automatic retry with the SAME key: the server replays instead of duplicating.
+      if(!result.ok&&(result.code==='checkout_unavailable'||result.code==='provider_unavailable'))
+        result=await checkoutApi.start(request);
+      if(!result.ok||!result.session||!result.order_number){
+        setPayError(result.message||'Checkout is temporarily unavailable. Please try again shortly.');
+        setPaying(false);return;
+      }
+      rememberPendingCheckout({order_number:result.order_number,access_token:result.access_token??null});
+      if(result.session.kind==='redirect')redirectToProvider(result.session.url);
+      else submitProviderForm(result.session.form);
+    }catch{
+      setPayError('We could not reach PayPal. Your card has not been charged. Please try again.');
+      setPaying(false);
+    }
+  }
 
   const change=(name:keyof ContactForm,value:string)=>{
     setForm(current=>({
@@ -133,10 +205,10 @@ export function CartOwnerLiveReviewClient(){
       </p>
     </header>
 
-    <p className="sr-only">
+    {!checkoutActive&&<p className="sr-only">
       No payments or orders are accepted here; customer contact fields are never saved,
       transmitted or shared with a carrier by this private design preview.
-    </p>
+    </p>}
     {invalidCount>0&&<p className="mt-5 rounded-lg border border-amber-500/25 bg-amber-500/5 p-4 text-[12px] leading-6 text-amber-100" role="alert">
       {invalidCount} outdated or invalid cart line(s) were not used in this preview.
       Revisit the product page to choose a current option. No unsafe price is accepted.
@@ -348,10 +420,14 @@ export function CartOwnerLiveReviewClient(){
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
-              <p className="text-[11px] leading-5 text-[var(--bone-dim)]">
+              {checkoutActive?<p className="text-[11px] leading-5 text-[var(--bone-dim)]">
+                Your contact and delivery details are sent securely only to make and deliver this order.
+                Card details are entered on PayPal&apos;s page, never on thefeya.com. See the
+                {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
+              </p>:<p className="text-[11px] leading-5 text-[var(--bone-dim)]">
                 Necessary contact details are not stored or sent by this prepayment form. See the
                 {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
-              </p>
+              </p>}
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
                 <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
@@ -366,7 +442,27 @@ export function CartOwnerLiveReviewClient(){
       <aside className="min-w-0 self-start xl:sticky xl:top-28">
         <section className={cardStyle+' border-[rgba(212,178,106,.26)]'} aria-label="Order summary">
           <h2 className="text-[26px] font-medium text-[#f7f3ec]">Order summary</h2>
-          <div className="mt-6 space-y-3 text-[13px]">
+          {serverAmounts?<div className="mt-6 space-y-3 text-[13px]" data-testid="server-order-summary">
+            <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Merchandise subtotal</span><span className="text-[#f7f3ec]">{currency(serverAmounts.merchandise_minor)}</span>
+            </div>
+            <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>{method==='express'?'Express Shipping':'Standard Shipping'}</span>
+              <span className="text-[#f7f3ec]">{currency(serverAmounts.shipping_minor)}</span>
+            </div>
+            {serverAmounts.remote_minor>0&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Remote destination delivery</span><span className="text-[#f7f3ec]">{currency(serverAmounts.remote_minor)}</span>
+            </div>}
+            {serverAmounts.handling_minor>0&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Additional packaging for multiple items</span><span className="text-[#f7f3ec]">{currency(serverAmounts.handling_minor)}</span>
+            </div>}
+            {serverAmounts.extras_minor>0&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+              <span>Finishing touches</span><span className="text-[#f7f3ec]">{currency(serverAmounts.extras_minor)}</span>
+            </div>}
+            {quote?.lines?.some(line=>line.price_changed)&&<p className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-[12px] leading-5 text-amber-100" role="status">
+              A price in your bag was updated to the current product price.
+            </p>}
+          </div>:<div className="mt-6 space-y-3 text-[13px]">
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
               <span>Merchandise subtotal</span>
               <span className="text-[#f7f3ec]">{currency(totals.merchandise_subtotal_minor)}</span>
@@ -399,7 +495,7 @@ export function CartOwnerLiveReviewClient(){
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
               <span>Coupon discount</span><span className="text-[#f7f3ec]">Not applied</span>
             </div>
-          </div>
+          </div>}
           <div className="mt-5 rounded-xl border border-white/[.11] p-4">
             <label htmlFor="preview-coupon" className="block text-[12px] font-medium text-[#f7f3ec]">Have a coupon code?</label>
             <div className="mt-2 flex gap-2">
@@ -410,6 +506,36 @@ export function CartOwnerLiveReviewClient(){
             </div>
             {couponNotice&&<p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]" role="status">This coupon cannot be applied yet.</p>}
           </div>
+          {checkoutActive?<>
+            <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-[13px] leading-6 text-[#f7f3ec]">Total to pay</span>
+                <strong className="text-[26px] font-medium text-[#e4c87d]" data-testid="server-total">
+                  {serverAmounts?currency(serverAmounts.total_minor):quoteLoading?'…':'—'}
+                </strong>
+              </div>
+              <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
+                {!linesOrderable&&items.length>0
+                  ?'One of the pieces in your bag needs to be selected again on its product page before payment.'
+                  :quote&&!quote.ok?quote.message
+                  :form.country?'Price in EUR, confirmed by TheFEYA. Import duties or local taxes, where applicable, are paid by the recipient on delivery.'
+                  :'Select your destination country to confirm delivery charges.'}
+              </p>
+            </div>
+            <button type="button" onClick={pay} disabled={!canPay} aria-disabled={!canPay}
+              data-testid="checkout-pay"
+              className={`mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-[14px] font-medium ${canPay?'bg-[#d4b26a] text-[#151318] hover:bg-[#e4c87d]':'cursor-not-allowed border border-[rgba(216,214,211,.26)] bg-[rgba(216,214,211,.11)] text-[var(--bone-dim)]'}`}>
+              <LockKeyhole size={16}/> {paying?'Opening PayPal…':'Pay securely with PayPal'}
+            </button>
+            {payError&&<p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-[12px] leading-5 text-amber-100" role="alert">{payError}</p>}
+            {!fulfilled&&items.length>0&&<p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Complete your contact and delivery details to continue.</p>}
+            {fulfilled&&!acceptedTerms&&<p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please confirm the terms, returns and shipping policy.</p>}
+            <p className="mt-3 flex gap-2 text-[11px] leading-5 text-[var(--bone-dim)]">
+              <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#d4b26a]" aria-hidden="true"/>
+              <span>You will pay on PayPal&apos;s secure page with a card or your PayPal account.
+                Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</span>
+            </p>
+          </>:<>
           <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
             <div className="flex items-start justify-between gap-3">
               <span className="text-[13px] leading-6 text-[#f7f3ec]">Estimated order total</span>
@@ -426,6 +552,7 @@ export function CartOwnerLiveReviewClient(){
           <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]" role="status">
             Online checkout is not active yet. You cannot place an order.
           </p>
+          </>}
           <div className="mt-5 flex flex-wrap gap-3 text-[12px]">
             <Link className="inline-flex min-h-11 items-center text-[#d4b26a] underline underline-offset-4" href="/shop">Continue shopping</Link>
             <Link className="inline-flex min-h-11 items-center text-[var(--bone-dim)] underline underline-offset-4" href="/contact">Contact support</Link>

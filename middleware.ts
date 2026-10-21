@@ -108,9 +108,9 @@ export async function middleware(request: NextRequest) {
   const claims = error ? null : data?.claims;
 
   if (!claims) {
-    // The primary domain must be reviewable by Seller Online without Vercel/Supabase
-    // credentials. Expose only the public API-v2 technical guide, NOT the owner admin,
-    // order/customer records, mutating endpoints or any service-role data.
+    // A Seller Online technician opening thefeya.com/admin lands on the invitation-only
+    // payment installation panel (it requires a personal invitation and exposes no
+    // owner admin, orders, customers or service-role data). The owner signs in at /admin/login.
     const publicPartnerReview = pathname === '/admin'
       && ['GET', 'HEAD'].includes(request.method)
       && process.env.VERCEL === '1'
@@ -119,7 +119,7 @@ export async function middleware(request: NextRequest) {
       && ['thefeya.com','www.thefeya.com'].includes(request.nextUrl.hostname.toLowerCase());
     if (publicPartnerReview) {
       const publicPage = request.nextUrl.clone();
-      publicPage.pathname = '/seller-online-integration';
+      publicPage.pathname = '/partner/seller-online';
       publicPage.search = '';
       const publicResponse = NextResponse.rewrite(publicPage);
       publicResponse.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');

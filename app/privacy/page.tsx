@@ -8,6 +8,7 @@ import {getPublicLegalIdentity} from '@/lib/publicLegalIdentity';
 import {getPublicPrivacyController,getStorefrontAnalyticsState} from '@/lib/publicPrivacyController';
 import {AnalyticsConsentPreferences} from '@/components/AnalyticsConsentBanner';
 import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
+import {readPaymentsPublicActive} from '@/lib/payments/publicState';
 
 const CONTACT_EMAIL='manager.feya@gmail.com';
 
@@ -19,10 +20,11 @@ export const metadata:Metadata={
   robots:{index:false,follow:true},
 };
 
-export default function PrivacyPage(){
+export default async function PrivacyPage(){
   const identity=getPublicLegalIdentity();
   const controller=getPublicPrivacyController();
-  const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
+  // Live once Seller Online payments are activated on thefeya.com (verified live test payment).
+  const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled()||await readPaymentsPublicActive();
   const analyticsReady=getStorefrontAnalyticsState().enabled;
 
   return <main className="visual-commerce-shell relative min-h-screen">
@@ -113,6 +115,7 @@ export default function PrivacyPage(){
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             {sellerOnlineEnabled?<>
               <p>For the enabled Seller Online ordering/payment flow, information necessary to process, resell, deliver or support the transaction may be shared with {SELLER_ONLINE_PROVIDER.legalName} under the terms and privacy practices applicable to that service.</p>
+              <p>When you place an order, TheFEYA stores the selected pieces and options, your name, email, phone number, delivery address and any order note or gift message in order to make, ship and support the order and to keep required business records. Payment is completed on PayPal&apos;s pages; card and PayPal account details are processed by PayPal and are not received or stored by TheFEYA. PayPal shares the payment status and its transaction reference with TheFEYA.</p>
               <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
             </>:<>
               <p>Online checkout and payment processing are not active in the current catalog storefront. No customer order is sent to a payment partner through an active TheFEYA checkout at this stage.</p>

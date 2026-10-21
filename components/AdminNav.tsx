@@ -34,6 +34,7 @@ const NAV = [
   { href: '/admin/media-seo', label: 'SEO медиа', note: 'готовность картинок', icon: FileImage },
   { href: '/admin/seo', label: 'SEO-готовность', note: 'связи и фиды', icon: Layers3 },
   { href: '/admin/orders', label: 'Заказы', note: 'черновики заказов', icon: ClipboardList },
+  { href: '/admin/payments', label: 'Оплата и заказы', note: 'Seller Online · PayPal', icon: WalletCards },
 ];
 
 function isActive(pathname: string, href: string) {

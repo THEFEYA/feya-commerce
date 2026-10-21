@@ -13,7 +13,9 @@
     "check:product-os-freeze": "node scripts/check-product-os-ui-freeze.mjs",
     "check:owner-ui": "node scripts/check-owner-ui-contract.mjs",
     "test:search": "node --experimental-strip-types --test tests/search/*.test.ts",
-    "test:search-db": "node --test tests/search-db/*.test.mjs"
+    "test:search-db": "node --test tests/search-db/*.test.mjs",
+    "test:payments": "node --experimental-strip-types --test tests/payments/*.test.ts",
+    "test:payments-db": "bash tests/payments-db/run.sh && bash tests/payments-e2e/run.sh"
   },
   "dependencies": {
     "@supabase/ssr": "0.10.3",

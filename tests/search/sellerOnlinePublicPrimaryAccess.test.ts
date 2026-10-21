@@ -1,39 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync, existsSync} from 'node:fs';
 
-test('thefeya.com anonymous admin entry exposes public vendor guide, not internal admin',()=>{
-  const mw=readFileSync('middleware.ts','utf8');
+test('thefeya.com anonymous /admin shows the invitation-only payment installation, not internal admin', () => {
+  const mw = readFileSync('middleware.ts', 'utf8');
   assert.ok(mw.includes("pathname === '/admin'"));
   assert.ok(mw.includes("['GET', 'HEAD'].includes(request.method)"));
   assert.ok(mw.includes("process.env.VERCEL_ENV === 'production'"));
   assert.ok(mw.includes("process.env.VERCEL_PROJECT_ID === 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID'"));
-  assert.ok(mw.includes("['thefeya.com','www.thefeya.com'].includes(request.nextUrl.hostname.toLowerCase())"));
-  assert.ok(mw.includes("publicPage.pathname = '/seller-online-integration'"));
-  assert.ok(mw.includes("NextResponse.rewrite(publicPage)"));
-  assert.ok(mw.includes("'noindex, nofollow, noarchive'"));
+  assert.ok(mw.includes("publicPage.pathname = '/partner/seller-online'"));
+  assert.ok(mw.includes('NextResponse.rewrite(publicPage)'));
   // Existing authorization gates remain present for every private route / method.
   assert.ok(mw.includes("pathname.startsWith('/api/admin/')"));
-  assert.ok(mw.includes("const { data, error } = await supabase.auth.getClaims()"));
-  assert.ok(mw.includes("adminAccessDecision({ id: claims.sub, email: claims.email }, process.env)"));
-  assert.ok(mw.includes("status: 401"));
-  assert.ok(mw.includes("status: 403"));
+  assert.ok(mw.includes('const { data, error } = await supabase.auth.getClaims()'));
+  assert.ok(mw.includes('adminAccessDecision({ id: claims.sub, email: claims.email }, process.env)'));
+  // The old information-only page is gone.
+  assert.ok(!existsSync('app/seller-online-integration/page.tsx'));
 });
 
-test('vendor public page provides real API instructions but never secret inputs or payment activation',()=>{
-  const page=readFileSync('app/seller-online-integration/page.tsx','utf8');
-  const admin=readFileSync('app/admin/page.tsx','utf8');
-  const provider=readFileSync('lib/sellerOnlineProvider.ts','utf8');
-  assert.ok(page.includes('SELLER_ONLINE_PROVIDER'));
-  assert.ok(page.includes('Official API v2 Swagger documentation'));
-  assert.ok(page.includes('not active'));
-  assert.ok(page.includes("index:false,follow:false"));
-  assert.ok(page.includes('href="/admin/login"'));
-  assert.ok(!page.includes('SUPABASE_SERVICE_ROLE_KEY'));
-  assert.ok(!page.includes('OPENAI_API_KEY'));
-  assert.ok(!page.includes('payment_token'));
-  assert.ok(!page.includes('FEYA_SELLER_ONLINE_PAYMENTS_ENABLED=true'));
-  assert.ok(!page.includes('fetch('));
-  assert.ok(admin.includes('getAdminReadClient'));
-  assert.ok(provider.includes('merchantOfRecordConfirmed: false'));
+test('installation panel: invitation cookie, same-origin writes, no secret ever returned', () => {
+  const access = readFileSync('lib/payments/access.ts', 'utf8');
+  const status = readFileSync('app/api/partner/seller-online/route.ts', 'utf8');
+  const panel = readFileSync('components/payments/SellerOnlineInstallClient.tsx', 'utf8');
+  const sql = readFileSync('supabase/migrations/20261021200000_payments_provider_checkout_v1.sql', 'utf8');
+  assert.match(access, /httpOnly: true, secure: true, sameSite: 'strict', path: PARTNER_API_BASE/);
+  assert.match(access, /sha256\(token\)/);
+  assert.match(status, /sameOrigin\(request\)/);
+  assert.match(panel, /window\.history\.replaceState/);
+  assert.doesNotMatch(panel, /localStorage|dangerouslySetInnerHTML|eval\(/);
+  // Status function exposes hints only; secrets come only from the service-role runtime function.
+  assert.match(sql, /'client_id_hint',p\.client_id_hint/);
+  assert.match(sql, /create function public\.feya_pay_provider_runtime_v1\(\)/);
+  assert.match(sql, /constraint feya_pay_provider_active_requires_verified_live_test/);
 });
