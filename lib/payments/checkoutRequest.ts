@@ -192,8 +192,8 @@ export const CHECKOUT_ERROR_MESSAGES: Record<string, string> = {
   rate_limited: 'Too many checkout attempts. Please wait a few minutes and try again.',
   idempotency_conflict: 'Please refresh the page and try again.',
   provider_rejected_address: 'PayPal could not accept this delivery address. Please check the postal code, city and state.',
-  provider_unavailable: 'PayPal is not responding right now. Your card has not been charged. Please try again in a moment.',
-  provider_rejected: 'PayPal could not start this payment. Your card has not been charged. Please try again or contact us.',
+  provider_unavailable: 'PayPal is not responding right now. Your payment status may be unknown. Please check your order status before trying again.',
+  provider_rejected: 'PayPal could not start this payment. Please check your order status before trying again or contact us.',
   order_already_paid: 'This order has already been paid. Please check your email for the PayPal receipt.',
   checkout_unavailable: 'Checkout is temporarily unavailable. Please try again shortly.',
 };
