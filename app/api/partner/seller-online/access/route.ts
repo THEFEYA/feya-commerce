@@ -4,8 +4,6 @@ import {
   readSellerSetupStatus,sellerSetupRequestAllowed,validSellerSetupToken,
 } from '@/lib/sellerOnlinePartnerSetupServer';
 
-export const runtime='nodejs';
-export const dynamic='force-dynamic';
 const heads={'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow, noarchive'};
 export async function POST(req:NextRequest){
   if(!sellerSetupRequestAllowed(req.nextUrl.hostname)
