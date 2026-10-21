@@ -86,7 +86,7 @@ export async function completePartnerOnboarding(actor:PaymentsActor,raw:unknown)
     ?raw as Record<string,unknown>:{};
   if(typeof input.tracking_id!=='string'||!UUID.test(input.tracking_id)
      ||typeof input.merchant_id!=='string'||!MERCHANT.test(input.merchant_id))
-    fail('invalid_callback');
+    throw new PartnerConnectError('partner_request_rejected');
   const config=partnerSettings();
   if(!config)throw new PartnerConnectError('partner_not_approved');
   const client=db();
@@ -100,8 +100,9 @@ export async function completePartnerOnboarding(actor:PaymentsActor,raw:unknown)
      ||row.environment!==config.environment
      ||row.client_id_hash!==digest(config.environment+':'+config.clientId)
      ||!['awaiting_consent','verified'].includes(row.status))
-    fail('invalid_or_expired_attempt');
-  if(row.status==='verified'&&row.merchant_id!==input.merchant_id)fail('merchant_mismatch');
+    throw new PartnerConnectError('partner_request_rejected');
+  if(row.status==='verified'&&row.merchant_id!==input.merchant_id)
+    throw new PartnerConnectError('partner_permission_not_granted');
   // A forged return_url is never enough. Require PayPal's signed-in seller
   // consent and account readiness over the authenticated PayPal REST API.
   const verified=await verifyPartnerOnboardingWithPayPal(
