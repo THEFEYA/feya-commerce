@@ -86,7 +86,7 @@ duties/local taxes paid by the recipient where applicable).
   (install, wrong credentials, sandbox/live tests, activation, buyer purchase, double click, webhook forgery/replay,
   closed browser after payment, amount mismatch, cancel, declined card, tampering, config change pause, PayPal
   Standard fallback with receiver check).
-- `tests/runtime/payments-production-smoke.mjs` (CI on every main deploy) — real HTTP on thefeya.com incl. a forged IPN
+- `tests/runtime/payments-production-smoke.mjs` (workflow `payments-production-smoke.yml`, after every successful Production deployment) — real HTTP and a real browser (PDP → Add to bag → bag → server total) on thefeya.com, incl. a forged IPN
   that production must verify with PayPal and reject, CSRF refusal, real-product re-pricing.
 
 ## 6. Operating it

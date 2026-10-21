@@ -1,0 +1,47 @@
+name: Payments production smoke
+
+# Runs after Vercel reports a successful Production deployment (and on demand).
+# Real HTTP + real browser checks against https://thefeya.com. Never pays, never
+# creates a payable order.
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Payments — production HTTP and browser checks (thefeya.com)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund --silent
+      - name: Browser
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            printf 'FEYA_TEST_BROWSER_CHANNEL=chrome\n' >> "$GITHUB_ENV"
+          else
+            npx --no-install playwright install --with-deps chromium
+          fi
+      - name: Real HTTP and browser checks against the deployed commit
+        env:
+          PAYMENTS_SMOKE_EXPECTED_SHA: ${{ github.event.deployment.sha || github.sha }}
+        run: node tests/runtime/payments-production-smoke.mjs
+      - name: Smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: payments-production-smoke
+          path: runtime-results/payments-production-smoke.json
+          retention-days: 30
