@@ -178,3 +178,18 @@
 .tryon-owner-alternative{margin-top:16px;border-top:1px solid rgba(255,255,255,.09);padding-top:10px;font-size:10px;color:#aaa095}
 .tryon-owner-alternative summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:#c9ae75}
 .tryon-owner-alternative p{margin:10px 0 4px;line-height:1.6}
+
+
+/* Moderation rejections are terminal for the same photo+listing set.
+   Offer a clear alternative instead of another paid request loop. */
+.tryon-moderation-status{margin:12px 0 14px;padding:15px;border:1px solid rgba(233,177,115,.37);
+ background:linear-gradient(135deg,rgba(124,66,39,.15),rgba(17,16,20,.75));border-radius:10px;
+ color:#dfd1bf;font-size:11px;line-height:1.6}
+.tryon-moderation-status strong{display:block;color:#fae1b8;font-size:13px;font-weight:600;margin-bottom:6px}
+.tryon-moderation-status p{margin:8px 0;color:#c1b7ad}
+.tryon-moderation-status button{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:43px;margin:7px 0;padding:10px 14px;border:1px solid #dab36c;
+ background:linear-gradient(180deg,#ffe5a3,#d5a65d);color:#20160b;border-radius:9px;
+ font-size:12px;font-weight:600}
+.tryon-moderation-status a{color:#f3d38c;text-decoration:underline;text-underline-offset:3px}
+.tryon-moderation-status button:hover{filter:brightness(1.06)}
