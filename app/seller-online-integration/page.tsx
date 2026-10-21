@@ -42,6 +42,26 @@ export default function SellerOnlineIntegrationPage(){
       </p>
     </section>
 
+    <section className="container-feya pb-6">
+      <article className="rounded-xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.04)] p-6 lg:p-8">
+        <h2 className="text-bone text-xl">Seller Online · Панель технического подключения</h2>
+        <p className="mt-3 max-w-4xl text-[14px] leading-7 text-[var(--bone-dim)]">
+          Для специалистов Seller Online создан отдельный раздел на основном домене.
+          Он содержит источники каждого поля, ссылки на личный кабинет Seller Online,
+          инструкции по уведомлениям PayPal и проверку готовности.
+          Для изменения настроек нужна выданная владельцем персональная ссылка.
+        </p>
+        <Link href="/partner/seller-online"
+          className="mt-5 inline-flex min-h-11 items-center rounded-full border border-[#d4b26a] px-6 text-[13px] text-[#e9d29b] hover:bg-[rgba(212,178,106,.10)]">
+          Открыть Seller Online Payment Setup →
+        </Link>
+        <p className="mt-3 text-[12px] leading-6 text-[#b8aea2]">
+          Запись параметров ещё не означает активацию приёма денег. Технический отдел должен
+          подтвердить совместимый платёжный протокол и успешную пробную транзакцию.
+        </p>
+      </article>
+    </section>
+
     <section className="container-feya pb-14 lg:pb-20">
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-xl border border-[rgba(216,214,211,.18)] bg-white/[.025] p-6 lg:p-8">
