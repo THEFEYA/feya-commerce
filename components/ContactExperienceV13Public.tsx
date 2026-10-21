@@ -8,6 +8,7 @@ import {CopySupportEmailButton} from '@/components/CopySupportEmailButton';
 import {OwnerLocationMapPreview} from '@/components/OwnerLocationMapPreview';
 import {OwnerContactFormPreview} from '@/components/OwnerContactFormPreview';
 import {OwnerNewsletterSignupPreview} from '@/components/OwnerNewsletterSignupPreview';
+import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 
 const contactEmail='manager.feya@gmail.com';
 const supportPhone='+380636556288';
@@ -97,6 +98,15 @@ export function ContactExperienceV13Public(){
           <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please contact TheFEYA before planning a visit. The current public listing and visiting hours still require confirmation.</p>
         </article>
 
+      </div>
+    </section>
+
+    <section className="container-feya pb-6 lg:pb-8" aria-labelledby="seller-online-contact-heading">
+      <div className="border-t border-white/[.10] pt-5">
+        <h2 id="seller-online-contact-heading" className="text-[11px] uppercase tracking-[.12em] text-[#89837b]">Planned payment &amp; shipping partner</h2>
+        <p className="mt-2 text-[12px] leading-6 text-[#817b74]">{SELLER_ONLINE_PROVIDER.legalName} is the designated payment and logistics partner for our planned checkout. Online checkout is not active yet; TheFEYA remains the contact for product and order questions.</p>
+        <p className="mt-1 text-[12px] leading-6 text-[#817b74]">{SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+        <p className="mt-1 text-[12px] leading-6 text-[#817b74]"><a className="hover:text-white" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a> · {SELLER_ONLINE_PROVIDER.usOfficePhone}</p>
       </div>
     </section>
 
