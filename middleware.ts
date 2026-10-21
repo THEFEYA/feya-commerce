@@ -108,6 +108,24 @@ export async function middleware(request: NextRequest) {
   const claims = error ? null : data?.claims;
 
   if (!claims) {
+    // The primary domain must be reviewable by Seller Online without Vercel/Supabase
+    // credentials. Expose only the public API-v2 technical guide, NOT the owner admin,
+    // order/customer records, mutating endpoints or any service-role data.
+    const publicPartnerReview = pathname === '/admin'
+      && ['GET', 'HEAD'].includes(request.method)
+      && process.env.VERCEL === '1'
+      && process.env.VERCEL_ENV === 'production'
+      && process.env.VERCEL_PROJECT_ID === 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
+      && ['thefeya.com','www.thefeya.com'].includes(request.nextUrl.hostname.toLowerCase());
+    if (publicPartnerReview) {
+      const publicPage = request.nextUrl.clone();
+      publicPage.pathname = '/seller-online-integration';
+      publicPage.search = '';
+      const publicResponse = NextResponse.rewrite(publicPage);
+      publicResponse.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+      publicResponse.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+      return publicResponse;
+    }
     if (isAdminApi) {
       return NextResponse.json(
         { ok: false, code: 'authentication_required', error: 'Authentication required.' },
