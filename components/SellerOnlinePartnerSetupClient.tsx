@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {SELLER_ONLINE_OFFICIAL_LINKS as URLS,sellerOnlineSetupProgress,type SetupMode}
   from '@/lib/sellerOnlineOfficialSetupGuide';
 
@@ -68,7 +68,7 @@ const inputClass='mt-2 w-full rounded-lg border border-[rgba(216,214,211,.20)] b
 const boxClass='rounded-xl border border-[rgba(216,214,211,.16)] bg-white/[.025] p-5 sm:p-7';
 const techLink='underline underline-offset-4 text-[#d4b26a] hover:text-[#f6e2b2]';
 
-function External({href,children}:{href:string;children:React.ReactNode}){
+function External({href,children}:{href:string;children:ReactNode}){
  return <a className={techLink} href={href} target="_blank" rel="noopener noreferrer">{children} ↗</a>;
 }
 function Check({label,complete,detail}:{label:string;complete:boolean;detail:string}){
@@ -128,7 +128,6 @@ export function SellerOnlinePartnerSetupClient(){
  },[]);
 
  const needed=CURRENT[mode];
- const saved=needed.every(key=>status?.[FLAGS[key]]===true);
  const canSave=needed.length>0&&needed.every(key=>status?.[FLAGS[key]]===true||fields[key].trim().length>0);
  const progress=sellerOnlineSetupProgress(mode,status||{});
 
