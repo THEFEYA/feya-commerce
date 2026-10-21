@@ -10,6 +10,7 @@ const ui=readFileSync('components/SellerOnlinePartnerSetupClient.tsx','utf8');
 const server=readFileSync('lib/sellerOnlinePartnerSetupServer.ts','utf8');
 const api=readFileSync('app/api/partner/seller-online/route.ts','utf8');
 const page=readFileSync('app/partner/seller-online/page.tsx','utf8');
+const mainDomainGuide=readFileSync('app/seller-online-integration/page.tsx','utf8');
 
 test('verified Seller Online vendor documentation provides exact key source and distinct notification addresses',()=>{
  assert.equal(SELLER_ONLINE_OFFICIAL_LINKS.sellerPersonalKey,
@@ -57,4 +58,10 @@ test('saved configuration is never misreported as a verified payable checkout',(
  assert.ok(server.includes("live_payment_enabled:false"));
  assert.ok(api.includes("saveSellerSetup("));
  assert.ok(page.includes('index:false,follow:false'));
+});
+
+test('primary-domain admin guide directs Seller Online to the live configuration route',()=>{
+ assert.ok(mainDomainGuide.includes('href="/partner/seller-online"'));
+ assert.ok(mainDomainGuide.includes('персональная ссылка'));
+ assert.ok(mainDomainGuide.includes('пробную транзакцию'));
 });
