@@ -17,13 +17,16 @@ type Row={
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MERCHANT=/^[A-Za-z0-9]{10,32}$/;
 const digest=(x:string)=>createHash('sha256').update(x).digest('hex');
-const fail=(code:string)=>{throw new PartnerConnectError(
+const fail=(code:string):never=>{throw new PartnerConnectError(
   code as 'partner_request_rejected'
 );}
 function db(){
   const value=getSupabaseServiceRoleClient();
   if(!value)throw new PartnerConnectError('partner_provider_unavailable');
-  return value;
+  // Supabase's generated PostgREST types only enumerate schema objects from
+  // the previous release. This new table is migration-gated and validated at
+  // runtime rather than recursing into an outdated schema type graph.
+  return value as unknown as {from:(name:string)=>any};
 }
 function withActor<T extends {eq:(field:string,value:string)=>T;is:(field:string,value:null)=>T}>(
   query:T,actor:PaymentsActor,
