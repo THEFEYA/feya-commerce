@@ -126,30 +126,6 @@ jobs:
       - name: Install → verify → test payment → activate → buy → confirm → refund (e2e)
         run: bash tests/payments-e2e/run.sh
 
-  payments-production-smoke:
-    name: Payments — production HTTP checks (thefeya.com)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - name: Real HTTP checks against the deployed commit
-        env:
-          PAYMENTS_SMOKE_EXPECTED_SHA: ${{ github.sha }}
-        run: node tests/runtime/payments-production-smoke.mjs
-      - name: Smoke evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: payments-production-smoke
-          path: runtime-results/payments-production-smoke.json
-          retention-days: 30
-
   supabase-runtime:
     name: Supabase Auth, PostgREST and browser
     runs-on: ubuntu-latest

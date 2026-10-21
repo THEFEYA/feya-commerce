@@ -83,34 +83,49 @@ await check('quote refuses unknown products (server price authority)', async () 
   expect(r.status === 422 && r.json?.code === 'checkout_product_mismatch', `${r.status} ${r.json?.code}`);
 });
 
-await check('quote re-prices a real published product', async () => {
-  const shop = await http('/shop', {headers: {accept: 'text/html'}});
-  const slugs = [...new Set([...shop.text.matchAll(/href="\/shop\/([a-z0-9-]{3,240})"/g)].map(m => m[1]))].slice(0, 6);
-  for (const slug of slugs) {
-    const pdp = await http('/shop/' + slug, {headers: {accept: 'text/html'}});
-    const flight = pdp.text.replace(/\\"/g, '"');
-    const productId = /"canonical_product_id":"([0-9a-f-]{36})"/.exec(flight)?.[1];
-    const config = /"configuration_id":"([0-9a-f-]{36})"[^{}]*?"display_price_amount":(\d+(?:\.\d+)?)/.exec(flight)
-      || /"display_price_amount":(\d+(?:\.\d+)?)[^{}]*?"configuration_id":"([0-9a-f-]{36})"/.exec(flight);
-    if (!productId || !config) continue;
-    const [configurationId, price] = config[1].length === 36 ? [config[1], Number(config[2])] : [config[2], Number(config[1])];
-    const colors = /"color_options":\["([^"]+)"/.exec(flight)?.[1];
-    const configColor = new RegExp(`"configuration_id":"${configurationId}"[^{}]*?"configuration_color":"([^"]+)"`).exec(flight)?.[1];
-    const color = configColor || colors;
-    if (!color) continue;
-    const r = await http('/api/checkout/quote', {method: 'POST', headers: sameOrigin, body: JSON.stringify({
-      lines: [{id: `${productId}-${configurationId}-M-${color}`, slug, configuration_id: configurationId, size: 'M', color, quantity: 2, client_unit_minor: 1}],
-      method: 'express', gift_card: true, gift_box: false, country: 'NZ'})});
-    if (r.status !== 200) continue;
-    const a = r.json.amounts;
-    const unit = r.json.lines?.[0]?.unit_minor;
-    expect(r.json.lines[0].price_changed === true, 'browser price must be ignored');
-    expect(a.shipping_minor === 3500 && a.remote_minor === 2000 && a.extras_minor === 1000 && a.handling_minor === 0, 'fees');
-    expect(a.total_minor === unit * 2 + 3500 + 2000 + 1000, 'total arithmetic');
-    realLine = {id: `${productId}-${configurationId}-M-${color}`, slug, configuration_id: configurationId, size: 'M', color, quantity: 1};
-    return {slug, unit_minor: unit, displayed_price: price, total_minor: a.total_minor};
+await check('real browser: product page → Add to bag → bag → server-confirmed total', async () => {
+  let chromium;
+  try { ({chromium} = await import('playwright')); } catch { return {skipped: 'playwright not installed'}; }
+  const channel = process.env.FEYA_TEST_BROWSER_CHANNEL || undefined;
+  const browser = await chromium.launch(channel ? {channel} : {});
+  try {
+    const page = await browser.newPage({userAgent: UA + ' (browser)'});
+    await page.goto(origin + '/shop', {waitUntil: 'domcontentloaded', timeout: 60000});
+    const hrefs = await page.$$eval('a[href^="/shop/"]', as => [...new Set(as.map(a => a.getAttribute('href')))].filter(h => /^\/shop\/[a-z0-9-]+$/.test(h)).slice(0, 8));
+    for (const href of hrefs) {
+      await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
+      const add = page.getByRole('button', {name: /Add to bag/i}).first();
+      if (!(await add.count())) continue;
+      await add.click();
+      await page.waitForTimeout(500);
+      const bag = await page.evaluate(() => JSON.parse(localStorage.getItem('feya_visual_cart_v1') || '[]'));
+      const item = bag[bag.length - 1];
+      if (!item?.configuration_id) continue;
+      const line = {id: item.id, slug: item.slug, configuration_id: item.configuration_id, size: item.size, color: item.color,
+        quantity: 2, client_unit_minor: 1};
+      // Same-origin request from the real page, exactly as the bag does it.
+      const quote = await page.evaluate(async (body) => {
+        const r = await fetch('/api/checkout/quote', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+        return {status: r.status, json: await r.json()};
+      }, {lines: [line], method: 'express', gift_card: true, gift_box: false, country: 'NZ'});
+      expect(quote.status === 200, `quote ${quote.status} ${quote.json?.code}`);
+      const a = quote.json.amounts, unit = quote.json.lines[0].unit_minor;
+      expect(quote.json.lines[0].price_changed === true, 'browser price must be ignored');
+      expect(unit === Math.round(item.price * 100), `server unit ${unit} ≠ displayed ${item.price}`);
+      expect(a.shipping_minor === 3500 && a.remote_minor === 2000 && a.extras_minor === 1000 && a.handling_minor === 0, 'fees');
+      expect(a.total_minor === unit * 2 + 3500 + 2000 + 1000, 'total arithmetic');
+      realLine = {id: item.id, slug: item.slug, configuration_id: item.configuration_id, size: item.size, color: item.color, quantity: 1};
+      await page.goto(origin + '/cart', {waitUntil: 'networkidle', timeout: 60000});
+      const bagText = await page.locator('[data-testid="owner-cart-review"]').innerText();
+      expect(bagText.includes(item.title.slice(0, 20)), 'bag shows the added piece');
+      const payButton = bagText.includes('Pay securely with PayPal');
+      expect(checkoutActive ? payButton : bagText.includes('Checkout not active'), 'bag payment state matches server state');
+      return {product: href, displayed_price: item.price, server_unit_minor: unit, total_minor: a.total_minor, bag_pay_button: payButton};
+    }
+    throw new Error('no product page with an orderable option found');
+  } finally {
+    await browser.close();
   }
-  return {skipped: 'no parsable product option found in public HTML'};
 });
 
 await check('webhook endpoint never accepts unsigned events', async () => {
