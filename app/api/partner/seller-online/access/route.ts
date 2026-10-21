@@ -1,26 +1,21 @@
-import {NextRequest,NextResponse} from 'next/server';
-import {
-  SELLER_SETUP_COOKIE,SELLER_SETUP_BASE,
-  readSellerSetupStatus,sellerSetupRequestAllowed,validSellerSetupToken,
-} from '@/lib/sellerOnlinePartnerSetupServer';
+import type {NextRequest} from 'next/server';
+import {json, sameOrigin, setAccessCookie, validAccessToken} from '@/lib/payments/access';
+import {BodyError, readLimitedJson} from '@/lib/payments/http';
+import {sha256} from '@/lib/payments/runtime';
+import {paymentsStore} from '@/lib/payments/store';
 
-const heads={'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow, noarchive'};
-export async function POST(req:NextRequest){
-  if(!sellerSetupRequestAllowed(req.nextUrl.hostname)
-    ||req.headers.get('origin')!=='https://thefeya.com')
-    return NextResponse.json({ok:false,code:'unavailable'},{status:404,headers:heads});
-  const raw=await req.text();
-  if(raw.length>300)return NextResponse.json({ok:false,code:'invalid'},{status:400,headers:heads});
-  let token:unknown;
-  try{token=(JSON.parse(raw) as {token?:unknown}).token;}catch{return NextResponse.json({ok:false,code:'invalid'},{status:400,headers:heads});}
-  if(!validSellerSetupToken(token))
-    return NextResponse.json({ok:false,code:'invalid'},{status:401,headers:heads});
-  const status=await readSellerSetupStatus(token);
-  if(!status.ok)return NextResponse.json(status,{status:401,headers:heads});
-  const response=NextResponse.json({ok:true,connected:true},{headers:heads});
-  response.cookies.set(SELLER_SETUP_COOKIE,token,{
-    httpOnly:true,secure:true,sameSite:'strict',
-    path:SELLER_SETUP_BASE,maxAge:7*24*60*60,
-  });
-  return response;
+/** Exchanges the one-time invitation link (#access=…) for an HttpOnly session cookie. */
+export async function POST(request: NextRequest) {
+  if (!sameOrigin(request)) return json({ok: false, code: 'same_origin_required'}, 403);
+  try {
+    const body = await readLimitedJson(request, 400) as {token?: unknown};
+    const token = body?.token;
+    if (!validAccessToken(token)) return json({ok: false, code: 'invalid_invitation'}, 401);
+    const grant = await paymentsStore.resolveGrant(sha256(token));
+    if (!grant.ok) return json({ok: false, code: 'invalid_invitation'}, 401);
+    return setAccessCookie(json({ok: true, role: grant.role, expires_at: grant.expires_at}), token);
+  } catch (error) {
+    if (error instanceof BodyError) return json({ok: false, code: 'invalid_invitation'}, error.status);
+    return json({ok: false, code: 'storage_unavailable'}, 503);
+  }
 }

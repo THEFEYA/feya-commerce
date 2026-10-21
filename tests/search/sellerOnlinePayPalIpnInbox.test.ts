@@ -2,45 +2,31 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=(path:string)=>readFileSync(path,'utf8');
-const sql=read('supabase/migrations/20261021174000_seller_online_paypal_ipn_inbox_v1.sql');
+const legacySql=read('supabase/migrations/20261021174000_seller_online_paypal_ipn_inbox_v1.sql');
 const route=read('app/api/commerce/paypal/ipn/route.ts');
+const handler=read('lib/payments/providerEvents.ts');
+const sql=read('supabase/migrations/20261021200000_payments_provider_checkout_v1.sql');
 
-test('production IPN never turns on checkout or credits unbound orders',()=>{
+test('legacy unbound IPN inbox migration stays historical and inert',()=>{
   for(const fragment of [
     'order_bound boolean not null default false check(order_bound=false)',
     'payment_enabled boolean not null default false check(payment_enabled=false)',
     'verified_by_paypal boolean not null default true check(verified_by_paypal=true)',
-    "p_currency is distinct from 'EUR'",
-    "v.integration_mode<>'paypal_standard'",
-    'pg_catalog.lower(pg_catalog.btrim(p_receiver_email))',
-    "p_custom is distinct from (p_invoice_id::text||';opencart:'||v_store_key)",
-  ])assert.ok(sql.includes(fragment),fragment);
-  assert.ok(!sql.includes('create or replace function public.feya_commerce_create_checkout_snapshot'));
-  assert.ok(!route.includes('markPaid('));
-  assert.ok(!route.includes('checkout_status ='));
-  assert.ok(route.includes('bound_to_order:false,payment_enabled:false'));
+  ])assert.ok(legacySql.includes(fragment),fragment);
+  assert.ok(!legacySql.includes('payer_email'));
+  assert.ok(!legacySql.includes('credit_card'));
 });
 
-test('only PayPal-verified callbacks can reach a private storage RPC',()=>{
-  for(const fragment of [
-    "process.env.FEYA_PAYPAL_IPN_INGEST_ENABLED!=='true'",
-    "process.env.VERCEL_ENV!=='production'",
-    "req.nextUrl.hostname!=='thefeya.com'",
-    "verifyPayPalStandardIpnPostback(body,environment)",
-    "if(!verified.ok)",
-    "field('txn_id')",
-    "field('mc_currency')",
-    "field('receiver_email')",
-    "field('payment_status')",
-    "p_event_sha256:digest(body)",
-    "p_txn_sha256:digest(environment+':'+txn)",
-  ])assert.ok(route.includes(fragment),fragment);
-  assert.ok(sql.includes('revoke all on public.feya_seller_online_paypal_ipn_inbox_v1 from public,anon,authenticated'));
-  assert.ok(sql.includes('grant select,insert on public.feya_seller_online_paypal_ipn_inbox_v1 to service_role'));
-  assert.ok(sql.includes('grant execute on function public.feya_seller_online_record_paypal_ipn_unbound_v1'));
-  assert.ok(!route.includes("console.log"));
-  assert.ok(!route.includes("console.error"));
-  assert.ok(!sql.includes('payer_email'));
-  assert.ok(!sql.includes('payer_address'));
-  assert.ok(!sql.includes('credit_card'));
+test('IPN (PayPal Standard fallback): PayPal VERIFIED first, then de-duplicated, then matched to the exact order',()=>{
+  assert.ok(route.includes("startsWith('application/x-www-form-urlencoded')"));
+  assert.ok(route.includes('handlePayPalIpn(raw)'));
+  const verify=handler.indexOf('verifyPayPalStandardIpnPostback(rawBody');
+  const claim=handler.indexOf("paymentsStore.claimEvent(key, 'paypal_ipn'");
+  const record=handler.indexOf('paymentsStore.recordPayment({',claim);
+  assert.ok(verify>0&&claim>verify&&record>claim,'verify → claim → record order');
+  assert.ok(handler.includes("payee_email: parsed.receiver_email"));
+  // Database refuses to mark paid on any amount / currency / payee / invoice / custom mismatch.
+  for(const fragment of ["v_reason := 'amount_mismatch'","v_reason := 'currency_mismatch'","v_reason := 'payee_mismatch'",
+    "v_reason := 'invoice_mismatch'","v_reason := 'custom_reference_mismatch'"]) assert.ok(sql.includes(fragment),fragment);
+  assert.ok(!route.includes('console.log'));
 });

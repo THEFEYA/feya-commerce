@@ -31,6 +31,9 @@ jobs:
       - name: Search policy simulations
         run: npm run test:search
 
+      - name: Payments unit tests (pricing, request, PayPal contract)
+        run: npm run test:payments
+
       - name: G2c external ZIP archive safety (no credentials)
         run: python3 -m unittest discover -s tests/search-db -p 'test_growth_archive_zip_safety.py' -v
 
@@ -89,6 +92,63 @@ jobs:
         env:
           FEYA_TEST_DATABASE_URL: postgresql://postgres:ephemeral-test-only@127.0.0.1:5432/feya_test
         run: node --experimental-strip-types --test tests/search-db/${{ matrix.suite }}.test.mjs
+
+  payments-postgres:
+    name: Payments — PostgreSQL 17 state machine and end-to-end flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ephemeral-test-only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ephemeral-test-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Migration, privileges, activation guard and upgrade path (SQL)
+        run: bash tests/payments-db/run.sh
+      - name: Install → verify → test payment → activate → buy → confirm → refund (e2e)
+        run: bash tests/payments-e2e/run.sh
+
+  payments-production-smoke:
+    name: Payments — production HTTP checks (thefeya.com)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Real HTTP checks against the deployed commit
+        env:
+          PAYMENTS_SMOKE_EXPECTED_SHA: ${{ github.sha }}
+        run: node tests/runtime/payments-production-smoke.mjs
+      - name: Smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: payments-production-smoke
+          path: runtime-results/payments-production-smoke.json
+          retention-days: 30
 
   supabase-runtime:
     name: Supabase Auth, PostgREST and browser
