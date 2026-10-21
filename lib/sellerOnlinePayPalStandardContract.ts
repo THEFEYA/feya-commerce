@@ -18,7 +18,7 @@ export type PayPalStandardForm = {
   fields:Readonly<Record<string,string>>;
 };
 const EMAIL=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-const ORDER=/^[0-9a-f-]{36}$/i;
+const ORDER=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REFERENCE=/^[A-Za-z0-9:_-]{1,120}$/;
 export function buildPayPalStandardForm(input:PreparedPayPalStandardOrder):PayPalStandardForm{
   if(!ORDER.test(input.orderReference)||
