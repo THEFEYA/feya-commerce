@@ -4,8 +4,6 @@ import {
  sellerSetupRequestAllowed,
 } from '@/lib/sellerOnlinePartnerSetupServer';
 
-export const runtime='nodejs';
-export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow, noarchive'};
 const reply=(data:unknown,status=200)=>NextResponse.json(data,{status,headers});
 const allowed=(req:NextRequest)=>sellerSetupRequestAllowed(req.nextUrl.hostname);
