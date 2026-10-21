@@ -26,6 +26,7 @@ type Status = {
   platform_app_available: boolean;
   platform_app_environment: 'sandbox' | 'live' | null;
   ready_to_activate: boolean;
+  commerce_release_approved: boolean;
   urls: {webhook: string; ipn: string};
   paid_orders: number;
 };
@@ -332,7 +333,7 @@ export function SellerOnlineInstallClient() {
         {status.active ? 'Покупатели оплачивают заказы через PayPal; каждый платёж подтверждается сервером и записывается в заказ.'
           : status.ready_to_activate ? 'Все проверки пройдены, тестовый платёж в Live подтверждён.'
           : !testLive ? 'Требуется успешный тестовый платёж в среде Live для текущих настроек. База данных не позволит включить оплату раньше.'
-          : 'Требуется пройти все проверки для текущих настроек.'}
+          : !status.commerce_release_approved ? 'Платёжный провайдер можно проверить, но продажи откроются только после отдельного подтверждения доставки, налогообложения и условий продажи.' : 'Требуется пройти все проверки для текущих настроек.'}
       </p>
     </Step>
 

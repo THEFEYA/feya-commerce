@@ -6,6 +6,7 @@ import {buildTestSnapshot, canonicalJson, sha256Hex, TEST_PAYMENT_MINOR} from '.
 import {PayPalApiError, PayPalNetworkError} from './paypalRest.ts';
 import {loadProviderRuntime, paypalClientFor, platformCredentials, PAYPAL_IPN_URL, PAYPAL_WEBHOOK_URL, sha256} from './runtime.ts';
 import {paymentsStore, PaymentsStoreError, type ProviderStatus} from './store.ts';
+import {isPaidCommerceReleaseApproved} from './commerceRelease.ts';
 
 export type InstallActor = {role: 'technician' | 'owner'; name: string};
 
@@ -38,7 +39,8 @@ export async function providerStatusForPanel() {
     platform_app_available: Boolean(platform),
     platform_app_environment: platform?.environment ?? null,
     urls: {webhook: PAYPAL_WEBHOOK_URL, ipn: PAYPAL_IPN_URL},
-    ready_to_activate: readyToActivate(status),
+    ready_to_activate: readyToActivate(status) && isPaidCommerceReleaseApproved(),
+    commerce_release_approved: isPaidCommerceReleaseApproved(),
   };
 }
 

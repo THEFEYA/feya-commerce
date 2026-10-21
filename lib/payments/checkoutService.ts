@@ -15,6 +15,7 @@ import {
   checkoutOrigin, clientIpHash, loadProviderRuntime, paymentsKillSwitch, paypalClientFor, PAYPAL_IPN_URL, sha256,
 } from './runtime.ts';
 import {paymentsStore, PaymentsStoreError, type StoredOrder} from './store.ts';
+import {isPaidCommerceReleaseApproved} from './commerceRelease.ts';
 
 export class CheckoutFlowError extends Error {
   readonly status: number;
@@ -58,7 +59,7 @@ export async function priceLines(lines: CartLineInput[]) {
 export async function publicCheckoutState(): Promise<{active: boolean; engine: string | null; storage_ready: boolean}> {
   try {
     const state = await paymentsStore.publicState();
-    const active = state.active === true && !paymentsKillSwitch();
+    const active = state.active === true && !paymentsKillSwitch() && isPaidCommerceReleaseApproved();
     return {active, engine: active ? state.engine : null, storage_ready: true};
   } catch {
     return {active: false, engine: null, storage_ready: false};
@@ -147,7 +148,7 @@ export async function createProviderSession(input: {
 
 /** Buyer submits the bag + delivery details: create the order, then the PayPal session. */
 export async function startCheckout(raw: unknown, ctx: {headers: Headers; origin: string | null}) {
-  if (paymentsKillSwitch()) throw new CheckoutFlowError('payments_not_active', 423);
+  if (paymentsKillSwitch() || !isPaidCommerceReleaseApproved()) throw new CheckoutFlowError('payments_not_active', 423);
   const request: CheckoutRequestV1 = parseCheckoutRequest(raw);
   const lines = await priceLines(request.lines);
   const extras = buildExtraLines(lines, {giftCard: request.gift_card, giftBox: request.gift_box});

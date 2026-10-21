@@ -5,6 +5,7 @@ import {BodyError, readLimitedJson} from '@/lib/payments/http';
 import {providerStatusForPanel} from '@/lib/payments/installation';
 import {PAYMENTS_STATE_TAG} from '@/lib/payments/publicState';
 import {paymentsStore} from '@/lib/payments/store';
+import {isPaidCommerceReleaseApproved} from '@/lib/payments/commerceRelease';
 
 const MESSAGES: Record<string, string> = {
   live_environment_required: 'Для покупателей можно включить только среду Live (рабочий PayPal).',
@@ -20,6 +21,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await readLimitedJson(request, 200) as {active?: unknown};
     if (typeof body?.active !== 'boolean') return json({ok: false, code: 'invalid_request'}, 400);
+    if (body.active && !isPaidCommerceReleaseApproved()) return json({ok:false,code:'commerce_release_pending',message:'PayPal тест можно выполнить, но приём платежей покупателей включается отдельно после проверки доставки, налогов и условий продажи.'},423);
     const result = await paymentsStore.setActive(body.active, actor.name, actor.role);
     revalidateTag(PAYMENTS_STATE_TAG, 'max');
     if (result.code) return json({ok: false, code: result.code, message: MESSAGES[result.code] || 'Не удалось изменить статус.', status: await providerStatusForPanel()}, 409);
