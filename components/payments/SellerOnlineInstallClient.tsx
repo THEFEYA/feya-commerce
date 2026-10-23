@@ -283,7 +283,7 @@ export function SellerOnlineInstallClient() {
     {message && <p role="status" className={`rounded-xl border p-4 text-[13px] leading-6 ${message.tone === 'ok' ? 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.07)] text-[#f1e2bd]' : 'border-amber-500/30 bg-amber-500/5 text-amber-100'}`}>{message.text}</p>}
 
     <Step n={1} title="PayPal-аккаунт Seller Online, который принимает оплату" done={accountDone && !engineChanged}>
-      {partnerConnect?.available && <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.04)] p-4>
+      {partnerConnect?.available && <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.04)] p-4">
         <h3 className="text-[15px] font-medium text-[#f7f3ec]">Официальная авторизация непосредственно в PayPal</h3>
         {partnerConnect?.available
           ?<>
