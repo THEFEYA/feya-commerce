@@ -103,7 +103,7 @@ export function OwnerPaymentsConsoleClient() {
           {s.payee_email ? ` · деньги поступают на ${s.payee_email}` : ''}
         </p>
         <ul className="mt-4 space-y-1.5 text-[13px] text-[#d8d1c5]">
-          {s.engine === 'paypal_checkout' && step(s.checks.credentials && s.checks.payee, 'PayPal-аккаунт Seller Online подключён')}
+          {s.engine === 'paypal_checkout' && step(s.checks.credentials && s.checks.payee, 'PayPal REST: приложение проверено и получатель указан (зачисление — после теста €1)')}
           {step(s.store_key_set, 'Ключ магазина Seller Online указан')}
           {s.engine === 'paypal_checkout' && step(s.checks.webhook, 'Уведомления PayPal установлены')}
           {step(s.checks.test_payment && s.checks.test_environment === 'live', 'Тестовый платёж в Live подтверждён')}
