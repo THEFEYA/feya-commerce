@@ -122,7 +122,8 @@ export async function runInstallationChecks(actor: InstallActor): Promise<{resul
     return {results, status: await providerStatusForPanel()};
   }
 
-  // 2. Payee can receive EUR payments (verification order, never approved or charged)
+  // 2. Payee is accepted in an unpaid EUR order. This does NOT prove the account is
+  // authorized to receive or settle funds, nor Seller Online merchant allocation.
   if (runtime.payee_email) {
     try {
       const order = await client.createOrder({
@@ -138,7 +139,7 @@ export async function runInstallationChecks(actor: InstallActor): Promise<{resul
       const payee = (units[0]?.payee || {}) as Record<string, unknown>;
       const merchantId = typeof payee.merchant_id === 'string' && /^[A-Za-z0-9]{1,32}$/.test(payee.merchant_id) ? payee.merchant_id : null;
       await paymentsStore.recordCheck(version, 'payee', true, {payee_merchant_id: merchantId}, actor.name, actor.role);
-      results.push({check: 'payee', ok: true, detail: `Аккаунт ${runtime.payee_email} принимает платежи в EUR${merchantId ? ` (merchant ID ${merchantId})` : ''}. Проверочный заказ не оплачивается и истекает сам.`});
+      results.push({check: 'payee', ok: true, detail: `PayPal принял НЕОПЛАЧЕННЫЙ заказ с получателем ${runtime.payee_email}${merchantId ? ` (merchant ID ${merchantId})` : ''}. Это не доказывает зачисление денег. Требуется реальный тест €1 и подтверждение Seller Online.`});
     } catch (error) {
       const p = paypalProblem(error);
       await paymentsStore.recordCheck(version, 'payee', false, {error: `${p.paypal_error || ''} ${p.detail}`.trim()}, actor.name, actor.role);
