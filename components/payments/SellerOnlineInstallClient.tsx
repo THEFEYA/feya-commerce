@@ -283,7 +283,7 @@ export function SellerOnlineInstallClient() {
     {message && <p role="status" className={`rounded-xl border p-4 text-[13px] leading-6 ${message.tone === 'ok' ? 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.07)] text-[#f1e2bd]' : 'border-amber-500/30 bg-amber-500/5 text-amber-100'}`}>{message.text}</p>}
 
     <Step n={1} title="PayPal-аккаунт Seller Online, который принимает оплату" done={accountDone && !engineChanged}>
-      <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.04)] p-4">
+      {partnerConnect?.available && <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.3)] bg-[rgba(212,178,106,.04)] p-4">
         <h3 className="text-[15px] font-medium text-[#f7f3ec]">Официальная авторизация непосредственно в PayPal</h3>
         {partnerConnect?.available
           ?<>
@@ -307,12 +307,13 @@ export function SellerOnlineInstallClient() {
           Активация реальной оплаты производится только отдельно после проверки Seller Online и заказа.
         </p>}
         {partnerNotice&&<p role="status" className="mt-3 text-[13px] text-[#e2c690]">{partnerNotice}</p>}
-      </div>
+      </div>}
+      <p className="mb-4 text-[13px] leading-6 text-[#d8d1c5]">Для технического сотрудника Seller Online: разработка и доступ к GitHub / Supabase не требуются. Выберите вариант подключения, который ваш PayPal-аккаунт поддерживает; внесите данные самостоятельно, проверьте соединение, затем проведите тест €1. Если провайдер отклонит платёж — передайте только код ошибки.</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <Choice active={rest} onClick={() => setEngine('paypal_checkout')} title="PayPal Checkout (REST API) — рекомендуется"
-          note="Современная интеграция PayPal. Система сама проверит аккаунт, установит уведомления и подтвердит каждый платёж через API."/>
+          note="Если Seller Online использует своё REST-приложение PayPal: их специалист вводит Live Client ID / Secret. Проверка приложения и уведомлений автоматическая; зачисление денег проверяется тестовым платежом."/>
         <Choice active={!rest} onClick={() => setEngine('paypal_standard')} title="PayPal Standard — как в WooCommerce / OpenCart"
-          note="Только email получателя, без ключей API. PayPal объявил эти кнопки устаревшими (январь 2026) — запасной вариант."/>
+          note="Запасной способ из старых инструкций Seller Online: email получателя и идентификатор магазина, без REST API. PayPal Standard устаревает — только если Seller Online разрешит."/>
       </div>
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Среда PayPal">
         {(['live', 'sandbox'] as const).map(env => <button key={env} type="button" onClick={() => setEnvironment(env)} aria-pressed={environment === env}
@@ -381,7 +382,7 @@ export function SellerOnlineInstallClient() {
       <p className="text-[13px] leading-6 text-[#cfc6b9]">
         Настоящий платёж через PayPal по текущим настройкам: создаётся заказ TheFEYA, вы оплачиваете его на странице PayPal, сервер подтверждает
         платёж напрямую у PayPal и сверяет сумму, валюту, получателя и ключ магазина.
-        {environment === 'live' ? ' В среде Live списывается реальный €1,00 с плательщика на аккаунт получателя — его можно вернуть в PayPal.' : ' В Sandbox используйте тестового покупателя PayPal.'}
+        {environment === 'live' ? ' В среде Live списывается реальный €1,00 с плательщика на аккаунт получателя — его можно вернуть в PayPal. После оплаты специалист должен убедиться, что Seller Online зачислил платёж именно магазину TheFEYA в своём кабинете.' : ' В Sandbox используйте тестового покупателя PayPal.'}
       </p>
       <button type="button" onClick={testPayment} disabled={Boolean(busy) || !installDone || engineChanged || status.active}
         className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-lg border border-[#d4b26a] px-6 text-[14px] text-[#f1e2bd] hover:bg-[rgba(212,178,106,.08)] disabled:opacity-50">
