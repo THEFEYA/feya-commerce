@@ -96,6 +96,17 @@ await check('real browser: product page → Add to bag → bag → server-confir
       await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
       const add = page.getByRole('button', {name: /Add to bag/i}).first();
       if (!(await add.count())) continue;
+      if (await page.locator('[aria-label="Couple colors and sizes"]').count()) continue;
+      const configuration = page.locator('button[aria-controls="product-configuration-options"]');
+      if (await configuration.count()) {
+        await configuration.click();
+        const options = page.locator('#product-configuration-options button');
+        if (!(await options.count())) continue;
+        await options.first().click();
+      }
+      const medium = page.locator('button.size-pill').filter({hasText: /^M$/}).first();
+      if (!(await medium.count())) continue;
+      await medium.click();
       await add.click();
       await page.waitForTimeout(500);
       const bag = await page.evaluate(() => JSON.parse(localStorage.getItem('feya_visual_cart_v1') || '[]'));
