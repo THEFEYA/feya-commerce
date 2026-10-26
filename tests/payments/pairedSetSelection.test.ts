@@ -30,6 +30,14 @@ test('only proven full sets with explicit women+men membership use paired checko
   assert.equal(isSourceConfirmedPairedSet({...verified, bundle_component_codes: ['top', 'skirt']}), false);
   assert.equal(isSourceConfirmedPairedSet({...verified, is_full_set: false}), false);
   assert.equal(isSourceConfirmedPairedSet({public_label: 'Couples'}), false);
+  assert.equal(isSourceConfirmedPairedSet({
+    configuration_id:'26274d0c-81c9-44e6-9ce7-c3056c62040c',
+    is_full_set:true,is_bundle:true,source_confirmed_paired_outfits:true,
+  }),true);
+  assert.equal(isSourceConfirmedPairedSet({
+    configuration_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    is_full_set:true,is_bundle:true,source_confirmed_paired_outfits:true,
+  }),false);
 });
 
 test('Bonanza-approved paired colors are source-bound and held/unlisted codes are refused', () => {
