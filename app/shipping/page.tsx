@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {readPaymentsPublicActive} from '@/lib/payments/publicState';
 
 export async function generateMetadata():Promise<Metadata>{
   return{
@@ -15,7 +16,8 @@ export async function generateMetadata():Promise<Metadata>{
   };
 }
 
-export default function ShippingPage(){
+export default async function ShippingPage(){
+  const checkoutActive=await readPaymentsPublicActive();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
@@ -42,7 +44,7 @@ export default function ShippingPage(){
         </article>
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6">
           <div className="eyebrow-gold">Express</div>
-          <div className="mt-3 text-bone text-3xl">7–10 business days</div>
+          <div className="mt-3 text-bone text-3xl">6–9 business days</div>
           <p className="mt-3 text-[14px] leading-6 text-[var(--bone-dim)]">Typical express delivery estimate after dispatch.</p>
         </article>
       </div>
@@ -52,7 +54,9 @@ export default function ShippingPage(){
           <h2 className="text-bone text-xl">Payment</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>The payment methods available for an order will be shown at checkout before the order is submitted.</p>
-            <p>This pre-index storefront preview does not process live payments. No payment-method claim is published here until checkout is enabled and the payment configuration is approved.</p>
+            {checkoutActive
+              ? <p>Online checkout is active. Pay securely on PayPal&apos;s hosted page after reviewing the selected products, delivery method and total amount.</p>
+              : <p>Online checkout is not active yet. You can browse our pieces and prepare a bag, but no payment is collected until checkout is enabled.</p>}
           </div>
         </article>
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
@@ -82,7 +86,7 @@ export default function ShippingPage(){
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">Order confirmation</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            <p>Your checkout will show the selected product configuration, authoritative quoted price, shipping method and the current policy versions before the order is submitted.</p>
+            <p>Before submission, checkout shows the selected configuration, server-confirmed price, shipping method and links to our current store policies.</p>
             <p>Placing the order confirms acceptance of those checkout details, subject to any mandatory rights that cannot legally be waived.</p>
           </div>
         </article>
