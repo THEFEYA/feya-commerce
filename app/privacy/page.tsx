@@ -57,9 +57,7 @@ export default async function PrivacyPage(){
               <p>The privacy-controller disclosure does not identify a seller or activate checkout. Transaction-party information is provided separately for an enabled ordering flow.</p>
             </>:<>
               <p>TheFEYA is the public storefront brand and studio contact for this catalog website.</p>
-              {sellerOnlineEnabled
-                ? <p>Online checkout is active. Payments are processed on PayPal and received by {SELLER_ONLINE_PROVIDER.legalName}, the payment and logistics partner. The payment recipient is not automatically the contracting seller or data controller. Optional analytics remain separately consent-gated.</p>
-                : <p>Online checkout and payment processing are not active. Optional analytics remain separately consent-gated.</p>}
+              <p>Online checkout, payment processing and optional production analytics are not activated until the relevant seller/payment and privacy-controller disclosures are confirmed.</p>
               <p>Privacy and storefront contact: <a className="text-bone hover:text-white" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
             </>}
             {identity&&controller?<p>Data controller: {controller.name}. Privacy contact: <a className="text-bone hover:text-white" href={`mailto:${controller.contactEmail}`}>{controller.contactEmail}</a>.</p>:null}
