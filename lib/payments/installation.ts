@@ -4,7 +4,7 @@ import {verifyPayPalStandardIpnPostback} from '@/lib/sellerOnlinePayPalStandardI
 import {createProviderSession} from './checkoutService.ts';
 import {buildTestSnapshot, canonicalJson, sha256Hex, TEST_PAYMENT_MINOR} from './orderSnapshot.ts';
 import {PayPalApiError, PayPalNetworkError} from './paypalRest.ts';
-import {loadProviderRuntime, paypalClientFor, platformCredentials, PAYPAL_IPN_URL, PAYPAL_WEBHOOK_URL, sha256} from './runtime.ts';
+import {loadProviderRuntime, paypalClientFor, platformCredentials, PAYPAL_IPN_URL, PAYPAL_WEBHOOK_URL, sha256, paymentsKillSwitch} from './runtime.ts';
 import {paymentsStore, PaymentsStoreError, type ProviderStatus} from './store.ts';
 import {isPaidCommerceReleaseApproved} from './commerceRelease.ts';
 
@@ -41,6 +41,7 @@ export async function providerStatusForPanel() {
     urls: {webhook: PAYPAL_WEBHOOK_URL, ipn: PAYPAL_IPN_URL},
     ready_to_activate: readyToActivate(status) && isPaidCommerceReleaseApproved(),
     commerce_release_approved: isPaidCommerceReleaseApproved(),
+    payments_kill_switch:paymentsKillSwitch(),
   };
 }
 
