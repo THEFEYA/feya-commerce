@@ -5,11 +5,11 @@
  */
 export const CHECKOUT_POLICY_BUNDLE_V1={
   contract:'thefeya_checkout_policy_evidence_v1',
-  version:'thefeya-sale-policy-20261026-v1',
+  version:'thefeya-sale-policy-20261027-v2',
   sources:{
     terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'b509141854c6f6271f9c95bf991fc3804ef1ba1e'},
     shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'03a63e803c7696f06a13405600ac6b1bb36b594e'},
     returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'fa5570efe202ba0c0159959f65031916c773836b'},
-    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'7600e55032c24801db0e2685fbf59577b0e38295'},
+    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'2b91f9c1cd7290e840fff91567e9cd7640ef36fb'},
   },
 } as const;
