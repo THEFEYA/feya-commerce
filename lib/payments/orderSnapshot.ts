@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {colorChoiceLabel} from '../bonanzaColorChoices.ts';
+import {CHECKOUT_POLICY_BUNDLE_V1} from './checkoutPolicyEvidence.ts';
 import type {CheckoutAddress, CheckoutBuyer, CheckoutRequestV1} from './checkoutRequest.ts';
 import {CHECKOUT_PRICING_V1, type CheckoutAmounts, type DeliveryMethod, type ExtraLine, type PricedLine} from './pricing.ts';
 
@@ -29,7 +30,12 @@ export type OrderSnapshotV1 = {
   note: string | null;
   marketing_opt_in: boolean;
   accepted_terms: boolean;
-  policies: {terms: string; shipping: string; returns: string; privacy: string};
+  policies: {
+    terms:string;shipping:string;returns:string;privacy:string;
+    accepted_bundle_version?:string;
+    accepted_at?:string;
+    source_blob_sha1?:Record<string,string>;
+  };
   disclosure: string;
   created_at: string;
 };
@@ -71,7 +77,14 @@ export function buildCustomerSnapshot(input: {
     note: request.note,
     marketing_opt_in: request.marketing_opt_in,
     accepted_terms: true,
-    policies: {terms: '/terms', shipping: '/shipping', returns: '/returns', privacy: '/privacy'},
+    policies: {
+      terms: '/terms', shipping: '/shipping', returns: '/returns', privacy: '/privacy',
+      accepted_bundle_version:CHECKOUT_POLICY_BUNDLE_V1.version,
+      accepted_at:(input.now||new Date()).toISOString(),
+      source_blob_sha1:Object.fromEntries(Object.entries(CHECKOUT_POLICY_BUNDLE_V1.sources).map(
+        ([key,identity])=>[key,identity.git_blob_sha1],
+      )),
+    },
     disclosure: SELLER_ONLINE_CHECKOUT_DISCLOSURE,
     created_at: (input.now || new Date()).toISOString(),
   };
