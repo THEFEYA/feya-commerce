@@ -61,7 +61,15 @@ if(strict&&!report.reasons.length){
    if(seq.some(x=>x<0)||!seq.every((x,i)=>i===0||x>seq[i-1]))errors.push('four_approved_blocks_missing_or_ordered_wrong');
    const includedAt=body.indexOf("what's included");
    const whyAt=body.indexOf("why you'll love it",Math.max(0,includedAt));
-   if(includedAt<0||whyAt<=includedAt)errors.push('left_included_section_missing');
+   // A multi-priced product without a selected configuration cannot truthfully
+   // claim a specific piece is included. Its physical-component list appears
+   // after selection. Never force or guess the first price row for an SEO crawler.
+   if(sample.included.length>0 && (includedAt<0||whyAt<=includedAt))
+     errors.push('left_included_section_missing');
+   else if(sample.included.length===0 && includedAt<0 && !body.includes('select a configuration'))
+     errors.push('left_included_section_or_selection_prompt_missing');
+   else if(includedAt>=0 && whyAt<=includedAt)
+     errors.push('left_included_section_order_invalid');
    const leftIncluded=includedAt<0||whyAt<=includedAt?'':body.slice(includedAt,whyAt);
    for(const item of sample.included){
     const word=new RegExp('\\b'+clean(item).replace(/\s+/g,'\\s+')+'\\b');
