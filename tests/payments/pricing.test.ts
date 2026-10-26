@@ -92,3 +92,23 @@ test('money formatting is exact', () => {
   assert.equal(decimalToMinor('-1.00'), null);
   assert.equal(decimalToMinor(12 as unknown as string), null);
 });
+
+
+test('a confirmed paired set stores both fits but charges the published set price only once', () => {
+  const product = productA() as unknown as {configurations: Record<string, unknown>[]};
+  product.configurations[0] = {
+    ...product.configurations[0],
+    source_confirmed_bundle_members: true,
+    bundle_component_codes: ['women_outfit', 'men_outfit'],
+  };
+  const selection = {women: {size: 'S', color: 'Gold'}, men: {size: 'XL', color: 'Silver'}};
+  const valid = {wearer: null, size: 'S', color: 'Gold', paired_selection: selection};
+  const pricedPair = priced(product as never, valid);
+  assert.equal(pricedPair.unit_minor, 18900);
+  assert.deepEqual(pricedPair.paired_selection, selection);
+  assert.equal(computeCheckoutAmounts({lines: [pricedPair], extras: [], method: 'standard', country: 'US'}).total_minor, 20800);
+  assert.throws(() => priced(product as never, {wearer: null}), /checkout_paired_selection_required/);
+  assert.throws(() => priced(product as never, {...valid, size: 'XL'}), /checkout_paired_selection_invalid/);
+  assert.throws(() => priced(product as never, {...valid, paired_selection: {...selection, men: {size: 'XL', color: 'Purple'}}}), /checkout_color_invalid/);
+  assert.throws(() => priced(productA(), valid), /checkout_paired_selection_invalid/);
+});
