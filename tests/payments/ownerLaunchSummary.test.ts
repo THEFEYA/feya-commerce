@@ -52,4 +52,6 @@ test('sandbox or an unverified payee never becomes checkout-ready',()=>{
   assert.equal(ownerLaunchSummary({...verified,payee_email:null},v13).providerVerified,false);
   assert.equal(ownerLaunchSummary({...verified,commerce_release_approved:true,active:true,
     payments_kill_switch:true},v13).buyerPaymentsActive,false);
+  assert.equal(ownerLaunchSummary({...verified,commerce_release_approved:true,active:true,
+    payments_kill_switch:true},v13).nextAction,'emergency_pause');
 });
