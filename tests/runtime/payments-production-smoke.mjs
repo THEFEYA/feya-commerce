@@ -96,26 +96,37 @@ await check('real browser: product page → Add to bag → bag → server-confir
       '/shop/apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005',
       '/shop/gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118',
     ];
+    const buyerAttempts = [];
     for (const href of [...new Set([...pinnedBuyerSamples,...hrefs])]) {
+      // The SSR button is visible before React's click handlers are hydrated.
+      // Waiting for the initial network to settle prevents silent ignored clicks.
       await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
+      // Some media keeps requests alive; don't block buyer interaction on it.
+      await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});
       const add = page.getByRole('button', {name: /Add to bag/i}).first();
-      if (!(await add.count())) continue;
-      if (await page.locator('[aria-label="Couple colors and sizes"]').count()) continue;
+      if (!(await add.count())) {buyerAttempts.push(href+':missing Add to bag');continue;}
+      if (await page.locator('[aria-label="Couple colors and sizes"]').count()) {buyerAttempts.push(href+':paired set, covered separately');continue;}
       const configuration = page.locator('button[aria-controls="product-configuration-options"]');
       if (await configuration.count()) {
         await configuration.click();
         const options = page.locator('#product-configuration-options button');
-        if (!(await options.count())) continue;
+        try{await options.first().waitFor({state:'visible',timeout:10000});}
+        catch{buyerAttempts.push(href+':configuration menu did not open after hydration');continue;}
         await options.first().click();
       }
       const medium = page.locator('button.size-pill').filter({hasText: /^M$/}).first();
-      if (!(await medium.count())) continue;
+      if (!(await medium.count())) {buyerAttempts.push(href+':M size missing');continue;}
       await medium.click();
+      await page.locator('button.size-pill-active').filter({hasText:/^M$/}).first().waitFor({state:'visible',timeout:10000});
       await add.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(href => {
+        const slug=href.slice('/shop/'.length);
+        const rows=JSON.parse(localStorage.getItem('feya_visual_cart_v1')||'[]');
+        return rows.some(row => row.slug===slug&&Boolean(row.configuration_id));
+      },href,{timeout:10000});
       const bag = await page.evaluate(() => JSON.parse(localStorage.getItem('feya_visual_cart_v1') || '[]'));
       const item = bag[bag.length - 1];
-      if (!item?.configuration_id) continue;
+      if (!item?.configuration_id) {buyerAttempts.push(href+':cart selection not persisted');continue;}
       const line = {id: item.id, slug: item.slug, configuration_id: item.configuration_id, size: item.size, color: item.color,
         color_code: item.color_code ?? null, paired_selection: item.paired_selection ?? null,
         wearer: null, made_to_measure: item.custom_measurements_selected === true,
@@ -139,7 +150,7 @@ await check('real browser: product page → Add to bag → bag → server-confir
       expect(checkoutActive ? payButton : bagText.includes('Checkout not active'), 'bag payment state matches server state');
       return {product: href, displayed_price: item.price, server_unit_minor: unit, total_minor: a.total_minor, bag_pay_button: payButton};
     }
-    throw new Error('no product page with an orderable option found');
+    throw new Error('no product page with an orderable option found: '+buyerAttempts.slice(0,12).join(' | '));
   } finally {
     await browser.close();
   }
