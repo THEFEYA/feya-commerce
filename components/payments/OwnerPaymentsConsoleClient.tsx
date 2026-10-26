@@ -2,10 +2,12 @@
 
 import {useCallback, useEffect, useState} from 'react';
 import {Check, Copy, Link2, Loader2, Power, RefreshCw} from 'lucide-react';
+import {ownerLaunchSummary, type OwnerSearchGateState} from '@/lib/payments/ownerLaunchSummary';
 
 type Status = {
   engine: string; environment: string; payee_email: string | null; store_key_set: boolean; active: boolean;
-  activated_at: string | null; paused_at: string | null; ready_to_activate: boolean; last_error: string | null;
+  activated_at: string | null; paused_at: string | null; ready_to_activate: boolean;
+  commerce_release_approved: boolean; last_error: string | null;
   checks: {credentials: boolean; payee: boolean; webhook: boolean; test_payment: boolean; test_environment: string | null; webhook_last_event_at: string | null};
   paid_orders: number; pending_orders: number;
 };
@@ -43,7 +45,7 @@ const date = (value: string | null) => value ? new Date(value).toLocaleString('r
 const card = 'rounded-[16px] border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-5 sm:p-6';
 
 export function OwnerPaymentsConsoleClient() {
-  const [data, setData] = useState<{status: Status; orders: Order[]; grants: Grant[]; audit: Audit[]} | null>(null);
+  const [data, setData] = useState<{status: Status; orders: Order[]; grants: Grant[]; audit: Audit[]; searchLaunch:OwnerSearchGateState|null} | null>(null);
   const [error, setError] = useState('');
   const [tests, setTests] = useState(false);
   const [busy, setBusy] = useState('');
@@ -76,7 +78,11 @@ export function OwnerPaymentsConsoleClient() {
     setBusy('toggle');
     const result = await post({action: 'set_active', active});
     setBusy('');
-    if (!result.ok) setError(result.code === 'live_test_payment_required' ? 'Сначала нужен успешный тестовый платёж в Live (его проводит специалист Seller Online).' : 'Не удалось изменить статус оплаты.');
+    if (!result.ok) setError(result.code === 'commerce_release_pending'
+      ? 'Подключение PayPal готово, но приём платежей закрыт переключателем Production. Повторно вводить ключи не нужно.'
+      : result.code === 'live_test_payment_required'
+        ? 'Проверьте действующий тест Live текущей конфигурации PayPal.'
+        : 'Не удалось изменить статус оплаты.');
     load();
   }
   async function copy() {
@@ -94,11 +100,56 @@ export function OwnerPaymentsConsoleClient() {
   const connectionProven = s.environment==='live' && s.store_key_set
     && (s.engine==='paypal_standard'||(s.checks.credentials && s.checks.payee && s.checks.webhook))
     && s.checks.test_payment && s.checks.test_environment==='live';
-  const ownerCommerceGatePending=connectionProven && !s.active && !s.ready_to_activate;
+  const launch=ownerLaunchSummary(s,data.searchLaunch);
   const step = (ok: boolean, label: string) => <li className="flex items-center gap-2"><span className={ok ? 'text-[#d4b26a]' : 'text-[#7d7572]'}>{ok ? '●' : '○'}</span>{label}</li>;
 
   return <section className="container-feya space-y-5 pb-16 pt-4">
     {error && <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-[13px] text-amber-100" role="alert">{error}</p>}
+
+    <div className={card} aria-label="Готовность к запуску магазина">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[20px] text-bone">Запуск покупок и SEO</h2>
+        <button type="button" onClick={load} className="inline-flex items-center gap-1.5 text-[12px] text-[#d4b26a]">
+          <RefreshCw size={13}/> Обновить
+        </button>
+      </div>
+      <p className="mt-2 text-[13px] leading-6 text-[var(--bone-dim)]">
+        PayPal → приём настоящих заказов → первая подтверждённая покупка → выпуск 207 страниц в индекс.
+        Тест €1 проверяет подключение, но не заменяет покупательский заказ.
+      </p>
+      <ul className="mt-4 grid gap-2 text-[13px] leading-6 text-[#d8d1c5] sm:grid-cols-2">
+        {step(launch.providerVerified,'PayPal Live и €1: '+(launch.providerVerified?'проверены':'нужна проверка'))}
+        {step(launch.paymentReleaseApproved,'Разрешение Production на платежи: '+(launch.paymentReleaseApproved?'открыто':'закрыто'))}
+        {step(launch.buyerPaymentsActive,'Приём платежей покупателей: '+(launch.buyerPaymentsActive?'включён':'выключен'))}
+        {step(launch.physicalPurchaseProved,'Подтверждённые товарные покупки: '+s.paid_orders)}
+        {step(launch.seoCandidateReady,
+          data.searchLaunch
+            ? 'SEO v13: '+(data.searchLaunch.candidateIndexedProducts??'—')+' из 207 товаров подготовлены'
+            : 'SEO v13: данные недоступны')}
+        {step(launch.seoCurrentlyIndexingProducts,
+          'Индексация товаров: '+(launch.seoCurrentlyIndexingProducts?'открыта':'ещё закрыта'))}
+      </ul>
+      <p className="mt-4 rounded-lg border border-[rgba(216,214,211,.14)] p-3 text-[13px] leading-6 text-[#d8d1c5]" role="status">
+        {launch.nextAction==='verify_provider'
+          ? 'Следующее действие: завершить проверку PayPal Live для текущего подключения.'
+          :launch.nextAction==='approve_payment_release'
+          ? 'Следующее действие: разрешить приём покупательских платежей в настройках Production. Уже полученные Seller Online ключи и платёж €1 повторно запрашивать не нужно.'
+          :launch.nextAction==='activate_payment'
+          ? 'Следующее действие: нажать ниже «Включить оплату», затем провести контрольную покупку настоящего товара.'
+          :launch.nextAction==='test_real_purchase'
+          ? 'Следующее действие: купить реальный товар с размером, цветом и доставкой; проверить заказ, получателя PayPal и подтверждение.'
+          :launch.nextAction==='search_status_unavailable'
+          ? 'Следующее действие: восстановить чтение SEO-релиза v13 из Supabase.'
+          : 'Следующее действие: проверить заказ, затем отдельно утвердить и активировать Search Release v13 для 207 товаров.'}
+      </p>
+      {data.searchLaunch&&<p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
+        ACTIVE v{data.searchLaunch.activeVersion??'—'} · noindex товаров: {data.searchLaunch.activeProductNoindex??'—'}.
+        Кандидат v{data.searchLaunch.candidateVersion??'—'}: {data.searchLaunch.candidateStatus??'неизвестно'}, не пройдено проверок: {data.searchLaunch.candidateFailedGates??'—'}.
+      </p>}
+      <a className="mt-3 inline-block text-[12px] text-[#d4b26a] underline underline-offset-2" href="/admin/indexation">
+        Открыть панель индексации
+      </a>
+    </div>
 
     <div className="grid gap-5 lg:grid-cols-2">
       <div className={card}>
@@ -112,15 +163,9 @@ export function OwnerPaymentsConsoleClient() {
           {s.engine === 'paypal_checkout' && step(s.checks.credentials && s.checks.payee, 'PayPal REST: приложение проверено и получатель указан (зачисление — после теста €1)')}
           {step(s.store_key_set, 'Ключ магазина Seller Online указан')}
           {s.engine === 'paypal_checkout' && step(s.checks.webhook, 'Уведомления PayPal установлены')}
-          {step(s.checks.test_payment && s.checks.test_environment === 'live', 'Тестовый платёж в Live подтверждён')}
+          {step(s.checks.test_payment && s.checks.test_environment === 'live', 'Тестовый платёж €1 в Live подтверждён')}
+          {step(s.commerce_release_approved,'Разрешение Production на покупательские платежи')}
         </ul>
-        {ownerCommerceGatePending ? <div role="status" className="mt-4 rounded-lg border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-6 text-[#e9dbbb]">
-          <strong>Подключение и тест PayPal Live подтверждены.</strong> Новый Client ID, Secret или PayPal email у Seller Online запрашивать не нужно.
-          <p className="mt-1">Приём денег покупателей закрыт независимым разрешением коммерческого релиза. После утверждения условий продажи владелец включает
-            <code className="mx-1 break-all text-[#f5deb0]">FEYA_COMMERCE_PAID_CHECKOUT_RELEASE_APPROVED=true</code>
-            для Production в Vercel, а затем возвращается сюда и нажимает «Включить оплату».
-            Товарную индексацию разрешаем отдельно, только после оплаченного контрольного заказа.</p>
-        </div> : null}
         <div className="mt-5 flex flex-wrap gap-3">
           {s.active
             ? <button type="button" onClick={() => toggle(false)} disabled={Boolean(busy)} className="btn-ghost inline-flex items-center gap-2"><Power size={14}/> Приостановить оплату</button>
