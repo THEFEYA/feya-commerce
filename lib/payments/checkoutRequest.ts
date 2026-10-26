@@ -88,6 +88,7 @@ function parseLines(raw: unknown): CartLineInput[] {
       id, slug, configuration_id: configuration.toLowerCase(),
       size: text(item.size, `lines.${i}.size`, 20, {required: true})!,
       color: text(item.color, `lines.${i}.color`, 100, {required: true})!,
+      color_code: text(item.color_code, `lines.${i}.color_code`, 40),
       paired_selection: paired,
       quantity, wearer, made_to_measure: bool(item.made_to_measure, `lines.${i}.made_to_measure`),
       client_unit_minor: typeof client === 'number' ? client : null,
