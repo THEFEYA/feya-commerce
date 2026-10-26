@@ -20,7 +20,7 @@ export default function AccountPage(){
         <div className="eyebrow-gold">Pre-launch storefront</div>
         <h1 className="visual-display mt-4 text-[clamp(46px,5.5vw,76px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Account</h1>
         <p className="mt-6 text-[15px] leading-7 text-[var(--bone-dim)]">
-          Customer account sign-in is not active yet. This page exists so the current storefront does not send visitors to a broken route while checkout and account services are still disabled.
+          Customer account sign-in is not active yet. When checkout is available, you can place an order as a guest through the Bag without creating an account.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link href="/shop" className="btn-chrome">Shop catalog</Link>
