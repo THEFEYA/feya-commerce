@@ -26,6 +26,8 @@ test('seller declaration does not tamper with Search v12 foundational legal/trus
  const contact=readFileSync('app/contact/page.tsx','utf8');
  assert.match(migration,/phase12_foundational_exact_binding_invalid/);
  assert.match(contact,/releaseRobotsForPath\('\/contact'\)/);
- assert.match(footer,/Checkout not active/);
+ assert.match(footer,/href="\\/privacy"/);
+ assert.match(footer,/href="\\/terms"/);
+ assert.doesNotMatch(footer,/Checkout not active/);
  assert.doesNotMatch(migration,/app\/terms\/page\.tsx|app\/privacy\/page\.tsx/);
 });
