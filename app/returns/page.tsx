@@ -35,7 +35,7 @@ const sections=[
     title:'Custom and personalised orders',
     body:[
       'Made-to-measure, personalised and non-standard custom orders are final sale under our store policy, except where we made the item incorrectly, supplied the wrong item, the item is defective, or mandatory law provides otherwise.',
-      'Examples include personal measurements, non-standard materials or bespoke changes made to one customer's unique specifications. Choosing a standard listed size or color is not automatically considered personalisation.',
+      'Examples include personal measurements, non-standard materials or bespoke changes made to one customer’s unique specifications. Choosing a standard listed size or color is not automatically considered personalisation.',
     ],
   },
   {
