@@ -19,7 +19,7 @@ const sections=[
   {
     title:'Orders are made to order',
     body:[
-      'TheFEYA pieces enter production promptly after an order is placed. Under our store policy, orders are final once placed and we do not offer discretionary cancellations or “wear once and return” refunds.',
+      'TheFEYA pieces enter production promptly after purchase. We do not offer discretionary cancellations after production begins or voluntary short-term “wear once and return” refunds. Your mandatory legal cancellation, withdrawal and remedy rights remain unaffected.',
       'This store policy does not limit any mandatory consumer rights that cannot legally be waived.',
     ],
   },
@@ -27,7 +27,7 @@ const sections=[
     title:'If something is wrong',
     body:[
       'Please inspect your order when it arrives. If the item is defective, materially different from the order, or the agreed size, color or configuration was supplied incorrectly, contact us as soon as possible.',
-      'For our voluntary exchange/remake process, please contact us ideally within 1–3 days and no later than 7 days after delivery. We may ask for clear photos and measurements so we can resolve the issue correctly.',
+      'For our voluntary exchange/remake process, please contact us ideally within 1–3 days and within 7 days if possible. This preferred reporting window does not shorten legal guarantee rights or your right to report defects later. We may ask for clear photos and measurements to resolve the issue correctly.',
       'Depending on the issue, the appropriate remedy may be an adjustment, repair, remake, replacement, exchange or another remedy required by applicable law.',
     ],
   },
@@ -35,7 +35,16 @@ const sections=[
     title:'Custom and personalised orders',
     body:[
       'Made-to-measure, personalised and non-standard custom orders are final sale under our store policy, except where we made the item incorrectly, supplied the wrong item, the item is defective, or mandatory law provides otherwise.',
-      'Examples include non-standard measurements, materials, colors, configurations or other changes made specifically for one customer.',
+      'Examples include personal measurements, non-standard materials or bespoke changes made to one customer's unique specifications. Choosing a standard listed size or color is not automatically considered personalisation.',
+    ],
+  },
+  {
+    title:'Mandatory withdrawal rights where applicable',
+    body:[
+      'For eligible online purchases by consumers covered by mandatory withdrawal rules, the legal withdrawal period applies. For example, EU consumers generally have 14 days after receiving eligible goods to notify the seller that they wish to withdraw, without giving a reason. Please contact us to arrange a legally eligible return.',
+      'Items genuinely made to your individual specifications or clearly personalised, including specifically measured custom garments, may be excluded from the ordinary withdrawal right where law permits. Ordinary standard-size made-to-order production and a reduced sale price do not, by themselves, remove that right.',
+      'The legal hygiene exception may apply to certain sealed, non-returnable-for-hygiene goods after the seal is broken, but not automatically to every wearable costume. Inspection comparable to trying an item in a shop differs from wearing it at an event; applicable law may allow a deduction for diminished value from use beyond necessary inspection.',
+      'Mandatory refund deadlines, permitted return-shipping charges, remedies for incorrect or defective goods and other consumer protections always take precedence over voluntary store policies.',
     ],
   },
   {
