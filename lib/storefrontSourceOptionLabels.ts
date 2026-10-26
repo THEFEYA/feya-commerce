@@ -7,6 +7,13 @@
 // and their distinct existing configuration_price_id / public_price_amount.
 // No SEO copy, configuration identity, public price or source row is changed.
 const FINAL_SOURCE_CONFIRMED_SELECTION_REPAIRS: Record<string, Record<string, Record<string, any>>> = {
+  // Etsy 1765624488: source-reviewed Women's Outfit + Men's Outfit +
+  // one real Full Set SKU. Original owner batch08 correction verifies both
+  // component rows and builds their set; it uses physical component codes
+  // rather than literal women_outfit/men_outfit membership.
+  '057fbd51-52f5-4404-b126-e5d75b8599f4': {
+    '26274d0c-81c9-44e6-9ce7-c3056c62040c': {source_confirmed_paired_outfits:true},
+  },
   // Etsy 4348580005: Одно плечо / Полные плечи.
   'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e': {
     '698d3ae1-bae2-4979-9223-f4f2be850338': {public_label:'Single Shoulder'},
