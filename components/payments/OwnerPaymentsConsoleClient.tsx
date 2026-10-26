@@ -129,6 +129,8 @@ export function OwnerPaymentsConsoleClient() {
           ? 'Следующее действие: завершить проверку PayPal Live для текущего подключения.'
           :launch.nextAction==='approve_payment_release'
           ? 'Следующее действие: разрешить приём покупательских платежей в настройках Production. Уже полученные Seller Online ключи и платёж €1 повторно запрашивать не нужно.'
+          :launch.nextAction==='emergency_pause'
+          ? 'Аварийная блокировка платежей Production включена. Перед её снятием нужно выяснить причину паузы; нельзя автоматически принимать заказы.'
           :launch.nextAction==='activate_payment'
           ? 'Следующее действие: нажать ниже «Включить оплату», затем провести контрольную покупку настоящего товара.'
           :launch.nextAction==='test_real_purchase'
