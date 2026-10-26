@@ -182,6 +182,7 @@ export const CHECKOUT_ERROR_MESSAGES: Record<string, string> = {
   checkout_color_invalid: 'Please choose a colour again on the product page.',
   checkout_paired_selection_invalid: 'Please select both outfits again on the product page.',
   checkout_paired_selection_required: 'Please choose the women’s and men’s sizes and colours on the product page.',
+  checkout_custom_measurements_required: 'Choose custom measurements in your bag to continue with the Custom size.',
   checkout_line_quantity_invalid: 'Please check the quantities in your bag.',
   checkout_quantity_too_large: 'This order is too large for online checkout. Please contact us.',
   checkout_method_invalid: 'Please choose Standard or Express delivery.',
