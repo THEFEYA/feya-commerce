@@ -33,7 +33,10 @@ export function buildPayPalOrderRequest(input: {
   const items: Record<string, unknown>[] = [];
   let itemTotal = 0;
   for (const line of snapshot.lines) {
-    const description = [line.option_label, line.color, `Size ${line.size}`, line.made_to_measure ? 'made to measure' : '']
+    const description = (line.paired_selection
+      ? [line.option_label, `Women ${line.paired_selection.women.size}/${line.paired_selection.women.color}`,
+        `Men ${line.paired_selection.men.size}/${line.paired_selection.men.color}`]
+      : [line.option_label, line.color, `Size ${line.size}`, line.made_to_measure ? 'made to measure' : ''])
       .filter(Boolean).join(' · ');
     items.push({
       name: clip(line.title, 127),
