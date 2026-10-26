@@ -1,0 +1,15 @@
+/** Immutable policy source identities accepted with a REAL buyer order.
+ * Git blob hashes pin the exact publicly displayed English text source. Each
+ * policy change requires a new reviewed bundle version and refreshed hashes,
+ * so older PayPal orders retain meaningful contract evidence forever.
+ */
+export const CHECKOUT_POLICY_BUNDLE_V1={
+  contract:'thefeya_checkout_policy_evidence_v1',
+  version:'thefeya-sale-policy-20261026-v1',
+  sources:{
+    terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'b509141854c6f6271f9c95bf991fc3804ef1ba1e'},
+    shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'03a63e803c7696f06a13405600ac6b1bb36b594e'},
+    returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'0ec500003b987da3437e99d9db79c02193879277'},
+    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'7600e55032c24801db0e2685fbf59577b0e38295'},
+  },
+} as const;
