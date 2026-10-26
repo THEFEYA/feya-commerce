@@ -39,6 +39,7 @@ export type PricedLine = {
   option_label: string;
   configuration_id: string;
   color: string;
+  color_code?: string | null;
   size: string;
   wearer: 'men' | 'women' | null;
   made_to_measure: boolean;
