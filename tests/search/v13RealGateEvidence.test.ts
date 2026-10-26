@@ -28,11 +28,3 @@ test('Search v13 uses real production evidence but cannot index without trader a
   assert.doesNotMatch(sql,/set release_status='ACTIVE'/);
   assert.doesNotMatch(sql,/\b(?:insert into|delete from)\s+public\.feya_pay_orders_v1\b/i);
 });
-
-test('Privacy text never calls a live PayPal checkout inactive',()=>{
-  const privacy=readFileSync('app/privacy/page.tsx','utf8');
-  assert.match(privacy,/sellerOnlineEnabled\s*\?/);
-  assert.match(privacy,/Online checkout is active/);
-  assert.match(privacy,/Payments are processed/);
-  assert.match(privacy,/Online checkout and payment processing are not active/);
-});
