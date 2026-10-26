@@ -89,6 +89,12 @@ export function OwnerPaymentsConsoleClient() {
     : <p className="text-[14px] text-[var(--bone-dim)]" role="status"><Loader2 className="mr-2 inline animate-spin" size={16}/>Загрузка…</p>}</section>;
 
   const s = data.status;
+  // Distinguish a VERIFIED Seller Online PayPal integration from a separately
+  // approved commercial release. No duplicate key request or false "not ready".
+  const connectionProven = s.environment==='live' && s.store_key_set
+    && (s.engine==='paypal_standard'||(s.checks.credentials && s.checks.payee && s.checks.webhook))
+    && s.checks.test_payment && s.checks.test_environment==='live';
+  const ownerCommerceGatePending=connectionProven && !s.active && !s.ready_to_activate;
   const step = (ok: boolean, label: string) => <li className="flex items-center gap-2"><span className={ok ? 'text-[#d4b26a]' : 'text-[#7d7572]'}>{ok ? '●' : '○'}</span>{label}</li>;
 
   return <section className="container-feya space-y-5 pb-16 pt-4">
@@ -108,6 +114,13 @@ export function OwnerPaymentsConsoleClient() {
           {s.engine === 'paypal_checkout' && step(s.checks.webhook, 'Уведомления PayPal установлены')}
           {step(s.checks.test_payment && s.checks.test_environment === 'live', 'Тестовый платёж в Live подтверждён')}
         </ul>
+        {ownerCommerceGatePending ? <div role="status" className="mt-4 rounded-lg border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-6 text-[#e9dbbb]">
+          <strong>Подключение и тест PayPal Live подтверждены.</strong> Новый Client ID, Secret или PayPal email у Seller Online запрашивать не нужно.
+          <p className="mt-1">Приём денег покупателей закрыт независимым разрешением коммерческого релиза. После утверждения условий продажи владелец включает
+            <code className="mx-1 break-all text-[#f5deb0]">FEYA_COMMERCE_PAID_CHECKOUT_RELEASE_APPROVED=true</code>
+            для Production в Vercel, а затем возвращается сюда и нажимает «Включить оплату».
+            Товарную индексацию разрешаем отдельно, только после оплаченного контрольного заказа.</p>
+        </div> : null}
         <div className="mt-5 flex flex-wrap gap-3">
           {s.active
             ? <button type="button" onClick={() => toggle(false)} disabled={Boolean(busy)} className="btn-ghost inline-flex items-center gap-2"><Power size={14}/> Приостановить оплату</button>
