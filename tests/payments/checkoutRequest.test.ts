@@ -65,3 +65,17 @@ test('every error code has buyer-friendly English text', () => {
   assert.match(checkoutErrorMessage('checkout_terms_required'), /terms/);
   assert.match(checkoutErrorMessage('something_new'), /temporarily unavailable/);
 });
+
+
+test('paired outfit data is preserved and changes the immutable order fingerprint', () => {
+  const fits = {women: {size: 'S', color: 'Gold'}, men: {size: 'XL', color: 'Silver'}};
+  const make = (paired_selection: unknown) => validCheckoutBody({lines: [lineA({
+    wearer: null, size: 'S', color: 'Gold', paired_selection,
+  })]});
+  const parsed = parseCheckoutRequest(make(fits));
+  assert.deepEqual(parsed.lines[0].paired_selection, fits);
+  assert.notEqual(checkoutRequestFingerprint(parsed),
+    checkoutRequestFingerprint(parseCheckoutRequest(make({...fits, men: {size: 'L', color: 'Silver'}}))));
+  assert.throws(() => parseCheckoutRequest(make({women: fits.women})), /checkout_paired_selection_invalid/);
+  assert.throws(() => parseCheckoutQuoteRequest({lines: [lineA({paired_selection: {women: fits.women}})], method: 'standard'}), /checkout_paired_selection_invalid/);
+});
