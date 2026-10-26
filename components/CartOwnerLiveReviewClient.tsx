@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import {colorChoiceLabel} from '@/lib/bonanzaColorChoices';
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {
   ArrowRight,Check,Clock3,LockKeyhole,Minus,Package,Plus,ShieldCheck,
@@ -108,9 +109,13 @@ export function CartOwnerLiveReviewClient(){
   );
 
   const checkoutLines=useMemo(()=>items.map(item=>({
-    id:item.id,slug:item.slug,configuration_id:item.configuration_id,size:item.size,color:item.color,
+    id:item.id,slug:item.slug,configuration_id:item.configuration_id,
+    size:item.paired_selection?.women.size??item.size,
+    color:item.paired_selection?colorChoiceLabel(item.paired_selection.women.color):item.color,
+    color_code:item.paired_selection?.women.color??item.color_code??null,
     paired_selection:item.paired_selection??null,
-    quantity:item.qty,wearer:item.paired_selection?null:(wearerByItem[item.id]??null),made_to_measure:customFitIds.includes(item.id),
+    quantity:item.qty,wearer:item.paired_selection?null:(wearerByItem[item.id]??null),
+    made_to_measure:customFitIds.includes(item.id)||item.custom_measurements_selected===true,
     client_unit_minor:Math.round(item.price*100),
   })),[items,wearerByItem,customFitIds]);
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
@@ -249,8 +254,8 @@ export function CartOwnerLiveReviewClient(){
                   {item.config}{!item.paired_selection ? ` · ${item.color} · ${item.size}` : ''}
                 </p>
                 {item.paired_selection ? <div className="mt-1.5 text-[12px] leading-5 text-[var(--bone-dim)]">
-                  <p>Women: {item.paired_selection.women.size} · {item.paired_selection.women.color}</p>
-                  <p>Men: {item.paired_selection.men.size} · {item.paired_selection.men.color}</p>
+                  <p>Women: {item.paired_selection.women.size} · {colorChoiceLabel(item.paired_selection.women.color)}</p>
+                  <p>Men: {item.paired_selection.men.size} · {colorChoiceLabel(item.paired_selection.men.color)}</p>
                 </div> : null}
                 {!item.paired_selection ? <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
                   <legend className="mb-1 text-[11px]">Intended wearer for this item</legend>
