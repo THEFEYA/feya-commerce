@@ -31,7 +31,7 @@ export type OwnerLaunchSummary={
   physicalPurchaseProved:boolean;
   seoCandidateReady:boolean;
   seoCurrentlyIndexingProducts:boolean;
-  nextAction:'verify_provider'|'approve_payment_release'|'activate_payment'|'test_real_purchase'|'approve_search_release'|'search_status_unavailable';
+  nextAction:'verify_provider'|'approve_payment_release'|'emergency_pause'|'activate_payment'|'test_real_purchase'|'approve_search_release'|'search_status_unavailable';
 };
 
 /** Do not equate a €1 installation test with an end-to-end customer order. */
@@ -54,6 +54,7 @@ export function ownerLaunchSummary(
     &&search.activeProductNoindex===0;
   const nextAction:OwnerLaunchSummary['nextAction']=!providerVerified?'verify_provider'
     :!provider.commerce_release_approved?'approve_payment_release'
+    :provider.payments_kill_switch?'emergency_pause'
     :!buyerPaymentsActive?'activate_payment'
     :!physicalPurchaseProved?'test_real_purchase'
     :!search?'search_status_unavailable'
