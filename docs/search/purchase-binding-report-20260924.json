@@ -43,11 +43,11 @@
     },
     {
       "path": "lib/storefront.ts",
-      "sha256": "bacfa198796f21af8b799c5e415e64ab4c6a42982e224ab342f6b9aa35cff5e3"
+      "sha256": "d4933635c73866c0bba78d3ee33cf3700a1848085e3afe6e7637e745eaf527a6"
     },
     {
       "path": "components/ProductDetailClient.tsx",
-      "sha256": "4298c77b1632c619c6d5a75e7b25650c0e96add09290d197a9be0550412c1c89"
+      "sha256": "f0e34e99ec4027fda0477ca52a6848872237908e35bea4e452e6487927dd230f"
     }
   ],
   "summary": {
@@ -8465,8 +8465,8 @@
       "XXXL",
       "Custom"
     ],
-    "default_size": "M",
-    "current_size_change_updates_configuration_price": false,
+    "default_size": null,
+    "current_size_change_updates_configuration_price": null,
     "finding": "Static code inspection: size state is independent of selected configuration and price. Final adapter must bind existing controls to approved tuple evidence without redesign.",
     "activation_requires": [
       "current complete selection evidence",
