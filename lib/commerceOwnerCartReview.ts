@@ -40,6 +40,8 @@ export type OwnerCartPreviewItem={
   slug:string;title:string;image:string;config:string;
   size:string;color:string;qty:number;price:number;currency:'EUR';
   configuration_id:string|null;
+  color_code?: string|null;
+  custom_measurements_selected?: boolean;
   paired_selection?: PairedSetSelection;
   // Display comparison only, never authoritative discount/checkout money.
   compare_at_unit_price_amount:number|null;
@@ -59,6 +61,19 @@ export function parseOwnerCartStorage(raw:unknown):{
     if(!record(v)){invalid_count++;continue;}
     const id=v.id,slug=v.slug,rawPrice=v.price,currency=v.currency;
     const canonicalId=typeof id==='string'?id.slice(0,36):'';
+    // Approved PR #191 originally saves two separate partner controls using
+    // these four exact fields. Normalize to the one server-side order contract.
+    const oldFields=['womens_size','mens_size','womens_color_code','mens_color_code'] as const;
+    const filled=oldFields.filter(field=>v[field]!=null&&v[field]!=='');
+    const oldPair=filled.length===4?parsePairedSetSelection({
+      women:{size:v.womens_size,color:v.womens_color_code},
+      men:{size:v.mens_size,color:v.mens_color_code},
+    }):null;
+    const directPair=v.paired_selection!=null?parsePairedSetSelection(v.paired_selection):null;
+    const paired=directPair||oldPair;
+    const pairedConflict=Boolean(filled.length>0&&filled.length!==4)
+      || Boolean(filled.length===4&&!oldPair)
+      || Boolean(directPair&&oldPair&&JSON.stringify(directPair)!==JSON.stringify(oldPair));
     if(!short(id,450)||!UUID.test(canonicalId)||!id.startsWith(canonicalId+'-')
       ||!short(slug,240)||!SLUG.test(slug)
       ||!short(v.title,250)||!short(v.config,180)
@@ -66,7 +81,10 @@ export function parseOwnerCartStorage(raw:unknown):{
       ||typeof rawPrice!=='number'||!Number.isFinite(rawPrice)
       ||rawPrice<0.01||rawPrice>50_000||currency!=='EUR'
       ||typeof v.qty!=='number'||!Number.isSafeInteger(v.qty)||v.qty<1||v.qty>100
-      ||(v.paired_selection!=null&&!parsePairedSetSelection(v.paired_selection))
+      ||pairedConflict
+      ||(v.paired_selection!=null&&!directPair)
+      ||(v.color_code!=null&&!short(v.color_code,40))
+      ||(v.custom_measurements_selected!=null&&typeof v.custom_measurements_selected!=='boolean')
       ||(v.configuration_id!=null
         &&(typeof v.configuration_id!=='string'||!UUID.test(v.configuration_id)))
       ||used.has(id)){
@@ -87,7 +105,10 @@ export function parseOwnerCartStorage(raw:unknown):{
       image:safeImage(v.image),config:v.config.trim(),size:v.size.trim(),
       color:v.color.trim(),qty:v.qty,price:unitMinor/100,currency:'EUR',
       configuration_id:v.configuration_id??null,
-      ...(v.paired_selection ? {paired_selection: parsePairedSetSelection(v.paired_selection)!} : {}),
+      ...(short(v.color_code,40)?{color_code:v.color_code.trim()}:{}),
+      ...(typeof v.custom_measurements_selected==='boolean'
+        ? {custom_measurements_selected:v.custom_measurements_selected}:{}),
+      ...(paired ? {paired_selection:paired} : {}),
       compare_at_unit_price_amount:
         typeof v.compare_at_price_amount==='number'
         &&Number.isFinite(v.compare_at_price_amount)
