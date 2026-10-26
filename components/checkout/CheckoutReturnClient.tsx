@@ -4,7 +4,9 @@ import Link from 'next/link';
 import {useEffect, useRef, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
 import {CheckCircle2, Clock3, RotateCcw, XCircle} from 'lucide-react';
-import {OWNER_BAG_COUNT_STORAGE_KEY, OWNER_CART_STORAGE_KEY} from '@/lib/commerceOwnerCartReview';
+import {OWNER_BAG_COUNT_STORAGE_KEY, OWNER_CART_STORAGE_KEY, parseOwnerCartStorage} from '@/lib/commerceOwnerCartReview';
+import {verifiedPurchaseFromReceipt} from '@/lib/measurementVerifiedPurchase';
+import {getAnalyticsConsent,trackVerifiedPurchaseOnce} from '@/lib/measurementClient';
 import {checkoutApi, readPendingCheckout, rememberReceipt, CHECKOUT_PENDING_KEY} from '@/lib/payments/checkoutBrowser';
 
 type View =
@@ -26,6 +28,21 @@ function clearBag() {
   } catch { /* ignore */ }
 }
 
+async function recordPaidPurchase(
+  accessToken:string,confirmedOrderNumber:string,bagSnapshot:string,
+){
+  if(getAnalyticsConsent()!=='granted'||!bagSnapshot)return;
+  try{
+    const buyer=await checkoutApi.receipt(accessToken);
+    if(!buyer.ok||!buyer.order||buyer.order.status!=='paid')return;
+    const parsed=parseOwnerCartStorage(JSON.parse(bagSnapshot));
+    if(parsed.invalid_count||!parsed.items.length)return;
+    const purchase=verifiedPurchaseFromReceipt(buyer.order,parsed.items);
+    if(!purchase||purchase.transactionId!==confirmedOrderNumber)return;
+    await trackVerifiedPurchaseOnce(purchase);
+  }catch{ /* Analytics must never block a paid order or expose buyer data. */ }
+}
+
 export function CheckoutReturnClient() {
   const params = useSearchParams();
   const [view, setView] = useState<View>({state: 'working'});
@@ -38,7 +55,14 @@ export function CheckoutReturnClient() {
     const cancelled = params.get('cancelled') === '1';
     const pending = readPendingCheckout();
     const paid = (orderNumber: string) => {
-      if (pending?.access_token) rememberReceipt(orderNumber, pending.access_token);
+      if (pending?.access_token) {
+        rememberReceipt(orderNumber, pending.access_token);
+        // Capture the checkout-time merchandise IDs before clearing the bag.
+        // The server's PAID buyer receipt confirms whether they match the
+        // actual purchased order; only then may consented GA4 record purchase.
+        const bagSnapshot=window.localStorage.getItem(OWNER_CART_STORAGE_KEY)||'';
+        void recordPaidPurchase(pending.access_token,orderNumber,bagSnapshot);
+      }
       clearBag();
       setView({state: 'paid', orderNumber, receipt: pending?.access_token ?? null});
     };

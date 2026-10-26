@@ -28,7 +28,11 @@ export async function GET(request:NextRequest){
   const service=getSupabaseServiceRoleClient();
   if(!service)return NextResponse.json({ok:false,code:'measurement_context_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});
 
-  const pageResult=await service
+  // Checkout return is a NON-indexable transaction page, not part of the SEO
+  // portfolio. Give it a stable, isolated UUIDv5 route identity so GA4 can
+  // record a verified purchase without fabricating an SEO product page.
+  const checkoutReturn=path==='/checkout/return';
+  const pageResult=checkoutReturn?null:await service
     .from('feya_commerce_seo_pages_v1')
     .select('seo_page_id,canonical_product_id,url_path')
     .eq('market_code','US')
@@ -36,10 +40,13 @@ export async function GET(request:NextRequest){
     .eq('url_path',path)
     .maybeSingle();
 
-  if(pageResult.error)return NextResponse.json({ok:false,code:'measurement_page_lookup_failed'},{status:503,headers:{'Cache-Control':'no-store'}});
-  if(!pageResult.data?.seo_page_id)return NextResponse.json({ok:false,code:'measurement_page_not_registered'},{status:404,headers:{'Cache-Control':'no-store'}});
+  if(pageResult?.error)return NextResponse.json({ok:false,code:'measurement_page_lookup_failed'},{status:503,headers:{'Cache-Control':'no-store'}});
+  if(!checkoutReturn&&!pageResult?.data?.seo_page_id)
+    return NextResponse.json({ok:false,code:'measurement_page_not_registered'},{status:404,headers:{'Cache-Control':'no-store'}});
 
-  const pageId=String(pageResult.data.seo_page_id);
+  const pageId=checkoutReturn
+    ?'5f62e0c9-aca9-5e7c-84e4-339cb1a0e613'
+    :String(pageResult!.data!.seo_page_id);
   const releaseState=await readSearchReleasePathState(path);
   let pageVersionId=releaseState.pageVersionId;
   let pageVersionLookupHealthy=true;
@@ -70,7 +77,8 @@ export async function GET(request:NextRequest){
       page_id:pageId,
       page_version_id:pageVersionId,
       release_id:releaseState.release?.releaseId||null,
-      canonical_product_id:pageResult.data.canonical_product_id?String(pageResult.data.canonical_product_id):null,
+      canonical_product_id:checkoutReturn?null
+        :pageResult!.data!.canonical_product_id?String(pageResult!.data!.canonical_product_id):null,
       path,
       environment,
       measurement_enabled:measurementEnabled,
