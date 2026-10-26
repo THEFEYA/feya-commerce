@@ -24,7 +24,6 @@ import {
   Truck,
 } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
-import {isSourceConfirmedPairedSet} from '@/lib/payments/pairedSetSelection';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
@@ -130,10 +129,6 @@ export function ProductDetailClient({
   const [configKey, setConfigKey] = useState(fullKey || (options[0] ? optionKey(options[0], 0) : ''));
   const [configOpen, setConfigOpen] = useState(false);
   const [size, setSize] = useState('M');
-  const [womenSize, setWomenSize] = useState('M');
-  const [menSize, setMenSize] = useState('M');
-  const [womenColorChoice, setWomenColorChoice] = useState('');
-  const [menColorChoice, setMenColorChoice] = useState('');
   const [colorIdx, setColorIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -155,9 +150,6 @@ export function ProductDetailClient({
   const total = sale * qty;
   const colors = colorOptions(p);
   const selectedColor = activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
-  const selectedIsPairedSet = isSourceConfirmedPairedSet(activeConfig);
-  const selectedWomenColor = colors.includes(womenColorChoice) ? womenColorChoice : selectedColor;
-  const selectedMenColor = colors.includes(menColorChoice) ? menColorChoice : selectedColor;
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -253,14 +245,7 @@ export function ProductDetailClient({
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
     const current = readCart();
-    const pairedSelection = selectedIsPairedSet ? {
-      women: {size: womenSize, color: selectedWomenColor},
-      men: {size: menSize, color: selectedMenColor},
-    } : null;
-    const identitySuffix = pairedSelection
-      ? `${womenSize}-${selectedWomenColor}-${menSize}-${selectedMenColor}`
-      : `${size}-${selectedColor}`;
-    const id = `${p.canonical_product_id || slug}-${configKey}-${identitySuffix}`;
+    const id = `${p.canonical_product_id || slug}-${configKey}-${size}-${selectedColor}`;
     const existingIndex = current.findIndex((item: { id: string }) => item.id === id);
     const nextItem = {
       id,
@@ -268,9 +253,8 @@ export function ProductDetailClient({
       title: shortHead,
       image: p.primary_image_url || main,
       config: activeConfigLabel,
-      size: pairedSelection ? womenSize : size,
-      color: pairedSelection ? selectedWomenColor : selectedColor,
-      ...(pairedSelection ? {paired_selection: pairedSelection} : {}),
+      size,
+      color: selectedColor,
       qty,
       price: sale,
       currency,
@@ -386,12 +370,6 @@ export function ProductDetailClient({
         </div>
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
-        {selectedIsPairedSet ? <div className="mt-2 grid gap-3 sm:grid-cols-2" data-testid="paired-set-selectors">
-          <PairedFitPicker title="Women's Outfit" size={womenSize} onSizeChange={setWomenSize}
-            color={selectedWomenColor} colors={colors} onColorChange={setWomenColorChoice}/>
-          <PairedFitPicker title="Men's Outfit" size={menSize} onSizeChange={setMenSize}
-            color={selectedMenColor} colors={colors} onColorChange={setMenColorChoice}/>
-        </div> : <>
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
           <div className="flex gap-2">{colors.map((c, i) => <button type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor} onClick={() => {
@@ -405,7 +383,6 @@ export function ProductDetailClient({
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
         </div>
-        </>}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
@@ -567,33 +544,6 @@ function IncludedDetail({
       {availabilitySentence || 'Choose the Full Set or order available pieces separately.'}
     </p> : null}
   </section>;
-}
-
-function PairedFitPicker({
-  title, size, onSizeChange, color, colors, onColorChange,
-}: {
-  title: string; size: string; onSizeChange: (size: string) => void;
-  color: string; colors: string[]; onColorChange: (color: string) => void;
-}) {
-  return <fieldset className="min-w-0 rounded-md border border-[rgba(216,214,211,.18)] p-3">
-    <legend className="px-1 text-[12px] font-medium text-bone">{title}</legend>
-    <div className="eyebrow text-[10px]">Size · {size}</div>
-    <div className="mt-1.5 flex flex-wrap gap-1.5">
-      {SIZES.map(value=><button type="button" key={value} aria-label={`${title} size ${value}`}
-        aria-pressed={size===value} onClick={()=>onSizeChange(value)}
-        className={`size-pill ${size===value&&value!=='Custom'?'size-pill-active':''} ${size===value&&value==='Custom'?'size-pill-custom':''}`}>
-        {value}
-      </button>)}
-    </div>
-    <div className="eyebrow mt-3 text-[10px]">Color · {color}</div>
-    <div className="mt-1.5 flex flex-wrap gap-2">
-      {colors.map((value,index)=><button type="button" key={value+index}
-        aria-label={`${title} colour ${value}`} aria-pressed={color===value}
-        onClick={()=>onColorChange(value)} title={value}
-        className={`h-8 w-8 rounded-full border-2 ${color===value?'border-white':'border-[rgba(216,214,211,.28)]'}`}
-        style={colorStyle(value)}/>)}
-    </div>
-  </fieldset>;
 }
 
 function IncludedList({ lines }: { lines: string[] }) {
