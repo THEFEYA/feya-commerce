@@ -39,10 +39,10 @@ test('Seller Online disclosure requires explicit role confirmation in addition t
   assert.match(provider,/approvedCheckoutDisclosure:/);
 });
 
-test('homepage footer exposes OAuth-required privacy and terms links without reopening checkout',()=>{
+test('homepage footer exposes legal links without falsely claiming live checkout is disabled',()=>{
   const footer=readFileSync('components/Footer.tsx','utf8');
   assert.match(footer,/href="\/privacy"/);
   assert.match(footer,/href="\/terms"/);
-  assert.match(footer,/Checkout not active/);
+  assert.doesNotMatch(footer,/Checkout not active/);
   assert.doesNotMatch(footer,/Pre-index storefront/);
 });
