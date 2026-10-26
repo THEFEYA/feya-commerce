@@ -11,7 +11,7 @@ test('Search v13 uses real production evidence but cannot index without trader a
     'REVALIDATED_FOR_NEW_207_PRODUCT_SCOPE',
     'K07',
     'K20',
-    'v.release_hash is null',
+    'release_hash is null',
     'v13_gate_exact_207_product_portfolio_drift',
     'v13_gate_immutable_product_pin_mismatch',
     'feya_v13_gate_live_checkout_provider_not_ready',
