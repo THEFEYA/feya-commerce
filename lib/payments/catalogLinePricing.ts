@@ -2,6 +2,8 @@ import type {StorefrontConfiguration, StorefrontProduct} from '@/lib/types';
 import {colorOptions, getMedia, optionLabel, optionPrice, productTitle, sortedOptions} from '../storefront.ts';
 import {CHECKOUT_PRICING_V1, CheckoutPricingError, type PricedLine} from './pricing.ts';
 import {isSourceConfirmedPairedSet, PAIRED_SET_SIZES, type PairedSetSelection} from './pairedSetSelection.ts';
+import {verifiedColorChoice} from './bonanzaColorAuthority.ts';
+import {verifiedColorPriceRows} from '../bonanzaColorPriceExceptions.ts';
 
 /** Exactly the size buttons offered on the published product page. */
 export const PDP_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'] as const;
@@ -12,6 +14,7 @@ export type CartLineInput = {
   configuration_id: string;
   size: string;
   color: string;
+  color_code?: string | null;
   quantity: number;
   wearer: 'men' | 'women' | null;
   made_to_measure: boolean;
@@ -54,18 +57,35 @@ export function priceCartLine(product: StorefrontProduct, line: CartLineInput): 
     ...colorOptions(product).map(String),
   ]);
   if (!colors.size) colors.add('Mirror');
-  if (!colors.has(line.color)) throw new CheckoutPricingError('checkout_color_invalid');
   const paired = isSourceConfirmedPairedSet(option);
+  const reviewed = line.color_code ? verifiedColorChoice(productId, line.color_code) : null;
   if (paired) {
     if (!line.paired_selection) throw new CheckoutPricingError('checkout_paired_selection_required');
-    if (line.wearer != null || line.size !== line.paired_selection.women.size || line.color !== line.paired_selection.women.color)
+    if (line.wearer != null || line.size !== line.paired_selection.women.size)
+      throw new CheckoutPricingError('checkout_paired_selection_invalid');
+    const women = verifiedColorChoice(productId, line.paired_selection.women.color);
+    const men = verifiedColorChoice(productId, line.paired_selection.men.color);
+    if (!women || !men) throw new CheckoutPricingError('checkout_color_invalid');
+    if (line.color !== women.label || (line.color_code && line.color_code !== women.code))
       throw new CheckoutPricingError('checkout_paired_selection_invalid');
     for (const fit of [line.paired_selection.women, line.paired_selection.men]) {
       if (!(PAIRED_SET_SIZES as readonly string[]).includes(fit.size)) throw new CheckoutPricingError('checkout_size_invalid');
-      if (!colors.has(fit.color)) throw new CheckoutPricingError('checkout_color_invalid');
     }
-  } else if (line.paired_selection) {
-    throw new CheckoutPricingError('checkout_paired_selection_invalid');
+  } else {
+    if (line.paired_selection) throw new CheckoutPricingError('checkout_paired_selection_invalid');
+    if (line.color_code) {
+      if (!reviewed || reviewed.label !== line.color) throw new CheckoutPricingError('checkout_color_invalid');
+    } else if (!colors.has(line.color)) {
+      throw new CheckoutPricingError('checkout_color_invalid');
+    }
+  }
+  // The exact three color-priced products must NOT inherit the price of a
+  // different approved Brown/Black/Green configuration. No White price is invented.
+  const colorPriced = verifiedColorPriceRows(productId, options);
+  if (colorPriced !== null) {
+    if (!colorPriced.length || option.configuration_color !== line.color ||
+        !colorPriced.some(row => configurationIdentity(row) === line.configuration_id))
+      throw new CheckoutPricingError('checkout_option_unpriced');
   }
 
   const media = getMedia(product);
@@ -81,6 +101,7 @@ export function priceCartLine(product: StorefrontProduct, line: CartLineInput): 
     option_label: optionLabel(option, index).slice(0, 180),
     configuration_id: line.configuration_id,
     color: line.color,
+    ...(line.color_code ? {color_code: line.color_code} : {}),
     size: line.size,
     wearer: line.wearer,
     made_to_measure: line.made_to_measure,
