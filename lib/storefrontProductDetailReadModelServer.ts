@@ -2,6 +2,8 @@ import 'server-only';
 
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
+import {restoreSourceProvenPurchaseOptions} from './storefrontSourceOptionLabels.ts';
+import { applyReviewedBonanzaColors } from '@/lib/bonanzaColorCatalogServer';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const STOREFRONT_PRODUCT_DETAIL_READ_MODEL_V1 = 'feya_storefront_product_details_v1';
@@ -60,5 +62,5 @@ export async function readApprovedStorefrontProductDetailV1(slug: string): Promi
     || !Array.isArray(product.media_gallery)
   ) throw new Error('STOREFRONT_PRODUCT_DETAIL_PAYLOAD_MISMATCH');
 
-  return applyOwnerReviewedStorefrontCorrections(product as Record<string, unknown>) as StorefrontProduct;
+  return applyReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(product as Record<string, unknown>) as StorefrontProduct));
 }

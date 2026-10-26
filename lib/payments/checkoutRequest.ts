@@ -1,6 +1,7 @@
 import {OWNER_CART_COUNTRIES, ownerCartAddressRegions} from '../commerceOwnerCartReview.ts';
 import {CHECKOUT_PRICING_V1, type DeliveryMethod} from './pricing.ts';
 import type {CartLineInput} from './catalogLinePricing.ts';
+import {parsePairedSetSelection} from './pairedSetSelection.ts';
 
 /** Strict parser for the buyer's checkout request. Money in the request is ignored. */
 export type CheckoutBuyer = {first_name: string; last_name: string; email: string; phone: string};
@@ -77,6 +78,9 @@ function parseLines(raw: unknown): CartLineInput[] {
     const wearer = item.wearer == null ? null : item.wearer;
     if (wearer !== null && wearer !== 'men' && wearer !== 'women')
       throw new CheckoutRequestError('checkout_field_invalid', `lines.${i}.wearer`);
+    const paired = item.paired_selection == null ? null : parsePairedSetSelection(item.paired_selection);
+    if (item.paired_selection != null && !paired)
+      throw new CheckoutRequestError('checkout_paired_selection_invalid', `lines.${i}.paired_selection`);
     const client = item.client_unit_minor;
     if (client != null && (typeof client !== 'number' || !Number.isSafeInteger(client) || client < 0))
       throw new CheckoutRequestError('checkout_field_invalid', `lines.${i}.client_unit_minor`);
@@ -84,6 +88,8 @@ function parseLines(raw: unknown): CartLineInput[] {
       id, slug, configuration_id: configuration.toLowerCase(),
       size: text(item.size, `lines.${i}.size`, 20, {required: true})!,
       color: text(item.color, `lines.${i}.color`, 100, {required: true})!,
+      color_code: text(item.color_code, `lines.${i}.color_code`, 40),
+      paired_selection: paired,
       quantity, wearer, made_to_measure: bool(item.made_to_measure, `lines.${i}.made_to_measure`),
       client_unit_minor: typeof client === 'number' ? client : null,
     };
@@ -175,6 +181,9 @@ export const CHECKOUT_ERROR_MESSAGES: Record<string, string> = {
   checkout_option_unpriced: 'One of the selected options cannot be priced right now. Please contact us.',
   checkout_size_invalid: 'Please choose a size again on the product page.',
   checkout_color_invalid: 'Please choose a colour again on the product page.',
+  checkout_paired_selection_invalid: 'Please select both outfits again on the product page.',
+  checkout_paired_selection_required: 'Please choose the women’s and men’s sizes and colours on the product page.',
+  checkout_custom_measurements_required: 'Choose custom measurements in your bag to continue with the Custom size.',
   checkout_line_quantity_invalid: 'Please check the quantities in your bag.',
   checkout_quantity_too_large: 'This order is too large for online checkout. Please contact us.',
   checkout_method_invalid: 'Please choose Standard or Express delivery.',

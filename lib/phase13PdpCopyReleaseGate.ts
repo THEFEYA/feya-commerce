@@ -22,7 +22,7 @@ export function phase13PublicPdpCopyEnabled(
 ):boolean{
   const exactOwnerBranch=env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID==='prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
-    &&['work/phase13-approved-pdp-public-read-gate-20261010','work/phase13-pdp-public-copy-v13-20261012'].includes(env.VERCEL_GIT_COMMIT_REF||'')
+    &&['work/phase13-approved-pdp-public-read-gate-20261010','work/phase13-pdp-public-copy-v13-20261012','work/paired-set-buyer-checkout-20261026'].includes(env.VERCEL_GIT_COMMIT_REF||'')
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true'
     ||isOwnerUnifiedStorefrontPreview(env);
   const explicitPublic=PHASE13_PRODUCTION_PUBLISH_AUTHORIZED

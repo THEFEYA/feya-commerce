@@ -60,6 +60,12 @@ test('a PUBLIC approved PDP content release requires two exact owner/production 
   };
   assert.equal(phase13PublicPdpCopyEnabled(ownerPreview,correct),true);
   assert.equal(phase13PublicPdpCopyEnabled({...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/phase13-pdp-public-copy-v13-20261012'},correct),true);
+  // Newly scoped owner-approved color/checkout preview must retain all four
+  // original approved blocks; this cannot open the public Production release.
+  const buyerColorReview={...ownerPreview,VERCEL_GIT_COMMIT_REF:'work/paired-set-buyer-checkout-20261026'};
+  assert.equal(phase13PublicPdpCopyEnabled(buyerColorReview,correct),true);
+  assert.equal(phase13PublicPdpCopyEnabled({...buyerColorReview,VERCEL_PROJECT_ID:'other-project'},correct),false);
+  assert.equal(phase13PublicPdpCopyEnabled({...buyerColorReview,FEYA_OWNER_PREVIEW_DISABLED:'true'},correct),false);
   for(const bad of [
     {VERCEL_PROJECT_ID:'another-project'},
     {VERCEL_GIT_COMMIT_REF:'main'},
@@ -108,7 +114,7 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  assert.equal(visual.files['components/ProductDetailClient.tsx'],'729514b30288a38429bad3900c025c69d452eea1');
+  assert.equal(visual.files['components/ProductDetailClient.tsx'],'428d5d9daf8bc6811a490d39335edec551cecd9f');
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);

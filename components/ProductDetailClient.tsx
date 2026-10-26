@@ -23,7 +23,14 @@ import {
   Star,
   Truck,
 } from 'lucide-react';
-import { colorStyle } from '@/components/colors';
+import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
+import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
+import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
+import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
+import {
+  customMeasurementRequiredCount,customMeasurementSelectionNeedsReview,
+} from '@/lib/commerceCustomMeasurementsPreview';
+import { productColorChoices, colorChoiceLabel } from '@/lib/bonanzaColorChoices';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
@@ -124,11 +131,23 @@ export function ProductDetailClient({
   const options = useMemo(() => sortedOptions(p), [p]);
   const full = options.find((o, i) => isFullSetOption(o, i));
   const fullKey = full ? optionKey(full, options.indexOf(full)) : '';
+  const pricedColors = verifiedColorPriceRows(p.canonical_product_id,options);
+  const photographedPriceRow = pricedColors?.find(option=>option.configuration_color?.toLowerCase()
+    === colorChoiceLabel(p.default_color_choice||'').toLowerCase()) || null;
 
   const [idx, setIdx] = useState(0);
-  const [configKey, setConfigKey] = useState(fullKey || (options[0] ? optionKey(options[0], 0) : ''));
+  const [configKey, setConfigKey] = useState(pricedColors!==null
+    ? (photographedPriceRow ? optionKey(photographedPriceRow,options.indexOf(photographedPriceRow)) : '')
+    : fullKey || (options.length === 1 ? optionKey(options[0], 0) : ''));
+  const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [size, setSize] = useState('M');
+  const [size, setSize] = useState('');
+  const [customMeasurementsEnabled,setCustomMeasurementsEnabled]=useState(false);
+  const couple = useMemo(() => coupleColorSelection(p), [p]);
+  const [womenColorCode, setWomenColorCode] = useState(couple?.defaultPair.women || '');
+  const [menColorCode, setMenColorCode] = useState(couple?.defaultPair.men || '');
+  const [womenSize, setWomenSize] = useState('');
+  const [menSize, setMenSize] = useState('');
   const [colorIdx, setColorIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -138,18 +157,41 @@ export function ProductDetailClient({
   const lightboxCloseRef = useRef<HTMLButtonElement | null>(null);
   const measuredViewProductRef = useRef('');
 
-  const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
+  const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || (options.length === 1 ? options[0] : null);
   const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
-  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Full Set';
+  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Select configuration';
   const display = optionPrice(activeConfig) ?? p.full_set_display_price_amount ?? p.max_price ?? p.min_price ?? 0;
   const compareAt = optionCompareAtPrice(activeConfig);
   const hasCompareAt = compareAt != null && display != null && compareAt > display;
   const regular = hasCompareAt ? compareAt : display;
   const sale = display;
   const currency = activeConfig?.currency || p.currency || 'EUR';
-  const total = sale * qty;
   const colors = colorOptions(p);
-  const selectedColor = activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
+  const reviewedColors = productColorChoices(p);
+  const isCoupleSet = Boolean(couple && activeConfig && isFullSetOption(activeConfig,activeConfigIndex));
+  const audience = String(activeConfig?.configuration_audience || '').toLowerCase();
+  const activePartner = couple && (audience === 'women' || audience === 'men') ? audience : null;
+  const selectedColorCode = isCoupleSet ? null
+    : activePartner === 'women' ? womenColorCode
+    : activePartner === 'men' ? menColorCode
+    : reviewedColors[colorIdx]?.code || null;
+  const selectedColor = isCoupleSet
+    ? couplePairLabel({women:womenColorCode,men:menColorCode})
+    : activePartner && selectedColorCode
+      ? colorChoiceLabel(selectedColorCode)
+      : reviewedColors.length
+        ? colors[colorIdx] || colors[0]
+        : activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
+  const selectedSize = isCoupleSet ? `Women's ${womenSize} · Men's ${menSize}` : size;
+  const sizingSelection = {
+    size:isCoupleSet?null:size,
+    womens_size:isCoupleSet?womenSize:null,
+    mens_size:isCoupleSet?menSize:null,
+  };
+  const customOutfits=customMeasurementRequiredCount(sizingSelection);
+  // PDP shows the approved merchandise price only. The €15 per-customized-
+  // outfit add-on is selected/quoted exclusively in the nonpayable bag.
+  const total=Math.round(sale*100)*qty/100;
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -244,8 +286,14 @@ export function ProductDetailClient({
 
   const addToBag = (goToCart = false) => {
     if (previewMode) return;
+    if (!activeConfig || (pricedColors!==null && !pricedColors.some(o=>optionKey(o,options.indexOf(o))===configKey))
+      || (isCoupleSet ? !womenSize || !menSize : !size)
+      || customMeasurementSelectionNeedsReview(sizingSelection,customMeasurementsEnabled)) {
+      setSelectionWarning(true); return;
+    }
+    setSelectionWarning(false);
     const current = readCart();
-    const id = `${p.canonical_product_id || slug}-${configKey}-${size}-${selectedColor}`;
+    const id = `${p.canonical_product_id || slug}-${configKey}-${selectedSize}-${selectedColor}`;
     const existingIndex = current.findIndex((item: { id: string }) => item.id === id);
     const nextItem = {
       id,
@@ -253,8 +301,17 @@ export function ProductDetailClient({
       title: shortHead,
       image: p.primary_image_url || main,
       config: activeConfigLabel,
-      size,
+      size: selectedSize,
+      // Whole-pair selections are independent choices, not invented price SKUs.
+      womens_size: isCoupleSet ? womenSize : null,
+      mens_size: isCoupleSet ? menSize : null,
+      // Preview-only addon selection. Never overwrite the approved merchandise
+      // price, configuration identity or server quote with a browser amount.
+      custom_measurements_selected:customOutfits>0 && customMeasurementsEnabled,
       color: selectedColor,
+      color_code: selectedColorCode,
+      womens_color_code: isCoupleSet ? womenColorCode : null,
+      mens_color_code: isCoupleSet ? menColorCode : null,
       qty,
       price: sale,
       currency,
@@ -281,9 +338,9 @@ export function ProductDetailClient({
       sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
       quantity:qty,
       item_price:sale,
-      item_value:total,
+      item_value:sale*qty,
       currency,
-    },{currency,value:total});
+    },{currency,value:sale*qty});
     setAdded(true);
     if (goToCart) {
       window.location.href = '/cart';
@@ -347,9 +404,9 @@ export function ProductDetailClient({
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
         {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
-        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
+        <div className="mt-2">{activeConfig ? <SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /> : <span className="text-sm text-[var(--bone-dim)]">{pricedColors!==null ? 'Color requires a custom quote' : 'Select a configuration to see the price'}</span>}</div>
 
-        <div className="mt-2 relative">
+        {options.length > 1 && pricedColors===null ? <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
           <button
             type="button"
@@ -364,31 +421,86 @@ export function ProductDetailClient({
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
+              return <button key={key} type="button" onClick={() => {
+                setConfigKey(key); setConfigOpen(false); setSelectionWarning(false);
+                setSize('');setWomenSize('');setMenSize('');setCustomMeasurementsEnabled(false);
+              }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
             })}
           </div> : null}
-        </div>
+        </div> : null}
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
-        <div className="mt-2">
-          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex gap-2">{colors.map((c, i) => <button type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor} onClick={() => {
-            const variantIndex = options.findIndex(option => option.configuration_color === c);
-            if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
-            else setColorIdx(i);
-          }} className={`w-8 h-8 rounded-full border-2 ${c === selectedColor ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
-        </div>
+        {isCoupleSet && couple
+          ? <CouplePartnerColorSelector
+              available={couple.available}
+              women={womenColorCode} men={menColorCode}
+              womenSize={womenSize} menSize={menSize} sizes={SIZES}
+              showSizeWarning={selectionWarning && (!womenSize || !menSize)}
+              onChange={(partner,code)=>{
+                if(!couple.available.includes(code))return;
+                if(partner==='women')setWomenColorCode(code);
+                else setMenColorCode(code);
+                setSelectionWarning(false);
+              }}
+              onSizeChange={(partner,selectedSize)=>{
+                if(!SIZES.includes(selectedSize))return;
+                const nextWomen=partner==='women'?selectedSize:womenSize;
+                const nextMen=partner==='men'?selectedSize:menSize;
+                if(partner==='women')setWomenSize(selectedSize);
+                else setMenSize(selectedSize);
+                setCustomMeasurementsEnabled(nextWomen==='Custom'||nextMen==='Custom');
+                setSelectionWarning(false);
+              }}/>
+          : <>
+          <div className="mt-2">
+            <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
+            <div className="flex flex-wrap items-center gap-3.5 py-1" role="radiogroup" aria-label="Select a complete colorway">{colors.map((c, i) => <button
+              type="button" key={c + i} role="radio" aria-label={`Select ${c}`} aria-checked={c===selectedColor}
+              onClick={() => {
+                if (reviewedColors.length) {
+                  if (pricedColors!==null) {
+                    const observed=pricedColors.find(o=>o.configuration_color?.toLowerCase()===c.toLowerCase());
+                    setColorIdx(i);
+                    setConfigKey(observed ? optionKey(observed,options.indexOf(observed)) : '');
+                    setSelectionWarning(false);
+                    return;
+                  }
+                  const code=reviewedColors[i]?.code;
+                  if (code && activePartner === 'women') setWomenColorCode(code);
+                  else if (code && activePartner === 'men') setMenColorCode(code);
+                  else setColorIdx(i);
+                  return;
+                }
+                const variantIndex = options.findIndex(option => option.configuration_color === c);
+                if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
+                else setColorIdx(i);
+              }}
+              className="group inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3c887]"
+              title={c}>
+                <FeyaColorSwatch color={c} selected={c===selectedColor} size={27}/>
+              </button>)}</div>
+  
+          </div>
+            </>}
 
-        <div className="mt-2">
-          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
-          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
-        </div>
+        {!isCoupleSet && <div className="mt-2">
+          <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size || 'Select size'}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
+          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => {
+            setSize(s); setCustomMeasurementsEnabled(s==='Custom');
+            setSelectionWarning(false);
+          }} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
+          {selectionWarning ? <p role="alert" className="mt-2 text-[11px] text-[#e9bd95]">{!activeConfig ? pricedColors!==null ? 'This color needs a custom price quote. ' : 'Choose a configuration first. ' : ''}{!size ? 'Select a size to continue.' : ''}</p> : null}
+        </div>}
+
+        {customOutfits>0 ? <p className="mt-2 text-[11px] leading-5 text-[#d4b26a]">
+          Custom measurements (+€15 per customized outfit) will be preselected in your bag. You can change the selection there.
+        </p> : null}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
           Shipping method and delivery dates are selected in the cart.
         </div>
 
-        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
+        <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale,currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total,currency) : '—'}</div></div>
         {previewMode
           ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
           : <>

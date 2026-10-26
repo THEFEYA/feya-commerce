@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {colorChoiceLabel} from '../bonanzaColorChoices.ts';
 import type {CheckoutAddress, CheckoutBuyer, CheckoutRequestV1} from './checkoutRequest.ts';
 import {CHECKOUT_PRICING_V1, type CheckoutAmounts, type DeliveryMethod, type ExtraLine, type PricedLine} from './pricing.ts';
 
@@ -46,7 +47,21 @@ export function buildCustomerSnapshot(input: {
     kind: 'customer',
     pricing_contract: CHECKOUT_PRICING_V1.contract,
     currency: 'EUR',
-    lines: lines.map(line => ({...line, price_changed: undefined} as PricedLine)).map(stripUndefined),
+    // The existing buyer-receipt RPC exposes only the top-level color/size
+    // fields, not the nested pair object. Preserve the exact independently
+    // verified pair object AND show both people in receipts/owner order views
+    // without replacing or migrating the payments database.
+    lines: lines.map(line => {
+      const pair=line.paired_selection;
+      return stripUndefined({
+        ...line,
+        ...(pair ? {
+          size:`Women ${pair.women.size} / Men ${pair.men.size}`,
+          color:`Women ${colorChoiceLabel(pair.women.color)} / Men ${colorChoiceLabel(pair.men.color)}`,
+        } : {}),
+        price_changed: undefined,
+      } as PricedLine);
+    }),
     extras,
     amounts,
     delivery: {method: request.method, ...DELIVERY_LABELS[request.method], remote_destination: amounts.remote_minor > 0},

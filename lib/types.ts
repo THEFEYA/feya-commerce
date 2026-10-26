@@ -117,6 +117,12 @@ export type StorefrontProduct = {
   world_label?: string | null;
   canonical_color_label?: string | null;
   color_options?: string[] | null;
+  /** Owner-reviewed marketplace merchandising colors, not generated price rows. */
+  color_choices?: string[];
+  default_color_choice?: string | null;
+  color_filter_values?: string[];
+  photo_color_filter_values?: string[];
+  color_choice_source?: string;
   facets?: StorefrontFacetSet;
 };
 

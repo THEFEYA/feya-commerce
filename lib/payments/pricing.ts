@@ -1,3 +1,5 @@
+import type {PairedSetSelection} from './pairedSetSelection.ts';
+
 /**
  * TheFEYA checkout pricing authority (server-side). Integer euro cents only.
  *
@@ -37,9 +39,11 @@ export type PricedLine = {
   option_label: string;
   configuration_id: string;
   color: string;
+  color_code?: string | null;
   size: string;
   wearer: 'men' | 'women' | null;
   made_to_measure: boolean;
+  paired_selection?: PairedSetSelection | null;
   quantity: number;
   unit_minor: number;
   line_minor: number;
@@ -81,7 +85,20 @@ export function isRemoteDestination(country: string) {
 
 export function buildExtraLines(lines: readonly PricedLine[], options: {giftCard: boolean; giftBox: boolean}): ExtraLine[] {
   const extras: ExtraLine[] = [];
-  const mtm = lines.filter(line => line.made_to_measure).reduce((n, line) => n + line.quantity, 0);
+  // Custom-size outfits must be paid for, and a couple may contain TWO
+  // separately customized outfits in one single priced merchandise bundle.
+  let mtm = 0;
+  for (const line of lines) {
+    const pair = line.paired_selection;
+    const required = pair
+      ? Number(pair.women.size === 'Custom') + Number(pair.men.size === 'Custom')
+      : Number(line.size === 'Custom');
+    if (required > 0 && !line.made_to_measure)
+      throw new CheckoutPricingError('checkout_custom_measurements_required');
+    if (!line.made_to_measure) continue;
+    const outfitted = pair ? (required || 2) : 1;
+    mtm += outfitted * line.quantity;
+  }
   const p = CHECKOUT_PRICING_V1.extrasMinor;
   if (mtm > 0) extras.push({code: 'made_to_measure', label: 'Made to your measurements', quantity: mtm,
     unit_minor: p.made_to_measure, amount_minor: p.made_to_measure * mtm});
