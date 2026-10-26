@@ -103,7 +103,7 @@ if (process.argv.includes('--check')) {
     // beyond this reviewed draft fingerprint still fails closed.
     const manifest = JSON.parse(readFileSync('config/product-os-ui-freeze.json', 'utf8'));
     const blob = Buffer.from(pdpSource, 'utf8');
-    const gitBlobSha = createHash('sha1').update(`blob ${blob.length}\\0`).update(blob).digest('hex');
+    const gitBlobSha = createHash('sha1').update(`blob ${blob.length}`).update(Buffer.from([0])).update(blob).digest('hex');
     assert.equal(gitBlobSha, '6c45dad9d7a8aad052480d6ac994083173354a2e',
       'Any further PDP edit needs a separate purchase-binding audit');
     assert.equal(manifest.files['components/ProductDetailClient.tsx'], gitBlobSha,
