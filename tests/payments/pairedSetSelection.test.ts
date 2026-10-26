@@ -37,7 +37,10 @@ test('Bonanza-approved paired colors are source-bound and held/unlisted codes ar
   assert.deepEqual(verifiedColorChoice(productId, 'gold'), {code:'gold',label:'Gold'});
   assert.deepEqual(verifiedColorChoice(productId, 'silver'), {code:'silver',label:'Silver'});
   assert.equal(verifiedColorChoice(productId, 'holographic'), null);
-  assert.equal(verifiedColorChoice('ffbf1db6-6fae-4606-afbe-013415d6421d', 'gold'), null);
+  // This one source hold was explicitly approved for website colour display
+  // (but NOT Bonanza marketplace publication) in the exact owner override.
+  assert.deepEqual(verifiedColorChoice('ffbf1db6-6fae-4606-afbe-013415d6421d', 'gold'),
+    {code:'gold',label:'Gold'});
 });
 
 test('approved color-review basket format becomes a normalized paid-checkout pair', () => {
