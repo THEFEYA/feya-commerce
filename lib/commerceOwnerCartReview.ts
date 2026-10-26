@@ -1,5 +1,6 @@
 import {DELIVERY_COUNTRIES} from './commerceDeliveryWorkspace.ts';
 import {parsePairedSetSelection, type PairedSetSelection} from './payments/pairedSetSelection.ts';
+import {customMeasurementLineMinor} from './commerceCustomMeasurementsPreview.ts';
 import {isFeyaBlockedExportDestination} from './commerceShippingBlockedDestinations.ts';
 import {isOwnerUnifiedStorefrontPreview} from './ownerUnifiedStorefrontPreview.ts';
 
@@ -53,6 +54,26 @@ export type OwnerCartPreviewItem={
   price_contract_version:string|null;
   price_confidence_status:string|null;
 };
+
+/** One source of truth for the buyer's visible custom-size fee and the
+ * server-side checkout intent. Custom size cannot silently become unpaid.
+ */
+export function requiresPaidCustomMeasurements(item:Pick<OwnerCartPreviewItem,'size'|'paired_selection'>):boolean{
+  return item.paired_selection
+    ?item.paired_selection.women.size==='Custom'||item.paired_selection.men.size==='Custom'
+    :item.size==='Custom';
+}
+export function selectedPaidCustomMeasurementIds(items:readonly OwnerCartPreviewItem[]):string[]{
+  return items.filter(item=>requiresPaidCustomMeasurements(item)||item.custom_measurements_selected===true)
+    .map(item=>item.id);
+}
+export function toggleOptionalCustomMeasurement(
+  items:readonly OwnerCartPreviewItem[],id:string,
+):OwnerCartPreviewItem[]{
+  return items.map(item=>item.id!==id||requiresPaidCustomMeasurements(item)?item:{
+    ...item,custom_measurements_selected:!item.custom_measurements_selected,
+  });
+}
 
 export function parseOwnerCartStorage(raw:unknown):{
   items:OwnerCartPreviewItem[];invalid_count:number;
@@ -176,7 +197,13 @@ export function ownerCartPreviewExtraEstimate(
   if(selected.size!==input.madeToMeasureItemIds.length||
     [...selected].some(id=>!active.has(id)))throw new Error('owner_preview_extra_line_invalid');
   const ready=items.length>0;
-  const made_to_measure_minor=ready?selected.size*OWNER_PREVIEW_EXTRA_EUR_MINOR.made_to_measure:0;
+  const made_to_measure_minor=ready?items.filter(item=>selected.has(item.id)).reduce((sum,item)=>
+    sum+customMeasurementLineMinor({
+      size:item.paired_selection?null:item.size,
+      womens_size:item.paired_selection?.women.size??null,
+      mens_size:item.paired_selection?.men.size??null,
+      qty:item.qty,
+    },true),0):0;
   const gift_card_minor=ready&&input.giftCard?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_card:0;
   const gift_box_minor=ready&&input.giftBox?OWNER_PREVIEW_EXTRA_EUR_MINOR.gift_box:0;
   const remote_example_minor=ready&&['AU','MX','NZ'].includes(input.destination)

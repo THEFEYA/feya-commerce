@@ -92,16 +92,33 @@ await check('real browser: product page → Add to bag → bag → server-confir
     const page = await browser.newPage({userAgent: UA + ' (browser)'});
     await page.goto(origin + '/shop', {waitUntil: 'domcontentloaded', timeout: 60000});
     const hrefs = await page.$$eval('a[href^="/shop/"]', as => [...new Set(as.map(a => a.getAttribute('href')))].filter(h => /^\/shop\/[a-z0-9-]+$/.test(h)).slice(0, 8));
-    for (const href of hrefs) {
+    const pinnedBuyerSamples = [
+      '/shop/apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005',
+      '/shop/gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118',
+    ];
+    for (const href of [...new Set([...pinnedBuyerSamples,...hrefs])]) {
       await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
       const add = page.getByRole('button', {name: /Add to bag/i}).first();
       if (!(await add.count())) continue;
+      if (await page.locator('[aria-label="Couple colors and sizes"]').count()) continue;
+      const configuration = page.locator('button[aria-controls="product-configuration-options"]');
+      if (await configuration.count()) {
+        await configuration.click();
+        const options = page.locator('#product-configuration-options button');
+        if (!(await options.count())) continue;
+        await options.first().click();
+      }
+      const medium = page.locator('button.size-pill').filter({hasText: /^M$/}).first();
+      if (!(await medium.count())) continue;
+      await medium.click();
       await add.click();
       await page.waitForTimeout(500);
       const bag = await page.evaluate(() => JSON.parse(localStorage.getItem('feya_visual_cart_v1') || '[]'));
       const item = bag[bag.length - 1];
       if (!item?.configuration_id) continue;
       const line = {id: item.id, slug: item.slug, configuration_id: item.configuration_id, size: item.size, color: item.color,
+        color_code: item.color_code ?? null, paired_selection: item.paired_selection ?? null,
+        wearer: null, made_to_measure: item.custom_measurements_selected === true,
         quantity: 2, client_unit_minor: 1};
       // Same-origin request from the real page, exactly as the bag does it.
       const quote = await page.evaluate(async (body) => {
@@ -114,7 +131,7 @@ await check('real browser: product page → Add to bag → bag → server-confir
       expect(unit === Math.round(item.price * 100), `server unit ${unit} ≠ displayed ${item.price}`);
       expect(a.shipping_minor === 3500 && a.remote_minor === 2000 && a.extras_minor === 1000 && a.handling_minor === 0, 'fees');
       expect(a.total_minor === unit * 2 + 3500 + 2000 + 1000, 'total arithmetic');
-      realLine = {id: item.id, slug: item.slug, configuration_id: item.configuration_id, size: item.size, color: item.color, quantity: 1};
+      realLine = {...line, quantity: 1, client_unit_minor: null};
       await page.goto(origin + '/cart', {waitUntil: 'networkidle', timeout: 60000});
       const bagText = await page.locator('[data-testid="owner-cart-review"]').innerText();
       expect(bagText.includes(item.title.slice(0, 20)), 'bag shows the added piece');
