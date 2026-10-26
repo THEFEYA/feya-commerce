@@ -43,7 +43,7 @@
     },
     {
       "path": "lib/storefront.ts",
-      "sha256": "d4933635c73866c0bba78d3ee33cf3700a1848085e3afe6e7637e745eaf527a6"
+      "sha256": "5724e5ab771740fb4806101cb0dec2cd0e5b5eb83ed76715eee9ad87bfa432f5"
     },
     {
       "path": "components/ProductDetailClient.tsx",
