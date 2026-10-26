@@ -91,41 +91,6 @@ const report = {
 };
 const output = JSON.stringify(report, null, 2) + '\n';
 const path = 'docs/search/purchase-binding-report-20260924.json';
-if (process.argv.includes('--check')) {
-  // This September report is historical evidence, NOT the current product UI
-  // approval manifest. Keep its immutable captured content and source hashes.
-  const historical = JSON.parse(readFileSync(path, 'utf8'));
-  const current = JSON.parse(output);
-  const prior = historical.implementation.find((entry: {path: string}) => entry.path === 'components/ProductDetailClient.tsx');
-  const live = current.implementation.find((entry: {path: string}) => entry.path === 'components/ProductDetailClient.tsx');
-  if (prior?.sha256 !== live?.sha256) {
-    // Exact-scope exception while reviewing the new pair-fits control. Anything
-    // beyond this reviewed draft fingerprint still fails closed.
-    const manifest = JSON.parse(readFileSync('config/product-os-ui-freeze.json', 'utf8'));
-    const blob = Buffer.from(pdpSource, 'utf8');
-    const gitBlobSha = createHash('sha1').update(`blob ${blob.length}`).update(Buffer.from([0])).update(blob).digest('hex');
-    assert.equal(gitBlobSha, '6c45dad9d7a8aad052480d6ac994083173354a2e',
-      'Any further PDP edit needs a separate purchase-binding audit');
-    assert.equal(manifest.files['components/ProductDetailClient.tsx'], gitBlobSha,
-      'The exact proposed PDP UI must be pinned in the owner visual freeze');
-    assert.match(pdpSource, /isSourceConfirmedPairedSet/);
-    assert.match(pdpSource, /PairedFitPicker/);
-    live.sha256 = prior.sha256; // Historical source was not altered.
-  }
-  // Historical captures fingerprint their September implementation, not today's
-  // deliberately edited agent test harness. Compare all other code fingerprints,
-  // then assert every piece of actual historical commerce evidence is unchanged.
-  assert.deepEqual(current.implementation.map((e: {path: string}) => e.path),
-    historical.implementation.map((e: {path: string}) => e.path));
-  for (const entry of current.implementation) {
-    if (entry.path === 'scripts/audit-purchase-bindings.ts') continue;
-    assert.equal(entry.sha256,
-      historical.implementation.find((e: {path: string}) => e.path === entry.path)?.sha256,
-      `Unrelated purchase-binding code changed: ${entry.path}`);
-  }
-  delete current.implementation;
-  delete historical.implementation;
-  assert.deepEqual(current, historical, 'Historical purchase binding facts drifted; review required');
-} 
+if (process.argv.includes('--check')) assert.equal(readFileSync(path, 'utf8'), output, 'Binding report must be regenerated and reviewed');
 else writeFileSync(path, output);
 console.log(JSON.stringify(report.summary));
