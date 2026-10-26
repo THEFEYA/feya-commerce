@@ -1,6 +1,7 @@
 'use client';
 
 import type {Metric} from 'web-vitals';
+import type {VerifiedPurchaseMeasurement} from './measurementVerifiedPurchase.ts';
 import {createWebVitalsCollector,resolveWebVitalContext} from '@/lib/measurementWebVitals';
 import {
   buildMeasurementEnvelope,
@@ -246,6 +247,12 @@ export function trackMeasurementEvent(
 
   window.gtag?.('event',eventName,{
     ...ga4EventParameters(envelope),
+    // PayPal return URLs can contain opaque authorization tokens. Never send
+    // query strings or fragments as purchase page_location into Google Analytics.
+    ...(eventName==='purchase'?{
+      page_location:`${window.location.origin}/checkout/return`,
+      page_title:'TheFEYA Order Confirmation',
+    }:{}),
     ...(eventName==='web_vital'?{
       page_location:`${window.location.origin}${pageContext.path}`,
       value:input.metric_delta??input.metric_value,
@@ -255,6 +262,41 @@ export function trackMeasurementEvent(
   state();
   window.dispatchEvent(new CustomEvent('feya:measurement',{detail:envelope}));
   return{sent:true,envelope} as const;
+}
+
+const PURCHASE_SENT_KEY='feya_ga4_paid_purchase_sent_v1';
+
+/** Actual PAID receipt only. Consent + Production availability gates remain
+ * mandatory, browser storage prevents reload/callback duplicate conversions,
+ * and GA4 transaction_id provides a second deduplication barrier.
+ */
+export async function trackVerifiedPurchaseOnce(order:VerifiedPurchaseMeasurement){
+  if(typeof window==='undefined'||getAnalyticsConsent()!=='granted')return false;
+  if(!/^FEYA-[A-Za-z0-9-]{1,90}$/.test(order.transactionId)||!order.items.length)return false;
+  try{
+    const sent=JSON.parse(window.localStorage.getItem(PURCHASE_SENT_KEY)||'[]') as unknown;
+    if(Array.isArray(sent)&&sent.includes(order.transactionId))return false;
+    const response=await fetch('/api/measurement/context?path=%2Fcheckout%2Freturn',{
+      cache:'no-store',headers:{Accept:'application/json'},
+    });
+    if(!response.ok)return false;
+    const body=await response.json() as {ok?:boolean;context?:FeyaMeasurementPageContext};
+    const ctx=body.context;
+    if(!body.ok||!ctx||ctx.path!=='/checkout/return'||ctx.environment!=='production'
+      ||!ctx.measurement_enabled)return false;
+    setMeasurementPageContext(ctx);
+    const result=trackMeasurementEvent('purchase',{
+      transaction_id:order.transactionId,
+      server_order_receipt_id:order.receiptId,
+      currency:order.currency,value:order.value,items:order.items,
+    },ctx);
+    if(!result.sent)return false;
+    const previous=Array.isArray(sent)?sent.filter(x=>typeof x==='string'):[];
+    window.localStorage.setItem(PURCHASE_SENT_KEY,JSON.stringify(
+      [order.transactionId,...previous.filter(x=>x!==order.transactionId)].slice(0,50),
+    ));
+    return true;
+  }catch{return false;}
 }
 
 export function trackPageView(){
