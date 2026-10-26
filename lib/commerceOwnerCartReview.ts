@@ -1,4 +1,5 @@
 import {DELIVERY_COUNTRIES} from './commerceDeliveryWorkspace.ts';
+import {parsePairedSetSelection, type PairedSetSelection} from './payments/pairedSetSelection.ts';
 import {isFeyaBlockedExportDestination} from './commerceShippingBlockedDestinations.ts';
 import {isOwnerUnifiedStorefrontPreview} from './ownerUnifiedStorefrontPreview.ts';
 
@@ -39,6 +40,7 @@ export type OwnerCartPreviewItem={
   slug:string;title:string;image:string;config:string;
   size:string;color:string;qty:number;price:number;currency:'EUR';
   configuration_id:string|null;
+  paired_selection?: PairedSetSelection;
   // Display comparison only, never authoritative discount/checkout money.
   compare_at_unit_price_amount:number|null;
   price_contract_version:string|null;
@@ -64,6 +66,7 @@ export function parseOwnerCartStorage(raw:unknown):{
       ||typeof rawPrice!=='number'||!Number.isFinite(rawPrice)
       ||rawPrice<0.01||rawPrice>50_000||currency!=='EUR'
       ||typeof v.qty!=='number'||!Number.isSafeInteger(v.qty)||v.qty<1||v.qty>100
+      ||(v.paired_selection!=null&&!parsePairedSetSelection(v.paired_selection))
       ||(v.configuration_id!=null
         &&(typeof v.configuration_id!=='string'||!UUID.test(v.configuration_id)))
       ||used.has(id)){
@@ -84,6 +87,7 @@ export function parseOwnerCartStorage(raw:unknown):{
       image:safeImage(v.image),config:v.config.trim(),size:v.size.trim(),
       color:v.color.trim(),qty:v.qty,price:unitMinor/100,currency:'EUR',
       configuration_id:v.configuration_id??null,
+      ...(v.paired_selection ? {paired_selection: parsePairedSetSelection(v.paired_selection)!} : {}),
       compare_at_unit_price_amount:
         typeof v.compare_at_price_amount==='number'
         &&Number.isFinite(v.compare_at_price_amount)
