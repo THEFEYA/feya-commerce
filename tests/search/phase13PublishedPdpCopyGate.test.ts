@@ -108,12 +108,7 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  // The historical frozen PDP is still valid. A narrowly scoped proposed paired-fit
-  // selector has a separately pinned, exact blob; PR review is required before release.
-  assert.ok([
-    '729514b30288a38429bad3900c025c69d452eea1', // original V13
-    '6c45dad9d7a8aad052480d6ac994083173354a2e', // draft paired-fit addition
-  ].includes(visual.files['components/ProductDetailClient.tsx']));
+  assert.equal(visual.files['components/ProductDetailClient.tsx'],'729514b30288a38429bad3900c025c69d452eea1');
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);
