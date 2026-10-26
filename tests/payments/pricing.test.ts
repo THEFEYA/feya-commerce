@@ -4,7 +4,7 @@ import {
   buildExtraLines, computeCheckoutAmounts, decimalToMinor, minorToDecimal, CheckoutPricingError,
 } from '../../lib/payments/pricing.ts';
 import {priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
-import {CONFIG_TOP, PRODUCT_A_ID, lineA, productA, productB, CONFIG_B, PRODUCT_B_ID} from './fixtures.ts';
+import {CONFIG_FULL, CONFIG_TOP, PRODUCT_A_ID, lineA, productA, productB, CONFIG_B, PRODUCT_B_ID} from './fixtures.ts';
 
 const priced = (product = productA(), overrides: Record<string, unknown> = {}) =>
   priceCartLine(product, lineA(overrides) as Parameters<typeof priceCartLine>[1]);
@@ -128,7 +128,7 @@ test('exact source-color price exception refuses unpriced White or switched Brow
   ];
   const product = {...productA(), canonical_product_id:id, color_options:['Brown','Black','Green'], configurations: variants};
   const input = {...lineA(), id: `${id}-${brown}-M-Brown`, slug:'mirror-festival-set', configuration_id:brown,
-    size:'M', color:'Brown', color_code:'brown'};
+    size:'M', color:'Brown', color_code:'brown', wearer:'women' as const};
   assert.equal(priceCartLine(product as never, input).unit_minor, 14000);
   assert.throws(() => priceCartLine(product as never, {...input, color:'White', color_code:'white'}), /checkout_option_unpriced/);
   assert.throws(() => priceCartLine(product as never, {...input, color:'Brown', color_code:'black'}), /checkout_color_invalid/);
