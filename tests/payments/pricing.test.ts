@@ -112,3 +112,23 @@ test('a confirmed paired set stores both fits but charges the published set pric
   assert.throws(() => priced(product as never, {...valid, paired_selection: {...selection, men: {size: 'XL', color: 'Purple'}}}), /checkout_color_invalid/);
   assert.throws(() => priced(productA(), valid), /checkout_paired_selection_invalid/);
 });
+
+test('custom measurements charge once per actual customized outfit, including two people in one set', () => {
+  const base = priced();
+  const pair = {
+    women: {size: 'Custom', color: 'Gold'},
+    men: {size: 'XL', color: 'Silver'},
+  };
+  const oneCustom = {...base, size: 'Custom', color: 'Gold', paired_selection: pair, made_to_measure: true, quantity: 2};
+  assert.deepEqual(buildExtraLines([oneCustom], {giftCard: false, giftBox: false})
+    .map(extra => [extra.code, extra.quantity, extra.amount_minor]), [['made_to_measure', 2, 3000]]);
+  const bothCustom = {...oneCustom, paired_selection: {...pair, men: {size: 'Custom', color: 'Silver'}}};
+  assert.deepEqual(buildExtraLines([bothCustom], {giftCard: false, giftBox: false})
+    .map(extra => [extra.code, extra.quantity, extra.amount_minor]), [['made_to_measure', 4, 6000]]);
+  assert.throws(() => buildExtraLines([{...oneCustom, made_to_measure: false}], {giftCard: false, giftBox: false}),
+    /checkout_custom_measurements_required/);
+  assert.throws(() => buildExtraLines([{...base, size: 'Custom', made_to_measure: false}], {giftCard: false, giftBox: false}),
+    /checkout_custom_measurements_required/);
+  const paidSingle = buildExtraLines([{...base, size: 'Custom', made_to_measure: true}], {giftCard: false, giftBox: false});
+  assert.equal(paidSingle[0].amount_minor, 1500);
+});
