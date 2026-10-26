@@ -1,4 +1,5 @@
 import {decimalToMinor, minorToDecimal} from './pricing.ts';
+import {colorChoiceLabel} from '../bonanzaColorChoices.ts';
 import type {OrderSnapshotV1} from './orderSnapshot.ts';
 
 /** Facts stored with the TheFEYA order that a PayPal payment must match exactly. */
@@ -34,8 +35,8 @@ export function buildPayPalOrderRequest(input: {
   let itemTotal = 0;
   for (const line of snapshot.lines) {
     const description = (line.paired_selection
-      ? [line.option_label, `Women ${line.paired_selection.women.size}/${line.paired_selection.women.color}`,
-        `Men ${line.paired_selection.men.size}/${line.paired_selection.men.color}`]
+      ? [line.option_label, `Women ${line.paired_selection.women.size}/${colorChoiceLabel(line.paired_selection.women.color)}`,
+        `Men ${line.paired_selection.men.size}/${colorChoiceLabel(line.paired_selection.men.color)}`]
       : [line.option_label, line.color, `Size ${line.size}`, line.made_to_measure ? 'made to measure' : ''])
       .filter(Boolean).join(' · ');
     items.push({
