@@ -4,7 +4,8 @@ import {ownerLaunchSummary,type OwnerPaymentGateState,type OwnerSearchGateState}
   from '../../lib/payments/ownerLaunchSummary.ts';
 
 const verified:OwnerPaymentGateState={
-  environment:'live',engine:'paypal_checkout',store_key_set:true,active:false,
+  environment:'live',engine:'paypal_checkout',store_key_set:true,payee_email:'merchant@example.com',
+  payments_kill_switch:false,active:false,
   commerce_release_approved:false,ready_to_activate:false,
   checks:{credentials:true,payee:true,webhook:true,test_payment:true,test_environment:'live'},
   paid_orders:0,
@@ -48,4 +49,7 @@ test('sandbox or an unverified payee never becomes checkout-ready',()=>{
   assert.equal(ownerLaunchSummary({...verified,environment:'sandbox'},v13).providerVerified,false);
   assert.equal(ownerLaunchSummary({...verified,checks:{...verified.checks,payee:false}},v13).providerVerified,false);
   assert.equal(ownerLaunchSummary({...verified,store_key_set:false},v13).nextAction,'verify_provider');
+  assert.equal(ownerLaunchSummary({...verified,payee_email:null},v13).providerVerified,false);
+  assert.equal(ownerLaunchSummary({...verified,commerce_release_approved:true,active:true,
+    payments_kill_switch:true},v13).buyerPaymentsActive,false);
 });
