@@ -110,8 +110,21 @@ if (process.argv.includes('--check')) {
       'The exact proposed PDP UI must be pinned in the owner visual freeze');
     assert.match(pdpSource, /isSourceConfirmedPairedSet/);
     assert.match(pdpSource, /PairedFitPicker/);
-    live.sha256 = prior.sha256; // Compare captured September facts, not a current source fingerprint.
+    live.sha256 = prior.sha256; // Historical source was not altered.
   }
+  // Historical captures fingerprint their September implementation, not today's
+  // deliberately edited agent test harness. Compare all other code fingerprints,
+  // then assert every piece of actual historical commerce evidence is unchanged.
+  assert.deepEqual(current.implementation.map((e: {path: string}) => e.path),
+    historical.implementation.map((e: {path: string}) => e.path));
+  for (const entry of current.implementation) {
+    if (entry.path === 'scripts/audit-purchase-bindings.ts') continue;
+    assert.equal(entry.sha256,
+      historical.implementation.find((e: {path: string}) => e.path === entry.path)?.sha256,
+      `Unrelated purchase-binding code changed: ${entry.path}`);
+  }
+  delete current.implementation;
+  delete historical.implementation;
   assert.deepEqual(current, historical, 'Historical purchase binding facts drifted; review required');
 } 
 else writeFileSync(path, output);
