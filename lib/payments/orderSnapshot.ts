@@ -48,6 +48,7 @@ export function buildCustomerSnapshot(input: {
   now?: Date;
 }): OrderSnapshotV1 {
   const {request, lines, extras, amounts} = input;
+  const acceptedAt=(input.now||new Date()).toISOString();
   return {
     contract: 'feya_order_snapshot_v1',
     kind: 'customer',
@@ -80,13 +81,13 @@ export function buildCustomerSnapshot(input: {
     policies: {
       terms: '/terms', shipping: '/shipping', returns: '/returns', privacy: '/privacy',
       accepted_bundle_version:CHECKOUT_POLICY_BUNDLE_V1.version,
-      accepted_at:(input.now||new Date()).toISOString(),
+      accepted_at:acceptedAt,
       source_blob_sha1:Object.fromEntries(Object.entries(CHECKOUT_POLICY_BUNDLE_V1.sources).map(
         ([key,identity])=>[key,identity.git_blob_sha1],
       )),
     },
     disclosure: SELLER_ONLINE_CHECKOUT_DISCLOSURE,
-    created_at: (input.now || new Date()).toISOString(),
+    created_at:acceptedAt,
   };
 }
 
