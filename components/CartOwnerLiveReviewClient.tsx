@@ -109,7 +109,8 @@ export function CartOwnerLiveReviewClient(){
 
   const checkoutLines=useMemo(()=>items.map(item=>({
     id:item.id,slug:item.slug,configuration_id:item.configuration_id,size:item.size,color:item.color,
-    quantity:item.qty,wearer:wearerByItem[item.id]??null,made_to_measure:customFitIds.includes(item.id),
+    paired_selection:item.paired_selection??null,
+    quantity:item.qty,wearer:item.paired_selection?null:(wearerByItem[item.id]??null),made_to_measure:customFitIds.includes(item.id),
     client_unit_minor:Math.round(item.price*100),
   })),[items,wearerByItem,customFitIds]);
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
@@ -245,9 +246,13 @@ export function CartOwnerLiveReviewClient(){
                   {item.title}
                 </Link>
                 <p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
-                  {item.config} · {item.color} · {item.size}
+                  {item.config}{!item.paired_selection ? ` · ${item.color} · ${item.size}` : ''}
                 </p>
-                <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
+                {item.paired_selection ? <div className="mt-1.5 text-[12px] leading-5 text-[var(--bone-dim)]">
+                  <p>Women: {item.paired_selection.women.size} · {item.paired_selection.women.color}</p>
+                  <p>Men: {item.paired_selection.men.size} · {item.paired_selection.men.color}</p>
+                </div> : null}
+                {!item.paired_selection ? <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
                   <legend className="mb-1 text-[11px]">Intended wearer for this item</legend>
                   {(['men','women'] as const).map(choice=><label key={choice} className="inline-flex cursor-pointer items-center gap-1.5">
                     <input type="radio" name={'owner-wearer-'+item.id} value={choice}
@@ -256,7 +261,7 @@ export function CartOwnerLiveReviewClient(){
                       className="h-4 w-4 accent-[#d4b26a]"/>
                     {choice==='men'?'Men':'Women'}
                   </label>)}
-                </fieldset>
+                </fieldset> : null}
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <div className="flex h-10 items-center rounded-lg border border-[rgba(216,214,211,.23)]">
                     <button type="button" aria-label={`Decrease quantity of ${item.title}`}
