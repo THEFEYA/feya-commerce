@@ -1,3 +1,5 @@
+import type {PairedSetSelection} from './pairedSetSelection.ts';
+
 /**
  * TheFEYA checkout pricing authority (server-side). Integer euro cents only.
  *
@@ -40,6 +42,7 @@ export type PricedLine = {
   size: string;
   wearer: 'men' | 'women' | null;
   made_to_measure: boolean;
+  paired_selection?: PairedSetSelection | null;
   quantity: number;
   unit_minor: number;
   line_minor: number;
