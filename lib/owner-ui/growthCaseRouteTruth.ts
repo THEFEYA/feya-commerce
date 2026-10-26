@@ -86,6 +86,7 @@ export type CaseTimelineEntry = {
 };
 export type CaseRouteTruth = {
   caseId: string;
+  lastCaseEventId: string | null;
   caseStatus: string;
   caseOwner: string;
   ownershipEpoch: number | null;
@@ -231,7 +232,8 @@ export function projectGrowthCaseRoute(input: CaseRouteInput): CaseRouteTruth | 
   timeline.sort((a,b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id));
 
   return {
-    caseId,caseStatus,caseOwner:owner,ownershipEpoch:epoch,workflowStatus,
+    caseId,lastCaseEventId:latest?uuid(latest.case_event_id):null,
+    caseStatus,caseOwner:owner,ownershipEpoch:epoch,workflowStatus,
     timeline:timeline.slice(-80),eventContinuity,ownerL0,measurement,
     independentQa:'NOT_ATTESTED',
     permissibleNextStep:eventContinuity==='VERIFIED_LATEST' && caseStatus==='OPEN'
