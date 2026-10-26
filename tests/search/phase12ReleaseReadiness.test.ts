@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import {CHECKOUT_POLICY_BUNDLE_V1} from '../../lib/payments/checkoutPolicyEvidence.ts';
 
 function gitBlobSha(path:string){
   const body=readFileSync(path);
@@ -22,7 +23,16 @@ test('Phase 12 foundational v2 pins exact current Wave A source blobs',()=>{
   ] as const;
   for(const [path,file] of sources){
     const sha=gitBlobSha(file);
-    assert.ok(migration.includes(sha),file+': missing exact Git blob SHA');
+    if(path==='/returns'){
+      // This 2026-10-01 immutable migration must retain its ORIGINAL historical
+      // source blob. Current EU-rights policy gets a separate immutable paid
+      // checkout bundle pin, never a fabricated rewrite of past Search evidence.
+      assert.ok(migration.includes('3e72a84437ceed5e342584133e386e06a70b2a22'));
+      assert.equal(sha,CHECKOUT_POLICY_BUNDLE_V1.sources.returns.git_blob_sha1,
+        'Current returns policy must match the separate accepted buyer bundle');
+    }else{
+      assert.ok(migration.includes(sha),file+': missing exact Git blob SHA');
+    }
     assert.ok(migration.includes(`'${path}'`),path+': missing governed path');
   }
   assert.match(migration,/foundational_page_content_manifest_v2/);
