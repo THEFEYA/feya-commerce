@@ -32,7 +32,15 @@ export function parsePairedSetSelection(value: unknown): PairedSetSelection | nu
  * A "couples" SEO title or an expensive unclassified option is NOT sufficient.
  */
 export function isSourceConfirmedPairedSet(option: StorefrontConfiguration | null | undefined): boolean {
-  if (!option || option.is_full_set !== true || option.source_confirmed_bundle_members !== true) return false;
+  if (!option || option.is_full_set !== true) return false;
+  // The one legacy paired set is source-confirmed from BOTH original Men's
+  // and Women's purchase variants. Its full SKU enumerates physical pieces
+  // (not aggregate partner codes), so the exact reviewed adapter provides
+  // independent, server-owned evidence instead of guessing from the title.
+  if (option.source_confirmed_paired_outfits === true
+      && option.configuration_id === '26274d0c-81c9-44e6-9ce7-c3056c62040c'
+      && option.is_bundle === true) return true;
+  if (option.source_confirmed_bundle_members !== true) return false;
   const codes = Array.isArray(option.bundle_component_codes)
     ? option.bundle_component_codes.map(code => String(code).toLowerCase().trim()) : [];
   return codes.some(code => code === 'women_outfit' || code === 'womens_outfit')
