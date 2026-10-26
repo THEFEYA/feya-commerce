@@ -1,6 +1,7 @@
 import type {StorefrontConfiguration, StorefrontProduct} from '@/lib/types';
 import {colorOptions, getMedia, optionLabel, optionPrice, productTitle, sortedOptions} from '../storefront.ts';
 import {CHECKOUT_PRICING_V1, CheckoutPricingError, type PricedLine} from './pricing.ts';
+import {isSourceConfirmedPairedSet, PAIRED_SET_SIZES, type PairedSetSelection} from './pairedSetSelection.ts';
 
 /** Exactly the size buttons offered on the published product page. */
 export const PDP_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'] as const;
@@ -14,6 +15,7 @@ export type CartLineInput = {
   quantity: number;
   wearer: 'men' | 'women' | null;
   made_to_measure: boolean;
+  paired_selection?: PairedSetSelection | null;
   /** What the buyer's browser displayed. Only used to tell the buyer a price changed. */
   client_unit_minor: number | null;
 };
@@ -53,6 +55,18 @@ export function priceCartLine(product: StorefrontProduct, line: CartLineInput): 
   ]);
   if (!colors.size) colors.add('Mirror');
   if (!colors.has(line.color)) throw new CheckoutPricingError('checkout_color_invalid');
+  const paired = isSourceConfirmedPairedSet(option);
+  if (paired) {
+    if (!line.paired_selection) throw new CheckoutPricingError('checkout_paired_selection_required');
+    if (line.wearer != null || line.size !== line.paired_selection.women.size || line.color !== line.paired_selection.women.color)
+      throw new CheckoutPricingError('checkout_paired_selection_invalid');
+    for (const fit of [line.paired_selection.women, line.paired_selection.men]) {
+      if (!(PAIRED_SET_SIZES as readonly string[]).includes(fit.size)) throw new CheckoutPricingError('checkout_size_invalid');
+      if (!colors.has(fit.color)) throw new CheckoutPricingError('checkout_color_invalid');
+    }
+  } else if (line.paired_selection) {
+    throw new CheckoutPricingError('checkout_paired_selection_invalid');
+  }
 
   const media = getMedia(product);
   const image = typeof product.primary_image_url === 'string' && product.primary_image_url.startsWith('https://')
@@ -70,6 +84,7 @@ export function priceCartLine(product: StorefrontProduct, line: CartLineInput): 
     size: line.size,
     wearer: line.wearer,
     made_to_measure: line.made_to_measure,
+    ...(paired ? {paired_selection: line.paired_selection} : {}),
     quantity: line.quantity,
     unit_minor: unit,
     line_minor: unit * line.quantity,
