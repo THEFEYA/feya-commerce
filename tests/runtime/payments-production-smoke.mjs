@@ -92,7 +92,11 @@ await check('real browser: product page → Add to bag → bag → server-confir
     const page = await browser.newPage({userAgent: UA + ' (browser)'});
     await page.goto(origin + '/shop', {waitUntil: 'domcontentloaded', timeout: 60000});
     const hrefs = await page.$$eval('a[href^="/shop/"]', as => [...new Set(as.map(a => a.getAttribute('href')))].filter(h => /^\/shop\/[a-z0-9-]+$/.test(h)).slice(0, 8));
-    for (const href of hrefs) {
+    const pinnedBuyerSamples = [
+      '/shop/apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005',
+      '/shop/gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118',
+    ];
+    for (const href of [...new Set([...pinnedBuyerSamples,...hrefs])]) {
       await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
       const add = page.getByRole('button', {name: /Add to bag/i}).first();
       if (!(await add.count())) continue;
