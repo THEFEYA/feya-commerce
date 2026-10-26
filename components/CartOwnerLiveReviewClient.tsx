@@ -11,6 +11,7 @@ import {
   OWNER_CART_STORAGE_KEY,OWNER_BAG_COUNT_STORAGE_KEY,
   OWNER_CART_COUNTRIES,ownerCartAddressRegions,
   ownerCartVisualTotals,ownerCartPreviewExtraEstimate,parseOwnerCartStorage,
+  requiresPaidCustomMeasurements,selectedPaidCustomMeasurementIds,toggleOptionalCustomMeasurement,
   type OwnerCartPreviewItem,type OwnerCartPreviewMethod,
 } from '@/lib/commerceOwnerCartReview';
 import {
@@ -59,7 +60,6 @@ export function CartOwnerLiveReviewClient(){
   const [extras,setExtras]=useState<string[]>([]);
   const [giftMessage,setGiftMessage]=useState('');
   const [wearerByItem,setWearerByItem]=useState<Record<string,'men'|'women'>>({});
-  const [customFitIds,setCustomFitIds]=useState<string[]>([]);
   const [coupon,setCoupon]=useState('');
   const [couponNotice,setCouponNotice]=useState(false);
   const toggleExtra=(id:string)=>setExtras(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
@@ -89,6 +89,7 @@ export function CartOwnerLiveReviewClient(){
     return()=>window.removeEventListener('storage',sync);
   },[]);
 
+  const customFitIds=useMemo(()=>selectedPaidCustomMeasurementIds(items),[items]);
   const totals=useMemo(()=>ownerCartVisualTotals(items,method),[items,method]);
   const visualExtras=useMemo(()=>ownerCartPreviewExtraEstimate(items,{
     madeToMeasureItemIds:customFitIds.filter(id=>items.some(x=>x.id===id)),
@@ -115,7 +116,7 @@ export function CartOwnerLiveReviewClient(){
     color_code:item.paired_selection?.women.color??item.color_code??null,
     paired_selection:item.paired_selection??null,
     quantity:item.qty,wearer:item.paired_selection?null:(wearerByItem[item.id]??null),
-    made_to_measure:customFitIds.includes(item.id)||item.custom_measurements_selected===true,
+    made_to_measure:customFitIds.includes(item.id),
     client_unit_minor:Math.round(item.price*100),
   })),[items,wearerByItem,customFitIds]);
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
@@ -194,11 +195,10 @@ export function CartOwnerLiveReviewClient(){
     }));
   }
   function remove(id:string){
-    setCustomFitIds(cur=>cur.filter(x=>x!==id));
     setWearerByItem(cur=>{const next={...cur};delete next[id];return next;});
     persist(items.filter(x=>x.id!==id));
   }
-  function toggleCustomFit(id:string){setCustomFitIds(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);}
+  function toggleCustomFit(id:string){persist(toggleOptionalCustomMeasurement(items,id));}
 
   return <div data-testid="owner-cart-review" className="container-feya pt-20 pb-16 sm:pt-24 lg:pt-24 lg:pb-20">
     <header className="max-w-4xl">
@@ -332,13 +332,14 @@ export function CartOwnerLiveReviewClient(){
                 <strong className="text-[13px] font-medium text-[#f7f3ec]">Made to your measurements</strong>
                 <span className="text-[13px] text-[#e4c87d]">+€15 per piece</span>
               </div>
-              <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements.</p>
+              <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements. For Custom size, this service is required and is included automatically in your order total.</p>
               <div className="mt-2 grid gap-x-3 gap-y-1 sm:grid-cols-2">
                 {items.map(item=><label key={item.id}
                   className="flex min-h-8 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
                   <input type="checkbox" checked={customFitIds.includes(item.id)}
+                    disabled={requiresPaidCustomMeasurements(item)}
                     onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
-                  <span className="min-w-0 flex-1 truncate" title={item.title}>{item.title}</span>
+                  <span className="min-w-0 flex-1 truncate" title={item.title}>{item.title}{requiresPaidCustomMeasurements(item)?' · Required for Custom size':''}</span>
                 </label>)}
               </div>
             </div>}
