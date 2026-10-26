@@ -95,11 +95,6 @@ export function OwnerPaymentsConsoleClient() {
     : <p className="text-[14px] text-[var(--bone-dim)]" role="status"><Loader2 className="mr-2 inline animate-spin" size={16}/>Загрузка…</p>}</section>;
 
   const s = data.status;
-  // Distinguish a VERIFIED Seller Online PayPal integration from a separately
-  // approved commercial release. No duplicate key request or false "not ready".
-  const connectionProven = s.environment==='live' && s.store_key_set
-    && (s.engine==='paypal_standard'||(s.checks.credentials && s.checks.payee && s.checks.webhook))
-    && s.checks.test_payment && s.checks.test_environment==='live';
   const launch=ownerLaunchSummary(s,data.searchLaunch);
   const step = (ok: boolean, label: string) => <li className="flex items-center gap-2"><span className={ok ? 'text-[#d4b26a]' : 'text-[#7d7572]'}>{ok ? '●' : '○'}</span>{label}</li>;
 
@@ -169,7 +164,9 @@ export function OwnerPaymentsConsoleClient() {
         <div className="mt-5 flex flex-wrap gap-3">
           {s.active
             ? <button type="button" onClick={() => toggle(false)} disabled={Boolean(busy)} className="btn-ghost inline-flex items-center gap-2"><Power size={14}/> Приостановить оплату</button>
-            : <button type="button" onClick={() => toggle(true)} disabled={Boolean(busy) || !s.ready_to_activate} className="btn-chrome inline-flex items-center gap-2 disabled:opacity-50"><Power size={14}/> Включить оплату</button>}
+            : <button type="button" onClick={() => toggle(true)} disabled={Boolean(busy) || !s.ready_to_activate}
+                title={!s.commerce_release_approved?'Сначала разрешите коммерческий релиз в Production':'Подтвердить запуск покупательских платежей'}
+                className="btn-chrome inline-flex items-center gap-2 disabled:opacity-50"><Power size={14}/> Включить оплату</button>}
           <a className="btn-ghost" href="/partner/seller-online">Открыть панель подключения</a>
         </div>
         {s.last_error && <p className="mt-3 text-[12px] text-amber-200">Последняя ошибка проверки: {s.last_error}</p>}
