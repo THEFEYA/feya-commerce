@@ -7,7 +7,7 @@ import {ownerLaunchSummary, type OwnerSearchGateState} from '@/lib/payments/owne
 type Status = {
   engine: string; environment: string; payee_email: string | null; store_key_set: boolean; active: boolean;
   activated_at: string | null; paused_at: string | null; ready_to_activate: boolean;
-  commerce_release_approved: boolean; last_error: string | null;
+  commerce_release_approved: boolean;payments_kill_switch:boolean; last_error: string | null;
   checks: {credentials: boolean; payee: boolean; webhook: boolean; test_payment: boolean; test_environment: string | null; webhook_last_event_at: string | null};
   paid_orders: number; pending_orders: number;
 };
