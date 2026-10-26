@@ -6,7 +6,7 @@
     "app/shop/page.tsx": "b9dfa116ba4b27f47dbfc2e25dca34d21dea5570",
     "app/shop/[slug]/page.tsx": "2cf62aa88c97bb338dab39b62876d4c34ad52dd5",
     "components/Header.tsx": "db8ccf04844c2a6a1ca04dc36cfd20c495b376d0",
-    "components/Footer.tsx": "0191332f3067405d4d653a68612c98a647578d0f",
+    "components/Footer.tsx": "57ff2007d49647cb599c2a7af70b8c337031e55f",
     "components/ProductCard.tsx": "a4b3bc2e86dcb85e62286d2c26e5af3985e04bc9",
     "components/ProductDetailClient.tsx": "428d5d9daf8bc6811a490d39335edec551cecd9f",
     "components/ShopClient.tsx": "004219dfb04e63947e6fc58c632137d30bb0123a",
