@@ -84,7 +84,6 @@ export function Footer() {
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <span>·</span>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <span>· Checkout not active</span>
           </span>
         </div>
       </div>
