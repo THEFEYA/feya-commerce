@@ -100,7 +100,9 @@ await check('real browser: product page → Add to bag → bag → server-confir
     for (const href of [...new Set([...pinnedBuyerSamples,...hrefs])]) {
       // The SSR button is visible before React's click handlers are hydrated.
       // Waiting for the initial network to settle prevents silent ignored clicks.
-      await page.goto(origin + href, {waitUntil: 'networkidle', timeout: 60000});
+      await page.goto(origin + href, {waitUntil: 'domcontentloaded', timeout: 60000});
+      // Some media keeps requests alive; don't block buyer interaction on it.
+      await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});
       const add = page.getByRole('button', {name: /Add to bag/i}).first();
       if (!(await add.count())) {buyerAttempts.push(href+':missing Add to bag');continue;}
       if (await page.locator('[aria-label="Couple colors and sizes"]').count()) {buyerAttempts.push(href+':paired set, covered separately');continue;}
@@ -108,9 +110,8 @@ await check('real browser: product page → Add to bag → bag → server-confir
       if (await configuration.count()) {
         await configuration.click();
         const options = page.locator('#product-configuration-options button');
-        if (!(await options.count())) {
-          buyerAttempts.push(href+':configuration menu did not open after hydration');continue;
-        }
+        try{await options.first().waitFor({state:'visible',timeout:10000});}
+        catch{buyerAttempts.push(href+':configuration menu did not open after hydration');continue;}
         await options.first().click();
       }
       const medium = page.locator('button.size-pill').filter({hasText: /^M$/}).first();
