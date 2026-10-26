@@ -8,6 +8,7 @@ export const OWNER_CART_STORAGE_KEY='feya_visual_cart_v1' as const;
 export const OWNER_BAG_COUNT_STORAGE_KEY='feya_visual_bag' as const;
 export const OWNER_CART_REVIEW_BRANCH='work/m2-real-bag-owner-preview-20261010' as const;
 export const OWNER_CART_REVIEW_PROJECT='prj_ePIymo4sUG33wrRjHBxWrSlaxPID' as const;
+export const BUYER_COLOR_PAYMENT_QA_BRANCH='work/paired-set-buyer-checkout-20261026' as const;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const SLUG=/^[a-z0-9-]{1,240}$/;
@@ -31,7 +32,11 @@ export function isOwnerRealCartReviewDeployment(env:Record<string,string|undefin
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
   // A second EXACT Vercel-owner branch consolidates previews on one browser
   // origin. Public Production continues to display disabled nonpayable bag.
-  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env);
+  const exactCommerceColorPreview=env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
+    &&env.VERCEL_PROJECT_ID===OWNER_CART_REVIEW_PROJECT
+    &&env.VERCEL_GIT_COMMIT_REF===BUYER_COLOR_PAYMENT_QA_BRANCH
+    &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
+  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env)||exactCommerceColorPreview;
 }
 
 export type OwnerCartPreviewItem={
