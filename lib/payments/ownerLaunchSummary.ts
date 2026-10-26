@@ -6,6 +6,8 @@ export type OwnerPaymentGateState={
   environment:string;
   engine:string;
   store_key_set:boolean;
+  payee_email:string|null;
+  payments_kill_switch:boolean;
   active:boolean;
   commerce_release_approved:boolean;
   ready_to_activate:boolean;
@@ -39,10 +41,11 @@ export function ownerLaunchSummary(
 ):OwnerLaunchSummary{
   const checks=provider.checks;
   const providerVerified=provider.environment==='live'
-    &&provider.store_key_set
+    &&provider.store_key_set &&Boolean(provider.payee_email)
     &&(provider.engine==='paypal_standard'||(checks.credentials&&checks.payee&&checks.webhook))
     &&checks.test_payment&&checks.test_environment==='live';
-  const buyerPaymentsActive=provider.active&&provider.commerce_release_approved;
+  const buyerPaymentsActive=provider.active&&provider.commerce_release_approved
+    &&!provider.payments_kill_switch;
   const physicalPurchaseProved=Number.isSafeInteger(provider.paid_orders)&&provider.paid_orders>0;
   const seoCandidateReady=search?.candidateVersion===13
     &&search.candidateIndexedProducts===207
