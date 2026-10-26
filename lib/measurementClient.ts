@@ -249,9 +249,11 @@ export function trackMeasurementEvent(
     ...ga4EventParameters(envelope),
     // PayPal return URLs can contain opaque authorization tokens. Never send
     // query strings or fragments as purchase page_location into Google Analytics.
-    ...(eventName==='purchase'?{
+    // PayPal can append an opaque checkout token to the return URL. It
+    // must not leak via page_view OR purchase into external GA4 requests.
+    ...(pageContext.path==='/checkout/return'?{
       page_location:`${window.location.origin}/checkout/return`,
-      page_title:'TheFEYA Order Confirmation',
+      page_title:'Payment | TheFEYA',
     }:{}),
     ...(eventName==='web_vital'?{
       page_location:`${window.location.origin}${pageContext.path}`,
