@@ -2,7 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {applyOwnerReviewedStorefrontCorrections} from '../../lib/storefrontOwnerReviewedCorrections.ts';
-import {enrichStorefrontProductColors, type OwnerColorChoices} from '../../lib/bonanzaColorChoices.ts';
+import {enrichStorefrontProductColors, colorChoiceLabel, productColorChoices, type OwnerColorChoices} from '../../lib/bonanzaColorChoices.ts';
+import {coupleColorSelection} from '../../lib/bonanzaCoupleColorChoices.ts';
+import {isSourceConfirmedPairedSet} from '../../lib/payments/pairedSetSelection.ts';
+import {colorOptions, isFullSetOption} from '../../lib/storefront.ts';
+import {buildExtraLines, computeCheckoutAmounts} from '../../lib/payments/pricing.ts';
 import {sortedOptions, optionLabel, optionPrice} from '../../lib/storefront.ts';
 import {configurationIdentity, priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
 import ownerColors from '../../config/bonanzaReviewedColors20261011.json' with {type:'json'};
@@ -78,4 +82,51 @@ test('every visible owner-approved option prices with original source amount and
   }
   assert.equal(errors.length,0,errors.join('\n'));
   assert.ok(checked>=809,`Only ${checked} source options were testable`);
+});
+
+test('all 856 actual buyer-visible configuration selections can obtain a trustworthy server quote',()=>{
+  const failures:string[]=[];
+  let quoted=0,paired=0;
+  for(const raw of products){
+    const product=effective(raw);
+    const colors=productColorChoices(product);
+    const pairChoice=coupleColorSelection(product);
+    for(const [index,option] of sortedOptions(product).entries()){
+      const optionId=configurationIdentity(option);
+      const showPair=Boolean(pairChoice && isFullSetOption(option,index));
+      const recognized=isSourceConfirmedPairedSet(option);
+      if(showPair!==recognized){
+        failures.push(`${raw.product_slug} ${optionId}: UI pair=${showPair}, payment pair=${recognized}`);
+        continue;
+      }
+      const optionColor=String(option.configuration_color||'');
+      const matched=optionColor ? colors.find(c=>c.label.toLowerCase()===optionColor.toLowerCase()) : null;
+      const code=matched?.code||colors[0]?.code||null;
+      const selectedColor=optionColor|| (code?colorChoiceLabel(code):(colorOptions(product)[0]||'Mirror'));
+      const pair=showPair && code ? {
+        women:{size:'M',color:code},
+        men:{size:'L',color:colors.length>1?colors[1].code:code},
+      } : null;
+      try{
+        const line=priceCartLine(product,{
+          id:`${raw.canonical_product_id}-${optionId}-M-${selectedColor}`,
+          slug:raw.product_slug,configuration_id:optionId,size:'M',
+          color:selectedColor,color_code:code,paired_selection:pair,wearer:null,
+          quantity:1,made_to_measure:false,client_unit_minor:Math.round(Number(optionPrice(option))*100),
+        });
+        if(line.unit_minor!==Math.round(Number(optionPrice(option))*100))
+          failures.push(`${raw.product_slug} ${optionId}: server reprice drift`);
+        const amount=computeCheckoutAmounts({lines:[line],extras:buildExtraLines([line],{giftCard:false,giftBox:false}),
+          method:'standard',country:'DE'});
+        if(amount.total_minor!==line.unit_minor+1900)
+          failures.push(`${raw.product_slug} ${optionId}: incorrect all-in total ${amount.total_minor}`);
+        if(showPair)paired++;
+        quoted++;
+      }catch(error){
+        failures.push(`${raw.product_slug} ${optionId} [${selectedColor}, ${code||'-'}]: ${String((error as Error).message)}`);
+      }
+    }
+  }
+  assert.equal(failures.length,0,`${quoted} quotes/${paired} paired. ${failures.length} failures:\n${failures.join('\n')}`);
+  assert.equal(quoted,856);
 });
