@@ -16,7 +16,6 @@ import {
 } from './runtime.ts';
 import {paymentsStore, PaymentsStoreError, type StoredOrder} from './store.ts';
 import {isPaidCommerceReleaseApproved} from './commerceRelease.ts';
-import {requiresPennsylvaniaTaxReview} from './destinationTaxReview.ts';
 
 export class CheckoutFlowError extends Error {
   readonly status: number;
@@ -151,11 +150,6 @@ export async function createProviderSession(input: {
 export async function startCheckout(raw: unknown, ctx: {headers: Headers; origin: string | null}) {
   if (paymentsKillSwitch() || !isPaidCommerceReleaseApproved()) throw new CheckoutFlowError('payments_not_active', 423);
   const request: CheckoutRequestV1 = parseCheckoutRequest(raw);
-  // Seller Online identified Pennsylvania sales tax for its own legal-seller account.
-  // The authoritative total currently has no destination/product tax breakdown;
-  // never silently collect an under-taxed live order or guess a 6/7/8% rate.
-  if (requiresPennsylvaniaTaxReview(request.address.country, request.address.region))
-    throw new CheckoutFlowError('checkout_pa_tax_quote_required', 422);
   const lines = await priceLines(request.lines);
   const extras = buildExtraLines(lines, {giftCard: request.gift_card, giftBox: request.gift_box});
   const amounts = computeCheckoutAmounts({lines, extras, method: request.method, country: request.address.country});
