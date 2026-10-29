@@ -10,7 +10,7 @@ import {CHECKOUT_POLICY_BUNDLE_V1} from '../../lib/payments/checkoutPolicyEviden
 import {SELLER_ONLINE_CHECKOUT_DISCLOSURE} from '../../lib/payments/orderSnapshot.ts';
 
 test('Customer-charged total is unchanged by tax accounting: US/PA equals US/NY',()=>{
-  const line=priceCartLine(productA(),lineA());
+  const line=priceCartLine(productA(),lineA() as Parameters<typeof priceCartLine>[1]);
   const pa=computeCheckoutAmounts({lines:[line],extras:[],method:'standard',country:'US'});
   const ny=computeCheckoutAmounts({lines:[line],extras:[],method:'standard',country:'US'});
   assert.equal(pa.total_minor,ny.total_minor);
