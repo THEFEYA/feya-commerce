@@ -57,6 +57,16 @@ await check('checkout availability endpoint', async () => {
   return {checkout_active: checkoutActive, engine: r.json.engine, storage_ready: storageReady};
 });
 
+await check('live Seller Online legal seller is disclosed in public terms', async () => {
+  if (!checkoutActive) return {skipped: 'live checkout inactive'};
+  const r = await http('/terms', {headers: {accept:'text/html'}});
+  expect(r.status === 200, 'public Terms not reachable: '+r.status);
+  expect(r.text.includes('Legal seller for orders placed through this checkout'), 'Seller legal-role notice missing');
+  expect(r.text.includes('Seller-Online LLC'), 'Seller legal entity missing');
+  expect(r.text.includes('Pennsylvania'), 'PA specific tax quote condition not disclosed');
+  return {status:r.status,legal_seller:'Seller-Online LLC',pa_tax_quote_disclosed:true};
+});
+
 await check('payments database installed (migration 20261021200000 applied)', async () => {
   expect(storageReady, 'payments tables/functions are not available in Supabase yet');
 });
