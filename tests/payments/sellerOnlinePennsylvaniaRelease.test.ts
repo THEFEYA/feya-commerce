@@ -5,7 +5,7 @@ import {requiresPennsylvaniaTaxReview} from '../../lib/payments/destinationTaxRe
 import {checkoutErrorMessage,parseCheckoutRequest} from '../../lib/payments/checkoutRequest.ts';
 import {validCheckoutBody} from './fixtures.ts';
 import {CHECKOUT_POLICY_BUNDLE_V1} from '../../lib/payments/checkoutPolicyEvidence.ts';
-import {SELLER_ONLINE_CHECKOUT_DISCLOSURE,buildCustomerSnapshot} from '../../lib/payments/orderSnapshot.ts';
+import {SELLER_ONLINE_CHECKOUT_DISCLOSURE} from '../../lib/payments/orderSnapshot.ts';
 
 test('Only US Pennsylvania shipments require an individual verified sales-tax quote',()=>{
   for(const code of ['PA','pa',' PA '])assert.equal(requiresPennsylvaniaTaxReview('US',code),true);
