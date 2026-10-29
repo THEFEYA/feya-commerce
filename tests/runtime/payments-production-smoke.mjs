@@ -63,8 +63,8 @@ await check('live Seller Online legal seller is disclosed in public terms', asyn
   expect(r.status === 200, 'public Terms not reachable: '+r.status);
   expect(r.text.includes('Legal seller for orders placed through this checkout'), 'Seller legal-role notice missing');
   expect(r.text.includes('Seller-Online LLC'), 'Seller legal entity missing');
-  expect(r.text.includes('Pennsylvania'), 'PA specific tax quote condition not disclosed');
-  return {status:r.status,legal_seller:'Seller-Online LLC',pa_tax_quote_disclosed:true};
+  expect(r.text.includes('without an additional tax surcharge'), 'fixed buyer-total statement missing');
+  return {status:r.status,legal_seller:'Seller-Online LLC',buyer_total_no_extra_sales_tax:true};
 });
 
 await check('payments database installed (migration 20261021200000 applied)', async () => {
