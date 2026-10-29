@@ -12,7 +12,7 @@ const CONTACT_EMAIL='manager.feya@gmail.com';
 
 export const metadata:Metadata={
   title:'Terms of Use & Sale',
-  description:'TheFEYA website, product, shipping, returns and future ordering terms.',
+  description:'TheFEYA website, products, live PayPal checkout, shipping and return conditions.',
   alternates:{canonical:'/terms'},
   // Terms are public for trust/OAuth review, but are not a Search Release owner yet.
   robots:{index:false,follow:true},
@@ -30,7 +30,7 @@ export default async function TermsPage(){
         <div className="eyebrow-gold mb-5">TheFEYA · Store terms</div>
         <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Terms of Use & Sale</h1>
         <p className="mt-6 max-w-3xl text-[16px] leading-7 text-[#aaa2a0]">
-          These terms explain the current catalog website and the rules that apply when a TheFEYA ordering flow is separately activated. Product-specific details shown on the selected product page remain part of the product information.
+          These terms describe the TheFEYA storefront and the conditions for the currently enabled ordering flow. Product-specific details shown on the selected product page remain part of the product information.
         </p>
       </div>
     </section>
@@ -50,7 +50,7 @@ export default async function TermsPage(){
             </>:<>
               <p>TheFEYA is the public brand and studio contact for this catalog website.</p>
               {sellerOnlineEnabled
-                ?<p>Online checkout is active. Payments are made on PayPal&apos;s secure pages and received by {SELLER_ONLINE_PROVIDER.legalName}, our authorized payment recipient and logistics partner. No inactive sole-proprietor registration is presented as the current seller.</p>
+                ?<p>Online checkout is active. The legal seller of purchases is {SELLER_ONLINE_PROVIDER.legalName}, our authorized payment recipient and logistics partner. Buyers complete payment securely on PayPal&apos;s pages. TheFEYA is the design and production brand.</p>
                 :<p>Online checkout and payment processing are not active. No inactive sole-proprietor registration is presented as the current seller, and no payment service is presented as an active transaction party before its integration is confirmed.</p>}
               <p>Storefront contact: <a className="text-bone hover:text-white" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
             </>}
@@ -100,11 +100,12 @@ export default async function TermsPage(){
         </article>
 
         {sellerOnlineEnabled?<article className="rounded-xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-6 lg:p-7 lg:col-span-2">
-          <h2 className="text-bone text-xl">Seller Online transaction service</h2>
+          <h2 className="text-bone text-xl">Legal seller and payment service</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            <p>For the enabled Seller Online checkout flow, {SELLER_ONLINE_PROVIDER.legalName} may act as buyer, reseller, shipper and direct payment recipient under the terms applicable to that service. TheFEYA does not label Seller Online as “merchant of record” unless that exact role is separately confirmed for thefeya.com.</p>
-            <p>An order is placed when you complete payment on PayPal and the payment is confirmed. The total shown before payment includes the selected product options, delivery, any additional packaging, remote-destination delivery and selected extras, in euros. Import duties or local taxes, where applicable, are paid by the recipient as described in the Shipping &amp; Delivery policy. Card details are entered on PayPal&apos;s pages, not on thefeya.com.</p>
+            <p>Legal seller for orders placed through this checkout: {SELLER_ONLINE_PROVIDER.legalName}. Seller Online expressly confirmed its role as seller, authorized payment recipient and logistics partner for thefeya.com. TheFEYA is the brand that designs, produces and supports the handmade pieces. Seller Online is not described here using an unverified card-network designation.</p>
+            <p>Orders are confirmed after PayPal verifies payment. Before paying, the checkout shows the selected items, options, delivery and extras in euros. Applicable sales tax depends on the merchandise and destination. Online payment for delivery to Pennsylvania requires a separately confirmed tax quote; no unverified tax percentage is added automatically. Any customs or import charges, where applicable, may be assessed separately upon delivery. Card details are entered only on PayPal&apos;s pages.</p>
             <p>{SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+            <p>Seller support: <a className="text-bone underline underline-offset-4" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a> · {SELLER_ONLINE_PROVIDER.usOfficePhone}. TheFEYA order and sizing support: <a className="text-bone underline underline-offset-4" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
           </div>
         </article>:<article className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.035)] p-6 lg:col-span-2 lg:p-7">
           <h2 className="text-bone text-xl">Planned payment &amp; logistics partner</h2>
