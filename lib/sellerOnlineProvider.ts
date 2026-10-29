@@ -9,6 +9,11 @@ export const SELLER_ONLINE_PROVIDER = {
   apiDocumentationUrl: 'https://api.seller-online.com/swagger-ui/',
   approvedCheckoutDisclosure: 'Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.',
   merchantOfRecordConfirmed: false,
+  legalSellerForTheFeyaConfirmed: true,
+  legalSellerConfirmationDate: '2026-10-27',
+  // First real €1 PayPal capture was automatically imported as Seller Online order 60173893.
+  // This proves the current OpenCart-shaped custom key maps, not that it is a native Next.js contract.
+  confirmedVendorTestOrderNumber: '60173893',
   contactAddress: {
     line1: '635 Somers Ave',
     city: 'Feasterville-Trevose',

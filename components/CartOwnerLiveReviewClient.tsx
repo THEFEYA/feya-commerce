@@ -18,6 +18,7 @@ import {
   checkoutApi,newIdempotencyKey,redirectToProvider,rememberPendingCheckout,submitProviderForm,
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
+import {requiresPennsylvaniaTaxReview} from '@/lib/payments/destinationTaxReview';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -120,6 +121,7 @@ export function CartOwnerLiveReviewClient(){
     client_unit_minor:Math.round(item.price*100),
   })),[items,wearerByItem,customFitIds]);
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
+  const needsPennsylvaniaQuote=requiresPennsylvaniaTaxReview(form.country,form.region);
 
   useEffect(()=>{
     if(!checkoutActive||!hydrated||!linesOrderable){setQuote(null);return;}
@@ -136,7 +138,7 @@ export function CartOwnerLiveReviewClient(){
   },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country]);
 
   const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
-  const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
+  const canPay=checkoutActive&&linesOrderable&&!needsPennsylvaniaQuote&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
 
   async function pay(){
     if(!canPay)return;
@@ -522,14 +524,16 @@ export function CartOwnerLiveReviewClient(){
               <div className="flex items-start justify-between gap-3">
                 <span className="text-[13px] leading-6 text-[#f7f3ec]">Total to pay</span>
                 <strong className="text-[26px] font-medium text-[#e4c87d]" data-testid="server-total">
-                  {serverAmounts?currency(serverAmounts.total_minor):quoteLoading?'…':'—'}
+                  {needsPennsylvaniaQuote?'—':serverAmounts?currency(serverAmounts.total_minor):quoteLoading?'…':'—'}
                 </strong>
               </div>
               <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
-                {!linesOrderable&&items.length>0
+                {needsPennsylvaniaQuote
+                  ?'Pennsylvania delivery needs an individually confirmed sales-tax quote before payment.'
+                  :!linesOrderable&&items.length>0
                   ?'One of the pieces in your bag needs to be selected again on its product page before payment.'
                   :quote&&!quote.ok?quote.message
-                  :form.country?'Price in EUR, confirmed by TheFEYA. Import duties or local taxes, where applicable, are paid by the recipient on delivery.'
+                  :form.country?'Price in EUR, confirmed by TheFEYA. Customs/import charges, where applicable, may be collected separately on delivery.'
                   :'Select your destination country to confirm delivery charges.'}
               </p>
             </div>
@@ -538,13 +542,14 @@ export function CartOwnerLiveReviewClient(){
               className={`mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-[14px] font-medium ${canPay?'bg-[#d4b26a] text-[#151318] hover:bg-[#e4c87d]':'cursor-not-allowed border border-[rgba(216,214,211,.26)] bg-[rgba(216,214,211,.11)] text-[var(--bone-dim)]'}`}>
               <LockKeyhole size={16}/> {paying?'Opening PayPal…':'Pay securely with PayPal'}
             </button>
+            {needsPennsylvaniaQuote&&<p className="mt-3 text-[12px] leading-5 text-[#e4c87d]" role="status">Your bag is saved. <Link href="/contact" className="underline underline-offset-4">Contact us for a Pennsylvania tax quote</Link> before paying.</p>}
             {payError&&<p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-[12px] leading-5 text-amber-100" role="alert">{payError}</p>}
             {!fulfilled&&items.length>0&&<p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Complete your contact and delivery details to continue.</p>}
             {fulfilled&&!acceptedTerms&&<p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please confirm the terms, returns and shipping policy.</p>}
             <p className="mt-3 flex gap-2 text-[11px] leading-5 text-[var(--bone-dim)]">
               <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#d4b26a]" aria-hidden="true"/>
               <span>You will pay on PayPal&apos;s secure page with a card or your PayPal account.
-                Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</span>
+                Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</span>
             </p>
           </>:<>
           <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">

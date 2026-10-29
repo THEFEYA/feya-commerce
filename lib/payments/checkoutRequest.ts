@@ -188,6 +188,7 @@ export const CHECKOUT_ERROR_MESSAGES: Record<string, string> = {
   checkout_quantity_too_large: 'This order is too large for online checkout. Please contact us.',
   checkout_method_invalid: 'Please choose Standard or Express delivery.',
   checkout_country_unavailable: 'We cannot deliver to the selected country through online checkout yet.',
+  checkout_pa_tax_quote_required: 'Pennsylvania orders need a confirmed sales-tax quote before payment. Please contact TheFEYA; your bag is saved.',
   checkout_region_required: 'Please choose your state, province or territory.',
   checkout_field_required: 'Please complete all required contact and delivery details.',
   checkout_field_invalid: 'Some of the details contain characters we cannot accept.',

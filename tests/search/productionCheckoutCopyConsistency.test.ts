@@ -22,7 +22,7 @@ test('Privacy checkout state comes from real payment status, and accepted policy
   assert.match(privacy,/Online checkout is active/);
   assert.match(privacy,/Online checkout and payment processing are not active at this time/);
   assert.doesNotMatch(privacy,/Online checkout, payment processing and optional production analytics are not activated until/);
-  assert.equal(CHECKOUT_POLICY_BUNDLE_V1.version,'thefeya-sale-policy-20261027-v2');
+  assert.equal(CHECKOUT_POLICY_BUNDLE_V1.version,'thefeya-sale-policy-20261029-v3');
   const bytes=readFileSync('app/privacy/page.tsx');
   const sha=createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex');
   assert.equal(sha,CHECKOUT_POLICY_BUNDLE_V1.sources.privacy.git_blob_sha1);

@@ -19,7 +19,7 @@ test('paired customer order and PayPal preserve both colours and both sizes at t
   }];
   const amounts=computeCheckoutAmounts({lines,extras:[],method:'standard',country:'DE'});
   const snapshot=buildCustomerSnapshot({request,lines,extras:[],amounts,now:new Date('2026-10-26T12:00:00Z')});
-  assert.equal(snapshot.policies.accepted_bundle_version,'thefeya-sale-policy-20261027-v2');
+  assert.equal(snapshot.policies.accepted_bundle_version,'thefeya-sale-policy-20261029-v3');
   assert.equal(snapshot.policies.accepted_at,snapshot.created_at);
   assert.equal(Object.keys(snapshot.policies.source_blob_sha1||{}).length,4);
   assert.equal(snapshot.lines[0].size,'Women S / Men XL');

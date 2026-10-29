@@ -5,7 +5,7 @@ import type {CheckoutAddress, CheckoutBuyer, CheckoutRequestV1} from './checkout
 import {CHECKOUT_PRICING_V1, type CheckoutAmounts, type DeliveryMethod, type ExtraLine, type PricedLine} from './pricing.ts';
 
 export const SELLER_ONLINE_CHECKOUT_DISCLOSURE =
-  'Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.';
+  'Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.';
 
 export const DELIVERY_LABELS: Record<DeliveryMethod, {label: string; window: string}> = {
   standard: {label: 'Standard Shipping', window: '10–14 business days'},
