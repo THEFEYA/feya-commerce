@@ -147,6 +147,8 @@ export function computeCheckoutAmounts(input: {
     throw new CheckoutPricingError('checkout_total_out_of_range');
   return {
     currency: 'EUR', merchandise_minor: merchandise, extras_minor: extrasMinor,
+    // No extra tax is charged to the customer by this checkout. Seller-Online LLC
+    // is the legal seller and accounts for any applicable sales tax separately.
     shipping_minor: shipping, remote_minor: remote, handling_minor: handling, tax_minor: 0,
     total_minor: total, distinct_listing_count: listings.size, item_quantity: quantity,
   };
