@@ -1,7 +1,7 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
-const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v12-production-crawl.json',import.meta.url),'utf8'));
+const manifest=JSON.parse(await readFile(new URL('./fixtures/search-v13-production-crawl.json',import.meta.url),'utf8'));
 const releaseActive=manifest.release.status==='ACTIVE'&&Number(manifest.release.activeReleaseCount)===1;
 const origin=new URL(manifest.release.targetOrigin).origin;
 // Next.js 16.3.8 only switches to blocking metadata for its htmlLimitedBots
@@ -299,9 +299,10 @@ for(const item of manifest.retiredRedirects){
   }
 }
 
-// The immutable release manifest proves all 207 PDPs are NOINDEX_DEPENDENCY.
- // HTTP verifies a deterministic cross-catalog sample through the one shared PDP route
- // instead of re-rendering the same route contract hundreds of times on every CI run.
+// Search Release v13 promotes all 207 PDPs to index (they are indexCandidates now),
+ // so the v13 manifest lists no product noindex dependencies. For a manifest that does
+ // (e.g. historical v12), HTTP verifies a deterministic cross-catalog sample through the
+ // one shared PDP route instead of re-rendering the same contract hundreds of times.
 const productEntries=await mapLimit(productNoindexSamplePaths,8,async path=>checkNoindexPath(path));
 for(const entry of productEntries){
   result.productNoindex.checked++;
