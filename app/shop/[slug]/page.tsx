@@ -24,6 +24,7 @@ import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
 import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
+import { pdpOfferJsonLd } from '@/lib/storefrontOfferJsonLd';
 
 type PageProps = { params: Promise<{ slug: string }> };
 function canonicalProductUrl(slug: string) {
@@ -50,10 +51,8 @@ function productImages(product: StorefrontProduct) {
 }
 
 function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
-  // Phase 11 stays truthful to the current commerce boundary:
-  // active internal offer revisions exist, but public order creation/payment are not enabled.
-  // Merchant Offer/ProductGroup markup is added only when the page can actually preselect
-  // and purchase the represented variant through a crawlable public URL.
+  // `offers` is attached by the page only when the PDP is purchasable (see
+  // ResolvedProductPage); review-only pages never claim an Offer.
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -206,14 +205,20 @@ async function ResolvedProductPage({ params }: PageProps) {
   if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
+  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
+  // Same rule as the PDP purchase CTA below: review-only copy shows "Preview only".
+  const purchasable = !(Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy);
   const jsonLd = productJsonLd(product, slug, approvedCopy);
+  // The Offer mirrors exactly the configuration and EUR price this page
+  // preselects and the checkout charges; choose-first pages get a price range.
+  const offers = purchasable ? pdpOfferJsonLd(product, canonicalProductUrl(slug)) : null;
+  if (offers) jsonLd.offers = offers;
   const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
   const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
   // This exact Vercel branch is an owner-protected visual storefront review.
   // Keep the immutable approved SEO copy projected, but do not replace the
   // existing cart controls with the generic content-review "Preview only" CTA.
   // Checkout/payment/indexing remain independently disabled by their own gates.
-  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
 
   return <main className="relative min-h-screen">
     <Header />
