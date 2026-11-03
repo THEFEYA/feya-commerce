@@ -6,7 +6,7 @@ import {Footer} from '@/components/Footer';
 import {OrderReceiptClient} from '@/components/checkout/OrderReceiptClient';
 
 export const metadata: Metadata = {
-  title: 'Your order | TheFEYA',
+  title: {absolute:'Your order | TheFEYA'},
   robots: {index: false, follow: false, nocache: true},
   referrer: 'no-referrer',
 };

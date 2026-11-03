@@ -13,6 +13,7 @@ import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {brandAwareTitle} from '@/lib/pageTitle';
 
 type PageProps={params:Promise<{slug:string}>};
 
@@ -37,7 +38,7 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   const content=metadata?.content;
 
   return {
-    title:content?.seo_title || candidate.title,
+    title:brandAwareTitle(content?.seo_title || candidate.title),
     description:content?.meta_description || candidate.description,
     alternates:{canonical:path},
     robots,

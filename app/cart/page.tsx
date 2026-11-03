@@ -9,7 +9,7 @@ import {isOwnerRealCartReviewDeployment} from '@/lib/commerceOwnerCartReview';
 import {isApprovedV13Presentation} from '@/lib/approvedV13Presentation';
 
 export const metadata:Metadata={
-  title:'Bag | TheFEYA',
+  title:{absolute:'Bag | TheFEYA'},
   description:'TheFEYA pre-launch bag and checkout status.',
   alternates:{canonical:'/cart'},
   robots:{index:false,follow:false},

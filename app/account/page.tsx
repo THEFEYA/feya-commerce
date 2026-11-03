@@ -6,7 +6,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 
 export const metadata:Metadata={
-  title:'Account | TheFEYA',
+  title:{absolute:'Account | TheFEYA'},
   description:'TheFEYA customer account access is not active yet.',
   alternates:{canonical:'/account'},
   robots:{index:false,follow:false},
