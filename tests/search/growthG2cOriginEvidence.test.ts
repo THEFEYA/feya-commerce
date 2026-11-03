@@ -146,6 +146,42 @@ test('actual pinned ACTIVE Search v12 fixture can be verified without synthetic 
   assert.equal(r.coverage.productNoindex.untested,183);
 });
 
+test('actual pinned ACTIVE Search v13 fixture (225 index, 0 product noindex) is verified',()=>{
+  const manifest=JSON.parse(readFileSync('tests/runtime/fixtures/search-v13-production-crawl.json','utf8'));
+  const shopPdps=manifest.indexCandidates.filter((p:string)=>p.startsWith('/shop/'));
+  const f=fixture();
+  f.manifest=manifest;
+  const crawl=f.crawl as any;
+  crawl.release=manifest.release;
+  crawl.indexCandidates=manifest.indexCandidates.map((path:string)=>({
+    path,status:200,noindex:false,canonical:indexUrl(path),expectedCanonical:indexUrl(path),pass:true,
+  }));
+  crawl.summary={...crawl.summary,indexCandidatesChecked:225,indexCandidatesPassed:225,
+    productNoindexManifestExpected:0,productNoindexChecked:0,productNoindexPassed:0};
+  crawl.productNoindex={manifestExpected:0,httpSampleExpected:0,samplePaths:[],checked:0,passed:0,failed:[],observations:[]};
+  crawl.sitemap={pass:true,urlCount:225,locs:manifest.indexCandidates.map(indexUrl)};
+  (f.pdp as any).samples=shopPdps.slice(0,5).map((path:string)=>({path,pass:true,status:200,errors:[]}));
+  const r=projectG2cOriginEvidence(f);
+  assert.equal(manifest.release.version,13);
+  assert.equal(manifest.release.id,'ad097800-9536-571d-a874-13ff00b53726');
+  assert.equal(shopPdps.length,207);
+  assert.equal(r.verdict,'PRODUCTION_HTTP_OBSERVED',r.reasonCodes.join(','));
+  assert.equal(r.coverage.indexIntent.verified,225);
+  assert.equal(r.coverage.productNoindex.expected,0);
+  assert.equal(r.fullProductNoindexCoverageConfirmed,false);
+  assert.equal(r.googleIndexationConfirmed,false);
+});
+
+test('a v13 manifest with a wrong shape or non-PDP samples is never production proof',()=>{
+  const manifest=JSON.parse(readFileSync('tests/runtime/fixtures/search-v13-production-crawl.json','utf8'));
+  const bad=clone(manifest); bad.indexCandidates=bad.indexCandidates.slice(1);
+  const f=fixture(); f.manifest=bad; (f.crawl as any).release=bad.release;
+  assert.notEqual(projectG2cOriginEvidence(f).verdict,'PRODUCTION_HTTP_OBSERVED');
+  const g=fixture(); const v12asV13=clone(manifest); v12asV13.productNoindexPaths=['/shop/x'];
+  g.manifest=v12asV13; (g.crawl as any).release=v12asV13.release;
+  assert.ok(projectG2cOriginEvidence(g).reasonCodes.includes('EXPECTED_RELEASE_MANIFEST_INVALID'));
+});
+
 test('a PR running against old production is NEVER a production attestation',()=>{
   for(const patch of [
     {event:'pull_request',ref:'refs/pull/183/merge'},
