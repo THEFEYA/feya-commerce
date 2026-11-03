@@ -54,8 +54,8 @@ test('no price or non-EUR data emits no offer instead of inventing one', () => {
 
 test('PDP route embeds the offer only on purchasable (non-preview) pages', () => {
   const page = readFileSync('app/shop/[slug]/page.tsx', 'utf8');
-  assert.match(page, /purchasable \? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\)\) : null/);
   assert.match(page, /const purchasable = !\(Boolean\(approvedCopy\) && !allowHybridPreviewCommerce && !approvedPublicCopy\)/);
-  assert.match(page, /productJsonLd\(product, slug, approvedCopy, purchasable\)/);
-  assert.match(page, /\.\.\.\(offers \? \{ offers \} : \{\}\)/);
+  assert.match(page, /const jsonLd = productJsonLd\(product, slug, approvedCopy\);/);
+  assert.match(page, /const offers = purchasable \? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\)\) : null;/);
+  assert.match(page, /if \(offers\) jsonLd\.offers = offers;/);
 });

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 
-test('Phase 11 PDP emits truthful Product plus BreadcrumbList without premature merchant variant markup',async()=>{
+test('Phase 11 PDP emits truthful Product plus BreadcrumbList; Offer only via governed helper on purchasable pages',async()=>{
   const pdp=await readFile(new URL('../../app/shop/[slug]/page.tsx',import.meta.url),'utf8');
 
   assert.match(pdp,/"@type": 'Product'|\'@type\': 'Product'/);
@@ -10,7 +10,11 @@ test('Phase 11 PDP emits truthful Product plus BreadcrumbList without premature 
   assert.match(pdp,/itemListElement/);
   assert.match(pdp,/canonicalProductUrl\(slug\)/);
 
-  assert.doesNotMatch(pdp,/jsonLd\.offers\s*=/);
+  // Checkout is live since the Seller-Online launch: the Offer is attached only
+  // through the governed helper (preselected configuration, exact EUR price)
+  // and only on purchasable pages; the route never inlines an Offer literal.
+  assert.match(pdp,/const offers = purchasable \? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\)\) : null;/);
+  assert.match(pdp,/if \(offers\) jsonLd\.offers = offers;/);
   assert.doesNotMatch(pdp,/['"]@type['"]:\s*['"]Offer['"]/);
   assert.doesNotMatch(pdp,/["']@type["']:\s*["']ProductGroup["']/);
   assert.doesNotMatch(pdp,/mainRegularPrice/);

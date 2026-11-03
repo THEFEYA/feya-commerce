@@ -50,12 +50,9 @@ function productImages(product: StorefrontProduct) {
   return Array.from(new Set([...mediaUrls, ...fallbackUrls]));
 }
 
-function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null, purchasable = false) {
-  // Only a purchasable public PDP carries an Offer: it mirrors exactly the
-  // configuration and EUR price this page preselects and the checkout charges;
-  // pages that ask the buyer to choose first get an AggregateOffer range.
-  // Preview/closed-review pages (disabled "Preview only" CTA) never claim one.
-  const offers = purchasable ? pdpOfferJsonLd(product, canonicalProductUrl(slug)) : null;
+function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
+  // `offers` is attached by the page only when the PDP is purchasable (see
+  // ResolvedProductPage); review-only pages never claim an Offer.
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -68,7 +65,6 @@ function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: A
       '@type': 'Brand',
       name: 'TheFEYA',
     },
-    ...(offers ? { offers } : {}),
   };
 }
 
@@ -212,7 +208,11 @@ async function ResolvedProductPage({ params }: PageProps) {
   const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
   // Same rule as the PDP purchase CTA below: review-only copy shows "Preview only".
   const purchasable = !(Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy);
-  const jsonLd = productJsonLd(product, slug, approvedCopy, purchasable);
+  const jsonLd = productJsonLd(product, slug, approvedCopy);
+  // The Offer mirrors exactly the configuration and EUR price this page
+  // preselects and the checkout charges; choose-first pages get a price range.
+  const offers = purchasable ? pdpOfferJsonLd(product, canonicalProductUrl(slug)) : null;
+  if (offers) jsonLd.offers = offers;
   const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
   const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
   // This exact Vercel branch is an owner-protected visual storefront review.
