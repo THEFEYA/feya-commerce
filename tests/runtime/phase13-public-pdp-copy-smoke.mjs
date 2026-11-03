@@ -50,7 +50,8 @@ if(strict&&!report.reasons.length){
    const robots=[...html.matchAll(/<meta\b[^>]*>/gi)]
       .filter(x=>['robots','googlebot'].includes(String(attr(x[0],'name')||'').toLowerCase()))
       .map(x=>String(attr(x[0],'content')||'').toLowerCase());
-   if(!robots.some(x=>x.includes('noindex'))&&!String(response.headers.get('x-robots-tag')||'').toLowerCase().includes('noindex'))errors.push('pdp_noindex_lost');
+   // Search Release v13 is ACTIVE: every approved PDP must stay indexable.
+   if(robots.some(x=>x.includes('noindex'))||String(response.headers.get('x-robots-tag')||'').toLowerCase().includes('noindex'))errors.push('pdp_index_lost');
    const canonicals=[...html.matchAll(/<link\b[^>]*>/gi)].filter(x=>String(attr(x[0],'rel')||'').toLowerCase().split(/\s+/).includes('canonical'));
    let canonicalMatch=false;
    try{canonicalMatch=new URL(attr(canonicals[0]?.[0]||'','href')||'',origin).href===new URL(path,origin).href}catch{}
