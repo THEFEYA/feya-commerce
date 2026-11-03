@@ -6,7 +6,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 
 export const metadata:Metadata={
-  title:'What to Wear to Burning Man: Practical Costume Guide | TheFEYA',
+  title:{absolute:'What to Wear to Burning Man: Practical Costume Guide | TheFEYA'},
   description:'Plan a Burning Man costume around official desert, dust, visibility and Leave No Trace guidance, then build the visual look with TheFEYA.',
   alternates:{canonical:'/guides/what-to-wear-to-burning-man'},
   robots:{index:false,follow:true},

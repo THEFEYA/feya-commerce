@@ -7,7 +7,7 @@ import {Footer} from '@/components/Footer';
 import {CheckoutReturnClient} from '@/components/checkout/CheckoutReturnClient';
 
 export const metadata: Metadata = {
-  title: 'Payment | TheFEYA',
+  title: {absolute:'Payment | TheFEYA'},
   robots: {index: false, follow: false, nocache: true},
   referrer: 'no-referrer',
 };

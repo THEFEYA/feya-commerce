@@ -6,7 +6,7 @@ import {Footer} from '@/components/Footer';
 import {SellerOnlineInstallClient} from '@/components/payments/SellerOnlineInstallClient';
 
 export const metadata: Metadata = {
-  title: 'Seller Online · Payment connection | TheFEYA',
+  title: {absolute:'Seller Online · Payment connection | TheFEYA'},
   description: 'Private, invitation-only installation of the Seller Online payment connection for TheFEYA.',
   robots: {index: false, follow: false, nocache: true, noarchive: true},
   referrer: 'no-referrer',
