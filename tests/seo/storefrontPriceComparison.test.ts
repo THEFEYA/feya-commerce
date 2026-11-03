@@ -32,7 +32,7 @@ test('derives a consistent comparison total from canonical savings when the sum 
   assert.deepEqual(result, {
     separateRegularTotal: 386.02,
     fullSetSavings: 103.25,
-    displayedFullSetSavings: 103,
+    displayedFullSetSavings: 103.25,
   });
 });
 
@@ -51,7 +51,7 @@ test('keeps the legacy calculated comparison only when no canonical totals exist
   });
 });
 
-test('keeps the displayed saving consistent with zero-decimal storefront prices', () => {
+test('shows the exact saving that matches exact-cent storefront prices', () => {
   const result = resolveFullSetPriceComparison({
     fullSetPrice: 239.39,
     storedComponentSum: 294.76,
@@ -62,7 +62,7 @@ test('keeps the displayed saving consistent with zero-decimal storefront prices'
   assert.deepEqual(result, {
     separateRegularTotal: 294.76,
     fullSetSavings: 55.37,
-    displayedFullSetSavings: 56,
+    displayedFullSetSavings: 55.37,
   });
 });
 
@@ -79,7 +79,7 @@ test('uses an exact current-selector coverage total over a stale stored componen
   assert.deepEqual(result, {
     separateRegularTotal: 289.51,
     fullSetSavings: 125.45,
-    displayedFullSetSavings: 126,
+    displayedFullSetSavings: 125.45,
   });
 });
 

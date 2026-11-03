@@ -42,12 +42,10 @@ export function resolveFullSetPriceComparison({
   const fullSetSavings = full != null && separateRegularTotal > full
     ? roundCurrency(separateRegularTotal - full)
     : 0;
-  // Storefront prices are intentionally rendered without cents. Derive the
-  // customer-facing saving from those same rendered amounts so a comparison
-  // such as €239 vs €295 never claims a visibly inconsistent €55 saving.
-  const displayedFullSetSavings = full != null && separateRegularTotal > full
-    ? Math.max(0, Math.round(separateRegularTotal) - Math.round(full))
-    : 0;
+  // Storefront prices are rendered with exact cents (formatPrice), so the
+  // customer-facing saving is the exact difference of the two displayed amounts
+  // (€195.40 vs €260.55 → save €65.15), never a rounded-up claim.
+  const displayedFullSetSavings = fullSetSavings;
 
   return { separateRegularTotal, fullSetSavings, displayedFullSetSavings };
 }
