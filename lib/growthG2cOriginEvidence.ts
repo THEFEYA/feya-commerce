@@ -166,15 +166,23 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
     reasons.push('NOT_EXACT_MAIN_PUSH');
     return result;
   }
-  const manifestOk=!!release &&
-    manifest?.contract==='phase12_wave_a_v12_active_production_crawl_v1' &&
+  // v12 (historical archives): 18 landings indexable + 207 PDP noindex dependencies.
+  // v13 (ACTIVE since 2026-10-29): the same 18 landings + the 207 PDPs promoted to
+  // index (225), no product noindex dependencies. Any other shape is invalid.
+  const shopIndexPaths=indexPaths.filter(p=>p.startsWith('/shop/'));
+  const contractShapeOk=
+    (manifest?.contract==='phase12_wave_a_v12_active_production_crawl_v1' &&
+      indexPaths.length===18 && productPaths.length===207) ||
+    (manifest?.contract==='search_release_v13_active_production_crawl_v1' &&
+      release?.version===13 && indexPaths.length===225 && productPaths.length===0 &&
+      shopIndexPaths.length===207);
+  const manifestOk=!!release && contractShapeOk &&
     release.status==='ACTIVE' && release.activeReleaseCount===1 &&
     release.targetOrigin===ORIGIN &&
     typeof release.id==='string' && /^[0-9a-f-]{36}$/i.test(release.id) &&
     typeof release.code==='string' && release.code.length>1 &&
     typeof release.version==='number' && Number.isSafeInteger(release.version) && release.version>0 &&
     typeof release.hash==='string' && HASH.test(release.hash) &&
-    indexPaths.length===18 && productPaths.length===207 &&
     exactSet(indexPaths,manifestIndex as string[]) &&
     exactSet(productPaths,manifestProducts as string[]) &&
     (new Set([...indexPaths,...productPaths]).size===indexPaths.length+productPaths.length);
@@ -301,7 +309,8 @@ export function projectG2cOriginEvidence(input:G2cEvidenceInput):G2cEvidenceResu
     pdp?.checked===5 && pdp?.passed===5 &&
     array(pdp?.reasons).length===0 && samples.length===5 &&
     new Set(pdpPaths).size===5 &&
-    samples.every(x=>!!x && validPath(x.path) && productPaths.includes(x.path as string) &&
+    samples.every(x=>!!x && validPath(x.path) &&
+      (productPaths.length?productPaths:shopIndexPaths).includes(x.path as string) &&
       x.status===200 && x.pass===true && array(x.errors).length===0);
   if (!pdpOk) reasons.push('PDP_COPY_SAMPLING_UNVERIFIED');
   else counts.pdpCopySample.verified=5;

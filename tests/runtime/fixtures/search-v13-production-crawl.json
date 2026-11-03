@@ -1,17 +1,20 @@
 {
   "contract": "search_release_v13_active_production_crawl_v1",
-  "generatedFrom": "v12 fixture indexCandidates (18) + productNoindexPaths (207) promoted to index by Search Release v13; verified 2026-11-03 against live https://thefeya.com/sitemap.xml (225 URLs, sorted-path sha256 3a7b8b2866d6bf696216f4112d681f94a7d893d8e8a40cdd1e0310b96dedebeb)",
+  "generatedFrom": "Supabase feya_search_release_items_v1, release ad097800-9536-571d-a874-13ff00b53726 (read 2026-11-04): 225 INDEX_CANDIDATE paths, sorted-path sha256 3a7b8b2866d6bf696216f4112d681f94a7d893d8e8a40cdd1e0310b96dedebeb (= live https://thefeya.com/sitemap.xml 2026-11-03); 3 NOINDEX_DEPENDENCY = /account, /cart, /shop (utilityNoindexPaths)",
   "release": {
+    "id": "ad097800-9536-571d-a874-13ff00b53726",
+    "code": "organic-wave-a-20260926",
     "version": 13,
     "status": "ACTIVE",
-    "activeReleaseCount": 1,
+    "hash": "8e98b499c55c7ad85dfa9ecb8f9223b517c0d22bce85ebe1b6944e39b87f31e5",
+    "gitSha": "fc4d77815e8cdd9cab4c73b58a15bad7fc8f5bfe",
     "targetOrigin": "https://thefeya.com",
+    "activeReleaseCount": 1,
     "supersedes": {
       "version": 12,
       "id": "2dc86d7c-6269-5327-9154-6b5178931254",
-      "code": "organic-wave-a-20260926"
-    },
-    "productionGitShaAtCapture": "41d8f6a2a2b9770fdb2acfc30ee303570112884a"
+      "status": "RETIRED"
+    }
   },
   "indexCandidates": [
     "/",

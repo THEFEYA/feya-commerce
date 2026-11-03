@@ -16,7 +16,7 @@ async function readJson(path:string) {
 }
 const base='runtime-results/';
 const paths={
-  manifest:'tests/runtime/fixtures/phase12-wave-a-v12-production-crawl.json',
+  manifest:'tests/runtime/fixtures/search-v13-production-crawl.json',
   crawl:base+'phase12-production-origin-crawl.json',
   revision:base+'phase13-production-revision-gate.json',
   shop:base+'phase13-shop-origin-smoke.json',
