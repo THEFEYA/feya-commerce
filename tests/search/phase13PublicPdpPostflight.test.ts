@@ -20,15 +20,16 @@ test('five PDP checks reference only original pinned source IDs, paths and immut
  }
 });
 
-test('PDP public smoke is strict on authorized main release only and retains noindex / layout safeguards',()=>{
+test('PDP public smoke is strict on authorized main release only and retains v13 index / layout safeguards',()=>{
  assert.ok(src.includes("PHASE13_REQUIRE_PUBLISHED_COPY==='true'"));
  assert.ok(src.includes("PHASE13_PRODUCTION_PUBLISH_AUTHORIZED\\s*=\\s*true"));
  assert.ok(src.includes('const strict=mainPush&&gitAuthorized'));
  assert.ok(src.includes("if(strict&&(report.reasons.length||report.checked!==5||report.passed!==5))"));
  for(const str of ['NEXT_HTTP_ERROR_FALLBACK;404','four_approved_blocks_missing_or_ordered_wrong','confirmed_physical_piece_not_rendered',
-  'right_pdp_heading_missing','pdp_noindex_lost','pdp_canonical_changed','original_h1_not_rendered']){
+  'right_pdp_heading_missing','pdp_index_lost','pdp_canonical_changed','original_h1_not_rendered']){
    assert.ok(src.includes(str),str);
  }
+ assert.ok(!src.includes('pdp_noindex_lost'));
  assert.ok(!src.includes('SUPABASE_SERVICE_ROLE_KEY'));
  assert.ok(!src.includes('console.log(html)'));
 });
