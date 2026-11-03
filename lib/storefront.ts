@@ -103,7 +103,12 @@ function publicOptionLabel(value: unknown, index = 0) {
 
 export function formatPrice(amount: number | null | undefined, currency = 'EUR') {
   if (amount == null || Number.isNaN(Number(amount))) return '—';
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Number(amount));
+  // Buyer-facing prices must equal the amount charged at checkout (and the price
+  // Google Merchant Center crawls). Whole amounts keep the V13 look (€195);
+  // amounts with cents are never rounded away (€195.40, not €195).
+  const minor = Math.round(Number(amount) * 100);
+  const digits = minor % 100 === 0 ? 0 : 2;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(minor / 100);
 }
 export function asConfigurations(product: StorefrontProduct): StorefrontConfiguration[] {
   const corrected = restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(product as Record<string, any>));
