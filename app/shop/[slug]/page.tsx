@@ -50,11 +50,12 @@ function productImages(product: StorefrontProduct) {
   return Array.from(new Set([...mediaUrls, ...fallbackUrls]));
 }
 
-function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
-  // Checkout is live (Seller-Online LLC, PayPal). The Offer mirrors exactly the
+function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null, purchasable = false) {
+  // Only a purchasable public PDP carries an Offer: it mirrors exactly the
   // configuration and EUR price this page preselects and the checkout charges;
   // pages that ask the buyer to choose first get an AggregateOffer range.
-  const offers = pdpOfferJsonLd(product, canonicalProductUrl(slug));
+  // Preview/closed-review pages (disabled "Preview only" CTA) never claim one.
+  const offers = purchasable ? pdpOfferJsonLd(product, canonicalProductUrl(slug)) : null;
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -208,14 +209,16 @@ async function ResolvedProductPage({ params }: PageProps) {
   if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
-  const jsonLd = productJsonLd(product, slug, approvedCopy);
+  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
+  // Same rule as the PDP purchase CTA below: review-only copy shows "Preview only".
+  const purchasable = !(Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy);
+  const jsonLd = productJsonLd(product, slug, approvedCopy, purchasable);
   const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
   const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
   // This exact Vercel branch is an owner-protected visual storefront review.
   // Keep the immutable approved SEO copy projected, but do not replace the
   // existing cart controls with the generic content-review "Preview only" CTA.
   // Checkout/payment/indexing remain independently disabled by their own gates.
-  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
 
   return <main className="relative min-h-screen">
     <Header />
