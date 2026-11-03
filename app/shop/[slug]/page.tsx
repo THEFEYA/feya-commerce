@@ -24,6 +24,7 @@ import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
 import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
+import { pdpOfferJsonLd } from '@/lib/storefrontOfferJsonLd';
 
 type PageProps = { params: Promise<{ slug: string }> };
 function canonicalProductUrl(slug: string) {
@@ -50,10 +51,10 @@ function productImages(product: StorefrontProduct) {
 }
 
 function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
-  // Phase 11 stays truthful to the current commerce boundary:
-  // active internal offer revisions exist, but public order creation/payment are not enabled.
-  // Merchant Offer/ProductGroup markup is added only when the page can actually preselect
-  // and purchase the represented variant through a crawlable public URL.
+  // Checkout is live (Seller-Online LLC, PayPal). The Offer mirrors exactly the
+  // configuration and EUR price this page preselects and the checkout charges;
+  // pages that ask the buyer to choose first get an AggregateOffer range.
+  const offers = pdpOfferJsonLd(product, canonicalProductUrl(slug));
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -66,6 +67,7 @@ function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: A
       '@type': 'Brand',
       name: 'TheFEYA',
     },
+    ...(offers ? { offers } : {}),
   };
 }
 
