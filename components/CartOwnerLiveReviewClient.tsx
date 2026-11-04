@@ -18,6 +18,7 @@ import {
   checkoutApi,newIdempotencyKey,redirectToProvider,rememberPendingCheckout,submitProviderForm,
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
+import {trackMeasurementEvent} from '@/lib/measurementClient';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -70,6 +71,7 @@ export function CartOwnerLiveReviewClient(){
   const [paying,setPaying]=useState(false);
   const [payError,setPayError]=useState('');
   const quoteSeq=useRef(0);
+  const beginCheckoutTracked=useRef(false);
 
   useEffect(()=>{
     let alive=true;
@@ -141,6 +143,22 @@ export function CartOwnerLiveReviewClient(){
   async function pay(){
     if(!canPay)return;
     setPaying(true);setPayError('');
+    // GA4 begin_checkout: once per bag visit, server-confirmed EUR merchandise
+    // value. Consent/production gates live in trackMeasurementEvent; analytics
+    // must never block or delay the PayPal hand-off.
+    if(!beginCheckoutTracked.current&&serverAmounts){
+      beginCheckoutTracked.current=true;
+      try{
+        trackMeasurementEvent('begin_checkout',{
+          currency:'EUR',value:serverAmounts.merchandise_minor/100,
+          items:items.map(item=>({
+            canonical_product_id:item.canonical_product_id,
+            sku_id:item.configuration_id,quantity:item.qty,
+            item_price:item.price,item_value:Math.round(item.price*100)*item.qty/100,currency:'EUR',
+          })),
+        });
+      }catch{/* measurement is optional */}
+    }
     const request={
       idempotency_key:newIdempotencyKey(),lines:checkoutLines,method,
       gift_card:extras.includes('card'),gift_message:extras.includes('card')?giftMessage:'',
