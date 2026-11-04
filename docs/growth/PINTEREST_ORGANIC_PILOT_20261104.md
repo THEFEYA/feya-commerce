@@ -1,6 +1,6 @@
 # TheFEYA Pinterest organic pilot 4 November 2026
 
-Status: FIRST THREE PINS PUBLISHED on 4 November 2026; nine candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
+Status: SIX PINS PUBLISHED on 4 November 2026 UTC (second cohort was 5 November in Spain); six candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
 
 ## Purpose and release conditions
 
@@ -14,7 +14,7 @@ Use the existing relevant boards. Possible board themes, only if useful, are Fes
 
 ## Measurement
 
-All links use utm_source=pinterest, utm_medium=social, utm_campaign=feya_organic_pilot_202611 and a per-product utm_content. Keep the bare canonical product URL in site metadata. Do not add prices to Pin text, since stale copied prices would be misleading.
+Composer input links use utm_source=pinterest, utm_medium=social, utm_campaign=feya_organic_pilot_202611 and a per-product utm_content. Pinterest normalizes the published source/medium to Pinterest/organic; use the observed published destinations for reporting. Keep the bare canonical product URL in site metadata. Do not add prices to Pin text, since stale copied prices would be misleading.
 
 Record Pinterest impressions, saves and outbound clicks where available. In GA4 compare Pinterest visits, product views, add-to-cart and checkout activity; GA4 covers only consenting visitors. Paid customer orders and revenue come from commerce order truth. Owner test visits and the EUR1 connection test are excluded.
 
@@ -37,6 +37,20 @@ Pinterest automatically changed the published website links to `utm_source=Pinte
 Images were imported from their existing product pages after visual comparison, with the original photograph and approved title/description. The Pin-only-for-ads switch was visibly OFF before each publication. No Promote action was taken. The image composer displayed nonblocking image-size/aspect-ratio recommendations; the source images were preserved.
 
 Browser continuation: the direct website-import flow `/pin-builder/?tab=save_from_url` completed all three publications. Local-file upload did not complete and is not needed for this flow. Do not re-publish the three recorded Pins.
+
+## Second cohort: 4 November UTC / 5 November 2026 CET
+
+Three more distinct products, draft items 6, 9 and 11, were published to the same public Festival Outfit board. Each returned an Open Pin receipt, was independently reopened, and then appeared on the board. All three observed published destinations returned HTTP 200 with the clean expected canonical. The ad-only switch was OFF before each publication. Approved title/description and source images were preserved; descriptive image alt text was added without claiming incidental styling accessories.
+
+| Product | Public Pin | Verification time UTC |
+| --- | --- | --- |
+| White Futuristic Armor Costume for Men | https://es.pinterest.com/pin/613967361753297775/ | 2026-11-04T23:26:50.264Z |
+| Gold Goddess Armor Costume for Women | https://es.pinterest.com/pin/613967361753297804/ | 2026-11-04T23:28:54.166Z |
+| Sci Fi Armor Costume for Women | https://es.pinterest.com/pin/613967361753297817/ | 2026-11-04T23:31:03.029Z |
+
+The pilot now has six published Pins (items 1, 2, 6, 8, 9, 11) and six prepared candidates (3, 4, 5, 7, 10, 12). Board total includes older Pins and is not the pilot count. Do not republish any recorded Pin. Publication and QA page views do not establish acquired traffic.
+
+Legacy-link investigation: owned saved Pin https://es.pinterest.com/pin/613967361735317310/ still points to Etsy listing 1452240393 and displays “This item is unavailable - Etsy”. That old ID has no match in the current 207-PDP sitemap. Its saved-Pin editor exposed title, description and alt text but no website-link field; the editor was cancelled with no change. Exact-product mapping is required before any legacy destination repair; do not redirect it to a guessed product or home page.
 
 ## Twelve Pin records
 
@@ -123,12 +137,12 @@ Description: White futuristic armor costume in smooth vegan leather with silicon
 
 Image: https://i.etsystatic.com/54033853/r/il/71687f/7749700392/il_fullxfull.7749700392_8n3s.jpg
 
-Destination: https://thefeya.com/shop/men-s-sci-fi-armor-outfit-futuristic-white-leather-costume-set-burning-man-wear-1890733162?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=1890733162
+Destination: https://thefeya.com/shop/men-s-sci-fi-armor-outfit-futuristic-white-leather-costume-set-burning-man-wear-1890733162?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=1890733162
 
 Canonical product ID: `b0b2a75c-f301-45d6-857c-dd6575862619`  
 Full Set configuration ID: `b734518a-b6c3-423d-b958-e850f177f16b`  
 Photographed source color: White  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04 UTC / 2026-11-05 CET. Pin: https://es.pinterest.com/pin/613967361753297775/ . Board: Festival Outfit. Verified at 2026-11-04T23:26:50.264Z.
 
 ### 7 Silver Futuristic Armor Costume for Men
 
@@ -168,12 +182,12 @@ Description: Gold goddess armor costume in vegan leather, handmade for women cre
 
 Image: https://i.etsystatic.com/54033853/r/il/e0b225/6866819592/il_fullxfull.6866819592_f19y.jpg
 
-Destination: https://thefeya.com/shop/gold-goddess-armor-set-female-warrior-costume-fantasy-festival-outfit-futuristic-fashion-armor-unique-greek-inspired-look-4306378825?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4306378825
+Destination: https://thefeya.com/shop/gold-goddess-armor-set-female-warrior-costume-fantasy-festival-outfit-futuristic-fashion-armor-unique-greek-inspired-look-4306378825?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4306378825
 
 Canonical product ID: `a3db3d94-aa6f-4d57-abce-905b31e14b4a`  
 Full Set configuration ID: `0693fead-19f6-401e-beaf-6d0d95462e7f`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04 UTC / 2026-11-05 CET. Pin: https://es.pinterest.com/pin/613967361753297804/ . Board: Festival Outfit. Verified at 2026-11-04T23:28:54.166Z.
 
 ### 10 Gold Warrior Armor Costume for Women
 
@@ -198,12 +212,12 @@ Description: Sci fi armor costume with silver shoulder and arm pieces in vegan l
 
 Image: https://i.etsystatic.com/54033853/r/il/56eb68/7699191698/il_fullxfull.7699191698_jx35.jpg
 
-Destination: https://thefeya.com/shop/cyberpunk-armor-set-silver-leather-shoulders-arm-bracelets-burning-man-outfit-4456102467?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4456102467
+Destination: https://thefeya.com/shop/cyberpunk-armor-set-silver-leather-shoulders-arm-bracelets-burning-man-outfit-4456102467?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4456102467
 
 Canonical product ID: `2973f3ae-6097-49c0-ab91-21a9697560cc`  
 Full Set configuration ID: `c7aa4fab-5259-40e4-bd7c-8741ac57b8df`  
 Photographed source color: Silver  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04 UTC / 2026-11-05 CET. Pin: https://es.pinterest.com/pin/613967361753297817/ . Board: Festival Outfit. Verified at 2026-11-04T23:31:03.029Z.
 
 ### 12 Gold Warrior Armor Costume for Women
 
