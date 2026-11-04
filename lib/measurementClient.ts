@@ -137,9 +137,14 @@ function ensureLandingPageId(pageId:string){
   return pageId;
 }
 
-function gtag(...args:unknown[]){
+// gtag.js only executes commands pushed as the native Arguments object (Google's
+// official snippet: `function gtag(){dataLayer.push(arguments);}`). A rest-param
+// Array copy is silently ignored: the tag loads but no /g/collect hit is sent.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function gtag(..._args:unknown[]){
   window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push(args);
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments);
 }
 
 function ensureGoogleTag(){
