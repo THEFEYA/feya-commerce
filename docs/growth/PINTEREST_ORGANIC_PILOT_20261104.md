@@ -1,6 +1,6 @@
 # TheFEYA Pinterest organic pilot 4 November 2026
 
-Status: DRAFT CONTENT PACKAGE. No Pins published, account changes, tags, advertising or Google permissions. This is an acquisition experiment under issue #145, not an SEO content rewrite.
+Status: FIRST THREE PINS PUBLISHED on 4 November 2026; nine candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
 
 ## Purpose and release conditions
 
@@ -20,7 +20,25 @@ Record Pinterest impressions, saves and outbound clicks where available. In GA4 
 
 Review acquisition after the first published cohort has had time to receive impressions. Do not infer product failure from zero orders while impressions or outbound clicks are negligible. No fabricated conversion target, revenue forecast or guarantee of Google indexing is attached to this draft.
 
-## Twelve Pin drafts
+## Publication receipts 4 November 2026
+
+The first cohort contains draft items 1, 2 and 8: three distinct products. Pinterest returned an Open Pin receipt for each; all three were then independently visible on the public Festival Outfit board. Each published destination was read back and returned HTTP 200 with the expected canonical product page.
+
+| Product | Public Pin | Verification time UTC |
+| --- | --- | --- |
+| Gold Futuristic Armor Costume for Festivals | https://es.pinterest.com/pin/613967361753294857/ | 2026-11-04T19:49:19.071Z |
+| Gold Warrior Armor Costume for Men | https://es.pinterest.com/pin/613967361753294920/ | 2026-11-04T19:53:01.090Z |
+| Metallic Top and Skirt Set for Women | https://es.pinterest.com/pin/613967361753294954/ | 2026-11-04T19:55:47.600Z |
+
+Public board: https://es.pinterest.com/TheFEYAshop/festival-outfit/
+
+Pinterest automatically changed the published website links to `utm_source=Pinterest&utm_medium=organic`. It preserved `utm_campaign=feya_organic_pilot_202611` and each product's `utm_content`. The published Destination fields below reflect the observed links. The remaining candidates retain their composer input links. Use the actual published source/medium pair when reading GA4; do not confuse these owner QA views with acquired customers.
+
+Images were imported from their existing product pages after visual comparison, with the original photograph and approved title/description. The Pin-only-for-ads switch was visibly OFF before each publication. No Promote action was taken. The image composer displayed nonblocking image-size/aspect-ratio recommendations; the source images were preserved.
+
+Browser continuation: the direct website-import flow `/pin-builder/?tab=save_from_url` completed all three publications. Local-file upload did not complete and is not needed for this flow. Do not re-publish the three recorded Pins.
+
+## Twelve Pin records
 
 ### 1 Gold Futuristic Armor Costume for Festivals
 
@@ -30,12 +48,12 @@ Description: Gold futuristic armor costume with a polished metal look, designed 
 
 Image: https://i.etsystatic.com/54033853/r/il/5386f1/7048162368/il_fullxfull.7048162368_9ivo.jpg
 
-Destination: https://thefeya.com/shop/best-festival-armor-outfit-leather-shoulders-skirt-gold-metallic-harness-rave-armor-wear-burning-man-clothing-festival-accessories-4340584466?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4340584466
+Destination: https://thefeya.com/shop/best-festival-armor-outfit-leather-shoulders-skirt-gold-metallic-harness-rave-armor-wear-burning-man-clothing-festival-accessories-4340584466?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4340584466
 
 Canonical product ID: `d42b9d73-1327-49fa-bfab-9a732b133772`  
 Full Set configuration ID: `aead53be-a274-40be-be01-fde8716f02f2`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04. Pin: https://es.pinterest.com/pin/613967361753294857/ . Board: Festival Outfit. Verified at 2026-11-04T19:49:19.071Z.
 
 ### 2 Gold Warrior Armor Costume for Men
 
@@ -45,12 +63,12 @@ Description: Gold warrior armor costume in vegan leather, handmade for men creat
 
 Image: https://i.etsystatic.com/54033853/r/il/71d877/7111579004/il_fullxfull.7111579004_p0ab.jpg
 
-Destination: https://thefeya.com/shop/gladiator-cosplay-costume-set-men-s-armor-outfit-desert-warrior-wear-golden-leather-shoulders-skirt-for-men-futuristic-male-armor-4352690758?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4352690758
+Destination: https://thefeya.com/shop/gladiator-cosplay-costume-set-men-s-armor-outfit-desert-warrior-wear-golden-leather-shoulders-skirt-for-men-futuristic-male-armor-4352690758?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4352690758
 
 Canonical product ID: `f44cb59b-1632-4c86-b376-8afd205a6e63`  
 Full Set configuration ID: `579e883a-bb27-4b09-b38e-2bd38f67ec15`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04. Pin: https://es.pinterest.com/pin/613967361753294920/ . Board: Festival Outfit. Verified at 2026-11-04T19:53:01.090Z.
 
 ### 3 Men's Gold Warrior Armor Costume
 
@@ -135,12 +153,12 @@ Description: Metallic top and skirt set in silver vegan leather for women creati
 
 Image: https://i.etsystatic.com/54033853/r/il/68b378/8036486014/il_fullxfull.8036486014_96z8.jpg
 
-Destination: https://thefeya.com/shop/metallic-futuristic-clothing-set-top-skirt-chrome-festival-dress-showgirl-wear-4507727106?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4507727106
+Destination: https://thefeya.com/shop/metallic-futuristic-clothing-set-top-skirt-chrome-festival-dress-showgirl-wear-4507727106?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4507727106
 
 Canonical product ID: `158e7824-4876-4991-b506-e3f6f4aa8371`  
 Full Set configuration ID: `9b7c4663-1d50-44d3-9a24-cba7358c5109`  
 Photographed source color: Silver  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-04. Pin: https://es.pinterest.com/pin/613967361753294954/ . Board: Festival Outfit. Verified at 2026-11-04T19:55:47.600Z.
 
 ### 9 Gold Goddess Armor Costume for Women
 
