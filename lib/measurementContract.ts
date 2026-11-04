@@ -155,7 +155,8 @@ export function ga4EventParameters(event:FeyaMeasurementEnvelope){
     currency:event.currency,
     value:event.value,
     items:event.items?.map((item)=>({
-      item_id:item.sku_id||item.canonical_product_id,
+      item_id:item.canonical_product_id,
+      item_variant:item.sku_id||undefined,
       canonical_product_id:item.canonical_product_id,
       sku_id:item.sku_id||undefined,
       quantity:item.quantity,
@@ -172,3 +173,4 @@ export function ga4EventParameters(event:FeyaMeasurementEnvelope){
     metric_navigation_type:event.metric_navigation_type,
   };
 }
+
