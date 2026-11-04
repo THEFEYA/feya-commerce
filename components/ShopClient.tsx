@@ -709,9 +709,21 @@ export function ShopClient({
             <ShopPagination page={page} count={filtered.length} filters={filters} />
           ) : canLoadMore ? (
             <div className="flex justify-center pt-10">
-              <button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">
-                Show 20 more
-              </button>
+              {embedded ? (
+                <button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">
+                  Show 20 more
+                </button>
+              ) : (
+                // Same approved zero-network load-more for shoppers; a real href to the
+                // equivalent server page lets crawlers reach /shop?page=2..N (and every PDP).
+                <a
+                  href={shopPageHref(Math.floor(visibleCount / PAGE_SIZE) + 1, filters)}
+                  onClick={(event) => { event.preventDefault(); setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length)); }}
+                  className="btn-ghost"
+                >
+                  Show 20 more
+                </a>
+              )}
             </div>
           ) : null}
         </main>
