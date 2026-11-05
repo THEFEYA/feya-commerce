@@ -22,6 +22,8 @@ export type MissionRole = {
 export type MissionCase = {
   id:string;code:string;title:string;owner:MissionRoleCode;status:string;
   workflowStatus:string;attentionId:string|null;
+  priority:string;dueAt:string|null;updatedAt:string|null;currentStep:string|null;
+  waitReason:string|null;blockedReason:string|null;
 };
 export type MissionEvent = {
   id:string;caseId:string;caseCode:string;at:string;
@@ -33,6 +35,8 @@ export type MissionSnapshot = {
   roles:MissionRole[];cases:MissionCase[];events:MissionEvent[];
   totalOpenCases:number;currentlyRunning:number;historicalHandoffs:number;
   historyOnly:true;liveAgentExecutionProven:false;
+  capturedAt?:string;
+  ownerAttention?:MissionOwnerAttentionSummary|null;
 };
 
 export type MissionRaw = {
@@ -82,6 +86,12 @@ export function buildMissionSnapshot(raw:MissionRaw):MissionSnapshot{
       title:string(row.title,140)||'Работа FEYA',
       workflowStatus:string(row.workflow_status,48).toUpperCase(),
       attentionId:attentionByCase.get(id)||null,
+      priority:/^P[0-3]$/.test(string(row.priority,8).toUpperCase())
+        ?string(row.priority,8).toUpperCase():'UNKNOWN',
+      dueAt:safeTime(row.due_at),updatedAt:safeTime(row.updated_at),
+      currentStep:string(row.current_step_code,80)||null,
+      waitReason:string(row.wait_reason,180)||null,
+      blockedReason:string(row.blocked_reason,180)||null,
     });
   }
 
@@ -186,3 +196,54 @@ export function buildMissionSnapshot(raw:MissionRaw):MissionSnapshot{
     historyOnly:true,liveAgentExecutionProven:false,
   };
 }
+
+/**
+ * UI-only case focus: never changes Case state, owner, or event history.
+ * Unknown case IDs fail closed instead of showing another Case's records.
+ */
+export function missionEventsForCase(
+  snapshot:Pick<MissionSnapshot,'cases'|'events'>,
+  caseId:string|null,
+):MissionEvent[]{
+  if(caseId===null)return snapshot.events;
+  if(!snapshot.cases.some(c=>c.id===caseId))return [];
+  return snapshot.events.filter(e=>e.caseId===caseId);
+}
+
+/** Small preview of existing Owner Attention, not an independent queue. */
+export type MissionOwnerAttentionSummary={
+  total:number;
+  items:Array<{
+    id:string;
+    priority:'P0'|'P1'|'P2'|'P3'|'UNKNOWN';
+    title:string;sourceCode:string;
+    status:'OPEN'|'ACKNOWLEDGED';
+  }>;
+};
+
+/** Null/failed/inconsistent source is UNKNOWN, never zero. */
+export function projectMissionOwnerAttention(
+  rows:readonly UnknownRow[],
+  count:unknown,
+):MissionOwnerAttentionSummary|null{
+  if(typeof count!=='number'||!Number.isSafeInteger(count)||count<0)return null;
+  if(!Array.isArray(rows)||rows.length>3||rows.length>count)return null;
+  if((count===0&&rows.length!==0)||(count>0&&rows.length===0))return null;
+  const items:MissionOwnerAttentionSummary['items']=[];
+  for(const row of rows){
+    if(!knownRow(row))return null;
+    const id=string(row.attention_id,48);
+    const status=string(row.attention_status,32).toUpperCase();
+    const priority=string(row.priority,16).toUpperCase();
+    if(!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id))return null;
+    if(status!=='OPEN'&&status!=='ACKNOWLEDGED')return null;
+    items.push({
+      id,status,
+      priority:/^P[0-3]$/.test(priority)?priority as 'P0'|'P1'|'P2'|'P3':'UNKNOWN',
+      title:string(row.title,125)||'Вопрос без названия',
+      sourceCode:string(row.source_code,90),
+    });
+  }
+  return {total:count,items};
+}
+

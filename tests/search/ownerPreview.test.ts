@@ -49,6 +49,27 @@ test('owner preview is confined to the authorized Vercel project and approved pr
  for(const key of Object.keys(env)){const missing:Record<string,string>={...env};delete missing[key];assert.equal(isOwnerPreviewDeployment(missing),false);}
  assert.equal(isOwnerPreviewDeployment({}),false);
 });
+test('Mission Control Draft preview is exact-branch, read-only and Vercel-project scoped',()=>{
+ const ownerBranch='work/growth-mission-owner-focus-20261019';
+ const preview={...env,VERCEL_GIT_COMMIT_REF:ownerBranch};
+ assert.equal(isOwnerPreviewDeployment(preview),true);
+ assert.equal(isHybridVisualPreviewDeployment(preview),false);
+ for(const invalid of [
+  {VERCEL_ENV:'production'},
+  {VERCEL_ENV:'development'},
+  {VERCEL_PROJECT_ID:'other-project'},
+  {VERCEL:'0'},
+  {FEYA_OWNER_PREVIEW_DISABLED:'true'},
+  {VERCEL_GIT_COMMIT_REF:'work/growth-mission-owner-focus-20261019-alt'},
+  {VERCEL_GIT_COMMIT_REF:'work/unknown-owner-preview-branch'},
+ ])assert.equal(isOwnerPreviewDeployment({...preview,...invalid}),false);
+ const middleware=readFileSync('middleware.ts','utf8');
+ const authorized=readFileSync('lib/adminServerData.ts','utf8');
+ assert.match(middleware,/ownerPreviewMutationAllowed/);
+ assert.match(middleware,/owner_preview_read_only/);
+ assert.match(authorized,/ownerPreviewReadFetch/);
+});
+
 test('owner preview activates the sealed review without changing ordinary closed-review auth',()=>{
  assert.equal(closedReviewRequested(env),true);
  assert.equal(closedReviewMode(env,'feya-review-207-20260924'),'review');
