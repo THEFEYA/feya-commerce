@@ -1,6 +1,6 @@
 # TheFEYA Pinterest organic pilot 4 November 2026
 
-Status: EIGHT PINS PUBLISHED on 4–5 November 2026 UTC; four candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
+Status: ALL TWELVE PINS PUBLISHED on 4–5 November 2026 UTC. Publication phase complete; acquisition measurement is the next stage. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
 
 ## Purpose and release conditions
 
@@ -61,7 +61,7 @@ Two more distinct products, draft items 3 and 10, were published to the same pub
 | Men's Gold Warrior Armor Costume | https://es.pinterest.com/pin/613967361753306751/ | 2026-11-05T12:26:20.581Z |
 | Gold Warrior Armor Costume for Women | https://es.pinterest.com/pin/613967361753306780/ | 2026-11-05T12:29:42.653Z |
 
-Current pilot: eight published Pins (1, 2, 3, 6, 8, 9, 10, 11); four prepared candidates (4, 5, 7, 12). Do not duplicate any recorded Pin. Approved copy and original source images are preserved.
+After the third cohort: eight published Pins (1, 2, 3, 6, 8, 9, 10, 11); four prepared candidates (4, 5, 7, 12). Do not duplicate any recorded Pin. Approved copy and original source images are preserved.
 
 ## First measurement checkpoint: 5 November 2026
 
@@ -84,7 +84,49 @@ Separate Search Console 24-hour Web report for the entire domain, displayed 4–
 
 All twelve Merchant pilot URLs were separately inspected in Search Console: 11 INDEXED; item 12 still shows the historic 19 October noindex crawl. Item 12's current live response was checked again and is HTTP 200 with index/follow and the expected clean canonical. Its indexing request was accepted at the preceding checkpoint, so it was not resubmitted. Exact URL inspection receipts are recorded in issue #145.
 
-Next: measure the eight published Pins after more exposure and check item 12's actual next crawl/verdict. Do not infer a product or conversion problem from these small exposure counts.
+Next: measure all twelve published Pins after more exposure and check item 12's actual next crawl/verdict. Do not infer a product or conversion problem from these small exposure counts.
+
+## Final publication cohort: 5 November 2026
+
+All four remaining distinct products, items 7, 4, 5 and 12, were published on the existing public Festival Outfit board. Before publication all four pages returned HTTP 200, index/follow and their clean expected canonicals, with matching product/configuration IDs, approved title/description and source image. The original images were visually checked; accurate alt text was added without incidental styling accessories. Ad-only switches were visibly OFF.
+
+Each publication returned an Open Pin receipt. Each Pin was then independently reopened, its actual destination read back, and that destination returned HTTP 200 with the expected clean canonical. All four appear on the public board. Pinterest retained the campaign and per-product content tags and normalized source/medium to Pinterest/organic.
+
+| Draft item | Product | Public Pin | Verification UTC |
+| --- | --- | --- | --- |
+| 7 | Silver Futuristic Armor Costume for Men | https://es.pinterest.com/pin/613967361753308969/ | 2026-11-05T15:13:33.558Z |
+| 4 | Men's Gold Warrior Armor Costume | https://es.pinterest.com/pin/613967361753309126/ | 2026-11-05T15:20:42.759Z |
+| 5 | Men's Warrior Armor Costume | https://es.pinterest.com/pin/613967361753309191/ | 2026-11-05T15:24:36.011Z |
+| 12 | Gold Warrior Armor Costume for Women | https://es.pinterest.com/pin/613967361753309243/ | 2026-11-05T15:28:11.080Z |
+
+**Publication complete: twelve unique products and twelve recorded Pins, zero unpublished candidates.** Do not republish these twelve IDs. The first measurement checkpoint above covered only the earlier six Pins; it is not a measurement of all twelve. Further publication should follow a new content/measurement decision rather than repeating this pilot.
+
+## Merchant feed refresh and parity check: 5 November 2026
+
+Merchant source 10790734908, PRODUCTS SOURCE 2, is File (URL). Its setup explicitly schedules retrieval every 24 hours at 12:00 AM. The source table labels its latest successful retrieval 5 November 00:00 PST; the detail screen reports 84 products updated and “Your products are updated”. No username/password is configured. Source URL:
+
+https://raw.githubusercontent.com/THEFEYA/feya-commerce/main/docs/merchant/pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv
+
+This retrieves a committed static feed; it does not export later database changes automatically. After a price, availability or configuration change, refresh the approved live source readback and regenerate/validate the existing feed before committing it.
+
+Read-only validation compared all twelve current production Product/Offer JSON-LD payloads against all 84 committed feed rows (blob 619b75c80558d496dd8fe71b6d4db94408413dcd). Each group has seven standard sizes XS–XXXL. Price/currency, availability, clean destination and product/configuration identity match. Current checkout pricing code uses the same configuration unit amount for those standard sizes; Custom measurements are excluded from the feed. No order or payment was created.
+
+| Draft item | Current Full Set price | Feed rows | Price, currency, availability, URL and identity |
+| --- | ---: | ---: | --- |
+| 1 | 195.40 EUR | 7 | PASS |
+| 2 | 239.27 EUR | 7 | PASS |
+| 3 | 191.41 EUR | 7 | PASS |
+| 4 | 188.51 EUR | 7 | PASS |
+| 5 | 279.14 EUR | 7 | PASS |
+| 6 | 398.78 EUR | 7 | PASS |
+| 7 | 470.56 EUR | 7 | PASS |
+| 8 | 217.51 EUR | 7 | PASS |
+| 9 | 231.29 EUR | 7 | PASS |
+| 10 | 287.12 EUR | 7 | PASS |
+| 11 | 231.29 EUR | 7 | PASS |
+| 12 | 199.39 EUR | 7 | PASS |
+
+Fresh Merchant issue summary still returns 84 ELIGIBLE and no item issues. No feed, price, credential or schedule setting was changed. The final waiting Google URL was read once more and still showed the 19 October noindex crawl; its earlier accepted request was not repeated. Current live response remains HTTP 200 with index/follow and a clean self-canonical.
 
 ## Twelve Pin records
 
@@ -141,12 +183,12 @@ Description: Men's gold warrior armor costume in vegan leather, handmade for Bur
 
 Image: https://i.etsystatic.com/54033853/r/il/39c689/7967379731/il_fullxfull.7967379731_7ilj.jpg
 
-Destination: https://thefeya.com/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-steampunk-leather-shoulders-arm-futuristic-dune-wear-4489659396?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4489659396
+Destination: https://thefeya.com/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-steampunk-leather-shoulders-arm-futuristic-dune-wear-4489659396?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4489659396
 
 Canonical product ID: `f746beae-43c9-4f4f-8307-301d136eda58`  
 Full Set configuration ID: `2bc65a7a-7ac2-460b-9be5-512281c94313`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753309126/ . Board: Festival Outfit. Verified at 2026-11-05T15:20:42.759Z.
 
 ### 5 Men's Warrior Armor Costume
 
@@ -156,12 +198,12 @@ Description: Men's warrior armor costume in vegan leather with shoulder, belt, a
 
 Image: https://i.etsystatic.com/54033853/r/il/fd9579/7112206868/il_fullxfull.7112206868_ettp.jpg
 
-Destination: https://thefeya.com/shop/men-s-outfit-for-burning-man-desert-warrior-costume-rave-festival-fashion-steampunk-leather-shoulder-dune-armor-wear-space-cowboy-4352810754?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4352810754
+Destination: https://thefeya.com/shop/men-s-outfit-for-burning-man-desert-warrior-costume-rave-festival-fashion-steampunk-leather-shoulder-dune-armor-wear-space-cowboy-4352810754?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4352810754
 
 Canonical product ID: `c52eafde-baaa-44ec-8729-c54e6c2f5706`  
 Full Set configuration ID: `3c56ddc9-a00f-4166-b152-3a420e7ae45d`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753309191/ . Board: Festival Outfit. Verified at 2026-11-05T15:24:36.011Z.
 
 ### 6 White Futuristic Armor Costume for Men
 
@@ -186,12 +228,12 @@ Description: Silver futuristic armor costume in vegan leather, handmade for men 
 
 Image: https://i.etsystatic.com/54033853/r/il/d3ea92/7172857446/il_fullxfull.7172857446_kmgd.jpg
 
-Destination: https://thefeya.com/shop/men-s-cyberpunk-captain-armor-chrome-leather-costume-set-cosmic-warrior-cosplay-burning-man-armour-outfit-futuristic-apocaliptyc-wear-4364292059?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4364292059
+Destination: https://thefeya.com/shop/men-s-cyberpunk-captain-armor-chrome-leather-costume-set-cosmic-warrior-cosplay-burning-man-armour-outfit-futuristic-apocaliptyc-wear-4364292059?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4364292059
 
 Canonical product ID: `e51e0a66-8358-41f9-bd51-2ab4833b24b3`  
 Full Set configuration ID: `9b1052a5-83d3-40ce-a402-4dba22ee0edb`  
 Photographed source color: Silver  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753308969/ . Board: Festival Outfit. Verified at 2026-11-05T15:13:33.558Z.
 
 ### 8 Metallic Top and Skirt Set for Women
 
@@ -261,12 +303,12 @@ Description: Gold warrior armor costume with layered shoulder and arm pieces in 
 
 Image: https://i.etsystatic.com/54033853/r/il/190de1/6846318577/il_fullxfull.6846318577_ftnn.jpg
 
-Destination: https://thefeya.com/shop/golden-amazon-armor-costume-set-metallic-shoulder-armour-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-costume-set-1890268726?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=1890268726
+Destination: https://thefeya.com/shop/golden-amazon-armor-costume-set-metallic-shoulder-armour-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-costume-set-1890268726?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=1890268726
 
 Canonical product ID: `043406cd-0a96-45c5-8796-57c5cc4b276e`  
 Full Set configuration ID: `da93d75f-cff3-4687-b15e-f99f880fcfa6`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753309243/ . Board: Festival Outfit. Verified at 2026-11-05T15:28:11.080Z.
 
 ## Official references
 
