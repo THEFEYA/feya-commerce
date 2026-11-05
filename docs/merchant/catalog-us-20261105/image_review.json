@@ -1,0 +1,1455 @@
+{
+  "reviewed_at": "2026-11-05T17:04:44.941859+00:00",
+  "scope": "Visual review of 207 photographed default colors/product identity and ordinary stagewear presentation; all 9 contact sheets and 24 alternate gallery images inspected. This is an internal preflight, not a Google approval receipt. Only reviewed primary URLs are added for new products. Existing approved pilot additional images are preserved.",
+  "products": [
+    {
+      "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "77c6481a3d652f8ac9d0cd8aa187ca3767d352bc0bc606c880746c0850a8bd3c",
+      "evidence": "catalogue visual sheet 01, item 001"
+    },
+    {
+      "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5386f1/7048162368/il_fullxfull.7048162368_9ivo.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d4555f2ef0bb1710184a2d75a98ae8a9c96ef8c04a47d2183378523e629be70c",
+      "evidence": "catalogue visual sheet 01, item 002"
+    },
+    {
+      "canonical_product_id": "3cffa988-7f84-4fbf-b6e2-67a6164f7dc2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7a2f96/7922259204/il_fullxfull.7922259204_6ez1.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b44f6b3cdc161ab79977618085b8f7e9433de3d59df3189559da3e53b5673103",
+      "evidence": "catalogue visual sheet 01, item 003"
+    },
+    {
+      "canonical_product_id": "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f556a8/6825759771/il_fullxfull.6825759771_iip9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4f73b575751878b2a829719cd896842f152e97ba6d30e208aa22c308835ea110",
+      "evidence": "catalogue visual sheet 01, item 004"
+    },
+    {
+      "canonical_product_id": "df2227dc-3d74-4b19-848f-f9210e46dccd",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/689c51/7336621238/il_fullxfull.7336621238_aavr.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "fea037280024cc4c0bd6191a6434109e3f17c2d48df79cef07488f5077aaae95",
+      "evidence": "catalogue visual sheet 01, item 005"
+    },
+    {
+      "canonical_product_id": "3c08ea9c-76a9-4079-bc08-58fa8a831019",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/47857d/6788333997/il_fullxfull.6788333997_c7uy.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4d6537f98a61e53843797ce1d49f11684b4fc864d17ab8a53ef503a594a691f2",
+      "evidence": "catalogue visual sheet 01, item 006"
+    },
+    {
+      "canonical_product_id": "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a7dc09/6746286047/il_fullxfull.6746286047_i6ya.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "602827bc3e66be3ad075bb3cbfad2f1fb13a93cd8fe7effd0df30df13fb0484e",
+      "evidence": "catalogue visual sheet 01, item 007"
+    },
+    {
+      "canonical_product_id": "50c370fb-3f41-4e49-8e3b-cbc5e1dd478b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9ad190/6297355058/il_fullxfull.6297355058_pnz8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2131858871b67325836843929f432dbd429e95b99cd6a659010f3cf110aa4799",
+      "evidence": "catalogue visual sheet 01, item 008"
+    },
+    {
+      "canonical_product_id": "32b1e29b-d709-4e00-a95c-6ad0b4c92704",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8f9829/7264540585/il_fullxfull.7264540585_odu3.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2db4e0d1963eb69ee3b5cc826367d52dde937316dda4bace2d92372de2471039",
+      "evidence": "catalogue visual sheet 01, item 009"
+    },
+    {
+      "canonical_product_id": "5044435f-d093-4437-9945-ff822b2df2d9",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/1b6416/7127303173/il_fullxfull.7127303173_977l.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "352bf6cfcd4b8d1ab6eb3a129208dc3b1d44d50dd13dfcc7004ef3a02dc61a2a",
+      "evidence": "catalogue visual sheet 01, item 010"
+    },
+    {
+      "canonical_product_id": "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/aec363/6607563120/il_fullxfull.6607563120_acyd.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a873c8b4ccf4fe22a9437e275a8cc263d8ca55827fd87703ecdee68f0aea1e65",
+      "evidence": "catalogue visual sheet 01, item 011"
+    },
+    {
+      "canonical_product_id": "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/4dd1b0/7338343427/il_fullxfull.7338343427_18j7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "0786bb4add4e8727e2c29fda54d00879aabfd1676f225c09b1f2bccc9ccfe979",
+      "evidence": "catalogue visual sheet 01, item 012"
+    },
+    {
+      "canonical_product_id": "f3f7a334-3b77-44ce-bb2a-b0daff184ab1",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/65b179/6568038722/il_fullxfull.6568038722_mz3n.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e2dc2d992e3c0c5227fa4301ef937997dc0c2e76cacf977c8c7ea50087e34ad6",
+      "evidence": "catalogue visual sheet 01, item 013"
+    },
+    {
+      "canonical_product_id": "ce899f23-b983-4ede-ae81-3348757b1c15",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/13ec53/6550796049/il_fullxfull.6550796049_hwns.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "56f625fe67a8ad5d408453c06d70c63a53fb7c1669112421f7a543edb41b6101",
+      "evidence": "catalogue visual sheet 01, item 014"
+    },
+    {
+      "canonical_product_id": "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/99061a/7018031019/il_fullxfull.7018031019_5qiv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "30f8c250e6b1d3188ba1faeeea37fa3376a89301691d9fe4808455b12298ea15",
+      "evidence": "catalogue visual sheet 01, item 015"
+    },
+    {
+      "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/19d50f/7905871762/il_fullxfull.7905871762_ts2j.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e73793a2d6d681844de2a2da54ca7e9501a884c6dceaae784c4c9509627eb6a2",
+      "evidence": "catalogue visual sheet 01, item 016"
+    },
+    {
+      "canonical_product_id": "7bc4e89c-155d-45b8-982f-46253b7ed18d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e55a44/6803382331/il_fullxfull.6803382331_8i1j.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7ce33393eb05a8c0c81073406a2c90c665b2ff1f11516a1af685c13ad25b8c95",
+      "evidence": "catalogue visual sheet 01, item 017"
+    },
+    {
+      "canonical_product_id": "d0625355-308f-4edd-9c28-e358491c12a3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/91be0d/6570762992/il_fullxfull.6570762992_qrjs.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "66caf1b3ae9d2bd159d15ffe1ac36e0e6d73569b43b93a97c9a22a395d23172c",
+      "evidence": "catalogue visual sheet 01, item 018"
+    },
+    {
+      "canonical_product_id": "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5debc4/6786705348/il_fullxfull.6786705348_12qh.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "773889526cb39e09091c2731bf709ea956b584b08a74deb9c2524d1186a416bc",
+      "evidence": "catalogue visual sheet 01, item 019"
+    },
+    {
+      "canonical_product_id": "f86a13ec-184e-4764-9813-33b18db7dbb3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/732ee5/6281535986/il_fullxfull.6281535986_kgjm.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "040c14d18a00181d996bb70c111534a70938b7193f860942d47f4312ec049dcc",
+      "evidence": "catalogue visual sheet 01, item 020"
+    },
+    {
+      "canonical_product_id": "103ff46a-892a-4961-80b1-e6996727c395",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/eb4fff/7028709518/il_fullxfull.7028709518_ceou.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "31b45061c71ce9045cb4d0de16e603e85da9513f6d6ed458f0193a3976840dfb",
+      "evidence": "catalogue visual sheet 01, item 021"
+    },
+    {
+      "canonical_product_id": "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/99afc2/6791380453/il_fullxfull.6791380453_shyu.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cd81fc99343fc82e4ff489849494176e3c52a5118401680b32c63edfe4f5cf45",
+      "evidence": "catalogue visual sheet 01, item 022"
+    },
+    {
+      "canonical_product_id": "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3924b5/6997775874/il_fullxfull.6997775874_nmgg.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cbbb924ff7643ac5b83e8ab1954a7bfa1df240beb5f9ace29d6dc431b70e0a31",
+      "evidence": "catalogue visual sheet 01, item 023"
+    },
+    {
+      "canonical_product_id": "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b21f91/6755212548/il_fullxfull.6755212548_4dne.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "83bca856b0456ac711b21c2cb2cdbbcee5e78ab97916cf16cc2be2ff7ce87973",
+      "evidence": "catalogue visual sheet 01, item 024"
+    },
+    {
+      "canonical_product_id": "79754caa-9c09-4241-8c08-d0c9e60db460",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7ee0de/7026838771/il_fullxfull.7026838771_rwq7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "85d0ac071251c36416fed68ee3f507616c6e0ec92b8554884da7300e7911105f",
+      "evidence": "catalogue visual sheet 02, item 025"
+    },
+    {
+      "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c27048/7236051841/il_fullxfull.7236051841_f214.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1759092c685494a481d371b1f141d9a70270c67b035bc129ad58b34fdcae866d",
+      "evidence": "catalogue visual sheet 02, item 026"
+    },
+    {
+      "canonical_product_id": "657bd6d8-fbe1-4441-abad-f574e3380897",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5ce9e2/6902230763/il_fullxfull.6902230763_7f6a.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6297c0e95856f530cfe44acf31e352833b1d9ca22a64e9d4d15affbe43bed1ce",
+      "evidence": "catalogue visual sheet 02, item 027"
+    },
+    {
+      "canonical_product_id": "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a86250/6199818066/il_fullxfull.6199818066_mvvi.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7a348df6c26f65b9d82dbefe950398360ab5e5f63367ad97583d608f3a29d825",
+      "evidence": "catalogue visual sheet 02, item 028"
+    },
+    {
+      "canonical_product_id": "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6f6b4d66a7501a7f5c3c6d71f63956a1154664e04bc21659f30e3199280b3708",
+      "evidence": "catalogue visual sheet 02, item 029"
+    },
+    {
+      "canonical_product_id": "39d33dfd-1a01-458a-94c7-8372f344bce5",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b38bf3/6660628054/il_fullxfull.6660628054_3lpy.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "63fcf40e122038f0b84537bffde7ed6e47ae35781f1abca3c724a307396d94ce",
+      "evidence": "catalogue visual sheet 02, item 030"
+    },
+    {
+      "canonical_product_id": "ff0996b6-f369-4313-baf5-2d465d9c06f2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dfcaf7/6602458798/il_fullxfull.6602458798_srq4.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e057a1075f0f695642fe07d1cc83b315e7c5e2e41f670c0bce5133aa8ee0e4ae",
+      "evidence": "catalogue visual sheet 02, item 031"
+    },
+    {
+      "canonical_product_id": "b7003343-6537-437d-9dab-cdf902d37b7e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/866691/6359629828/il_fullxfull.6359629828_mqu3.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d56500e8a509984baa53ba3a0a7a12c00f86b58939122428aef986832ce55755",
+      "evidence": "catalogue visual sheet 02, item 032"
+    },
+    {
+      "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3e6cdf/6775815037/il_fullxfull.6775815037_96hh.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7f2d0eef3d4888f9f80aace6e491532c1aba937a76543cf5c9bdccf2e71131a3",
+      "evidence": "catalogue visual sheet 02, item 033"
+    },
+    {
+      "canonical_product_id": "2973f3ae-6097-49c0-ab91-21a9697560cc",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/56eb68/7699191698/il_fullxfull.7699191698_jx35.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "db08032fddf9574f22d7cdd279cd5bd7d91b59f423cc3aa0dfdef88ba30bf8cc",
+      "evidence": "catalogue visual sheet 02, item 034"
+    },
+    {
+      "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/eede47/6332867904/il_fullxfull.6332867904_h11a.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8f7e7675387d7c254d27888113cf0af443fdea75bd8d76a6cc7e63ed9255983f",
+      "evidence": "catalogue visual sheet 02, item 035"
+    },
+    {
+      "canonical_product_id": "f972aed2-6061-4973-8b20-8e1d2c362d77",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/1a58d6/7186673460/il_fullxfull.7186673460_7uih.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "855f194b04fa8eb7b8907b06da445264e688df98a6a12c8032d3a777c391c137",
+      "evidence": "catalogue visual sheet 02, item 036"
+    },
+    {
+      "canonical_product_id": "5124ce7f-daf1-45f7-bbe2-0f97f17ecaea",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3132f8/6596249184/il_fullxfull.6596249184_bloq.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "84d089c787fb99dc99c763d2166538af719793da16319ce6d03355dc0beb87df",
+      "evidence": "catalogue visual sheet 02, item 037"
+    },
+    {
+      "canonical_product_id": "340b160f-93e3-4389-866f-df79cc14dea8",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/73b59d/6602698362/il_fullxfull.6602698362_8mtp.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a819282a87f3f7521af1a194803da4aa2678160eecf325905fcf9046df55370d",
+      "evidence": "catalogue visual sheet 02, item 038"
+    },
+    {
+      "canonical_product_id": "2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/502378/6297577802/il_fullxfull.6297577802_80jm.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7a5930c8a16a02ab1ba9e77399aec550635bb81b26fa91895afa193d316e4a89",
+      "evidence": "catalogue visual sheet 02, item 039"
+    },
+    {
+      "canonical_product_id": "de38a842-37c4-40a7-86b4-393341c4c9aa",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0b6186/6629669822/il_fullxfull.6629669822_md3z.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2711fb936eff45528b817e8d34505a0a7cf8c972cecb1d80643d69af20e12472",
+      "evidence": "catalogue visual sheet 02, item 040"
+    },
+    {
+      "canonical_product_id": "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c8de9f/7053864298/il_fullxfull.7053864298_gc8d.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "680934c94949bb4153add221ee49e9f8e7a34b213ee0e3795d3684e3725b1939",
+      "evidence": "catalogue visual sheet 02, item 041"
+    },
+    {
+      "canonical_product_id": "481ca9fa-1100-439d-b52b-80caadba52a9",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f45b8c/8067515012/il_fullxfull.8067515012_rimi.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "fe1417d148f91b86a8d5edcedd5c2429242056218b9b3734875ae25328a82011",
+      "evidence": "catalogue visual sheet 02, item 042"
+    },
+    {
+      "canonical_product_id": "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5629b7/7882527239/il_fullxfull.7882527239_ecym.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "ac7d4e8505e7308a086a7c89c5c8bbe7bbc2cbd6bc28b40c7dd956977aad240e",
+      "evidence": "catalogue visual sheet 02, item 043"
+    },
+    {
+      "canonical_product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7ced98/6970053990/il_fullxfull.6970053990_rczv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6e146771f10d71e9da1869693e8a2ba2be0cf326bb4a82546687aa73f63f441e",
+      "evidence": "catalogue visual sheet 02, item 044"
+    },
+    {
+      "canonical_product_id": "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/07d446/7657558644/il_fullxfull.7657558644_l4u4.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "db7759642dfd242db2e789e82a224047532224fb3da3a6c1a44b77c1367b306c",
+      "evidence": "catalogue visual sheet 02, item 045"
+    },
+    {
+      "canonical_product_id": "f746beae-43c9-4f4f-8307-301d136eda58",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/39c689/7967379731/il_fullxfull.7967379731_7ilj.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "335d096af6bd13d2b96c035b2807b783b4a9962a1bc00d850a3d82c8e8abeea6",
+      "evidence": "catalogue visual sheet 02, item 046"
+    },
+    {
+      "canonical_product_id": "a9f110dc-4ed4-454f-9e28-f67ca5a042e1",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fae872/6371885323/il_fullxfull.6371885323_7p3q.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "24a9ae4ee12d683277c284173696d3fb46331b6ca8cbeece5ea78613a14c0182",
+      "evidence": "catalogue visual sheet 02, item 047"
+    },
+    {
+      "canonical_product_id": "ffa74da5-c2e1-4c3a-b460-50d1aae09f56",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fa580f/6848500103/il_fullxfull.6848500103_faxm.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4a9aa3264204fe5d84ee0477e9e54c3e210b889f6200506f5ac4a2b6930f8a43",
+      "evidence": "catalogue visual sheet 02, item 048"
+    },
+    {
+      "canonical_product_id": "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d5fd9a/6400181624/il_fullxfull.6400181624_64nf.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "22652db8d1e9ace9332aef68333855647a6c167cd7c22ca9217163e600386156",
+      "evidence": "catalogue visual sheet 03, item 049"
+    },
+    {
+      "canonical_product_id": "665296a0-f5ad-422c-837c-868f611c45c6",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ef3e1c/7218249192/il_fullxfull.7218249192_dj2d.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "91541e5b7ab93c6f725eb9202a92bed0c48271106befd702da0d9f7a8d73de72",
+      "evidence": "catalogue visual sheet 03, item 050"
+    },
+    {
+      "canonical_product_id": "5255562a-0181-4fe3-bf4f-e5083f5638e5",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/1be61d/6345846099/il_fullxfull.6345846099_523z.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "30b0b3ad06bcb42634c59a8aec7f348494c663fce30d541b6a979a2013678263",
+      "evidence": "catalogue visual sheet 03, item 051"
+    },
+    {
+      "canonical_product_id": "df030151-5853-46c1-be89-06f059224a44",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dc32b1/6286475262/il_fullxfull.6286475262_5z6r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8041395dd4d29de962885633d4de60526c6c6706647de40d1d87ff892500eb09",
+      "evidence": "catalogue visual sheet 03, item 052"
+    },
+    {
+      "canonical_product_id": "fba170e8-582d-45fa-b954-f9136e733950",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/17484b/6620989967/il_fullxfull.6620989967_ieg7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cdc484b9b98556174c45b96c48638f516f40d491e7622219b1011a74fb5ed858",
+      "evidence": "catalogue visual sheet 03, item 053"
+    },
+    {
+      "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e8886a/6253895823/il_fullxfull.6253895823_g0k1.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e8a138963b80782f32dc071fde06c047897be2a63e8f9650fc44af1c19ae2198",
+      "evidence": "catalogue visual sheet 03, item 054"
+    },
+    {
+      "canonical_product_id": "4311bc31-ee98-458e-8290-b663ee525a4c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/696d82/7035496289/il_fullxfull.7035496289_rcs2.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "ac83c626876311d652efb97ef3e2356b08bb97243783cae5f076f7c830c749b4",
+      "evidence": "catalogue visual sheet 03, item 055"
+    },
+    {
+      "canonical_product_id": "882793f6-15ca-4617-a579-5cd47290ce72",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "876f7a5c6dd6472ecf0aeb9f6718546f64726cb7925eb338af78f616f908c083",
+      "evidence": "catalogue visual sheet 03, item 056"
+    },
+    {
+      "canonical_product_id": "5f0df65c-4b04-4905-80c5-53bd7e807063",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5d342a/6960184598/il_fullxfull.6960184598_bc22.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b514352f48b9e562996d67af0e02b02a04facd77e674255d6e4aed87babda490",
+      "evidence": "catalogue visual sheet 03, item 057"
+    },
+    {
+      "canonical_product_id": "32b51b28-0570-49af-90f5-7bfdd7da5148",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/19e456/6402618483/il_fullxfull.6402618483_28x9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a3c41e2dc133bfd7251ec24c1e27d6cba13e9e2c31042091060b7c930b91f098",
+      "evidence": "catalogue visual sheet 03, item 058"
+    },
+    {
+      "canonical_product_id": "51487104-166f-45e0-a528-d8b27a6258d6",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e6d8bf/6230742507/il_fullxfull.6230742507_9gk8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "225fd3c0cac5784662affb4cdba70f816182bcfa3e83e18e1d44b0aee4b76b44",
+      "evidence": "catalogue visual sheet 03, item 059"
+    },
+    {
+      "canonical_product_id": "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e23dc652d3569678ef262d84899a085ae839c018187e8b60dc58c480e3445fc0",
+      "evidence": "catalogue visual sheet 03, item 060"
+    },
+    {
+      "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2e2da22ea109dcc031b1ed2459be46cd04970ece6cb0acf32e8d0a466ca70737",
+      "evidence": "catalogue visual sheet 03, item 061"
+    },
+    {
+      "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "368a281f64d65caeddf90caee089927945e2b51e947f540fff2a8a2fe4385b61",
+      "evidence": "catalogue visual sheet 03, item 062"
+    },
+    {
+      "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8ac108c690b46a1f6401cefa82b266ea1be80ece603778725969fd56eb135b06",
+      "evidence": "catalogue visual sheet 03, item 063"
+    },
+    {
+      "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "3d09839cd2df020dc6254f5fd2da0048a03cd68c65a4b493bfe32cbf385d076f",
+      "evidence": "catalogue visual sheet 03, item 064"
+    },
+    {
+      "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4bbc9a4f221b9f3d9c4884d9f132790cf7c4977cac25b3a84dd24fb60eb469e6",
+      "evidence": "catalogue visual sheet 03, item 065"
+    },
+    {
+      "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8c7325/6774568817/il_fullxfull.6774568817_hu7j.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "94820e7f004abeb1a859da4c9f8783687c81f7940d87b7ffad1950e26c408b22",
+      "evidence": "catalogue visual sheet 03, item 066; full-outfit gallery image 1 replaces portrait after alternative-image review"
+    },
+    {
+      "canonical_product_id": "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/92c051/7263962861/il_fullxfull.7263962861_je6m.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "80557c47552421640b71ddce797d8312ab9c5196355220f4ce8baa1c198bd94b",
+      "evidence": "catalogue visual sheet 03, item 067"
+    },
+    {
+      "canonical_product_id": "1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8c7325/6774568817/il_fullxfull.6774568817_hu7j.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6997eca2090431bcb73d2f3b96dce7cc4450cfa8552eee7d8d068221b8f88a0d",
+      "evidence": "catalogue visual sheet 03, item 068"
+    },
+    {
+      "canonical_product_id": "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f7887b/8089013756/il_fullxfull.8089013756_thtd.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "173578e9bb047f34028c3c97b2b353d55affae4b0bba0048a9800232eae5c9cf",
+      "evidence": "catalogue visual sheet 03, item 069"
+    },
+    {
+      "canonical_product_id": "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/17705b/6945539874/il_fullxfull.6945539874_suj2.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cacdfffa7c542ceccbdaa7effb59e2555fceccfcaca5dae55f2c3b14a8ae0f5d",
+      "evidence": "catalogue visual sheet 03, item 070"
+    },
+    {
+      "canonical_product_id": "09d41ed1-51be-43b0-aace-fc80e6e50f99",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d40e4d/6791701193/il_fullxfull.6791701193_gzjr.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a8ebb83909c2f20ba88c71af4f4ab0b328f898bb87f462ccf216a4842c756e84",
+      "evidence": "catalogue visual sheet 03, item 071"
+    },
+    {
+      "canonical_product_id": "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9bced1/6800388536/il_fullxfull.6800388536_t05m.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "35c47f2e567018ddb9fb499c3eee63ffdaab478fdcb57183de0c73c61fd48fd2",
+      "evidence": "catalogue visual sheet 03, item 072"
+    },
+    {
+      "canonical_product_id": "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/33419f/7077117745/il_fullxfull.7077117745_rujl.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "183987b2a88ac72bc5837d3f0a594b5ab88cd98b5da29cd4b9d756304d1ed03f",
+      "evidence": "catalogue visual sheet 04, item 073"
+    },
+    {
+      "canonical_product_id": "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0c9f20/7828298578/il_fullxfull.7828298578_rpec.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "5c232e96ea4e4d8827163d5735e4dead5ef4de75d55e1fe66703563d649cba95",
+      "evidence": "catalogue visual sheet 04, item 074"
+    },
+    {
+      "canonical_product_id": "ec204df6-13b6-4deb-b493-04391501d72d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/25df3a/7045996747/il_fullxfull.7045996747_pway.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1f7c9ba29b6cadc26f89c14f1e5e3ee8ce97e3cccb28ecd31fb34d24b0ac4830",
+      "evidence": "catalogue visual sheet 04, item 075"
+    },
+    {
+      "canonical_product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/91ca36/6708345929/il_fullxfull.6708345929_obap.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "43eec47a1f1365a0619d42b0fc189251f7b976774572ec215a184e88b1f70ef8",
+      "evidence": "catalogue visual sheet 04, item 076"
+    },
+    {
+      "canonical_product_id": "f6b85532-eae2-4036-badc-401141c2ad6e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ef3061/7363778971/il_fullxfull.7363778971_pegu.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "862ef4bad68fa636ab056cc02fd415841c7e2d2f4c3e7f434ae907d20b50902c",
+      "evidence": "catalogue visual sheet 04, item 077"
+    },
+    {
+      "canonical_product_id": "f36acd08-1591-4e15-8ad2-96bc22ec4b77",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/000ae2/6698261188/il_fullxfull.6698261188_ddaa.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "83ff3ba951bc3e7c027e03b8870d4a29efca5bf8b24b5609ec70df15686d05cf",
+      "evidence": "catalogue visual sheet 04, item 078"
+    },
+    {
+      "canonical_product_id": "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8b83a9/7269374765/il_fullxfull.7269374765_4hpk.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "c3a460c6dea3b1699a04874d1206344d0fcff44adb74179f87a20958c92033d3",
+      "evidence": "catalogue visual sheet 04, item 079"
+    },
+    {
+      "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "bb75b0a4d611e82e9becf83b0c7d4d23c79c2054bc6c00e5ffd249d99dbf037f",
+      "evidence": "catalogue visual sheet 04, item 080"
+    },
+    {
+      "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f1e0fb/7275852485/il_fullxfull.7275852485_6b21.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "bada44a54de6646a96b3c989d8322c91aa1b08f337b22c67c685386550046067",
+      "evidence": "catalogue visual sheet 04, item 081"
+    },
+    {
+      "canonical_product_id": "e01ef0b1-6155-4d02-a3cd-413d272502b3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b82b13/6743320118/il_fullxfull.6743320118_903p.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1da92baf5fac4cfe27afb4f9fc012c0c7d47b87e56bad1decaea3c79688ab1d0",
+      "evidence": "catalogue visual sheet 04, item 082"
+    },
+    {
+      "canonical_product_id": "17de9c7b-53d0-4a7d-90d0-3e79f26e3489",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9d8723/6791230317/il_fullxfull.6791230317_hc55.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "f95e83c50060521ce6d5b17fa7cb1669fc46452f4bbad69788754490b6931963",
+      "evidence": "catalogue visual sheet 04, item 083"
+    },
+    {
+      "canonical_product_id": "c661cd70-55e4-445e-97ab-591e22d02221",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0ab0d0/6830672697/il_fullxfull.6830672697_qh0v.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d8ec050492b49f69455a8e6e5add48dabb77653814dfb1299fc827953fb25bde",
+      "evidence": "catalogue visual sheet 04, item 084"
+    },
+    {
+      "canonical_product_id": "74634519-add3-490f-8ef3-3b4d74a7ca7d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/42cef0/6816067225/il_fullxfull.6816067225_5t4x.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e4f71042cac493d37406aeece19ed4fa8ac85218ed3c85c385bf6bd832d00a42",
+      "evidence": "catalogue visual sheet 04, item 085"
+    },
+    {
+      "canonical_product_id": "8242d255-f77f-4e9f-88a2-a5db326fa297",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/74c834/6698192296/il_fullxfull.6698192296_hve9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "fe2a9f7a32ff5c151e90eb50e1811e52e73bc192118dc63d2bc4c28fd9d5f3ad",
+      "evidence": "catalogue visual sheet 04, item 086"
+    },
+    {
+      "canonical_product_id": "f44cb59b-1632-4c86-b376-8afd205a6e63",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/71d877/7111579004/il_fullxfull.7111579004_p0ab.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7e0fd37764af18abdf78e983b1c30d2f4268432a600016089c402627d1c0cb8a",
+      "evidence": "catalogue visual sheet 04, item 087"
+    },
+    {
+      "canonical_product_id": "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/59746b/6332972774/il_fullxfull.6332972774_akbs.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7665e1ab524715ee669cf52d0c450e32570fd2ec0fafa67751a897a9d04c11ac",
+      "evidence": "catalogue visual sheet 04, item 088"
+    },
+    {
+      "canonical_product_id": "3013d058-8299-4c10-ba42-3c553799255b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a825e6/6566339070/il_fullxfull.6566339070_hngt.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "af5d6f0a8d24a343e81d989815e7e6ab771e845c73aa8db784d6c5a477ec960a",
+      "evidence": "catalogue visual sheet 04, item 089"
+    },
+    {
+      "canonical_product_id": "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8bdf5c/6618062786/il_fullxfull.6618062786_bs2q.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "0cc60977d223f88aa7a1a31573aa79b23e9591029d83acdf3a299e5d43c1adba",
+      "evidence": "catalogue visual sheet 04, item 090"
+    },
+    {
+      "canonical_product_id": "b5fbab09-1be1-439b-be72-582beceed09a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/2f558c/7042237400/il_fullxfull.7042237400_aqk9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "f661cd950132a0d4f21bcfe9c34716db60fc7a054ab673651b16c97ae6df3113",
+      "evidence": "catalogue visual sheet 04, item 091"
+    },
+    {
+      "canonical_product_id": "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fe36a3/7725111589/il_fullxfull.7725111589_pphi.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "493558140712f1e0631e3b4441342274e4db4e95881e43e938b4de2a8a8c6493",
+      "evidence": "catalogue visual sheet 04, item 092"
+    },
+    {
+      "canonical_product_id": "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/255852/7348861353/il_fullxfull.7348861353_b9uy.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b38c2a75744ed65cca9f793d96ee347bfe57ea3b1a85afc56e8f2792784d0f63",
+      "evidence": "catalogue visual sheet 04, item 093"
+    },
+    {
+      "canonical_product_id": "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3109e0/7245931359/il_fullxfull.7245931359_y0hx.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "03802b0492d71556cb43d18bbc43263f9fadd7e1bd507fccffec9d274f549f85",
+      "evidence": "catalogue visual sheet 04, item 094"
+    },
+    {
+      "canonical_product_id": "4da73818-2f50-43de-b326-8b2c63b17983",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c3fa19/7777842881/il_fullxfull.7777842881_jqk2.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "06ab1e5ec8d8eddadf646929411442816a4b5581ed7824e16aa775426901466e",
+      "evidence": "catalogue visual sheet 04, item 095"
+    },
+    {
+      "canonical_product_id": "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/529027/7951535620/il_fullxfull.7951535620_mohd.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d22773775f37efef076d9d222eec22ad3c73e05dd82bd21a37d9d917987056db",
+      "evidence": "catalogue visual sheet 04, item 096"
+    },
+    {
+      "canonical_product_id": "ca291096-219d-4269-981c-97f6929da308",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7f8e1c/6921975658/il_fullxfull.6921975658_7pfz.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "32e830289708f9b6922dff0aa65456f6b9589baf2457bf76d189b05601cab9f9",
+      "evidence": "catalogue visual sheet 05, item 097"
+    },
+    {
+      "canonical_product_id": "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ef42ca/6457242620/il_fullxfull.6457242620_apar.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e46bd25330e078530e0ff58d748567c13b07e8be472bb9ccf4cebb6d89030e4d",
+      "evidence": "catalogue visual sheet 05, item 098"
+    },
+    {
+      "canonical_product_id": "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/66748a/7180700198/il_fullxfull.7180700198_5m2u.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "00ee4f49cabd59fbea675d79af9f9cdf46fa8301306ad92a36d21cf61654c663",
+      "evidence": "catalogue visual sheet 05, item 099"
+    },
+    {
+      "canonical_product_id": "ffbf1db6-6fae-4606-afbe-013415d6421d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/718b0a/6696173918/il_fullxfull.6696173918_lfyk.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "5bf5cb8102928b28126011ac6e7ed46895a6e7a52680075302620cbb85d830f5",
+      "evidence": "catalogue visual sheet 05, item 100"
+    },
+    {
+      "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/bcde08/8065106870/il_fullxfull.8065106870_nt6r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "3ee10353a29a62ea3fa8e6087b357c5b4700e6919e3d1a5742080936dddc0700",
+      "evidence": "catalogue visual sheet 05, item 101"
+    },
+    {
+      "canonical_product_id": "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e0b225/6866819592/il_fullxfull.6866819592_f19y.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "9c6cbf18c049a95c4a6a1b78e14760a1f900daba8749ce23dae366f697507ae1",
+      "evidence": "catalogue visual sheet 05, item 102"
+    },
+    {
+      "canonical_product_id": "dcd0d24a-473b-4592-b56f-466fda984b1e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/aff92e/7271330753/il_fullxfull.7271330753_ngjm.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2e425e1eee7629557697a09fbb65537350c8a4955ffe53721c85be4dd52b13c4",
+      "evidence": "catalogue visual sheet 05, item 103"
+    },
+    {
+      "canonical_product_id": "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/67da90/7424762915/il_fullxfull.7424762915_qdyn.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1e76c82dc7f9ef1297fce97b0f48f538f5303b9fcb04b1bb35991e1fe0e3f15b",
+      "evidence": "catalogue visual sheet 05, item 104"
+    },
+    {
+      "canonical_product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/046cbf/7275761549/il_fullxfull.7275761549_nmse.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b294e7e7a22f7bef7e4c93f93f8b9a402ac8a43a0aec38f3ca1cc4b267fa44dd",
+      "evidence": "catalogue visual sheet 05, item 105"
+    },
+    {
+      "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/597c43/7888607338/il_fullxfull.7888607338_ants.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4ab3186bdb4379f8c95ccc4dc0affd3f5250ad9b2abd11ce5850f14d68b3b10b",
+      "evidence": "catalogue visual sheet 05, item 106"
+    },
+    {
+      "canonical_product_id": "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7503ba/7227476110/il_fullxfull.7227476110_af4r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "61d8d7cab28356bbd115ee43e2a9b50a3757ad44d2ad7519c15fb9a65fd99ca5",
+      "evidence": "catalogue visual sheet 05, item 107"
+    },
+    {
+      "canonical_product_id": "043406cd-0a96-45c5-8796-57c5cc4b276e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/190de1/6846318577/il_fullxfull.6846318577_ftnn.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "11c5e48395a10520a991ef4cc8cdb266b61e7a1b42c380fc26b7ef174410d3c2",
+      "evidence": "catalogue visual sheet 05, item 108"
+    },
+    {
+      "canonical_product_id": "ea365de7-a807-40a1-abb4-374d9df7f156",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c8dd54/6980777366/il_fullxfull.6980777366_bvg7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "5a9170102bf9967dfbc591079eb7e0a468775024c67d881bc1737f6327a14447",
+      "evidence": "catalogue visual sheet 05, item 109"
+    },
+    {
+      "canonical_product_id": "3ff937a2-838f-4986-be64-07b11faf8d17",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ff013a/6463689199/il_fullxfull.6463689199_5rfb.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a32715e74349642ae41a969c166e703b1e0622f6eea861ab15dcb22ed40f22f0",
+      "evidence": "catalogue visual sheet 05, item 110"
+    },
+    {
+      "canonical_product_id": "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cc4190/6819559560/il_fullxfull.6819559560_afal.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a6402f751e4a9df0e8f75108a1a4ee0d13521e7a7ba0407ccffb3753e7ddb5a6",
+      "evidence": "catalogue visual sheet 05, item 111; full-outfit gallery image 1 replaces portrait after alternative-image review"
+    },
+    {
+      "canonical_product_id": "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/47353c/7104744877/il_fullxfull.7104744877_nxwu.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2f3889a0d560af7dad1de6eb26ad5eb5eb8fcd556b304d77871bf1d03d4d74ae",
+      "evidence": "catalogue visual sheet 05, item 112"
+    },
+    {
+      "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/70fe6d/6783812454/il_fullxfull.6783812454_owe3.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "91eaab15eb79a3cdd6da4ed7b4ef036c07772797ec552687470af83696f072ee",
+      "evidence": "catalogue visual sheet 05, item 113"
+    },
+    {
+      "canonical_product_id": "d17c17b6-76dd-429d-bf5c-ccd432cd1e0f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f40790/6572990662/il_fullxfull.6572990662_eudt.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6f002452b20c7a861bc058b93a5c327afe69cc821714a67e3c22c5f2ecdf6a15",
+      "evidence": "catalogue visual sheet 05, item 114"
+    },
+    {
+      "canonical_product_id": "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/95e569/7739702006/il_fullxfull.7739702006_hama.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cd6a0e11cb48a63c3ea5be9000bd0cddd3c2ddf98008b3fcf92f89c803b91c9f",
+      "evidence": "catalogue visual sheet 05, item 115"
+    },
+    {
+      "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d1b87110865acca4dfc49ba3ca631e0ca1c5fe550e5af0bd0e0b06807fde51a2",
+      "evidence": "catalogue visual sheet 05, item 116"
+    },
+    {
+      "canonical_product_id": "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/2fb4f2/7698367363/il_fullxfull.7698367363_dz4h.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b93e3f5b1ebf7de075496ce8a74e25e4e296e06d790e263bbc344ff32b79cf13",
+      "evidence": "catalogue visual sheet 05, item 117"
+    },
+    {
+      "canonical_product_id": "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/6dbedd/7713388337/il_fullxfull.7713388337_vsls.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "ca154347352f5b65b191f174ca43433894786795d387a9811c0720a56e524ed1",
+      "evidence": "catalogue visual sheet 05, item 118"
+    },
+    {
+      "canonical_product_id": "9e47719d-1afd-4298-808e-bacae86bbc38",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/4d4922/7007264424/il_fullxfull.7007264424_ed9i.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a6d89f84669344b8b2e55b9f81955372da17bb7d16dda6959f3faebabc881b52",
+      "evidence": "catalogue visual sheet 05, item 119"
+    },
+    {
+      "canonical_product_id": "5602d557-9d98-454b-bc98-9b9ea84b442f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ea2c01/7108124417/il_fullxfull.7108124417_bdmf.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "86025f46132c9a506e7a4adffa2a06095f70c75d1bfba31b694c8f84d0d39330",
+      "evidence": "catalogue visual sheet 05, item 120"
+    },
+    {
+      "canonical_product_id": "51a30d6f-a588-49b9-b077-5f33488efd36",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b7366c/6638839803/il_fullxfull.6638839803_c29j.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "61ed0ec46f0871157f84c03ca1742d7c81b1d64c690525fe9408a363dbf6eb25",
+      "evidence": "catalogue visual sheet 06, item 121"
+    },
+    {
+      "canonical_product_id": "256c75b4-f378-4b21-8321-9d5766bd209c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0e087e/7057645879/il_fullxfull.7057645879_k48e.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "abee13272ecbb89bb24aa912be5f2f515d2afdd1df9f92ec060544dcd67207d6",
+      "evidence": "catalogue visual sheet 06, item 122"
+    },
+    {
+      "canonical_product_id": "ad0e3743-70cf-4b59-9da6-88080d7f3651",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/600292/7734133850/il_fullxfull.7734133850_d2y9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8299e6d01db72d934f2018ceae36ccb55ce5ce565ef055f4a88a33212e7e9847",
+      "evidence": "catalogue visual sheet 06, item 123"
+    },
+    {
+      "canonical_product_id": "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cb5da7/6354379970/il_fullxfull.6354379970_gaxy.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "49984f0eda2d236a254ad8da7cadf282aea556046e2e7af49e70140dc130c06a",
+      "evidence": "catalogue visual sheet 06, item 124"
+    },
+    {
+      "canonical_product_id": "c35b5b75-7e6e-492b-9528-6a126384086e",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e1268/6783993026/il_fullxfull.6783993026_bsb7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "aeffa316ee0d40bf90287c30235bbcdd3c435e0b80c2fb9744a9fc4d2cc0c8f1",
+      "evidence": "catalogue visual sheet 06, item 125"
+    },
+    {
+      "canonical_product_id": "187f01a3-40e0-4820-b3aa-1bccc1eea6d2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/668d87/7362238727/il_fullxfull.7362238727_2sft.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b5f2f6bc715752093aba233e3f562eb4630ae484423b041c2d8c76ed074529b9",
+      "evidence": "catalogue visual sheet 06, item 126"
+    },
+    {
+      "canonical_product_id": "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/64e7f0/6993816945/il_fullxfull.6993816945_5rs4.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "dfc1cb2be9842adce235fcb9c0d88f7213baedd960d541a29885b4b8e322705a",
+      "evidence": "catalogue visual sheet 06, item 127"
+    },
+    {
+      "canonical_product_id": "a6239781-34bb-42a1-85ae-91a733f7df65",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f4dfe8/7003494360/il_fullxfull.7003494360_2pum.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "611077251e9bc5fa6d44b3f8cdd2552a50d753e694fc4671d513940ed964491c",
+      "evidence": "catalogue visual sheet 06, item 128"
+    },
+    {
+      "canonical_product_id": "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ad4c4a/6832051559/il_fullxfull.6832051559_924d.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a2843906a9ba02b3211d89962878ddaf61c097222a43aca9a9ab6ae50f0b688b",
+      "evidence": "catalogue visual sheet 06, item 129"
+    },
+    {
+      "canonical_product_id": "7c220537-de7c-4157-99c3-ba1f9144d113",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fa2ac4/7052497101/il_fullxfull.7052497101_jyi0.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "dcbd938910152b4587034f83e0f473b793b7150f1e2b31f86b446cbf57eab7f9",
+      "evidence": "catalogue visual sheet 06, item 130"
+    },
+    {
+      "canonical_product_id": "4033e707-98e2-45ad-9fd6-b7d615673fa3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/6185c4/7895100726/il_fullxfull.7895100726_tie0.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "5e803a52db3d2beadc22a74c3ba6a839c8bab31756073cb159319df3e111495a",
+      "evidence": "catalogue visual sheet 06, item 131"
+    },
+    {
+      "canonical_product_id": "29ebbf71-cd02-42fb-8372-55002ca56495",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0e1513/6633403787/il_fullxfull.6633403787_7916.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1e43de48ae311792d09b3b8ff7266b350a81d4114981c4376bc66bcae226f878",
+      "evidence": "catalogue visual sheet 06, item 132"
+    },
+    {
+      "canonical_product_id": "c3f1018e-665b-44a8-90db-ecc5bb64eedc",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/818012/6598812364/il_fullxfull.6598812364_fxc1.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a0de782e825f57d3f223f8ab3d7d08696bcb28e9eb5296d390934af2c3412d66",
+      "evidence": "catalogue visual sheet 06, item 133"
+    },
+    {
+      "canonical_product_id": "83ea907b-a523-47cf-834f-5a1b16b80339",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/73b59d/6602698362/il_fullxfull.6602698362_8mtp.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "46fb61c53986f4fd1b576c5fb415a73f61f5dc2abb28c62cc052854b5f311ffc",
+      "evidence": "catalogue visual sheet 06, item 134; full-outfit gallery image 1 replaces portrait after alternative-image review"
+    },
+    {
+      "canonical_product_id": "b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d98200/6607706846/il_fullxfull.6607706846_88i1.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "f0a84a2caaebae2af57da0797de286b8e462c9678deefc496420445e507ba697",
+      "evidence": "catalogue visual sheet 06, item 135"
+    },
+    {
+      "canonical_product_id": "596c5ec2-e59e-484f-8f73-89221f2b4171",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d429db/6616286109/il_fullxfull.6616286109_gr6y.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a18453a95297c4e60feb044eb750fac4310e4ef48b65db18e6a84a5ef494621a",
+      "evidence": "catalogue visual sheet 06, item 136"
+    },
+    {
+      "canonical_product_id": "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "208dacdd10d67b548c708d044b358ad1ccda6df31d4062eb1cdc89c22405923c",
+      "evidence": "catalogue visual sheet 06, item 137"
+    },
+    {
+      "canonical_product_id": "abf11fbb-9794-484d-b93c-1449fa3a9a44",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/16f69c/6499710955/il_fullxfull.6499710955_nx20.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6521e6c7d59d78a6faa1beeb401beb5a4c8ac1f6e978f0d6ff38487bae4ce123",
+      "evidence": "catalogue visual sheet 06, item 138"
+    },
+    {
+      "canonical_product_id": "65e36680-71ca-44ba-9873-f7c962928642",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/16d4c8/7030793148/il_fullxfull.7030793148_lqs6.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d7e8d7a8437016c3161bbfa8f8dfa39bc149cc3961e6e64b329881b972521b9b",
+      "evidence": "catalogue visual sheet 06, item 139"
+    },
+    {
+      "canonical_product_id": "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e5d737/7238314434/il_fullxfull.7238314434_b5n9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "2379f6dc95f9ff3d286d138c6890fb2d0324907a6a7a91e373d1f153c482506f",
+      "evidence": "catalogue visual sheet 06, item 140"
+    },
+    {
+      "canonical_product_id": "9400d8af-b6b9-4b4a-b878-b97eba761e10",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/2a611e/6297662946/il_fullxfull.6297662946_bfsi.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "0d82ed5302f70e04b7fa0c52999136151cb6639a0b333b1dd128092b1e05103a",
+      "evidence": "catalogue visual sheet 06, item 141"
+    },
+    {
+      "canonical_product_id": "3ba4ec57-7b0f-41ea-911d-5988b5088f1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e54caa/8008823657/il_fullxfull.8008823657_rvod.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "aa9ead68245e43d09fb20e3e0f32f66b208eca6b87e4d47a7383dac7e7ae4dee",
+      "evidence": "catalogue visual sheet 06, item 142"
+    },
+    {
+      "canonical_product_id": "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d3ea92/7172857446/il_fullxfull.7172857446_kmgd.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "df10c26f9ebddb640af11c30e71ceb2b44217ce5f64b88eaba89d811ea2d387b",
+      "evidence": "catalogue visual sheet 06, item 143"
+    },
+    {
+      "canonical_product_id": "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fd9579/7112206868/il_fullxfull.7112206868_ettp.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8f90ee8be1ee7fa039e2373f7e0025f66be9f6de8720745e8338eaccbe664987",
+      "evidence": "catalogue visual sheet 06, item 144"
+    },
+    {
+      "canonical_product_id": "b0b2a75c-f301-45d6-857c-dd6575862619",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/71687f/7749700392/il_fullxfull.7749700392_8n3s.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4045fc0179bcb5f1e4657d961a13327d8260a92332c78e982c166c0dd1bf01e8",
+      "evidence": "catalogue visual sheet 07, item 145"
+    },
+    {
+      "canonical_product_id": "3a006050-ab78-4b4d-9964-ed8c9f32e923",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1e303c8716602be8ba067d1aae3019b4b145b5fbe5364213557a5b21595b5acd",
+      "evidence": "catalogue visual sheet 07, item 146"
+    },
+    {
+      "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e14687/8030273942/il_fullxfull.8030273942_lloe.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "14743bdacd9bd14f4f432831c4dd890469bc9c22356a4146aae67ff92486662b",
+      "evidence": "catalogue visual sheet 07, item 147"
+    },
+    {
+      "canonical_product_id": "e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/1a93a8/7223210365/il_fullxfull.7223210365_p7d4.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "09f370f83fae42b0f83bb0e6f19e2eacd61e5c362a79e7bccd467a6da03e3acc",
+      "evidence": "catalogue visual sheet 07, item 148"
+    },
+    {
+      "canonical_product_id": "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3d5cf2/6798255762/il_fullxfull.6798255762_b8cv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "f20ea5f2ad95c72e3826f787cbc7942d611d7540c17da75684e92034cac08376",
+      "evidence": "catalogue visual sheet 07, item 149"
+    },
+    {
+      "canonical_product_id": "81fc83de-76aa-4733-9a88-f631e7699fa6",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f092b1/6900635569/il_fullxfull.6900635569_hg3n.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d2d3535c0a344d55b490ae37e68b2bf442e4a6c51df2f41ef5c8a7fcc6e278ca",
+      "evidence": "catalogue visual sheet 07, item 150"
+    },
+    {
+      "canonical_product_id": "b68d0386-ed1f-4410-8001-185bf3aaf25f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fcf509/6616358499/il_fullxfull.6616358499_toj8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "92211f12ecc9bd8d37a9d1d4984a75a4e245afb8f03a9afc27c99303fa6926db",
+      "evidence": "catalogue visual sheet 07, item 151"
+    },
+    {
+      "canonical_product_id": "818a1991-46e2-4628-ac61-6db77314c9af",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c9bf72/6950984000/il_fullxfull.6950984000_na1r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "7532e926b7cdeb1bac2b4ae8e9876f7f1e2601a29dccd7ce0b500ac3d62988cd",
+      "evidence": "catalogue visual sheet 07, item 152"
+    },
+    {
+      "canonical_product_id": "067628e8-3ecd-4979-8501-6da61ca2f51a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ea77d7/6773169169/il_fullxfull.6773169169_lreg.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e54efb08e2541ac6f013ebecff4195d64fd5c0690cb431bcf1e19c0b67ef734b",
+      "evidence": "catalogue visual sheet 07, item 153"
+    },
+    {
+      "canonical_product_id": "158e7824-4876-4991-b506-e3f6f4aa8371",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/68b378/8036486014/il_fullxfull.8036486014_96z8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "87423e5378e7e47cd9ce3e7829ad5fffcc01e210b80d92c047c93c78d4be64bc",
+      "evidence": "catalogue visual sheet 07, item 154"
+    },
+    {
+      "canonical_product_id": "4a4d2214-fc12-41a9-8ce3-f39272a8e22d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b5d610/6743618894/il_fullxfull.6743618894_7h60.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b42b804610f49d41526926c768f67bfc5ef919de5c2e10cf9531ed6ac30038b2",
+      "evidence": "catalogue visual sheet 07, item 155"
+    },
+    {
+      "canonical_product_id": "a6337955-4cb6-4270-8c0e-a178442350ac",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/724f1d/6979363476/il_fullxfull.6979363476_3giv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "0f8b023841bf78085ff0a18cdf000487a8077259a5deb92b9b69e93bd3805b57",
+      "evidence": "catalogue visual sheet 07, item 156"
+    },
+    {
+      "canonical_product_id": "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/038a64/7696072686/il_fullxfull.7696072686_12r5.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "19f1d9245c4fb27487a5256426f030599ba6ac88123a5af493b542650710d7f9",
+      "evidence": "catalogue visual sheet 07, item 157"
+    },
+    {
+      "canonical_product_id": "6a885710-fbee-4790-ba09-d56530f641f6",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d3975d/6467088424/il_fullxfull.6467088424_rgq7.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "cc7b8cd92db80462fd9bcd42096fc060f94a3f72a06ac983ea45d79d0cdd35cb",
+      "evidence": "catalogue visual sheet 07, item 158"
+    },
+    {
+      "canonical_product_id": "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dbbc37/6291115987/il_fullxfull.6291115987_2ej9.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "42f83639c6a53bebdd7f63275aaa60b41f9fa62cebfe7e504469d78f4c85db6b",
+      "evidence": "catalogue visual sheet 07, item 159"
+    },
+    {
+      "canonical_product_id": "b9a476c7-b902-4fea-bead-ec5b2275e835",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5d9c70/6277514955/il_fullxfull.6277514955_pf67.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "c4efdc8db4a13a2dcf795a132e8c09affc4f35877f13a2ab5fa068e3df6c84f4",
+      "evidence": "catalogue visual sheet 07, item 160; full-outfit gallery image 1 replaces portrait after alternative-image review"
+    },
+    {
+      "canonical_product_id": "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e3b90c/6566603201/il_fullxfull.6566603201_qm1r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "77de4c160d4c68631a7559c650d62b653811f383c7ffa095d0d9f0c9ca9f6230",
+      "evidence": "catalogue visual sheet 07, item 161"
+    },
+    {
+      "canonical_product_id": "0e75d2f2-c345-440e-88e4-333b63caed09",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/2545a0/6457214379/il_fullxfull.6457214379_c9s6.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b64c7ef3ae9f8ee43845f424f64baa19611cf23c6549184420bc26893e059198",
+      "evidence": "catalogue visual sheet 07, item 162"
+    },
+    {
+      "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/401d5d/6687490886/il_fullxfull.6687490886_eunk.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "12f723c298cda1e8ddb76f4c3f56cf04902f2287cec6f8f25089b47948342d75",
+      "evidence": "catalogue visual sheet 07, item 163"
+    },
+    {
+      "canonical_product_id": "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/707162/6483109792/il_fullxfull.6483109792_3be5.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "3fbeed1ef00a6db47950e95a1799219779c8617a6e0524efe1d9f87d48b4264d",
+      "evidence": "catalogue visual sheet 07, item 164"
+    },
+    {
+      "canonical_product_id": "5589b5ea-e21a-4e57-a4b2-b598bd8466d2",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/4019ab/6698198418/il_fullxfull.6698198418_k75b.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "fa0aca5b6650c20c3a5c709907b6a0e20cd94d003109eada363094249fc9f7a2",
+      "evidence": "catalogue visual sheet 07, item 165"
+    },
+    {
+      "canonical_product_id": "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7a3894/7874647715/il_fullxfull.7874647715_lxpl.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "9957654842a69a48ad9b5b75108bc56a59a448902fcf6fb4c13edab4cad2d70d",
+      "evidence": "catalogue visual sheet 07, item 166"
+    },
+    {
+      "canonical_product_id": "81224290-77db-4738-923b-65a16d1c691a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a3880b/6621763355/il_fullxfull.6621763355_rqip.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e91e3a388d002b329741d36fab084e26bb06576364627d6ad045b00289e9b799",
+      "evidence": "catalogue visual sheet 07, item 167"
+    },
+    {
+      "canonical_product_id": "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/4c68ba/6585130484/il_fullxfull.6585130484_sigw.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "825176658d04c4e114a965d4c423d1fffe3c97ff90e5f024a3d2f2e6b10bb1d8",
+      "evidence": "catalogue visual sheet 07, item 168"
+    },
+    {
+      "canonical_product_id": "f0e73d70-cf3d-4557-8d59-142c78a106ac",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/6f9a95/6649241871/il_fullxfull.6649241871_ntaa.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "34632221b3fc16009dc9ed463a31f6f207b237a665c2e6fdd6c26c7fa21c9f68",
+      "evidence": "catalogue visual sheet 08, item 169"
+    },
+    {
+      "canonical_product_id": "f81adf93-49a7-489c-b3a8-02520accce59",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e6654b/7049734621/il_fullxfull.7049734621_8855.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "482a96308ef37f2dff7db1e0c1ba9793b20a9c89c9afc0f85d4118976bb12187",
+      "evidence": "catalogue visual sheet 08, item 170"
+    },
+    {
+      "canonical_product_id": "11bb0057-8c1f-4347-8c03-46856df0653c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a67c06/6919458918/il_fullxfull.6919458918_cy2c.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6ccca3b57c9b5cd4137589cf63cde6bc106e0a23d95a3ce3e0a5dcf0ff3b6256",
+      "evidence": "catalogue visual sheet 08, item 171"
+    },
+    {
+      "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3289ed/6247696945/il_fullxfull.6247696945_l4x5.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d8e548adef774e73a903632f4829771baa0499b8bca1860ad61b038f4734d1c0",
+      "evidence": "catalogue visual sheet 08, item 172"
+    },
+    {
+      "canonical_product_id": "f473fb62-0440-473c-a7fb-a52dccafebc6",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/6015fe/6609931778/il_fullxfull.6609931778_dbc8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "e692b9717e008c4b70c545784e52e00a1acc90d6afd09ad34aa302ff6bda1a4a",
+      "evidence": "catalogue visual sheet 08, item 173"
+    },
+    {
+      "canonical_product_id": "e7238b1d-565c-4c4d-a7ae-a4402de80720",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cf06de/6371881227/il_fullxfull.6371881227_mv8g.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d328a8a422c829943f81a3371fc61ea65f92ee0ae3364283adab67b928ae1abe",
+      "evidence": "catalogue visual sheet 08, item 174"
+    },
+    {
+      "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/55e15e/6201048808/il_fullxfull.6201048808_b4d0.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "c2751d58f482028dab82ce66c78fca897205e4f4a3a0e4c1e346566434fdfc11",
+      "evidence": "catalogue visual sheet 08, item 175"
+    },
+    {
+      "canonical_product_id": "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/50dd92/7891401221/il_fullxfull.7891401221_gr1b.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "0600fa85407fa0fca50b84125f1a536dbd918434fcf18377ea2149dd1d5ce1c4",
+      "evidence": "catalogue visual sheet 08, item 176"
+    },
+    {
+      "canonical_product_id": "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/88f759/7750447637/il_fullxfull.7750447637_hevt.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "fbe0cbe3c6dd63cc437b0887b8f34a4bd47c7d7f57bef5fb851388493ec2afb0",
+      "evidence": "catalogue visual sheet 08, item 177"
+    },
+    {
+      "canonical_product_id": "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "313be7e91db145c4a21704e2ade74a66c21e68549ebf17300b87ed6419dd4cd6",
+      "evidence": "catalogue visual sheet 08, item 178"
+    },
+    {
+      "canonical_product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f10138/6369869803/il_fullxfull.6369869803_5e9r.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "70e9f80b473e8f868a1361145835cf42d1465a8ab942cc2f056ab01a68b5e51e",
+      "evidence": "catalogue visual sheet 08, item 179"
+    },
+    {
+      "canonical_product_id": "27786636-7021-4809-8e81-7f566a3436ae",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d07f19/6656374563/il_fullxfull.6656374563_15ha.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "66c9a86e37402a7d062d95301b7869accf68dbf200d6feb602380105f16e2a76",
+      "evidence": "catalogue visual sheet 08, item 180"
+    },
+    {
+      "canonical_product_id": "098044e5-c452-4c52-a0a4-2b29120196e8",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c82b57/6247956257/il_fullxfull.6247956257_1n5w.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "4014ec70db569acecfdd4118067a7a47fb3b0f23b3113c372408bdba71d099ca",
+      "evidence": "catalogue visual sheet 08, item 181"
+    },
+    {
+      "canonical_product_id": "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/77cb1b/6867548557/il_fullxfull.6867548557_f2gi.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "961c3aba85ea895688522fa94121e13d186053a354ca16ecc3fa56615a88fb15",
+      "evidence": "catalogue visual sheet 08, item 182"
+    },
+    {
+      "canonical_product_id": "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fb7e7b/7355470341/il_fullxfull.7355470341_6y5c.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "c3ac354b54f22eeea0374c74e7fa7091f88b24185ba88822d36f0326a5990214",
+      "evidence": "catalogue visual sheet 08, item 183"
+    },
+    {
+      "canonical_product_id": "a875757c-140d-4fea-83f9-93098406c3b1",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cea1d9/6998911064/il_fullxfull.6998911064_p3jg.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "55dd79a614d8a43b6e46fa0f8ca6c2a9bc71b95a9d5a00fbe5df800fde8420fc",
+      "evidence": "catalogue visual sheet 08, item 184"
+    },
+    {
+      "canonical_product_id": "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dab86d/7051590613/il_fullxfull.7051590613_sfmv.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "bbbfe49612dde57ce8b0d939ce4756a70823d58dbb44d1d85f13b066f67451c0",
+      "evidence": "catalogue visual sheet 08, item 185"
+    },
+    {
+      "canonical_product_id": "b28d72d8-330b-400f-b595-124edc3f78f3",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/79f8e1/6608682031/il_fullxfull.6608682031_kcyt.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "9a55d7b98024991884e6a0ff1105d7371e3cce25ddd2bfd3253149b32c5490fc",
+      "evidence": "catalogue visual sheet 08, item 186"
+    },
+    {
+      "canonical_product_id": "85752f94-b2d7-465e-ace2-40bb77977461",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cf196f/8042770492/il_fullxfull.8042770492_jmgr.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8788cacc48923baec2c6600b96e9c9ee1636e7ecc937f3d8fed8e476d1af3cb0",
+      "evidence": "catalogue visual sheet 08, item 187"
+    },
+    {
+      "canonical_product_id": "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/6f5ccd/7384849729/il_fullxfull.7384849729_bmox.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "ccd1c3a521a3d8e402c78b898857a066a86d6bcc6e38be93478985d231cff784",
+      "evidence": "catalogue visual sheet 08, item 188"
+    },
+    {
+      "canonical_product_id": "edc709f1-3a74-43d6-bd00-6c0569392f1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dce366/8080399649/il_fullxfull.8080399649_90pa.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "956c0e282fd0ca443cd688931ea70bea52df7c6c32cc2ad0d70c15b3deb62ad7",
+      "evidence": "catalogue visual sheet 08, item 189"
+    },
+    {
+      "canonical_product_id": "e46d7064-6d80-42db-b321-beb8bbdccc69",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/56c3db/7349522540/il_fullxfull.7349522540_2dgb.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "bb7bdde2355fef7011a0c22e8b3d99992f44ff2892945f94aa6996b4166ca5bb",
+      "evidence": "catalogue visual sheet 08, item 190"
+    },
+    {
+      "canonical_product_id": "f96bb86c-43aa-49c1-a718-41fbe050a1ac",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/531ed7/6208722302/il_fullxfull.6208722302_k246.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "6b05834cf008e72c435f14aeddaa500ec7bcc07146981ff7be8823c89b328361",
+      "evidence": "catalogue visual sheet 08, item 191"
+    },
+    {
+      "canonical_product_id": "73735bd6-82e7-48fa-8b2e-235a13bbf4b0",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ac9841/6329593051/il_fullxfull.6329593051_1i8k.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a27ee73a01fff807fc28bd752d71b6433bcf0c89829e3e26f52a33a754b35012",
+      "evidence": "catalogue visual sheet 08, item 192"
+    },
+    {
+      "canonical_product_id": "31bde143-e483-454b-a397-14bcffa47f20",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d6fdb3/6306637881/il_fullxfull.6306637881_c3j8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "024c1cf6fbe20866c0b9ea9a186f2afe48eddd5eac48375345a94e300ae387e8",
+      "evidence": "catalogue visual sheet 09, item 193"
+    },
+    {
+      "canonical_product_id": "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7c6a43/8016657172/il_fullxfull.8016657172_ony0.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1b9f78d248df08d67b8eea89911064a51d46463875c110bba5f3fbf3110c0064",
+      "evidence": "catalogue visual sheet 09, item 194"
+    },
+    {
+      "canonical_product_id": "82d2dc58-e635-4bc1-8571-2587641e627f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a89c9a/6395262742/il_fullxfull.6395262742_s6dc.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "403c9e9bb4e729baf34470db3b4b0db12618b05d5e4471a68af2fcde5f91d39d",
+      "evidence": "catalogue visual sheet 09, item 195"
+    },
+    {
+      "canonical_product_id": "b3910e41-9de7-483f-8d88-5783e8d90607",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/017243/6352854320/il_fullxfull.6352854320_4e8i.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "1d087e0808120e26862ecb9323fd3310cd49c359ed77423262f354c19c927b6b",
+      "evidence": "catalogue visual sheet 09, item 196"
+    },
+    {
+      "canonical_product_id": "84cb55e1-a5a8-473c-abcd-17f0dc4161ab",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/71126f/6628915919/il_fullxfull.6628915919_1smg.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "26862484da940371fb6ccc8c39979789992fbe24219a7108b595c9e3aee1c4c8",
+      "evidence": "catalogue visual sheet 09, item 197"
+    },
+    {
+      "canonical_product_id": "a9fa4b69-4f79-4669-bd60-783a05d12296",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9d946d/7330255808/il_fullxfull.7330255808_9fic.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "032ba4dea42973d63f5a287db2c9c1b585cac8006fbb78346676b75a86118038",
+      "evidence": "catalogue visual sheet 09, item 198"
+    },
+    {
+      "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/bf61fb/7009840965/il_fullxfull.7009840965_5c4i.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b67b41c102841b0725a31563273a9274a00220de03fc20d05f005de97465889f",
+      "evidence": "catalogue visual sheet 09, item 199"
+    },
+    {
+      "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "d9c9184c062b59c5766eeb87933de0d060f38671f58669b5ec648863be1008f1",
+      "evidence": "catalogue visual sheet 09, item 200"
+    },
+    {
+      "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d40235/6772321614/il_fullxfull.6772321614_s7y8.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "a0b781220ab15e3f03c3c2ec9a083f02bcafd683b52c5838ed8f8f56593eb1a6",
+      "evidence": "catalogue visual sheet 09, item 201"
+    },
+    {
+      "canonical_product_id": "679c975c-b309-49dc-9207-f89fc96b84d1",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c8fc03/7966510266/il_fullxfull.7966510266_3qie.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "b186fc4ed632ec1f3ffc45144313da8ea316c3544a19c3ba35599267f14eb085",
+      "evidence": "catalogue visual sheet 09, item 202"
+    },
+    {
+      "canonical_product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e4b8f/6445108843/il_fullxfull.6445108843_e72p.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8089c86c04543b1d945b008ba024eb0c1b366a1447631bdff8e42ffabc17bbfa",
+      "evidence": "catalogue visual sheet 09, item 203"
+    },
+    {
+      "canonical_product_id": "04099215-8328-4238-82dd-876bc3f2afdb",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/21fc57/7103235131/il_fullxfull.7103235131_ctra.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "298a6f8bd841983732ab814d9c2b2a8474d753a2a3a1332b82c4d88854b84f3a",
+      "evidence": "catalogue visual sheet 09, item 204"
+    },
+    {
+      "canonical_product_id": "bffb3644-a34d-437d-accc-4a661d1cac6f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/5e29b9/7063996880/il_fullxfull.7063996880_kjy2.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "f6698e54961c8f4383151e78b45c58f4ddc78054cf1234108de9826ae549763c",
+      "evidence": "catalogue visual sheet 09, item 205"
+    },
+    {
+      "canonical_product_id": "adbb91ec-29d2-490f-9844-f73b22111e36",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/1245b7/7864134958/il_fullxfull.7864134958_7wrh.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "9beab42f4da050e0b56c989c3ba84d7707c233a918d0e1af396881969cd77cc4",
+      "evidence": "catalogue visual sheet 09, item 206"
+    },
+    {
+      "canonical_product_id": "7e743440-3e9f-490c-b306-5c8c87969973",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b71054/7828373584/il_fullxfull.7828373584_1tlf.jpg",
+      "decision": "PASS",
+      "reviewed_derivative_sha256": "8837aba0c303cfcdf847b5677d4fd338c84505512aab1a207b6e48c95035538c",
+      "evidence": "catalogue visual sheet 09, item 207"
+    }
+  ]
+}
