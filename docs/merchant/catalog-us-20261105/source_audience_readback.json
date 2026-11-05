@@ -1,0 +1,3351 @@
+{
+  "snapshot_code": "feya-n7-20260928-v3",
+  "observed_at": "2026-11-05T17:00:19.327Z",
+  "products": [
+    {
+      "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "shoulders"
+      ],
+      "item_hash": "5eff5e6021368f37fdae15cb3d90b930d486192561d0df181e191867995605fa"
+    },
+    {
+      "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Panties",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "panties",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "ff13f5f49fdb08115cb31b7a1088a08b04dc4dadda22108602f1d8efea2aad35"
+    },
+    {
+      "canonical_product_id": "04099215-8328-4238-82dd-876bc3f2afdb",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "8faff26520fa7a866247c251142a4058cb9ebd589ade158e61dc62fa7a207a5e"
+    },
+    {
+      "canonical_product_id": "043406cd-0a96-45c5-8796-57c5cc4b276e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "e10e840d3eead0b00c55f402dea89628880ced6a38969313bd93fa4a92caacfa"
+    },
+    {
+      "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "49bc54be24109b6c368ba18847f232bb04511dd89957f97ba5a722d53859c3ca"
+    },
+    {
+      "canonical_product_id": "067628e8-3ecd-4979-8501-6da61ca2f51a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt"
+      ],
+      "item_hash": "195dad2cfd395c4db7b2c8d421567c577cd158cdd2f8b0253889ac3cc40c1f86"
+    },
+    {
+      "canonical_product_id": "098044e5-c452-4c52-a0a4-2b29120196e8",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "37f150df4110606eb3fdc6b5a3f58b92d7747f98bad217c57ea0ab8953ab16dd"
+    },
+    {
+      "canonical_product_id": "09d41ed1-51be-43b0-aace-fc80e6e50f99",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs"
+      ],
+      "item_hash": "95e4221c08d987da5d91cf86a892b48192d0d77e3d04749535518a73ae797845"
+    },
+    {
+      "canonical_product_id": "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs",
+        "skirt"
+      ],
+      "item_hash": "52c44db109c46782927337b52b1bdb7db2f3685f69bb23862ff66dc748799855"
+    },
+    {
+      "canonical_product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "harness",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "9a270e0a88cb8cd530ba60c42e46f3dff532bb30a5e344e81390dc7e2c1005c4"
+    },
+    {
+      "canonical_product_id": "0e75d2f2-c345-440e-88e4-333b63caed09",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs"
+      ],
+      "item_hash": "91b7fb682bcc2dc3e722f1984986a4aab9ebcda2e42056af16029ea44d754dc8"
+    },
+    {
+      "canonical_product_id": "103ff46a-892a-4961-80b1-e6996727c395",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Panties"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "panties"
+      ],
+      "item_hash": "20efda362282e8c5b88261bf583a194ccb0f08d4028ad5ae636fefce5044f7b9"
+    },
+    {
+      "canonical_product_id": "11bb0057-8c1f-4347-8c03-46856df0653c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "harness",
+        "legs"
+      ],
+      "item_hash": "19a297779c1ed4e2804e7bc62057dc2563c0feea0eaecd8017f6eb0ff12381f0"
+    },
+    {
+      "canonical_product_id": "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "405675578e6dc1f61b77e086631dd5c6a37147ed3479fd03cb93ecac8296567e"
+    },
+    {
+      "canonical_product_id": "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "bcac02d33b1f8c062832378507bd4520ffa0344ad26006e474e39b48341466c4"
+    },
+    {
+      "canonical_product_id": "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs",
+        "Wings"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "headpiece",
+        "legs",
+        "wings"
+      ],
+      "item_hash": "3ae52059c8d78d705f0bb6df95227ab3e6aa403f92a8260bcbfd52f7cd60937a"
+    },
+    {
+      "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders",
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "belt",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "5b2c1ab4487a2c142fa260623d0595cfc66bf1386998cec29587c7e0763c0d88"
+    },
+    {
+      "canonical_product_id": "158e7824-4876-4991-b506-e3f6f4aa8371",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "1e74344cf2ade3d535b681d43b4743a368653baeb7bd8716fc3672a0a9117a80"
+    },
+    {
+      "canonical_product_id": "17de9c7b-53d0-4a7d-90d0-3e79f26e3489",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Panties",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "panties",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "8f49aded5d85c44821d2ee674b4e51993870ae153743c3ab7c52bb70828f5852"
+    },
+    {
+      "canonical_product_id": "187f01a3-40e0-4820-b3aa-1bccc1eea6d2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "top"
+      ],
+      "item_hash": "6149308daa84f63c0e16654cdb886743f8f2e795dfa7839a6044bbb34a9c429e"
+    },
+    {
+      "canonical_product_id": "1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "99f1f03c18709b0fec788da4277cad80d55fe6346455522bf08393ddd99a3a86"
+    },
+    {
+      "canonical_product_id": "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "fa84f6cc5608817e68246372ba1ca2abae872d3675368feb0b2f91c545c5f78e"
+    },
+    {
+      "canonical_product_id": "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+      "audience_values_json": [
+        "drag",
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "ecbca12c26610b79655ee53d7a5e2c0f98a7b850361c9c9c9011e03728ad0e3d"
+    },
+    {
+      "canonical_product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "e73c12218c8366d07a9f04d65b2ba0e45517abb22d54bfc90f639f782caf9e0d"
+    },
+    {
+      "canonical_product_id": "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "bdc29fd5d68c8505a73a452dc6b71a381608f8cc0d320cabb2b17f96e2be6073"
+    },
+    {
+      "canonical_product_id": "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "25b5fbb79158d127bfcf8ad43f1bc4835f229234d67c1db8b12ec356b54a6eb0"
+    },
+    {
+      "canonical_product_id": "256c75b4-f378-4b21-8321-9d5766bd209c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "e09b30b585750e273a2fa8482a1bfd4031cf6d772e187485c2ce9fc35e3a603f"
+    },
+    {
+      "canonical_product_id": "27786636-7021-4809-8e81-7f566a3436ae",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Shoulders",
+        "Spine",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "shoulders",
+        "spine",
+        "tail"
+      ],
+      "item_hash": "99082605594e96ea78b17c784105a6f6e65524c7d1bd1c3b55291144de825fe5"
+    },
+    {
+      "canonical_product_id": "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "3be2841d7f93cca99bc3958e776db5e0d2efba1b6710847245c1ff311d9bf3ed"
+    },
+    {
+      "canonical_product_id": "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Top",
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "top"
+      ],
+      "item_hash": "cd72e07ec4390080f844114d4ef4ec9d7b59d197d761ab853aa96f06345e5ef7"
+    },
+    {
+      "canonical_product_id": "2973f3ae-6097-49c0-ab91-21a9697560cc",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "962c4615544309d0f0b3ebcd7dff5382f3cd6b37a19d7e0ee2e58dc8b1c2389c"
+    },
+    {
+      "canonical_product_id": "29ebbf71-cd02-42fb-8372-55002ca56495",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "1a4db1a1aa146b262e039246fd691e256e264cfacae3a1323c449c667c2aae3e"
+    },
+    {
+      "canonical_product_id": "2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece"
+      ],
+      "item_hash": "4a4ef46ed4e536c2c601d322c2957d3431dfb1b43e95aa3255a448886dadfa5d"
+    },
+    {
+      "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "4ce0e2668d01a32aa6bad3159a3a3acc0d977ebaa63534c46775e281e7abbc35"
+    },
+    {
+      "canonical_product_id": "3013d058-8299-4c10-ba42-3c553799255b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "46af307658a24ada371428aa168fa8aab7ba60a397c3fa9f185aa78d30923af4"
+    },
+    {
+      "canonical_product_id": "31bde143-e483-454b-a397-14bcffa47f20",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Shoulders",
+        "Spine",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "spine"
+      ],
+      "item_hash": "73e278c5a2be6e78bfd54a01c76dab6c8ed8d39a0f863a6788dcfc6793a41455"
+    },
+    {
+      "canonical_product_id": "32b1e29b-d709-4e00-a95c-6ad0b4c92704",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "855d30d06b9d1939d02b987eaec009d2674d23b284acfafe6094e107e35ca94a"
+    },
+    {
+      "canonical_product_id": "32b51b28-0570-49af-90f5-7bfdd7da5148",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs"
+      ],
+      "item_hash": "2b5cc24a85e2cc57c3f8ec3632854ad893737bc9562ecb855a44548290245206"
+    },
+    {
+      "canonical_product_id": "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "10abc30f3cc6184549e058f41fa91a38b622b5c5efebc4d69110c5d13efcbe29"
+    },
+    {
+      "canonical_product_id": "340b160f-93e3-4389-866f-df79cc14dea8",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Spine",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "headpiece",
+        "spine",
+        "top"
+      ],
+      "item_hash": "f8c61ecd7ea9940a9f291164f0446fbcad0fdf8268ea32a7574c6032aa0a70f0"
+    },
+    {
+      "canonical_product_id": "39d33dfd-1a01-458a-94c7-8372f344bce5",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "7e3f40f4c039a5cb6031c0c81b8e58a8c9eec5a88a227b4124528db0397d537b"
+    },
+    {
+      "canonical_product_id": "3a006050-ab78-4b4d-9964-ed8c9f32e923",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "arms"
+      ],
+      "item_hash": "8224719be4e015d4c8849a633d234eddaa11aa1fc0654a831dbb988f9f1bd022"
+    },
+    {
+      "canonical_product_id": "3ba4ec57-7b0f-41ea-911d-5988b5088f1b",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "top"
+      ],
+      "item_hash": "ecc01d6669177a0ee26c1d82e7c7ed5cdce95ec3184e3b9faa9ea70ef06a28e6"
+    },
+    {
+      "canonical_product_id": "3c08ea9c-76a9-4079-bc08-58fa8a831019",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "79580652164dea1156d3186d5682c25ada822b24f7e589e21578fee9e6ff4d59"
+    },
+    {
+      "canonical_product_id": "3cffa988-7f84-4fbf-b6e2-67a6164f7dc2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "ff3bd4fa70f69b0feb60655a5e53a09fb71ca75c6f44506697ef7e2f164487ff"
+    },
+    {
+      "canonical_product_id": "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "f752f167eb60d6b9774e96ac9d39e06b89cdc88f3e2ce465d096e8afa3514bb3"
+    },
+    {
+      "canonical_product_id": "3ff937a2-838f-4986-be64-07b11faf8d17",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "e5aa47976b48acbf3a0592da1a3488d4526e85cecc46980883e46967f73f7db4"
+    },
+    {
+      "canonical_product_id": "4033e707-98e2-45ad-9fd6-b7d615673fa3",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "2843b4ebf2017589964c07d6204dc19296a3fb7b13802c6abf5e8a9a451ab634"
+    },
+    {
+      "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "c9dbe21318c03c4fcf8e1c5036dc7d5ecefd93f5072fc3065820f735f267a9c7"
+    },
+    {
+      "canonical_product_id": "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "57ffd21c2262e7b673450673d16b3b3f864b5f100b79732991a03ccb31879afd"
+    },
+    {
+      "canonical_product_id": "4311bc31-ee98-458e-8290-b663ee525a4c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Panties",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "1b202853c31a75fcbaa60345cddecbf50f4605ddb18ce693dd735e533b82eee9"
+    },
+    {
+      "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "4d541b6867e014cc8f83c7f0daa7672bf382a24d2d0597f9fcf8e1a31134607d"
+    },
+    {
+      "canonical_product_id": "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "a652315d23afd4afb82fe9aea3481489381d7563279137cf5694ebf961a56ee2"
+    },
+    {
+      "canonical_product_id": "481ca9fa-1100-439d-b52b-80caadba52a9",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "d6b7cd6ac30b22a60b6be0165d931d97621b1fe75e38804ee78ba309f1d8986c"
+    },
+    {
+      "canonical_product_id": "4a4d2214-fc12-41a9-8ce3-f39272a8e22d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Panties",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "panties",
+        "top"
+      ],
+      "item_hash": "f8199d2335281be67fe15829dae71c9f0ed25493507e1b72c5822ba3a019a3d1"
+    },
+    {
+      "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "399ac874f500344cf394b35e14f6b70544e33d180f84de601a9426e489fb4cbf"
+    },
+    {
+      "canonical_product_id": "4da73818-2f50-43de-b326-8b2c63b17983",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs",
+        "Panties",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "panties",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "85160581e94a2086e71c4d3658691013a2c188c65b44b6047bde6bc7aae54168"
+    },
+    {
+      "canonical_product_id": "5044435f-d093-4437-9945-ff822b2df2d9",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Panties",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "ade9787caf27f046c7597ca5c128b270646c56acdf3c56b2d2cc58f36b474702"
+    },
+    {
+      "canonical_product_id": "50c370fb-3f41-4e49-8e3b-cbc5e1dd478b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "97fe500242e9f4f99a9102a55ca1ff57e5718bb31c7ff90dc02aa4d1f52da0a1"
+    },
+    {
+      "canonical_product_id": "5124ce7f-daf1-45f7-bbe2-0f97f17ecaea",
+      "audience_values_json": [
+        "drag",
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Skirt",
+        "Spine"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "skirt",
+        "spine"
+      ],
+      "item_hash": "255b288feb87eb2619b01169ef8eaeece5de4fbdeeb982f58df5964a3ac546a6"
+    },
+    {
+      "canonical_product_id": "51487104-166f-45e0-a528-d8b27a6258d6",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "f7df10c5385c5ded70ee00d00834fb68705c6fa8032d9b0ffce12ee07af14330"
+    },
+    {
+      "canonical_product_id": "51a30d6f-a588-49b9-b077-5f33488efd36",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs",
+        "Panties",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "panties",
+        "top"
+      ],
+      "item_hash": "b609b8c14f6e2a504f388fdcb89d40935619a7050100e448c93d11215dc999b9"
+    },
+    {
+      "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "mask",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "b750122fb2b3e85c2c48d19355abec76248c4bed83ada7a325c57ee5b412f1f0"
+    },
+    {
+      "canonical_product_id": "5255562a-0181-4fe3-bf4f-e5083f5638e5",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "b30533ce30a72418f7721f6aa386715d7397deacde3fd8cc0754b5541c0d6731"
+    },
+    {
+      "canonical_product_id": "5589b5ea-e21a-4e57-a4b2-b598bd8466d2",
+      "audience_values_json": [
+        "drag",
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit"
+      ],
+      "item_hash": "b748e61f79838a3f9fca5eecc42b1f6b8320e1911226ac6b998b478b4fcbb859"
+    },
+    {
+      "canonical_product_id": "5602d557-9d98-454b-bc98-9b9ea84b442f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "b383c385ee1fdfc24dc64db40d35c2c1ab6ea3e83c33629c409b1444edada74d"
+    },
+    {
+      "canonical_product_id": "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "02bcf8fc627c6a3dcb0e4501c4d2aa502a4621d41f5c134003c2789990377dcd"
+    },
+    {
+      "canonical_product_id": "596c5ec2-e59e-484f-8f73-89221f2b4171",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Neck / Choker"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "harness",
+        "legs"
+      ],
+      "item_hash": "6080f279afcd84aeeedd8d93c78197095b1de59150b701180c1046c8773403b7"
+    },
+    {
+      "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "85b61c84c1a99a1f460c64bfc3935462dbf4d49893e4e9fa49c1242462876a86"
+    },
+    {
+      "canonical_product_id": "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt"
+      ],
+      "item_hash": "e8f5051bdbb21c8b2e7250ea35a93d081b37ecba3ba36948927a7963db487a0a"
+    },
+    {
+      "canonical_product_id": "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "29b38dc7ca031d41ef27858bb27075e5bfe61cabe5f1c4055a534a5615b658c8"
+    },
+    {
+      "canonical_product_id": "5f0df65c-4b04-4905-80c5-53bd7e807063",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "23c9b31598b2a294b2c1aaa722b44192e32ad959eea110d7f4a00acb4eefa0c3"
+    },
+    {
+      "canonical_product_id": "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "09589100fee3144f41599ab2b3aacb2b421b3c7989c3e9dbde4e53b64a478bf8"
+    },
+    {
+      "canonical_product_id": "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Head / Headpiece",
+        "Shoulders",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "shoulders",
+        "tail"
+      ],
+      "item_hash": "6a3def61ef2ffe880aeb5ccd8c21343e505de3904c1d1120b18aca0b85ee43a5"
+    },
+    {
+      "canonical_product_id": "657bd6d8-fbe1-4441-abad-f574e3380897",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "6cfda713e74a467a840b9abe4e97dad9572af25de8c1f50d7655052fc5361644"
+    },
+    {
+      "canonical_product_id": "65e36680-71ca-44ba-9873-f7c962928642",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "shoulders"
+      ],
+      "item_hash": "30dfc83ef9b8d509dc300fef2e63ddb9db48f03a1fb1b1d5d7058652bcf407dc"
+    },
+    {
+      "canonical_product_id": "665296a0-f5ad-422c-837c-868f611c45c6",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Neck / Choker"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "corset",
+        "skirt"
+      ],
+      "item_hash": "5276bced2db2e79eded2bf34decaf442ca5278a2a6dd062bae60a4e2d98be3f0"
+    },
+    {
+      "canonical_product_id": "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs",
+        "Wings"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "headpiece",
+        "wings"
+      ],
+      "item_hash": "2cb66097e8c12a8d15d9deaa7facebb7de806f929a61b4607fd1eed4cad76989"
+    },
+    {
+      "canonical_product_id": "679c975c-b309-49dc-9207-f89fc96b84d1",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "8f0d74c8efa573a729420ad8064e95f0e26e5bdd189f1c32dc99aa0873373d6c"
+    },
+    {
+      "canonical_product_id": "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "7246657523358354ed187a7ccd200d8059a418cc6f6abb4c272c5a6861be49d4"
+    },
+    {
+      "canonical_product_id": "6a885710-fbee-4790-ba09-d56530f641f6",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Shoulders",
+        "Spine",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "spine"
+      ],
+      "item_hash": "9afd9aa248c1beed97f745024657e35313aca53228861bd6d3cfea6e02eb8313"
+    },
+    {
+      "canonical_product_id": "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs"
+      ],
+      "item_hash": "0bad040bc90b25314d42a3ccea336205d1d15722cd49647d9d1ebd99ec366ab7"
+    },
+    {
+      "canonical_product_id": "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "headpiece",
+        "legs",
+        "mask",
+        "top"
+      ],
+      "item_hash": "d41cbd9c0242aa712f180b1250878470cb36554570604bf48b885ed5b11057ab"
+    },
+    {
+      "canonical_product_id": "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "headpiece",
+        "legs",
+        "mask",
+        "top"
+      ],
+      "item_hash": "e382ff1030102b4c4535938b424db8736e49c0fe90736643d1eaae51d3c4e541"
+    },
+    {
+      "canonical_product_id": "73735bd6-82e7-48fa-8b2e-235a13bbf4b0",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Shoulders",
+        "Spine",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "spine"
+      ],
+      "item_hash": "c29821645192ff259101999e59a352693ba5144c90ac22ad3ec5dc9907facd3b"
+    },
+    {
+      "canonical_product_id": "74634519-add3-490f-8ef3-3b4d74a7ca7d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs",
+        "Wings"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "headpiece",
+        "legs",
+        "wings"
+      ],
+      "item_hash": "3dd96c866e85502c4862da5e33c6ba6e1be3b13989bf9cd0bcd8078fa7eeb968"
+    },
+    {
+      "canonical_product_id": "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "2674e8a93c51c01f18fcc7939e19bc8b1c323de0fb783d6a4eb475f75c6577a8"
+    },
+    {
+      "canonical_product_id": "79754caa-9c09-4241-8c08-d0c9e60db460",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "6925341816033b903273b4bade4786a2f9b3bb5aaf5d3408855dc1b19ae1f0e2"
+    },
+    {
+      "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "e226dfeada08db80a29b7a6c2bcb1ebb10bc1fc51ae0b64fd8f89f0fba822410"
+    },
+    {
+      "canonical_product_id": "7bc4e89c-155d-45b8-982f-46253b7ed18d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "d29706a99667cd60980a55b83da1d22ec49812f364ed35cde31d7033a9e83992"
+    },
+    {
+      "canonical_product_id": "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "arms",
+        "mask"
+      ],
+      "item_hash": "0a5ac49f7ded57beab0bad8d0d0188674c433e1b6c3fff4e1938689c259b0f59"
+    },
+    {
+      "canonical_product_id": "7c220537-de7c-4157-99c3-ba1f9144d113",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "7f167f92c032bacfcaaf76292574af002bcbcc2d782b9d81101fcd1f9183e89c"
+    },
+    {
+      "canonical_product_id": "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "harness"
+      ],
+      "item_hash": "b3340dfdf9cdddf2d6d759ca1e0b9a914383cde8489f65ef9d7fea6df04dcf30"
+    },
+    {
+      "canonical_product_id": "7e743440-3e9f-490c-b306-5c8c87969973",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "7d7e290ddf4f0ccb437879e652c6f41b0de330126e8d41f168c1fab514b55189"
+    },
+    {
+      "canonical_product_id": "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "1004a692e8ea90bfa99757d9f8e70c7a5eee56678f7a5b9cd230bde86debebc4"
+    },
+    {
+      "canonical_product_id": "81224290-77db-4738-923b-65a16d1c691a",
+      "audience_values_json": [
+        "drag"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit"
+      ],
+      "item_hash": "a9faf17faa8f31643fd7c3b29582eae9f85e570fcce96118b68f9e1c6be91523"
+    },
+    {
+      "canonical_product_id": "818a1991-46e2-4628-ac61-6db77314c9af",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "3b4953c1c5548e28c71add8ecc9f589662db0ed9ce044cdc88b353f123e7a5f2"
+    },
+    {
+      "canonical_product_id": "81fc83de-76aa-4733-9a88-f631e7699fa6",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "bra",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "8133ab961c6e7a4020985f69b79a8c98290c9751ea0e8693dce6bd1da95e976e"
+    },
+    {
+      "canonical_product_id": "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "885c43b18c5fbf1e2a8bef9717b02959c2f9ce8590fe50ca29e28b32da8f6b33"
+    },
+    {
+      "canonical_product_id": "8242d255-f77f-4e9f-88a2-a5db326fa297",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Legs",
+        "Spine"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit"
+      ],
+      "item_hash": "434d2c5317902c26eb97e8877a53fc36966e62511c747df97f8de3163de5ddfc"
+    },
+    {
+      "canonical_product_id": "82d2dc58-e635-4bc1-8571-2587641e627f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "f1b13d39c192301683f7851a2eb184093e7cdaa46ccab4a176e8d61b8aedb8f1"
+    },
+    {
+      "canonical_product_id": "83ea907b-a523-47cf-834f-5a1b16b80339",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Spine",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "headpiece",
+        "spine",
+        "top"
+      ],
+      "item_hash": "b0472e8afe3dbbab0ab4e85fbebb3bbcce17cff1cdccbe0ad4b510c589fe21f8"
+    },
+    {
+      "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Tail"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "6b3e973f474ce1a8baf1aefee16f6ed4ff655d5e279642981af201021ac1be0a"
+    },
+    {
+      "canonical_product_id": "84cb55e1-a5a8-473c-abcd-17f0dc4161ab",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "e937b3e3cfb0e148579d099d37d872c434d859e63b9b289a4d62b0b5e36f3288"
+    },
+    {
+      "canonical_product_id": "85752f94-b2d7-465e-ace2-40bb77977461",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders",
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "a7f262e70f521ab103e7a73440585026bd8535a62fa03aca375618a3ac0ddc74"
+    },
+    {
+      "canonical_product_id": "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "16d723312677eb14c19579dcacfcff5d083c52dcf885056fe684dfcf83e9e0d2"
+    },
+    {
+      "canonical_product_id": "882793f6-15ca-4617-a579-5cd47290ce72",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "harness"
+      ],
+      "item_hash": "60461a0c7c3fe17eefd58546be2ae0b85c9d6d083d71e0c8a4e9914b77445792"
+    },
+    {
+      "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "harness"
+      ],
+      "item_hash": "802b009382efb71eaa4ba5983f9b84e10f036ceeea26a6bfa494dab2c31627cf"
+    },
+    {
+      "canonical_product_id": "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "828fce15dc2cb1956815a99324e33f3113775cc95ba3cb7c1f7a5a7553abc778"
+    },
+    {
+      "canonical_product_id": "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "c118ceeb02b834052e3158c8d68e344a2f2433b42b48ec3212ba7cf25fb636a7"
+    },
+    {
+      "canonical_product_id": "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "34133e5fc3e32acdad2cbecb27f94ce16b4d2812384cd25ba97a52861592264d"
+    },
+    {
+      "canonical_product_id": "9400d8af-b6b9-4b4a-b878-b97eba761e10",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "da12e622d0533b3414fcb24d1396a15b5658f922ea545653318f8d00222185fb"
+    },
+    {
+      "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "f1769d1c2cbdff2ee9a1d1d43e508678491d5748cbba827e2b0a0f6f152d17f7"
+    },
+    {
+      "canonical_product_id": "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "c93e46dd61b69f09b525745d4a22b8915d45927369e4304fcf35a9dfd2ac81db"
+    },
+    {
+      "canonical_product_id": "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "bra",
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "60f017297132c462dfbf1116f3c459efd7ae3515fe5ec381d204d4d007760d9c"
+    },
+    {
+      "canonical_product_id": "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "bra",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "4189098e372ea6a02bb0fad25b8114d9c37dd26ad28e3d7fc2df110cb662037b"
+    },
+    {
+      "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Legs",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "a4e5be8f5fa6de654b2da3e3fdbd79073772b8ac0e68db4dd0b488f037444792"
+    },
+    {
+      "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
+      "audience_values_json": [
+        "drag",
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Tail"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "087fd2dde526a738e5f93fe118c72051afd787c3d305ea614431590769eeb02f"
+    },
+    {
+      "canonical_product_id": "9e47719d-1afd-4298-808e-bacae86bbc38",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "legs",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "a4d1e8795daad774c4ebf9d6e882732c0d1c4b14899689d34deb9cafdc05c86c"
+    },
+    {
+      "canonical_product_id": "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "e12a114f51e2e0a510062aa95e802755a98cb9106e808e4a46f59574dfd128a8"
+    },
+    {
+      "canonical_product_id": "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "belt",
+        "choker",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "b199d0745fa05eab4140505091ba6a2cedcf4b7c732702d0da97753e7558a9a3"
+    },
+    {
+      "canonical_product_id": "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Head / Headpiece",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit"
+      ],
+      "item_hash": "8040a0fca10846c0857cc3efc09095c9c91f1b5f402848ed45e67ac5fbc49a2c"
+    },
+    {
+      "canonical_product_id": "a6239781-34bb-42a1-85ae-91a733f7df65",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "ea6c7c45b99fc10e2950768c7f5955da35faaba2e74de5f466385f9a75ba323e"
+    },
+    {
+      "canonical_product_id": "a6337955-4cb6-4270-8c0e-a178442350ac",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Panties",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "panties",
+        "top"
+      ],
+      "item_hash": "2fad9dd90bb9936212ab3c4263d16cd0bf20fcae2e2e6a9474ba9bb08e212661"
+    },
+    {
+      "canonical_product_id": "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "86cb67e80ea0444636200963e2dbff4287a5513777f84e6596ad26e230b4e18f"
+    },
+    {
+      "canonical_product_id": "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "corset",
+        "legs",
+        "top"
+      ],
+      "item_hash": "27e54fdeec196b2afc7e5bc071d10574be02ad1ea3b235df478c2105c459edc3"
+    },
+    {
+      "canonical_product_id": "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "115f73d2e25b108a09e24d9e326e494416f53288825062426e93c1542ca1e98e"
+    },
+    {
+      "canonical_product_id": "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "530f773d18ba73b27d67dd4ecc5564d3b7a5b978d7dfecb534235d274d52c30a"
+    },
+    {
+      "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "3622821ae88f3fb65d1cc2fe125105afb4c85862b6b3df03d054d2f6661ba152"
+    },
+    {
+      "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "8def4632e45611f9bc600a1486f0b45efb4377c6bce44779f06cb1d27553aeb5"
+    },
+    {
+      "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs"
+      ],
+      "item_hash": "febb977eee32520a2c83511d317c47cc9a7a33cd41755c04755e1b1bbe18034a"
+    },
+    {
+      "canonical_product_id": "a875757c-140d-4fea-83f9-93098406c3b1",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "b61c741dd689234d2e6dd93a5eb040ba8dd65694ba3466376dad2dfad90094f4"
+    },
+    {
+      "canonical_product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Head / Headpiece",
+        "Legs",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "a4024d0441a7358305a159a81409959ba16258c32a661354fcc245c3e48d39e6"
+    },
+    {
+      "canonical_product_id": "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "66c2b08666c16ff3467a65d9add146a8b241ce82114522b465adeb5672a84b57"
+    },
+    {
+      "canonical_product_id": "a9f110dc-4ed4-454f-9e28-f67ca5a042e1",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Skirt",
+        "Spine",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs",
+        "skirt",
+        "spine",
+        "tail"
+      ],
+      "item_hash": "bf1089cbb429dee5d14d22bb234871c736a90c1db8a8afc9767ea02e6cfbd62d"
+    },
+    {
+      "canonical_product_id": "a9fa4b69-4f79-4669-bd60-783a05d12296",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "bra",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "250c48c1af27372dd1721c0fa753e8bc216f465106ba26c8a2b4714d909a2289"
+    },
+    {
+      "canonical_product_id": "abf11fbb-9794-484d-b93c-1449fa3a9a44",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "choker"
+      ],
+      "item_hash": "4bffb91dcb77ca565c32ccf4f09180a436d9e8a197695f03caedb66ca2b4d97c"
+    },
+    {
+      "canonical_product_id": "ad0e3743-70cf-4b59-9da6-88080d7f3651",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "54fdc1074241ef3aa0e7be794d69825b28e05dc961f2987040451a8b7eac669e"
+    },
+    {
+      "canonical_product_id": "adbb91ec-29d2-490f-9844-f73b22111e36",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "5e1e2271751706379ac31a1e3e9c8a8dd44061ea48045fc9e29fa376d55b5029"
+    },
+    {
+      "canonical_product_id": "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "ff0b67bae77aac1a25b288d16150009be5e8440bf048593a1744f9ce0dbd48a7"
+    },
+    {
+      "canonical_product_id": "b0b2a75c-f301-45d6-857c-dd6575862619",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Panties"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "panties",
+        "shoulders"
+      ],
+      "item_hash": "d90e5f8e30e14b9d206d86fb55f0f67bff38e6a6da37b133ef77c331b72182cf"
+    },
+    {
+      "canonical_product_id": "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs"
+      ],
+      "item_hash": "4cb6bb7c95bb6cc13ce60ba8c75dcb3109859f3f0fc45955c8e83253a15b9b9c"
+    },
+    {
+      "canonical_product_id": "b28d72d8-330b-400f-b595-124edc3f78f3",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt"
+      ],
+      "item_hash": "2a5c9b3b87cc252e2a3e024c4ce4ba17e99de2f4e1bbf07b3507c387cc72a2d6"
+    },
+    {
+      "canonical_product_id": "b3910e41-9de7-483f-8d88-5783e8d90607",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties"
+      ],
+      "sellable_component_values_json": [
+        "panties",
+        "top"
+      ],
+      "item_hash": "3329672442101cb613f11bf4785b16bb9ae4b14e7c75c90aace3c81d332853bf"
+    },
+    {
+      "canonical_product_id": "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "2d03eed3d061cd2e33511367909be7600bc848e6fb1d22aa9ad0806602cc95fc"
+    },
+    {
+      "canonical_product_id": "b5fbab09-1be1-439b-be72-582beceed09a",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "1fde8adecaeba1b07b0fc5bb3a40cfdfab901bf39939f025a11b48a5b6b103f7"
+    },
+    {
+      "canonical_product_id": "b68d0386-ed1f-4410-8001-185bf3aaf25f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Head / Headpiece",
+        "Shoulders",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "shoulders",
+        "tail"
+      ],
+      "item_hash": "cce77a8c2e8e334ee61ed23a61f213f43a60668037978ca4cd5cddb4f29cf4db"
+    },
+    {
+      "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "ef58fe666e10cea7bfbc6a70cb4af3bbd7adb10b598f8e6c0147fc3e3cf0c9ae"
+    },
+    {
+      "canonical_product_id": "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "de964288f974a0ca4ac112c95ff3ee6606f1b601ec45d1e64bb307ec7fc577cc"
+    },
+    {
+      "canonical_product_id": "b7003343-6537-437d-9dab-cdf902d37b7e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "8fe580fa16a075ea26d372db139404a5fe963033a159783c4222c0c1b2f05267"
+    },
+    {
+      "canonical_product_id": "b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Neck / Choker"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "harness",
+        "legs"
+      ],
+      "item_hash": "2a4347502d9b14f08b455566471f29bd1e3295b37c26cd8f22448ea9ee6f0cd4"
+    },
+    {
+      "canonical_product_id": "b9a476c7-b902-4fea-bead-ec5b2275e835",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "headpiece",
+        "legs",
+        "mask",
+        "top"
+      ],
+      "item_hash": "b3612b806b94b9f99a563090773764d107559910cf480e795bcf4c6b6ca72453"
+    },
+    {
+      "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Panties",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "panties",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "f1d1f2561fdf0680d9851aa6a14086c54d3f82a0fea8405558d43675be0b7546"
+    },
+    {
+      "canonical_product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "mask",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "e02392ea63b9cc6e8b6c12db54a971b003bbeaf7d4a48ce824daad7b9e0e8d51"
+    },
+    {
+      "canonical_product_id": "bffb3644-a34d-437d-accc-4a661d1cac6f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "4103388ae8de30c1cbeecefaf5ab7f01638780710a27b3050f1c6f5bd5c0cb28"
+    },
+    {
+      "canonical_product_id": "c35b5b75-7e6e-492b-9528-6a126384086e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "14778725eedbbfb8b6d5e5b2468530c4e7c13f62d53a631e772ee26c0d272972"
+    },
+    {
+      "canonical_product_id": "c3f1018e-665b-44a8-90db-ecc5bb64eedc",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "harness"
+      ],
+      "item_hash": "335b057c74b259a6977898132c6c309f132e385738a410ef01dabcc45e765cb6"
+    },
+    {
+      "canonical_product_id": "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "de2d924fa9d33f996f9bb7a8b537259c422d1852edf253bf561380bda65200bc"
+    },
+    {
+      "canonical_product_id": "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs",
+        "Shoulders",
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "belt",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "f34ff9e0791f7766777e532dcc51a4d82b7d6bed4bb8d4cbe3bf8e39e7d832cb"
+    },
+    {
+      "canonical_product_id": "c661cd70-55e4-445e-97ab-591e22d02221",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Head / Headpiece",
+        "Legs",
+        "Wings"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "headpiece",
+        "legs",
+        "wings"
+      ],
+      "item_hash": "be52ca70c92540f478b33374f8d18f9a7fd206819d17d07c572642838f690d5f"
+    },
+    {
+      "canonical_product_id": "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "mask",
+        "top"
+      ],
+      "item_hash": "37940769e094c3f1bdb0671331d65b9ac004721d06747fcf0d3e017255b85e3d"
+    },
+    {
+      "canonical_product_id": "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "headpiece",
+        "mask",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "ef9798dc5b5d9504bc3cc83317402777185a90f6c65732086397b39c67531972"
+    },
+    {
+      "canonical_product_id": "ca291096-219d-4269-981c-97f6929da308",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "878b914173d15bb97ed8aebce3739194ca8a66ec000762e8ee3cb3bcf8632365"
+    },
+    {
+      "canonical_product_id": "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "53be2b38237044b1f64b086d6652137e354fb5ddb8ad3fd456a38bd2b87cdee2"
+    },
+    {
+      "canonical_product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit",
+        "Shoulders",
+        "Spine",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit",
+        "shoulders",
+        "spine"
+      ],
+      "item_hash": "ed2fe844f829b1a16eb79196be6c029cb905aa0685a235e74f5511e38a71ecb0"
+    },
+    {
+      "canonical_product_id": "ce899f23-b983-4ede-ae81-3348757b1c15",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "harness",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "5d74b04bf301bc9144f82508a7ef30d533fd86be9e74f2ebb1a53b94f32eeff6"
+    },
+    {
+      "canonical_product_id": "d0625355-308f-4edd-9c28-e358491c12a3",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "mask",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "07ee36061f39a66f57b2e445f61cd342ae8710cfdce718528c6b2b02879efb3c"
+    },
+    {
+      "canonical_product_id": "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+      "audience_values_json": [],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "d4f3b0d33f2e638248ae8e5f2e2fc3553d09ffd960c0bda67b215fc1c1b4e6d4"
+    },
+    {
+      "canonical_product_id": "d17c17b6-76dd-429d-bf5c-ccd432cd1e0f",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "ef0c81494c3e0614c0c190daf74e169a4d74d23088b1f908c0b5eed8b1c33391"
+    },
+    {
+      "canonical_product_id": "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Panties",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "panties",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "8d643303fd90d358ea1af95fa06a816452290e1e473390c06ff21ca5dffc0f44"
+    },
+    {
+      "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "062a2fdcd2d04d2f67dd4f0f43bcdf23c5ca68872a5c715a0effbb0ed946a27a"
+    },
+    {
+      "canonical_product_id": "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Top",
+        "Waist / Belt"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "top"
+      ],
+      "item_hash": "e5841395aab37fdba499fd0676fedbdbdd3794cc0daf07626b9a6e8c4bdaf139"
+    },
+    {
+      "canonical_product_id": "dcd0d24a-473b-4592-b56f-466fda984b1e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "030af468197415c6c029a35cf0a4b5c9a46072a09ba3cf3ce72f34220b738e52"
+    },
+    {
+      "canonical_product_id": "de38a842-37c4-40a7-86b4-393341c4c9aa",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "harness"
+      ],
+      "item_hash": "20ccb807b6b089f8bdb2103e0d435c53a62a63e9b0c57504cb317bba463a321f"
+    },
+    {
+      "canonical_product_id": "df030151-5853-46c1-be89-06f059224a44",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs"
+      ],
+      "item_hash": "b736a70f5d679dd8033e095ffc5a9aa8484ff8fbdc13b2a02a9bfe018d105eca"
+    },
+    {
+      "canonical_product_id": "df2227dc-3d74-4b19-848f-f9210e46dccd",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "c224090e8539a70d84eee0719cbb64921f9b2e379c71db6b2bb5752009ae6f32"
+    },
+    {
+      "canonical_product_id": "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "0275ae5b5da8244f27be3867fe83e7a867e18ebbe6add6b442e9885412f98080"
+    },
+    {
+      "canonical_product_id": "e01ef0b1-6155-4d02-a3cd-413d272502b3",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Panties",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "panties",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "9ebcc7927b637d7a46886c11764f56f40735fb8728e697247fdafca97ea902c3"
+    },
+    {
+      "canonical_product_id": "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "4b1b6e172e14691f3a3a292723ddcf8e4cd7808c113dbbfd123d2ada815e8e3d"
+    },
+    {
+      "canonical_product_id": "e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "shoulders"
+      ],
+      "item_hash": "c3d8eb52b4afba686f3679b75d284faad8da58b0ef4bae5cfed336c217355355"
+    },
+    {
+      "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "5c10ff95b75c10e36b9e467fe0ba2293eb3e782df9c4dc6546573b9eb7395ab6"
+    },
+    {
+      "canonical_product_id": "e46d7064-6d80-42db-b321-beb8bbdccc69",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt"
+      ],
+      "item_hash": "7ba6ad38dd99f8c46317310143f1d4438d3f4ca5ad4e97bccf10929e01f2351f"
+    },
+    {
+      "canonical_product_id": "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "belt",
+        "choker",
+        "top"
+      ],
+      "item_hash": "20767c71ecec156d26818b7150ed8af035d234d14cb59972e2a00aa319b4d8d6"
+    },
+    {
+      "canonical_product_id": "e7238b1d-565c-4c4d-a7ae-a4402de80720",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Skirt",
+        "Spine",
+        "Tail"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs",
+        "skirt",
+        "spine"
+      ],
+      "item_hash": "2e99c751042cfadd835e7b92a14aa51a1c3081c12305125bd51eb72d86d68858"
+    },
+    {
+      "canonical_product_id": "ea365de7-a807-40a1-abb4-374d9df7f156",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Legs",
+        "Shoulders",
+        "Skirt"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "legs",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "586214b391014e36829904a585beb752a6eaf7fba30f12c5809ec0b45bc0a576"
+    },
+    {
+      "canonical_product_id": "ec204df6-13b6-4deb-b493-04391501d72d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [],
+      "item_hash": "a48a53f0dad8bc5c3144237209d833f71cfa4c3315779d1794fe35acab6362e6"
+    },
+    {
+      "canonical_product_id": "edc709f1-3a74-43d6-bd00-6c0569392f1b",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Neck / Choker",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "choker",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "741f9160fd3ce18f3e62760a4b08bd8ef54cad094e42eeb65392012f3b7cd2ac"
+    },
+    {
+      "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "bcd78d4495064d231ffc8205172822866ee1e9229a139f6439f37478c0ce698f"
+    },
+    {
+      "canonical_product_id": "f0e73d70-cf3d-4557-8d59-142c78a106ac",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "cf61c5437bd23669231b3984cd827e730a80d6331dc65e317d98d80f577525cf"
+    },
+    {
+      "canonical_product_id": "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "panties",
+        "top"
+      ],
+      "item_hash": "eecf05aa612527013486139f4c42f71aade53848213927086a43cb79512b807e"
+    },
+    {
+      "canonical_product_id": "f36acd08-1591-4e15-8ad2-96bc22ec4b77",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "corset",
+        "legs",
+        "top"
+      ],
+      "item_hash": "7e1c7be0dc0c233c9d2c745b2ed1ee1ab04df61cf0ccf46ac890227ca8ed7cb1"
+    },
+    {
+      "canonical_product_id": "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc",
+      "audience_values_json": [
+        "drag",
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "222a2cfbb606c616a1636327565897cc0c6371809cddfa82be2c35f6b49998a7"
+    },
+    {
+      "canonical_product_id": "f3f7a334-3b77-44ce-bb2a-b0daff184ab1",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Legs",
+        "Neck / Choker"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "harness",
+        "legs"
+      ],
+      "item_hash": "3d2fcc18f4b6b55e326e620a6c80c2528b027e8077775d39f5fb40791f2f2227"
+    },
+    {
+      "canonical_product_id": "f44cb59b-1632-4c86-b376-8afd205a6e63",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "c6103bb781c04944faed11dd3e24eef19f7269d452000d9011dcdf0ee433d077"
+    },
+    {
+      "canonical_product_id": "f473fb62-0440-473c-a7fb-a52dccafebc6",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "tail",
+        "top"
+      ],
+      "item_hash": "a36f6a1364a899452e5141b9edcb90aa7c4106768dcc9818fabd098fe3197d28"
+    },
+    {
+      "canonical_product_id": "f6b85532-eae2-4036-badc-401141c2ad6e",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "headpiece",
+        "mask",
+        "shoulders",
+        "skirt",
+        "top"
+      ],
+      "item_hash": "6ca681588435e01330a6cf789f6888be3f8c1af5251e019481c5b727f2a93c73"
+    },
+    {
+      "canonical_product_id": "f746beae-43c9-4f4f-8307-301d136eda58",
+      "audience_values_json": [
+        "men"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders"
+      ],
+      "item_hash": "a616f9673f851e126b224880b3c92143bfd20c48df128d77488d4bf55f5dbebe"
+    },
+    {
+      "canonical_product_id": "f81adf93-49a7-489c-b3a8-02520accce59",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Arms",
+        "Bodysuit"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "bodysuit"
+      ],
+      "item_hash": "118bb89771e0d0fdfc6fc25748ea688e9f5546ac59c824b93d19f4253b046663"
+    },
+    {
+      "canonical_product_id": "f86a13ec-184e-4764-9813-33b18db7dbb3",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "46a9eb55d3d059b7a24891b93ef2a00a7aa4d8e488f42fd748cc061338f31493"
+    },
+    {
+      "canonical_product_id": "f96bb86c-43aa-49c1-a718-41fbe050a1ac",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Composite",
+        "Neck / Choker",
+        "Shoulders",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "belt",
+        "choker",
+        "legs",
+        "shoulders",
+        "top"
+      ],
+      "item_hash": "818b59ef9b567f64fa0c0bf9c5549f6054a8962325b104685647632e83069226"
+    },
+    {
+      "canonical_product_id": "f972aed2-6061-4973-8b20-8e1d2c362d77",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Shoulders",
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "arms",
+        "shoulders",
+        "skirt"
+      ],
+      "item_hash": "150de0ae5b42fffa70629efc14473fbce4112d7385b338adb1ab988e5fb95177"
+    },
+    {
+      "canonical_product_id": "fba170e8-582d-45fa-b954-f9136e733950",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [
+        "choker",
+        "corset",
+        "skirt"
+      ],
+      "item_hash": "243d9e887e7c91cf3faac56dbde12b09c3d8ae2665aa26ceadcda0426fb5b80c"
+    },
+    {
+      "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Panties"
+      ],
+      "sellable_component_values_json": [
+        "panties",
+        "top"
+      ],
+      "item_hash": "5952e7edf2b6414be5efd82e00d1258025804af07dd5300eda4a8c47973f6b06"
+    },
+    {
+      "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
+      "audience_values_json": [
+        "couples"
+      ],
+      "parent_components_json": [],
+      "sellable_component_values_json": [],
+      "item_hash": "216291739bf24762d007a7cbd33d1c81fa515ca2e230919f5bbe00dfe5e227b0"
+    },
+    {
+      "canonical_product_id": "ff0996b6-f369-4313-baf5-2d465d9c06f2",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs",
+        "Shoulders"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "headpiece",
+        "legs",
+        "mask",
+        "shoulders"
+      ],
+      "item_hash": "f541e58a5f3af801392b4f482fc9b2ecfa5179d98dfba488a42d300ebabf066f"
+    },
+    {
+      "canonical_product_id": "ffa74da5-c2e1-4c3a-b460-50d1aae09f56",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Bodysuit",
+        "Legs"
+      ],
+      "sellable_component_values_json": [
+        "bodysuit",
+        "legs"
+      ],
+      "item_hash": "001fc442ddca63aac3de60528c723f1b4b803eb5b8fde8a9ab8f7c353b9be62a"
+    },
+    {
+      "canonical_product_id": "ffbf1db6-6fae-4606-afbe-013415d6421d",
+      "audience_values_json": [
+        "women"
+      ],
+      "parent_components_json": [
+        "Skirt",
+        "Top"
+      ],
+      "sellable_component_values_json": [
+        "skirt",
+        "top"
+      ],
+      "item_hash": "1ef7f525bacf155ee8e9f408cdf045b8430dd6a70e3568d211771b87aa391f53"
+    }
+  ]
+}
