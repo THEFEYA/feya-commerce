@@ -19,6 +19,7 @@ import {
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
 import {trackMeasurementEvent} from '@/lib/measurementClient';
+import {buildBeginCheckoutMeasurement} from '@/lib/measurementContract';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -147,16 +148,12 @@ export function CartOwnerLiveReviewClient(){
     // value. Consent/production gates live in trackMeasurementEvent; analytics
     // must never block or delay the PayPal hand-off.
     if(!beginCheckoutTracked.current&&serverAmounts){
-      beginCheckoutTracked.current=true;
       try{
-        trackMeasurementEvent('begin_checkout',{
-          currency:'EUR',value:serverAmounts.merchandise_minor/100,
-          items:items.map(item=>({
-            canonical_product_id:item.canonical_product_id,
-            sku_id:item.configuration_id,quantity:item.qty,
-            item_price:item.price,item_value:Math.round(item.price*100)*item.qty/100,currency:'EUR',
-          })),
-        });
+        const measurement=buildBeginCheckoutMeasurement(items,quote);
+        if(measurement){
+          beginCheckoutTracked.current=true;
+          trackMeasurementEvent('begin_checkout',measurement);
+        }
       }catch{/* measurement is optional */}
     }
     const request={
@@ -592,3 +589,4 @@ export function CartOwnerLiveReviewClient(){
     </div>
   </div>;
 }
+
