@@ -18,7 +18,9 @@ import assert from 'node:assert/strict';
 
 const dir = new URL('../../docs/merchant/pilot-us-20261103/', import.meta.url);
 const SOURCE = new URL('source_live_readback.tsv', dir);
-const FEED = new URL('thefeya_us_free_listings_pilot_20261103.tsv', dir);
+// The historical URL is now the active full-catalogue transport. Keep this
+// builder reproducible against the immutable 84-offer rollback snapshot.
+const FEED = new URL('thefeya_us_free_listings_pilot_20261103_frozen.tsv', dir);
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 // Gender of the wearer stated by the approved H1 / meta description.

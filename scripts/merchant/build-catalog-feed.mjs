@@ -145,11 +145,28 @@ export function toXml(rows){
   return out+'  </channel>\n</rss>\n';
 }
 
+// Google text-feed syntax: digital_source_type:"content". Double quotes inside
+// a structured sub-attribute are doubled, not backslash-escaped. Keep the
+// already configured source URL and TSV format; no browser settings change.
+export function toMerchantTsv(rows){
+  const structured=value=>'trained_algorithmic_media:"'+String(value).replace(/"/g,'""')+'"';
+  const columns=['id','item_group_id','structured_title','structured_description',
+    ...Object.keys(rows[0]).filter(k=>!['id','item_group_id','title','description'].includes(k)),
+    'excluded_destination'];
+  const cell=value=>{const s=String(value??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
+  return [columns.join('\t'),...rows.map(row=>{
+    const record={...row,structured_title:structured(row.title),
+      structured_description:structured(row.description),excluded_destination:'Shopping_ads'};
+    return columns.map(c=>cell(record[c])).join('\t');
+  })].join('\n')+'\n';
+}
+
 export function buildFiles(data){
   const {rows,report}=buildCatalog(data);
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
   return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(rows),
+    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(rows),
     'readiness_manifest.json':JSON.stringify(report,null,2)+'\n',
     'readiness_manifest.tsv':[columns.join('\t'),...report.products.map(p=>columns.map(c=>cell(p[c])).join('\t'))].join('\n')+'\n'}};
 }
