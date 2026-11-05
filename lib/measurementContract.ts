@@ -139,6 +139,46 @@ export function buildMeasurementEnvelope(input:{
   };
 }
 
+/** Checkout analytics uses the same confirmed cents as the server quote.
+ * Missing/ambiguous lines suppress this optional event; they never stop payment.
+ */
+export function buildBeginCheckoutMeasurement(
+  items:readonly {id:string;canonical_product_id:string;configuration_id:string|null;qty:number}[],
+  quote:{
+    ok:boolean;
+    amounts?:{merchandise_minor:number};
+    lines?:readonly {line_id:string;unit_minor:number;line_minor:number}[];
+  }|null,
+):{currency:'EUR';value:number;items:FeyaMeasurementItem[]}|null{
+  if(!quote?.ok||!quote.amounts||!quote.lines||!items.length
+    ||quote.lines.length!==items.length)return null;
+  const merchandiseMinor=quote.amounts.merchandise_minor;
+  if(!Number.isSafeInteger(merchandiseMinor)||merchandiseMinor<0)return null;
+  const quotedById=new Map(quote.lines.map(line=>[line.line_id,line]));
+  if(quotedById.size!==quote.lines.length)return null;
+  const usedIds=new Set<string>();
+  const measured:FeyaMeasurementItem[]=[];
+  let totalMinor=0;
+  for(const item of items){
+    const line=quotedById.get(item.id);
+    if(!line||usedIds.has(item.id)||!item.configuration_id
+      ||!Number.isSafeInteger(item.qty)||item.qty<1
+      ||!Number.isSafeInteger(line.unit_minor)||line.unit_minor<0
+      ||!Number.isSafeInteger(line.line_minor)||line.line_minor<0
+      ||line.line_minor!==line.unit_minor*item.qty)return null;
+    usedIds.add(item.id);
+    totalMinor+=line.line_minor;
+    if(!Number.isSafeInteger(totalMinor))return null;
+    measured.push({
+      canonical_product_id:item.canonical_product_id,
+      sku_id:item.configuration_id,quantity:item.qty,
+      item_price:line.unit_minor/100,item_value:line.line_minor/100,currency:'EUR',
+    });
+  }
+  if(totalMinor!==merchandiseMinor)return null;
+  return{currency:'EUR',value:merchandiseMinor/100,items:measured};
+}
+
 export function ga4EventParameters(event:FeyaMeasurementEnvelope){
   return{
     event_id:event.event_id,
