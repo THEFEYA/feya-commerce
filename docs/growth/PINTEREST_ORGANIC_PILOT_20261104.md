@@ -1,6 +1,6 @@
 # TheFEYA Pinterest organic pilot 4 November 2026
 
-Status: SIX PINS PUBLISHED on 4 November 2026 UTC (second cohort was 5 November in Spain); six candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
+Status: EIGHT PINS PUBLISHED on 4–5 November 2026 UTC; four candidates remain prepared. Existing account @TheFEYAshop, existing public board Festival Outfit. No advertising campaign, tracking tag or Google permission was enabled. This is an acquisition experiment under issue #145, not an SEO content rewrite.
 
 ## Purpose and release conditions
 
@@ -48,9 +48,43 @@ Three more distinct products, draft items 6, 9 and 11, were published to the sam
 | Gold Goddess Armor Costume for Women | https://es.pinterest.com/pin/613967361753297804/ | 2026-11-04T23:28:54.166Z |
 | Sci Fi Armor Costume for Women | https://es.pinterest.com/pin/613967361753297817/ | 2026-11-04T23:31:03.029Z |
 
-The pilot now has six published Pins (items 1, 2, 6, 8, 9, 11) and six prepared candidates (3, 4, 5, 7, 10, 12). Board total includes older Pins and is not the pilot count. Do not republish any recorded Pin. Publication and QA page views do not establish acquired traffic.
+After the second cohort, the pilot had six published Pins (items 1, 2, 6, 8, 9, 11) and six prepared candidates (3, 4, 5, 7, 10, 12). Board total includes older Pins and is not the pilot count. Do not republish any recorded Pin. Publication and QA page views do not establish acquired traffic.
 
 Legacy-link investigation: owned saved Pin https://es.pinterest.com/pin/613967361735317310/ still points to Etsy listing 1452240393 and displays “This item is unavailable - Etsy”. That old ID has no match in the current 207-PDP sitemap. Its saved-Pin editor exposed title, description and alt text but no website-link field; the editor was cancelled with no change. Exact-product mapping is required before any legacy destination repair; do not redirect it to a guessed product or home page.
+
+## Third cohort: 5 November 2026
+
+Two more distinct products, draft items 3 and 10, were published to the same public Festival Outfit board. Both products were already visible in Search Console's 24-hour page report (2 and 3 impressions respectively); these small counts are an initial observation. Each landing page was rechecked before publication: HTTP 200, index/follow, clean self-canonical, matching canonical product and Full Set configuration, approved title and image. Both published Pins were independently reopened and their actual website links read back; both destinations returned HTTP 200 with the expected clean canonical. Ad-only switches were OFF.
+
+| Product | Public Pin | Verification time UTC |
+| --- | --- | --- |
+| Men's Gold Warrior Armor Costume | https://es.pinterest.com/pin/613967361753306751/ | 2026-11-05T12:26:20.581Z |
+| Gold Warrior Armor Costume for Women | https://es.pinterest.com/pin/613967361753306780/ | 2026-11-05T12:29:42.653Z |
+
+Current pilot: eight published Pins (1, 2, 3, 6, 8, 9, 10, 11); four prepared candidates (4, 5, 7, 12). Do not duplicate any recorded Pin. Approved copy and original source images are preserved.
+
+## First measurement checkpoint: 5 November 2026
+
+Before publishing the third cohort, all six earlier Pins were checked in the Pinterest per-Pin analytics UI. Displayed window: 6 October–5 November 2026; daily data is UTC and Pinterest labels the metrics approximate. Since these Pins were created on 4 November UTC, this snapshot only has their short publication history. The two third-cohort Pins are not included in this measurement.
+
+| Draft item | Public Pin | Impressions | Pin clicks | Saves | Outbound clicks |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 | https://es.pinterest.com/pin/613967361753294857/ | 0 | 0 | 0 | 0 |
+| 2 | https://es.pinterest.com/pin/613967361753294920/ | 0 | 0 | 0 | 0 |
+| 6 | https://es.pinterest.com/pin/613967361753297775/ | 2 | 0 | 0 | 0 |
+| 8 | https://es.pinterest.com/pin/613967361753294954/ | 0 | 0 | 0 | 0 |
+| 9 | https://es.pinterest.com/pin/613967361753297804/ | 0 | 0 | 0 | 0 |
+| 11 | https://es.pinterest.com/pin/613967361753297817/ | 2 | 0 | 0 | 0 |
+
+Summed across the six observed Pins: 4 impressions, 0 Pin clicks, 0 saves, 0 outbound clicks. These are exposure counters, not verified external visitors or buyers; owner QA may be present.
+
+GA4 property 424292347, historical display name FEYA (Shopify), Traffic acquisition / session source-medium report for 1–5 November (5 November partial): one session, entirely `(direct) / (none)`, six events, zero key events and zero revenue. This does not establish Pinterest or Google acquisition. GA4 only measures consenting visitors and standard reports may lag.
+
+Separate Search Console 24-hour Web report for the entire domain, displayed 4–5 November and updated 3.5 hours before observation: 65 impressions, 0 clicks. Its page rows total 65: rave-outfits collection 30, homepage 24, performance-costumes collection 4, pilot items 10 / 3 / 11 with 3 / 2 / 2 impressions. These are Google Web impressions, not Merchant Center or Pinterest metrics. Live Merchant issue summary still has all 84 offers ELIGIBLE and zero issues; its 3–5 November product-performance report returned no rows.
+
+All twelve Merchant pilot URLs were separately inspected in Search Console: 11 INDEXED; item 12 still shows the historic 19 October noindex crawl. Item 12's current live response was checked again and is HTTP 200 with index/follow and the expected clean canonical. Its indexing request was accepted at the preceding checkpoint, so it was not resubmitted. Exact URL inspection receipts are recorded in issue #145.
+
+Next: measure the eight published Pins after more exposure and check item 12's actual next crawl/verdict. Do not infer a product or conversion problem from these small exposure counts.
 
 ## Twelve Pin records
 
@@ -92,12 +126,12 @@ Description: Men's gold warrior armor costume in vegan leather, handmade for Bur
 
 Image: https://i.etsystatic.com/54033853/r/il/7ced98/6970053990/il_fullxfull.6970053990_rczv.jpg
 
-Destination: https://thefeya.com/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4326178885?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4326178885
+Destination: https://thefeya.com/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4326178885?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4326178885
 
 Canonical product ID: `1eb4b55c-dedf-4399-92fd-c94c8d962091`  
 Full Set configuration ID: `a13e8013-c00b-44b5-b046-b92813a1842f`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753306751/ . Board: Festival Outfit. Verified at 2026-11-05T12:26:20.581Z.
 
 ### 4 Men's Gold Warrior Armor Costume
 
@@ -197,12 +231,12 @@ Description: Gold warrior armor costume in vegan leather, handmade for women cre
 
 Image: https://i.etsystatic.com/54033853/r/il/3109e0/7245931359/il_fullxfull.7245931359_y0hx.jpg
 
-Destination: https://thefeya.com/shop/gold-amazon-armor-set-female-warrior-costume-fantasy-festival-outfit-cosplay-armored-body-plates-4369438053?utm_source=pinterest&utm_medium=social&utm_campaign=feya_organic_pilot_202611&utm_content=4369438053
+Destination: https://thefeya.com/shop/gold-amazon-armor-set-female-warrior-costume-fantasy-festival-outfit-cosplay-armored-body-plates-4369438053?utm_source=Pinterest&utm_medium=organic&utm_campaign=feya_organic_pilot_202611&utm_content=4369438053
 
 Canonical product ID: `b524764b-6dba-4c51-be55-f1ec92fc60cf`  
 Full Set configuration ID: `4469d4ff-6b9a-4fb8-83c3-1954e24da5ed`  
 Photographed source color: Gold  
-Publication: NOT PUBLISHED. Pin URL and published_at are pending.
+Publication: PUBLISHED on 2026-11-05. Pin: https://es.pinterest.com/pin/613967361753306780/ . Board: Festival Outfit. Verified at 2026-11-05T12:29:42.653Z.
 
 ### 11 Sci Fi Armor Costume for Women
 
