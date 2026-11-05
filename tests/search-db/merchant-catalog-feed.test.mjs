@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {inputs,buildCatalog,buildFiles,toXml,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
+import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
 import {extractFlightProduct} from '../../scripts/merchant/capture-catalog.mjs';
 
 test('whole frozen207 corpus has explicit readiness and all84 accepted IDs survive',()=>{
@@ -70,4 +70,15 @@ test('public payload extraction parses JSON without evaluating scripts',()=>{
   const data='1:'+JSON.stringify({product:p})+'\n';
   const html='<script>throw new Error("must never execute")</script><script>self.__next_f.push('+JSON.stringify([1,data])+')</script>';
   assert.deepEqual(extractFlightProduct(html),p);
+});
+
+test('configured TSV source keeps IDs and uses correctly escaped structured copy fields',()=>{
+  const {rows}=buildCatalog(inputs());
+  const text=toMerchantTsv([{...rows[0],title:'12" panel: Gold',description:'A "quoted" word: and detail'}]);
+  const [head,line]=text.trim().split('\n'),columns=head.split('\t'),r=Object.fromEntries(line.split('\t').map((s,i)=>[columns[i],s]));
+  assert.equal(r.id,rows[0].id);assert.equal(r.price,rows[0].price);
+  assert.equal(r.structured_title,'trained_algorithmic_media:"12"" panel: Gold"');
+  assert.equal(r.structured_description,'trained_algorithmic_media:"A ""quoted"" word: and detail"');
+  assert.equal(r.excluded_destination,'Shopping_ads');
+  assert.ok(!columns.includes('title')&&!columns.includes('description'));
 });
