@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
 import {extractFlightProduct} from '../../scripts/merchant/capture-catalog.mjs';
 
 test('whole frozen207 corpus has explicit readiness and all84 accepted IDs survive',()=>{
   const data=inputs(),{rows,report}=buildCatalog(data);
-  assert.deepEqual(report.totals,{products:207,ready:191,hold:16,offers:1337,preserved_pilot_offers:84});
+  assert.deepEqual(report.totals,{products:207,ready:193,hold:14,offers:1351,preserved_pilot_offers:84});
   const actual=new Map(rows.map(r=>[r.id,r]));
   for(const prior of data.pilot)assert.deepEqual(actual.get(prior.id),prior);
   for(const p of report.products){
@@ -35,7 +36,7 @@ test('new unreviewed image and unresolved offer never enter the feed',()=>{
   d.qa.products.find(p=>p.canonical_product_id===id).image_url='https://example.invalid/new-unreviewed.jpg';
   const {rows,report}=buildCatalog(d);
   assert.ok(report.products.find(p=>p.canonical_product_id===id).reasons.includes('IMAGE_REVIEW_REQUIRED'));
-  assert.equal(rows.length,1330);
+  assert.equal(rows.length,1344);
   for(const p of d.capture.products.filter(p=>p.offer['@type']==='AggregateOffer')){
     assert.equal(report.products.find(r=>r.canonical_product_id===p.canonical_product_id).status,'HOLD');
   }
@@ -45,6 +46,35 @@ test('audience contradicting approved text is rejected; model appearance is unus
   const d=inputs(),p=d.capture.products.find(p=>p.gender==='male');
   d.facets.products.find(f=>f.canonical_product_id===p.canonical_product_id).audience_values_json=['women'];
   assert.throws(()=>buildCatalog(d),/audience contradicts/);
+});
+
+test('explicit original tags resolve only their own products; removing evidence restores the holds',()=>{
+  const d=inputs(),{rows,report}=buildCatalog(d);
+  for(const c of d.confirmations.products){
+    const p=report.products.find(p=>p.canonical_product_id===c.canonical_product_id);
+    assert.equal(p.gender,'female');assert.equal(p.status,'READY');
+    assert.equal(p.gender_evidence,'source_listing_tag:'+c.confirmed_tag);
+  }
+  const addedGroups=new Set(report.products.filter(p=>d.confirmations.products.some(c=>c.canonical_product_id===p.canonical_product_id)).map(p=>p.configuration_id));
+  const originalTsv=toMerchantTsv(rows.filter(r=>!addedGroups.has(r.item_group_id)));
+  // Preserve every previously published row, not only the first84 pilot IDs.
+  assert.equal(createHash('sha256').update(originalTsv).digest('hex'),'e4d8ce334f7c6a2fb1e8562948f1765b7ddd3a88b79c3fd5d6958634dfb3705c');
+  d.confirmations.products=[];
+  const fallback=buildCatalog(d);
+  assert.equal(fallback.rows.length,1337);assert.equal(fallback.report.totals.hold,16);
+  assert.equal(report.products.find(p=>p.etsy_tail==='1780729637').status,'HOLD');
+});
+
+test('misbound, ambiguous, contradictory or incomplete source audience evidence fails closed',()=>{
+  for(const change of [
+    d=>{d.confirmations.products[0].etsy_tail='1780729637';},
+    d=>{d.confirmations.products[0].source_tags=[];},
+    d=>{d.confirmations.products[0].confirmed_tag='Showgirl';d.confirmations.products[0].source_tags.push('Showgirl');},
+    d=>{d.confirmations.products[0].gender='male';},
+    d=>{d.confirmations.products[0].source_hash='unverified';},
+    d=>{d.confirmations.products.push(d.confirmations.products[0]);},
+    d=>{d.facets.products.find(p=>p.canonical_product_id===d.confirmations.products[0].canonical_product_id).audience_values_json=['men'];},
+  ]){const d=inputs();change(d);assert.throws(()=>buildCatalog(d));}
 });
 
 test('stale readbacks cannot be published while deterministic historical checks remain valid',()=>{

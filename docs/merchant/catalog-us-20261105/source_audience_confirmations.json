@@ -1,0 +1,54 @@
+{
+  "version": "thefeya_merchant_source_audience_confirmations_v1",
+  "observed_at": "2026-11-06T11:20:21.167Z",
+  "source_table": "public.feya_commerce_source_listings",
+  "scope": "Merchant intended garment audience only; original listing tags, no canonical facet or approved-copy change.",
+  "products": [
+    {
+      "canonical_product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+      "etsy_tail": "1885178663",
+      "source_listing_id": "10986785-84b6-5acf-9164-465a0a2f6b02",
+      "source_hash": "1b3d542c2e35273fee7e0435460ae81d0b3d196f9ae1402ef4725098020fc07c",
+      "source_tags": [
+        "Festival_Armor",
+        "Performance_Costume",
+        "Cosplay_Costume",
+        "Warrior_Costume",
+        "Leather_Armor",
+        "Showgirl",
+        "Leather_Shoulders",
+        "Festival_Headpiece",
+        "female_armor",
+        "amazon_costume",
+        "cosplay_headpiece",
+        "leather_headpiece",
+        "halloween_costume"
+      ],
+      "confirmed_tag": "female_armor",
+      "gender": "female"
+    },
+    {
+      "canonical_product_id": "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+      "etsy_tail": "1786396925",
+      "source_listing_id": "74f37ef0-8b3c-5513-9095-6b2b71e06a17",
+      "source_hash": "2abc5d1b1194d176e21950b9e641744c8046ae51284d153f2cd9a956eb162978",
+      "source_tags": [
+        "Space_Cosplay",
+        "Festival_Wear",
+        "Festival_Armor",
+        "Cosmic_Outfit",
+        "Galaxy_Costume",
+        "robot_costume",
+        "cyber_punk",
+        "space_necklace",
+        "futuristic_costume",
+        "space_suit",
+        "sci-fi_costume",
+        "burning_man_women",
+        "dance_costume"
+      ],
+      "confirmed_tag": "burning_man_women",
+      "gender": "female"
+    }
+  ]
+}

@@ -8,6 +8,9 @@ import {buildRows as pilotRows} from './build-us-pilot-feed.mjs';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
+// Only explicit original-listing audience tags reviewed for this feed. No
+// audience inference from photographs, styling, or ambiguous costume names.
+const SOURCE_AUDIENCE_TAGS=new Map([['female_armor','female'],['burning_man_women','female']]);
 const OMITTED='d42dd678-7b11-4f38-890e-411de686f418';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const json=u=>JSON.parse(readFileSync(u,'utf8'));
@@ -23,6 +26,7 @@ export const REMEDIES={
 export function inputs(){
   return {capture:json(new URL('source_live_readback.json',DIR)),
     facets:json(new URL('source_audience_readback.json',DIR)),qa:json(new URL('image_review.json',DIR)),
+    confirmations:json(new URL('source_audience_confirmations.json',DIR)),
     bindings:json(new URL('../../config/approved-content-review-bindings.json',import.meta.url)),
     pilot:pilotRows(readFileSync(new URL('../../docs/merchant/pilot-us-20261103/source_live_readback.tsv',import.meta.url),'utf8'))};
 }
@@ -34,7 +38,7 @@ export function assertFresh(capture,now=Date.now(),maxAgeMs=86_400_000){
   }
 }
 
-export function buildCatalog({capture,facets,qa,bindings,pilot}){
+export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
   const pins=bindings.entries.filter(p=>p.canonical_product_id!==OMITTED);
   assert.equal(pins.length,207);assert.equal(capture.products.length,207);
   assert.equal(capture.source_manifest_sha256,sha(JSON.stringify(bindings)));
@@ -47,6 +51,22 @@ export function buildCatalog({capture,facets,qa,bindings,pilot}){
   assert.equal(facets.snapshot_code,'feya-n7-20260928-v3');
   const facetById=new Map(facets.products.map(p=>[p.canonical_product_id,p]));
   const qaById=new Map(qa.products.map(p=>[p.canonical_product_id,p]));
+  assert.equal(confirmations.version,'thefeya_merchant_source_audience_confirmations_v1');
+  assert.equal(confirmations.source_table,'public.feya_commerce_source_listings');
+  assert.ok(Number.isFinite(Date.parse(confirmations.observed_at)),'source audience observation time required');
+  const captureById=new Map(capture.products.map(p=>[p.canonical_product_id,p]));
+  const confirmedById=new Map();
+  for(const c of confirmations.products){
+    const p=captureById.get(c.canonical_product_id);
+    assert.ok(p&&p.etsy_tail===c.etsy_tail,'source audience product identity mismatch');
+    assert.ok(!confirmedById.has(c.canonical_product_id),'duplicate source audience confirmation');
+    assert.match(c.source_listing_id,/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/);
+    assert.match(c.source_hash,/^[a-f0-9]{64}$/);
+    assert.ok(Array.isArray(c.source_tags)&&c.source_tags.includes(c.confirmed_tag),'confirmed audience tag missing from source');
+    assert.ok(SOURCE_AUDIENCE_TAGS.has(c.confirmed_tag),'unreviewed source audience tag');
+    assert.equal(c.gender,SOURCE_AUDIENCE_TAGS.get(c.confirmed_tag),'source audience tag contradicts gender');
+    confirmedById.set(c.canonical_product_id,c);
+  }
   const pilotByGroup=new Map();
   for(const row of pilot){const group=pilotByGroup.get(row.item_group_id)||[];group.push(row);pilotByGroup.set(row.item_group_id,group);}
   assert.equal(pilot.length,84);assert.equal(pilotByGroup.size,12);
@@ -64,7 +84,10 @@ export function buildCatalog({capture,facets,qa,bindings,pilot}){
     const facetGender=audience.includes('women')&&!audience.includes('men')?'female'
       :audience.includes('men')&&!audience.includes('women')?'male':null;
     assert.ok(!facetGender||!p.gender||facetGender===p.gender,'audience contradicts approved text');
-    const gender=facetGender||p.gender;
+    const sourceAudience=confirmedById.get(p.canonical_product_id);
+    const existingGender=facetGender||p.gender;
+    assert.ok(!sourceAudience||!existingGender||sourceAudience.gender===existingGender,'source audience contradicts existing evidence');
+    const gender=existingGender||sourceAudience?.gender||null;
     const reasons=new Set(p.candidate_reasons.filter(r=>r!=='TARGET_GENDER_REVIEW_REQUIRED'));
     if(!gender)reasons.add('TARGET_GENDER_REVIEW_REQUIRED');
     if(image.decision!=='PASS'||!p.images.includes(image.image_url))reasons.add('IMAGE_REVIEW_REQUIRED');
@@ -84,7 +107,8 @@ export function buildCatalog({capture,facets,qa,bindings,pilot}){
     const entry={canonical_product_id:p.canonical_product_id,etsy_tail:p.etsy_tail,title:p.title,url:p.url,
       status:holds.length?'HOLD':'READY',offer_count:holds.length?0:SIZES.length,
       configuration_id:conf?.id||null,price_eur:conf?(conf.unit_minor/100).toFixed(2):null,
-      photographed_color:p.color,gender,gender_evidence:facetGender?'storefront_facet_snapshot':'approved_copy',
+      photographed_color:p.color,gender,gender_evidence:facetGender?'storefront_facet_snapshot'
+        :p.gender?'approved_copy':sourceAudience?'source_listing_tag:'+sourceAudience.confirmed_tag:null,
       image_url:image.image_url,reasons:holds,remedies:holds.map(r=>REMEDIES[r]||'Resolve source/checkout parity: '+r)};
     manifest.push(entry);
     if(holds.length)continue;
