@@ -2,6 +2,7 @@ import type { StorefrontProduct } from './types.ts';
 import { isFullSetOption, optionKey, optionPrice, sortedOptions } from './storefront.ts';
 import { verifiedColorPriceRows } from './bonanzaColorPriceExceptions.ts';
 import { colorChoiceLabel } from './bonanzaColorChoices.ts';
+import {pdpLandingParams, resolvePdpLandingSelection, type PdpLandingSelection} from './pdpLandingSelection.ts';
 
 /**
  * Offer markup for a PDP, derived from the same option list and the same
@@ -49,7 +50,7 @@ function positive(amount: number | null | undefined): amount is number {
   return typeof amount === 'number' && Number.isFinite(amount) && amount > 0;
 }
 
-export function pdpOfferJsonLd(product: StorefrontProduct, url: string): PdpOfferJsonLd | null {
+export function pdpOfferJsonLd(product: StorefrontProduct, url: string, landingSelection:PdpLandingSelection|null=null): PdpOfferJsonLd | null {
   if (String(product.currency || 'EUR').toUpperCase() !== 'EUR') return null;
   const options = sortedOptions(product);
   const id = String(product.canonical_product_id || '');
@@ -61,12 +62,18 @@ export function pdpOfferJsonLd(product: StorefrontProduct, url: string): PdpOffe
   ) || null;
 
   const full = options.find((option, index) => isFullSetOption(option, index));
-  const preselected = pricedColors !== null ? photographedPriceRow : (full || (options.length === 1 ? options[0] : null));
+  const landing=landingSelection?resolvePdpLandingSelection(product,pdpLandingParams(landingSelection)):null;
+  if(landing&&landing.status!=='selected')return null;
+  const offerUrl=landing?.selection
+    ? url.split('?')[0]+'?'+new URLSearchParams(pdpLandingParams(landing.selection)).toString() : url;
+  const preselected = landing?.selection
+    ? options.find((o,i)=>optionKey(o,i)===landing.selection!.configurationId)
+    : pricedColors !== null ? photographedPriceRow : (full || (options.length === 1 ? options[0] : null));
   const preselectedPrice = optionPrice(preselected);
   if (preselected && positive(preselectedPrice)) {
     return {
       '@type': 'Offer',
-      url,
+      url:offerUrl,
       price: money(preselectedPrice),
       priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock',

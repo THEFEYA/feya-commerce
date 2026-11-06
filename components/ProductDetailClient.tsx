@@ -27,6 +27,7 @@ import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
 import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
+import type {PdpLandingSelection} from '@/lib/pdpLandingSelection';
 import {
   customMeasurementRequiredCount,customMeasurementSelectionNeedsReview,
 } from '@/lib/commerceCustomMeasurementsPreview';
@@ -100,6 +101,7 @@ type ProductDetailProps = {
   draft?: SeoDraftPreview | null;
   previewMode?: boolean;
   embedded?: boolean;
+  initialLandingSelection?: PdpLandingSelection|null;
 };
 
 function compactHead(raw: string) {
@@ -126,6 +128,7 @@ export function ProductDetailClient({
   draft = null,
   previewMode = false,
   embedded = false,
+  initialLandingSelection = null,
 }: ProductDetailProps) {
   const gallery = useMemo(() => getMedia(p), [p]);
   const options = useMemo(() => sortedOptions(p), [p]);
@@ -136,18 +139,18 @@ export function ProductDetailClient({
     === colorChoiceLabel(p.default_color_choice||'').toLowerCase()) || null;
 
   const [idx, setIdx] = useState(0);
-  const [configKey, setConfigKey] = useState(pricedColors!==null
+  const [configKey, setConfigKey] = useState(initialLandingSelection?.configurationId || (pricedColors!==null
     ? (photographedPriceRow ? optionKey(photographedPriceRow,options.indexOf(photographedPriceRow)) : '')
-    : fullKey || (options.length === 1 ? optionKey(options[0], 0) : ''));
+    : fullKey || (options.length === 1 ? optionKey(options[0], 0) : '')));
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [size, setSize] = useState('');
+  const [size, setSize] = useState(initialLandingSelection?.size || '');
   const [customMeasurementsEnabled,setCustomMeasurementsEnabled]=useState(false);
   const couple = useMemo(() => coupleColorSelection(p), [p]);
-  const [womenColorCode, setWomenColorCode] = useState(couple?.defaultPair.women || '');
-  const [menColorCode, setMenColorCode] = useState(couple?.defaultPair.men || '');
-  const [womenSize, setWomenSize] = useState('');
-  const [menSize, setMenSize] = useState('');
+  const [womenColorCode, setWomenColorCode] = useState(initialLandingSelection?.womenColorCode || couple?.defaultPair.women || '');
+  const [menColorCode, setMenColorCode] = useState(initialLandingSelection?.menColorCode || couple?.defaultPair.men || '');
+  const [womenSize, setWomenSize] = useState(initialLandingSelection?.womenSize || '');
+  const [menSize, setMenSize] = useState(initialLandingSelection?.menSize || '');
   const [colorIdx, setColorIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);

@@ -25,8 +25,9 @@ import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProje
 import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionComponentLabels';
 import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
 import { pdpOfferJsonLd } from '@/lib/storefrontOfferJsonLd';
+import {resolvePdpLandingSelection, type PdpLandingQuery} from '@/lib/pdpLandingSelection';
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = { params: Promise<{ slug: string }>; searchParams?:Promise<PdpLandingQuery> };
 function canonicalProductUrl(slug: string) {
   return absoluteSiteUrl(`/shop/${slug}`);
 }
@@ -198,7 +199,7 @@ function ProductRouteFallback() {
   </main>;
 }
 
-async function ResolvedProductPage({ params }: PageProps) {
+async function ResolvedProductPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { product, related, error, approvedCopy, approvedPublicCopy, copyBlocked, productCollections: cachedProductCollections } = await getPresentation(slug);
   if (copyBlocked) notFound();
@@ -209,9 +210,15 @@ async function ResolvedProductPage({ params }: PageProps) {
   // Same rule as the PDP purchase CTA below: review-only copy shows "Preview only".
   const purchasable = !(Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy);
   const jsonLd = productJsonLd(product, slug, approvedCopy);
+  // Await request-specific choices inside the existing Suspense boundary; the
+  // cached product/copy authority and base canonical URL remain query-independent.
+  const landing=resolvePdpLandingSelection(product,await searchParams||{});
+  const initialLandingSelection=landing.selection;
+  const landingKey=initialLandingSelection?JSON.stringify(initialLandingSelection):product.canonical_product_id;
   // The Offer mirrors exactly the configuration and EUR price this page
   // preselects and the checkout charges; choose-first pages get a price range.
-  const offers = purchasable ? pdpOfferJsonLd(product, canonicalProductUrl(slug)) : null;
+  const offers = purchasable && landing.status!=='invalid'
+    ? pdpOfferJsonLd(product, canonicalProductUrl(slug), initialLandingSelection) : null;
   if (offers) jsonLd.offers = offers;
   const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
   const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
@@ -224,7 +231,7 @@ async function ResolvedProductPage({ params }: PageProps) {
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
-    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy} />
+    <ProductDetailClient key={landingKey} product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy} initialLandingSelection={initialLandingSelection} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">

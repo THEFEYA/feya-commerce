@@ -4,11 +4,11 @@
   "files": {
     "app/page.tsx": "fab61054050db08ec9bb356a201444939feae7f5",
     "app/shop/page.tsx": "b9dfa116ba4b27f47dbfc2e25dca34d21dea5570",
-    "app/shop/[slug]/page.tsx": "2782c4a6aeccef34738245c19d68d8f61eca6734",
+    "app/shop/[slug]/page.tsx": "1f3287939044b5a5925c7a55cd18fe3768058332",
     "components/Header.tsx": "db8ccf04844c2a6a1ca04dc36cfd20c495b376d0",
     "components/Footer.tsx": "57ff2007d49647cb599c2a7af70b8c337031e55f",
     "components/ProductCard.tsx": "a4b3bc2e86dcb85e62286d2c26e5af3985e04bc9",
-    "components/ProductDetailClient.tsx": "428d5d9daf8bc6811a490d39335edec551cecd9f",
+    "components/ProductDetailClient.tsx": "21e5b4984e5db76c1b7306db3f31956d26030296",
     "components/ShopClient.tsx": "2cf33f8106bf6310edde1946c2a8c41595cf7583",
     "app/admin/listing-master/ListingMasterPage.tsx": "bf19fc79d0c4aa016cb2297e4c84e19d0e5b68d4",
     "app/admin/products/page.tsx": "116d6739cc88c923cb905aaeca5610a3b1b6e38a",
