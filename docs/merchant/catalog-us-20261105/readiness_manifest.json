@@ -1,17 +1,17 @@
 {
   "version": "thefeya_merchant_catalog_manifest_v1",
-  "captured_at": "2026-11-05T16:53:34.763Z",
-  "source_git_sha": "17ea8704aa2ea3d3e6f06e08c698ab1e6381f9bd",
-  "deployment_id": "dpl_12gensJTCYWKrnYuW52W5o65quZf",
+  "captured_at": "2026-11-06T11:15:23.737Z",
+  "source_git_sha": "25f621dbce376298109d2cdca5530fe5c37a99b7",
+  "deployment_id": "dpl_HFDV5CDE1xBDmcqHqJyQHyQBLFmA",
   "reviewed_at": "2026-11-05T17:04:44.941859+00:00",
   "channel": "FREE_LISTINGS",
   "country": "US",
   "currency": "EUR",
   "totals": {
     "products": 207,
-    "ready": 191,
-    "hold": 16,
-    "offers": 1337,
+    "ready": 193,
+    "hold": 14,
+    "offers": 1351,
     "preserved_pilot_offers": 84
   },
   "products": [
@@ -982,7 +982,7 @@
       "price_eur": null,
       "photographed_color": "Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
       "reasons": [
         "EXACT_SELECTED_OFFER_REQUIRED",
@@ -1004,7 +1004,7 @@
       "price_eur": "502.46",
       "photographed_color": "Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
       "reasons": [
         "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
@@ -1026,7 +1026,7 @@
       "price_eur": "427.78",
       "photographed_color": "Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
       "reasons": [
         "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
@@ -1048,7 +1048,7 @@
       "price_eur": "362.52",
       "photographed_color": "Silver",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
       "reasons": [
         "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
@@ -1070,7 +1070,7 @@
       "price_eur": "565.54",
       "photographed_color": "Black + Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
       "reasons": [
         "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
@@ -1092,7 +1092,7 @@
       "price_eur": "460.44",
       "photographed_color": "Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
       "reasons": [
         "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
@@ -1736,20 +1736,16 @@
       "etsy_tail": "1885178663",
       "title": "Gold Warrior Armor Costume for Festivals",
       "url": "https://thefeya.com/shop/gold-warrior-armor-set-cosplay-headpiece-harness-top-shoulder-armor-leg-covers-festival-outfit-metallic-leather-performer-costume-1885178663",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 7,
       "configuration_id": "bfd30433-15c1-4957-8209-df1c2f0a0825",
       "price_eur": "319.18",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender": "female",
+      "gender_evidence": "source_listing_tag:female_armor",
       "image_url": "https://i.etsystatic.com/54033853/r/il/046cbf/7275761549/il_fullxfull.7275761549_nmse.jpg",
-      "reasons": [
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
@@ -1922,7 +1918,7 @@
       "price_eur": "594.18",
       "photographed_color": "Gold",
       "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender_evidence": null,
       "image_url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
       "reasons": [
         "TARGET_GENDER_REVIEW_REQUIRED"
@@ -3176,20 +3172,16 @@
       "etsy_tail": "1786396925",
       "title": "Gold Festival Skirt And Top Set",
       "url": "https://thefeya.com/shop/space-themed-metallic-clothing-set-golden-top-skirt-choker-and-bracers-for-cosmic-cosplay-futuristic-costume-gold-robot-outfit-1786396925",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 7,
       "configuration_id": "ffff32fe-3d63-489b-9bb4-e47b49b97fbe",
       "price_eur": "327.00",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": "approved_copy",
+      "gender": "female",
+      "gender_evidence": "source_listing_tag:burning_man_women",
       "image_url": "https://i.etsystatic.com/54033853/r/il/7c6a43/8016657172/il_fullxfull.8016657172_ony0.jpg",
-      "reasons": [
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "82d2dc58-e635-4bc1-8571-2587641e627f",
