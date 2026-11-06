@@ -1,10 +1,8 @@
-/** Exact owner-approved 2026-10-10 two-location Contact visual. Private V13 color Preview only.
- * Original LIVE Contact and its legal/SEO source remain unchanged.
- */
 import {
-  ArrowUpRight,Mail,MessageCircle,Phone,Instagram,Facebook,Pin,
-  MapPinned,Send,ShieldCheck,
+  ArrowUpRight,Mail,MessageCircle,Phone,
+  MapPinned,Send,
 } from 'lucide-react';
+import {SocialProfileLinks} from '@/components/SocialProfileLinks';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {CopySupportEmailButton} from '@/components/CopySupportEmailButton';
@@ -14,12 +12,6 @@ import {OwnerNewsletterSignupPreview} from '@/components/OwnerNewsletterSignupPr
 
 const contactEmail='manager.feya@gmail.com';
 const supportPhone='+380636556288';
-const socialReview=[
-  {id:'instagram-1',label:'Instagram',Icon:Instagram},
-  {id:'facebook',label:'Facebook',Icon:Facebook},
-  {id:'pinterest',label:'Pinterest',Icon:Pin},
-] as const;
-// Account links pending owner verification: show real platform icons, no fake URLs.
 
 export function ContactExperienceV13Public(){
   return <main data-testid="owner-contact-preview" className="visual-commerce-shell relative min-h-screen">
@@ -61,14 +53,9 @@ export function ContactExperienceV13Public(){
             </div>
           </div>
           <div className="mt-4 border-t border-white/[.10] pt-4" aria-label="Contact and social media">
-          <div className="mt-1" aria-label="TheFEYA social profiles">
+          <div className="mt-1">
             <span className="text-[11px] uppercase tracking-[.16em] text-[#aaa39a]">Follow TheFEYA</span>
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
-              {socialReview.map(({id,label,Icon})=><span key={id} aria-label={label}
-                className="inline-flex items-center gap-2 text-[12px] text-[#c5bdb3]" title={label}>
-                <Icon size={22} strokeWidth={1.7} aria-hidden="true"/>{label}
-              </span>)}
-            </div>
+            <div className="mt-3"><SocialProfileLinks/></div>
           </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 {
-  "source_commit": "3f793b0ef9f11876975e6677e1f8926d374f3723",
-  "source_client_git_blob": "428d5d9daf8bc6811a490d39335edec551cecd9f",
-  "scope": "Preserve the entire approved PDP client JSX tree, expressions, classes, controls and helper markup while changing only non-visual initial selection data.",
-  "normalized_jsx_sha256": "c740f9f7757571e2eb334fc36a61f876c168ba0620fb5014d0b11a61382d9862"
+  "source_commit": "1454b186b7a112cde484540abade673f15b5ea87",
+  "source_client_git_blob": "f3c7640babeea0122321987d3a34daaf074c00fa",
+  "scope": "Owner-authorized functional Save/Share and real policy links (6 November 2026); preserve the remaining PDP JSX, purchase selectors and approved copy.",
+  "normalized_jsx_sha256": "2ba20dc699b807787df7bf01849e2b74d8e5a2d395773a474aba35fc075a9dee"
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import {SocialProfileLinks} from '@/components/SocialProfileLinks';
 import { Mail } from 'lucide-react';
 import { FeyaMark } from '@/components/FeyaMark';
 
@@ -34,6 +35,7 @@ const FOOTER_COLUMNS = [
       ['About TheFEYA', '/about'],
       ['Contact', '/contact'],
       ['Collections', '/collections'],
+      ['Saved pieces', '/account'],
     ],
   },
 ];
@@ -50,7 +52,7 @@ export function Footer() {
           <p className="editorial-italic mt-4 max-w-sm text-[17px] leading-relaxed text-[var(--bone-dim)]">
             Handmade stage, festival and performance pieces in mirror acrylic and vegan leather, with product-specific materials shown on each design.
           </p>
-          <div className="mt-5 flex items-center gap-4">
+          <div className="mt-5 flex flex-wrap items-center gap-4">
             <Link
               href="mailto:manager.feya@gmail.com"
               aria-label="Email"
@@ -58,6 +60,7 @@ export function Footer() {
             >
               <Mail size={17} strokeWidth={1.4} />
             </Link>
+            <SocialProfileLinks compact/>
           </div>
         </div>
 
