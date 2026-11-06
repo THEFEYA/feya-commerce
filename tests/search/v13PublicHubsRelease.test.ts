@@ -48,16 +48,16 @@ test('approved shop guide and ten owner collections do not alter Search v12 inde
  assert.ok(file('config/ownerDiscoveryTilesV8.ts').includes('OWNER_EVENTS_HUB_TILES'));
  assert.ok(file('config/ownerDiscoveryTilesV8.ts').includes('OWNER_STYLE_HUB_TILES'));
 });
-test('Seller Online exists in public Shipping only; Contact contains no US office address',()=>{
+test('owner recovery restores qualified partner map while Shipping retains payment disclosure',()=>{
  const contact=file('components/ContactExperienceV13Public.tsx');
  const map=file('components/OwnerLocationMapPreview.tsx');
- const shipping=file('app/shipping-public-v13/page.tsx');
- assert.ok(shipping.includes('OwnerSellerOnlinePartnerDetails'));
- assert.ok(!contact.includes('Seller-Online'));
- assert.ok(!contact.includes('635 Somers'));
- assert.ok(!contact.includes('Feasterville'));
- assert.ok(!map.includes('us-warehouse'));
- assert.ok(!map.includes('635 Somers'));
+ assert.ok(file('app/shipping-public-v13/page.tsx').includes('OwnerSellerOnlinePartnerDetails'));
+ assert.ok(contact.includes('635 Somers'));
+ assert.ok(contact.includes('Partner fulfillment address, not a TheFEYA showroom'));
+ assert.ok(contact.includes('Any US-based dispatch depends on exact verified product availability'));
+ assert.ok(contact.includes('visiting hours still require confirmation'));
+ assert.ok(map.includes('us-warehouse'));
+ assert.ok(map.includes('Google Maps loads only after you choose to show it'));
  assert.ok(!file('components/Footer.tsx').includes('OwnerSellerOnlinePartnerDetails'));
 });
 test('Contact mailto is honest and newsletter remains nonfunctional before consented CRM',()=>{

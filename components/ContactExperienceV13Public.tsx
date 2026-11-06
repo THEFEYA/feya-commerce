@@ -1,3 +1,6 @@
+/** Exact owner-approved 2026-10-10 two-location Contact visual. Private V13 color Preview only.
+ * Original LIVE Contact and its legal/SEO source remain unchanged.
+ */
 import {
   ArrowUpRight,Mail,MessageCircle,Phone,Instagram,Facebook,Pin,
   MapPinned,Send,ShieldCheck,
@@ -85,10 +88,10 @@ export function ContactExperienceV13Public(){
 
     <section className="container-feya pb-12 lg:pb-16" aria-label="Where we work">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div><p className="eyebrow-gold">TheFEYA studio</p><h2 className="mt-2 text-[clamp(22px,2.7vw,31px)] font-medium text-[#f7f3ec]">Explore our locations</h2></div>
-        <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">Explore interactive Google Maps, or open each verified location directly.</p>
+        <div><p className="eyebrow-gold">Studio & logistics</p><h2 className="mt-2 text-[clamp(22px,2.7vw,31px)] font-medium text-[#f7f3ec]">Explore our locations</h2></div>
+        <p className="max-w-sm text-[12px] leading-5 text-[var(--bone-dim)]">View the studio reference and partner facility on Google Maps. Please contact us before planning a visit.</p>
       </div>
-      <div className="grid min-w-0 gap-4 lg:grid-cols-1">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
         <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">
           <div className="flex items-center gap-2 text-[#d4b26a]"><MapPinned size={22} aria-hidden="true"/><span className="text-[10px] uppercase tracking-[.16em]">Ukraine · showroom reference</span></div>
           <h3 className="mt-3 text-[21px] text-[#f7f3ec]">Фея-Портупея</h3>
@@ -96,7 +99,13 @@ export function ContactExperienceV13Public(){
           <OwnerLocationMapPreview location="kyiv"/>
           <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please contact TheFEYA before planning a visit. The current public listing and visiting hours still require confirmation.</p>
         </article>
-
+        <article className="rounded-[16px] border border-white/[.14] bg-white/[.016] p-5 sm:p-6">
+          <div className="flex items-center gap-2 text-[#d4b26a]"><MapPinned size={22} aria-hidden="true"/><span className="text-[10px] uppercase tracking-[.16em]">United States · partner warehouse</span></div>
+          <h3 className="mt-3 text-[21px] text-[#f7f3ec]">US fulfillment partner</h3>
+          <p className="mt-1 text-[13px] text-[var(--bone-dim)]">635 Somers Ave, Feasterville-Trevose, PA 19053, USA</p>
+          <OwnerLocationMapPreview location="us-warehouse"/>
+          <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Partner fulfillment address, not a TheFEYA showroom. Any US-based dispatch depends on exact verified product availability.</p>
+        </article>
       </div>
     </section>
 

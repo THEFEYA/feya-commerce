@@ -88,7 +88,7 @@ test('governed filters round-trip in page links; invalid/ambiguous and legacy un
   const f={
     ...defaultShopFilters(),
     search:'gold armor',
-    color:'Gold',
+    color:['Gold'],
     piece:['Shoulder','Bracelet / Cuff'],
     part:['Arms'],
     event:['Festival','Rave'],

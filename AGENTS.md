@@ -12,6 +12,7 @@ This file is an **operational index, not a new MASTER, agent passport, or permis
 - Owner conversation: **Russian**; public storefront: **English**; admin: **Russian**.
 - `THEFEYA/feya-commerce` is the primary commerce codebase. `/admin/company` is the Growth OS owner-facing surface; Product OS/SEO workspaces must be reused, never replaced.
 - Respect frozen owner-approved **207 PDP descriptions, V13 presentation, Product Truth/DNA, live Search Release v12**, existing prices, variants, shipping and payment activation gates. No "helpful" regeneration or broad refactor.
+- For storefront visual/color continuation, read `docs/owner/APPROVED_STOREFRONT_RECOVERY_20261106.md` and the newest issue #145 checkpoint: owner re-approved the supplied color/cart/Contact screenshots on 6 November. Recover missing approved functions on current main; never roll back the whole site to historical unmerged PR #191 or assume every website color is a Merchant offer.
 - One shared Supabase project is acceptable for now, **but namespace labels never substitute for RLS, least privilege, typed authority and careful source separation**. Do not allocate paid services or move data without measured justification.
 - Old pilot sales/real-estate/warehouse scheduling is **paused** unless owner authorizes reactivation. Do not delete business records without verified recoverable archive + exact manifest + review.
 

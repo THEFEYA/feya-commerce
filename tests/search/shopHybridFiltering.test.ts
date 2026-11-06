@@ -20,7 +20,7 @@ test('shop URL grammar validates filters, accepts attribution params and rejects
     gclid:'fixture-click',
   });
   assert.ok(parsed);
-  assert.equal(parsed.filters.color,'Gold');
+  assert.deepEqual(parsed.filters.color,['Gold']);
   assert.deepEqual(parsed.filters.piece,['Dress','Skirt']);
   assert.equal(isShopTrackingParam('utm_campaign'),true);
   assert.equal(isShopTrackingParam('GCLID'),true);
@@ -77,7 +77,7 @@ test('filter utility state is distinct from pagination while both remain validat
   assert.equal(shopNavigationHasUtilityState(base),false);
   assert.equal(shopNavigationHasFilterState({...base,page:2}),false);
   assert.equal(shopNavigationHasUtilityState({...base,page:2}),true);
-  const filtered={page:1,filters:{...defaultShopFilters(),color:'Gold'}};
+  const filtered={page:1,filters:{...defaultShopFilters(),color:['Gold']}};
   assert.equal(shopNavigationHasFilterState(filtered),true);
   assert.equal(shopNavigationHasUtilityState(filtered),true);
 });
