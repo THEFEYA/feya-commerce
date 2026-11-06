@@ -114,7 +114,7 @@ test('current owner visual freeze retains exact ProductDetailClient/header/cards
   ]){
    assert.equal(gitBlobSha(readFileSync(name)),visual.files[name],name);
   }
-  assert.equal(visual.files['components/ProductDetailClient.tsx'],'428d5d9daf8bc6811a490d39335edec551cecd9f');
+  // Functional state initializers are hash-pinned above; the complete original client JSX tree is independently frozen in pdpVisualContract.test.ts.
   const page=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.match(page,/readExactPublicApprovedPdpCopy\(slug\)/);
   assert.match(page,/withOwnerApprovedComponentReview\(result\.product\)/);

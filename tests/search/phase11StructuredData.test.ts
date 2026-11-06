@@ -13,7 +13,7 @@ test('Phase 11 PDP emits truthful Product plus BreadcrumbList; Offer only via go
   // Checkout is live since the Seller-Online launch: the Offer is attached only
   // through the governed helper (preselected configuration, exact EUR price)
   // and only on purchasable pages; the route never inlines an Offer literal.
-  assert.match(pdp,/const offers = purchasable \? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\)\) : null;/);
+  assert.match(pdp,/const offers = purchasable && landing\.status!=='invalid' && landingMedia\.status!=='invalid'\s*\? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\), initialLandingSelection\) : null;/);
   assert.match(pdp,/if \(offers\) jsonLd\.offers = offers;/);
   assert.doesNotMatch(pdp,/['"]@type['"]:\s*['"]Offer['"]/);
   assert.doesNotMatch(pdp,/["']@type["']:\s*["']ProductGroup["']/);

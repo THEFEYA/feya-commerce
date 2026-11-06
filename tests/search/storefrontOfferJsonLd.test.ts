@@ -84,6 +84,9 @@ test('PDP route embeds the offer only on purchasable (non-preview) pages', () =>
   const page = readFileSync('app/shop/[slug]/page.tsx', 'utf8');
   assert.match(page, /const purchasable = !\(Boolean\(approvedCopy\) && !allowHybridPreviewCommerce && !approvedPublicCopy\)/);
   assert.match(page, /const jsonLd = productJsonLd\(product, slug, approvedCopy\);/);
-  assert.match(page, /const offers = purchasable \? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\)\) : null;/);
+  assert.match(page, /const offers = purchasable && landing\.status!=='invalid' && landingMedia\.status!=='invalid'\s*\? pdpOfferJsonLd\(product, canonicalProductUrl\(slug\), initialLandingSelection\) : null;/);
+  assert.ok(page.includes("const initialLandingSelection=landingMedia.status==='invalid'?null:landing.selection;"));
+  assert.ok(page.includes("if(landingMedia.status==='bound')"));
+  assert.ok(page.includes('jsonLd.image=[landingMedia.imageUrl,'));
   assert.match(page, /if \(offers\) jsonLd\.offers = offers;/);
 });

@@ -99,7 +99,11 @@ export function inspectPublicPage(html,url,pin,deploymentId){
       full_set:isFullSetOption(selected),component_code:selected.component_code,
       configuration_color:selected.configuration_color||null,
       unit_minor:Math.round(optionPrice(selected)*100)}:null,
-    color,color_code:colorCode,gender,size_quotes:sizeQuotes,images:images.slice(0,6),
+    // Keep the complete source gallery for configuration-specific photo review.
+    // Tail4348580005's Both Shoulders photo is #7; limiting evidence to the
+    // first six frames silently discarded an existing purchasable variant.
+    // Feed/image selection remains a separate, explicitly reviewed step.
+    color,color_code:colorCode,gender,size_quotes:sizeQuotes,images,
     primary_image_url:product.primary_image_url,size_mode:product.size_mode,
     production_profile:product.production_profile,shipping_profile:product.shipping_profile,
     candidate_reasons:[...new Set(reasons)],option_count:options.length,

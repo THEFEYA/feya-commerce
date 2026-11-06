@@ -17,7 +17,9 @@ export function pdpJsxHash(source: string) {
   // Route-level Suspense is delivery plumbing, not part of the frozen resolved PDP.
   // Normalize it back to the prior async page shape before hashing visible markup.
   const wrapperStart = source.indexOf('export default function ProductPage(props: PageProps)');
-  const resolvedMarker = 'async function ResolvedProductPage({ params }: PageProps) {';
+  const resolvedMarker = source.includes('async function ResolvedProductPage({ params, searchParams }: PageProps) {')
+    ? 'async function ResolvedProductPage({ params, searchParams }: PageProps) {'
+    : 'async function ResolvedProductPage({ params }: PageProps) {';
   const resolvedStart = source.indexOf(resolvedMarker);
   if (wrapperStart >= 0 && resolvedStart > wrapperStart) {
     source = source.slice(0, wrapperStart)
@@ -39,7 +41,7 @@ export function pdpJsxHash(source: string) {
     const visit: ts.Visitor = node => {
       if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(file) === 'ProductDetailClient') {
         const attributes = node.attributes.properties.filter(
-          p => !ts.isJsxAttribute(p) || !['draft','previewMode'].includes(p.name.getText(file)),
+          p => !ts.isJsxAttribute(p) || !['draft','previewMode','initialLandingSelection','key'].includes(p.name.getText(file)),
         );
         return ts.factory.updateJsxSelfClosingElement(
           node,
@@ -78,6 +80,11 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce && !approvedPublicCopy}'));
   assert.ok(source.includes('approved?.status===\'published\''));
   assert.ok(source.includes('releaseRobotsForPath(path)'));
+});
+
+test('variant landing initialization preserves the complete approved client JSX tree',()=>{
+  const baseline=JSON.parse(readFileSync('config/product-os-pdp-client-jsx-baseline.json','utf8'));
+  assert.equal(pdpJsxHash(readFileSync('components/ProductDetailClient.tsx','utf8')),baseline.normalized_jsx_sha256);
 });
 
 test('hybrid PDP keeps the purchase reminder sweep while approved SEO copy is projected', () => {

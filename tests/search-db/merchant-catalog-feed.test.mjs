@@ -3,8 +3,31 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
-import {extractFlightProduct} from '../../scripts/merchant/capture-catalog.mjs';
+import {extractFlightProduct,inspectPublicPage} from '../../scripts/merchant/capture-catalog.mjs';
 import {EXACT_COLOR_PRICE_PRODUCTS} from '../../lib/bonanzaColorPriceExceptions.ts';
+import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
+
+test('full gallery evidence preserves the seventh-frame Both Shoulders photo without selecting or publishing a variant',()=>{
+  const review=JSON.parse(readFileSync(new URL('../../docs/merchant/variant-landings-20261106/gallery_review.json',import.meta.url),'utf8'));
+  const g=review.products.find(p=>p.etsy_tail==='4348580005');
+  const fixtures=JSON.parse(readFileSync(new URL('../fixtures/merchant-landing-products-20261106.json',import.meta.url),'utf8'));
+  const source=fixtures.products.find(p=>p.etsy_tail===g.etsy_tail).product;
+  const p={...source,card_title:g.title,h1:g.title,
+    media_gallery:g.media.map(m=>({url:m.url,position:m.position,media_type:'image'}))};
+  const flight='1:'+JSON.stringify({product:p})+'\n';
+  const ld={'@type':'Product',sku:g.canonical_product_id,name:g.title,description:'Observed gallery capture regression.',offers:pdpOfferJsonLd(p,g.base_url)};
+  const html='<link rel="canonical" href="'+g.base_url+'"><meta name="robots" content="index, follow">'
+    +'<script type="application/ld+json">'+JSON.stringify(ld)+'</script>'
+    +'<script>self.__next_f.push('+JSON.stringify([1,flight])+')</script><!--'+review.deployment_id+'-->';
+  const capture=inspectPublicPage(html,g.base_url,{canonical_product_id:g.canonical_product_id,content_sha256:g.approved_content_sha256},review.deployment_id);
+  assert.equal(g.media_count,8);
+  assert.equal(g.media[6].classification,'TWO_SHOULDERS');
+  assert.deepEqual(capture.images,g.media.map(m=>m.url));
+  assert.ok(capture.images.includes(g.media[6].url),'an existing two-shoulder image after frame6 must remain reviewable');
+  assert.equal(capture.selected_configuration,null);
+  assert.equal(capture.offer['@type'],'AggregateOffer');
+  assert.ok(capture.candidate_reasons.includes('EXACT_SELECTED_OFFER_REQUIRED'));
+});
 
 test('whole frozen207 corpus has explicit readiness and all84 accepted IDs survive',()=>{
   const data=inputs(),{rows,report}=buildCatalog(data);

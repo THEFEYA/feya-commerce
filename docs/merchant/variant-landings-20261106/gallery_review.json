@@ -1,0 +1,907 @@
+{
+  "version": "thefeya_held_product_gallery_review_v1",
+  "scope": "Read-only evidence for draft PR237; not image eligibility, a feed publication or Product Truth changes. Positions refer to the full current public gallery, not a six-image capture.",
+  "recorded_at": "2026-11-06T12:58:59.171163+00:00",
+  "source_git_sha": "3f793b0ef9f11876975e6677e1f8926d374f3723",
+  "deployment_id": "dpl_Cqv91u5oqabVGTGPHsM5cdSUaMDj",
+  "totals": {
+    "products": 11,
+    "gallery_images": 82,
+    "product_photos": 72,
+    "size_charts": 10
+  },
+  "products": [
+    {
+      "etsy_tail": "4348580005",
+      "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+      "base_url": "https://thefeya.com/shop/apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005",
+      "title": "Apocalyptic Warrior Men's Costume – Burning Man Gold Armor Outfit, Rave Festival Fashion, Steampunk Leather Shoulders, Futuristic Dune Wear",
+      "observed_at": "2026-11-06T12:51:57.907482+00:00",
+      "html_sha256": "fbbbfd373f96b6133dcac7b5cf92d1523a606e3dd59cd79c354b3c0863b03131",
+      "approved_content_sha256": "d172be1df9f762cdf0247a068dfda40e74bc2128157d367af4610d0b814cf7f1",
+      "source_default_color": "gold",
+      "media_count": 8,
+      "finding": "Frames1–6 show one shoulder; frame7 clearly shows two. Frame8 is a chart. The earlier primary-image-only finding does not exclude the two-shoulder source variant. Source Gold is retained; reflected color is not reclassified from appearance.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg",
+          "sha256": "66be3184156c691d8cb0fe488433a0e1a81f3d5b33ee046b54a03de7fcf81900",
+          "width": 2240,
+          "height": 2848,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/13010f/7139804113/il_fullxfull.7139804113_r440.jpg",
+          "sha256": "157561d2c2403e2285fc7b44cba917b9068eabf64d852e84a739330d541bb988",
+          "width": 2048,
+          "height": 2048,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/03b84a/7091899112/il_fullxfull.7091899112_qp2a.jpg",
+          "sha256": "ac71ca887bf68ea04f8c59353477fa3927f363f99041fd201adf49e60548ad45",
+          "width": 2048,
+          "height": 2048,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/437035/7139804143/il_fullxfull.7139804143_knar.jpg",
+          "sha256": "73af36ad3b17f1f98401a5de08b59969100243f2268c39659426d9a050e4d2e7",
+          "width": 2048,
+          "height": 2048,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/fb5f1b/7139804111/il_fullxfull.7139804111_97pc.jpg",
+          "sha256": "a2b31e9ae62b76e9b9645e9095af37586decb64afd747a9b89da71a3b1997b5d",
+          "width": 2048,
+          "height": 2048,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/c0ee80/7091897242/il_fullxfull.7091897242_49p6.jpg",
+          "sha256": "589ad9b1450c65b396b2b9519c1e882ef8dfbb97842750f260e995f7cf797b0e",
+          "width": 2048,
+          "height": 2048,
+          "classification": "ONE_SHOULDER",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
+          "sha256": "e4fc567bbd42516bbab81b72324ea980f81a5f81e0ca5afd52f3931a86b6c23d",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_SHOULDERS",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/5c4d0a/6188931994/il_fullxfull.6188931994_3ce7.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "1824045326",
+      "canonical_product_id": "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
+      "base_url": "https://thefeya.com/shop/festival-costume-set-futuristic-armored-clothes-for-men-women-rave-parties-burning-man-golden-wear-1824045326",
+      "title": "Festival Costume Set - Futuristic Armored Clothes for Men & Women, Rave Parties Burning Man Golden Wear",
+      "observed_at": "2026-11-06T12:52:45.040434+00:00",
+      "html_sha256": "f9879f8c86e42156985a8b7e5eedd1ce3890560fd0cf4f3a933b27e64b216600",
+      "approved_content_sha256": "2f57e750fce67d3ec14766af2c16adc2e0f32ebe0cdf9c1e35a0d5ba497ef51f",
+      "source_default_color": "gold",
+      "media_count": 6,
+      "finding": "Frames1–3 show the women's outfit alone;4–5 show both outfits. Source configuration labels establish Women/Men. Photo4 is a candidate supporting the men's pieces but also depicts an unpurchased second outfit if used for a men-only offer.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+          "sha256": "f418a336ff10842a839955eecffe9bb5440f497f8d4bd203e0a0d045b6b59f27",
+          "width": 818,
+          "height": 818,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+          "sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
+          "width": 821,
+          "height": 821,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+          "sha256": "c69f0ad089ba30a25e17ec60002c1f98e8eaabdac1eee52ea37a2774cef72727",
+          "width": 823,
+          "height": 823,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/251edb/6251618775/il_fullxfull.6251618775_7l9z.jpg",
+          "sha256": "fd1cf1ec1e73cca2b40e3c95259560edfc20a9ef5f804e5be1e4c66ac8dc12d5",
+          "width": 980,
+          "height": 995,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+          "sha256": "282b82cca02f93ca8c59b91321c2892854ddc3dc9294c1be7384cc8714387185",
+          "width": 836,
+          "height": 836,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "4302158749",
+      "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
+      "base_url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-outfits-for-men-women-golden-leather-costume-burning-man-wear-metallic-rave-armor-4302158749",
+      "title": "Festival Couple Costume Set - Futuristic Outfits for Men & Women, Golden Leather Costume, Burning man Wear, Metallic Rave Armor",
+      "observed_at": "2026-11-06T12:52:45.066106+00:00",
+      "html_sha256": "7d07f186f7901042dec6d463888b0a068e27d815e39df96eebf313b4c8690723",
+      "approved_content_sha256": "40740fe539450ccfbe0fa1526f6d1468ea29125ec5dede518efe47a08a254a3b",
+      "source_default_color": "gold",
+      "media_count": 9,
+      "finding": "Frames1–4 show both outfits;5–8 show the women's outfit alone. A source-backed women-only alternative can use frame5 without collapsing two partner fits.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
+          "sha256": "caf3c32b6d8283e48a20012f1ee3653391b1aea130e4e513bd2ed0208145a870",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/3d4549/6845750916/il_fullxfull.6845750916_brwa.jpg",
+          "sha256": "6b24491c76abb270fa878438b80939755ba42eb57c1f15a9dee0eaf57ec892dd",
+          "width": 2000,
+          "height": 2000,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/9591a0/6893728047/il_fullxfull.6893728047_1xj4.jpg",
+          "sha256": "86619743f3f38164d4bce708f06d09cc0255d8b71a68ca556e4380e120c86c32",
+          "width": 2880,
+          "height": 2880,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/5766f4/6893727999/il_fullxfull.6893727999_73qt.jpg",
+          "sha256": "51979d97bce26568dfd6d9e0993c76493349812b8b5120848ae82d0609201ce5",
+          "width": 2000,
+          "height": 2000,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+          "sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
+          "width": 821,
+          "height": 821,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+          "sha256": "c69f0ad089ba30a25e17ec60002c1f98e8eaabdac1eee52ea37a2774cef72727",
+          "width": 823,
+          "height": 823,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+          "sha256": "f418a336ff10842a839955eecffe9bb5440f497f8d4bd203e0a0d045b6b59f27",
+          "width": 818,
+          "height": 818,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/979e2c/6845754222/il_fullxfull.6845754222_f081.jpg",
+          "sha256": "f8d438bbcfa5d3525c2c3365ce79857a5442816e5fda68f9e343a931ba7ef799",
+          "width": 1024,
+          "height": 1024,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 9,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "4488185754",
+      "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
+      "base_url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4488185754",
+      "title": "Festival Couple Costume Set - Futuristic Rave Outfits for Men & Women, Burning man Wear",
+      "observed_at": "2026-11-06T12:52:45.017640+00:00",
+      "html_sha256": "a5d50794b13c57ca8be19359a251cc902b54f9d10f826a751bc237aa31d279e6",
+      "approved_content_sha256": "552a4693104b65ee55b2b68b94c50567f1bb57959a4c71de7bea483894966842",
+      "source_default_color": "gold",
+      "media_count": 8,
+      "finding": "All seven product photos show both outfits, with the source-default women Gold /men Silver pair. Frame1 is a full-pair candidate. Boots, eyewear, white base clothing and surroundings are not added to the purchased components.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
+          "sha256": "fb7b778eb96f5f4824d9f8fef6df10c4ae8490dd444d5b6ce5f2a1b5c6a970b2",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/21825a/7909518676/il_fullxfull.7909518676_t3ws.jpg",
+          "sha256": "2dfaa9676a6110749a4b997c6f3d6c6cfb47ba3d25a8b32c9bf13b2617e11ee1",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/bfabde/7957474879/il_fullxfull.7957474879_67fc.jpg",
+          "sha256": "cb89f7050fa59551edb21360cc5979d8d42d673650aa0b7e8b2d518faa391b9b",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/866375/7957474875/il_fullxfull.7957474875_najv.jpg",
+          "sha256": "616efc9151f3d9fca6689efed607d3befbbe1b235711ddf88b2e0c72414a620b",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/81e085/7957474865/il_fullxfull.7957474865_5v4m.jpg",
+          "sha256": "ae7098f51dd73a10cd167e536a3bfd5d9e1fa4e8b9aba25a86f4dcd6a05d2590",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/987b55/7909518706/il_fullxfull.7909518706_nsnu.jpg",
+          "sha256": "b2bb76b7f2fa1d82bdc7e6ea3d339b7ed26dc79702221d79f727b45aecac32a1",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/4e4997/7909518674/il_fullxfull.7909518674_pvmq.jpg",
+          "sha256": "5c335f056d688d5077fb5edde2bf052c69507a1467049ae4a566f3b9146a0691",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "4489232697",
+      "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
+      "base_url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4489232697",
+      "title": "Festival Couple Costume Set - Futuristic Rave Outfits for Men & Women, Burning man Wear",
+      "observed_at": "2026-11-06T12:52:51.741668+00:00",
+      "html_sha256": "0bfbd114ac312f0afcbe74a8a75e89ed574377ad063764f954fa175f0aa1824f",
+      "approved_content_sha256": "fe6a54820e35593727d23e4c56d3b037a4763fe908fa8e2e98a2967cdef65c0e",
+      "source_default_color": "silver",
+      "media_count": 8,
+      "finding": "All seven product photos show the two silver outfits. Source copy supplies the different included pieces per partner; model appearance does not establish garment audience.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
+          "sha256": "715e1a313fc1d77d3be0474797e56d87e72a133145ea68f0fc30dfa823557561",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/982e6c/7964520289/il_fullxfull.7964520289_2c4x.jpg",
+          "sha256": "a3cbf81f9c9e9a12f2bf3c6ea803be8bb17c100f739dfeb92a1c39edb33d732d",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/b709c4/7964520301/il_fullxfull.7964520301_92zv.jpg",
+          "sha256": "4e757192023d908ed5fd89db500782decdff768c0667a9c7dacf07255556e111",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/2b96dd/7964520305/il_fullxfull.7964520305_3lbw.jpg",
+          "sha256": "4dd1d356bbcf13a2447b29e6a759453afc8173427d5ff222c86206f6e98c0306",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/27e2b0/7964520367/il_fullxfull.7964520367_2shs.jpg",
+          "sha256": "cd10c8220208a9f3511a6c775c9ac7634c3d74846fa033466f95ab25257e8084",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/aeaca6/7916570454/il_fullxfull.7916570454_fecl.jpg",
+          "sha256": "d38d151508aa7a83f386a7930c93ec751538fb19529f0971ca743bc7340d3179",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/ff9f2f/7916570466/il_fullxfull.7916570466_arhy.jpg",
+          "sha256": "1114601b5849b6384960d8f04cb0e3d5b2a2920ea213bbdee2ede154588fba7f",
+          "width": 1024,
+          "height": 1024,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "4488971627",
+      "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
+      "base_url": "https://thefeya.com/shop/festival-couple-costume-set-gold-futuristic-rave-outfits-for-men-women-burning-man-wear-4488971627",
+      "title": "Festival Couple Costume Set - Gold Futuristic Rave Outfits for Men & Women, Burning man Wear",
+      "observed_at": "2026-11-06T12:52:51.774534+00:00",
+      "html_sha256": "8aad41f02b140979ac29b498bb4835275b07a14fd8fb41eb0fc45300c98d9748",
+      "approved_content_sha256": "1e5ccbf52662762a373f407e2ae5ecd90acb8b68075cdf238d533b122d70b38b",
+      "source_default_color": "black_gold",
+      "media_count": 7,
+      "finding": "All six product photos show both black-and-gold outfits. Source copy, not the styling, identifies the included headpiece and other pieces for each partner.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
+          "sha256": "8ebfd0f8f72b5eefc297012345ac87b6709be86b4145a248a9e8783c98aad3a4",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/409455/7914791574/il_fullxfull.7914791574_vr0x.jpg",
+          "sha256": "9934564b98ecde047678fd900abae6e8cb4a3512eb4a1f4c30f9a86946c2bee9",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/5278d9/7962742909/il_fullxfull.7962742909_1e8n.jpg",
+          "sha256": "c914121d411ac64d50516994ddbeff514672bedcbf339b609a1c20e62014ba75",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/bdc133/7962742913/il_fullxfull.7962742913_7n9r.jpg",
+          "sha256": "2d6eee29d0161cdf7b6f2c3e1e77eb7b347188e05aef591f5ca985f5aa1ce3c6",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/dceaaa/7914791562/il_fullxfull.7914791562_r9j5.jpg",
+          "sha256": "c0ec6db00fbdfb74cf0c7845095cee92e66b1f515f458855c9842fe20969b1a1",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/4bc23a/7962742919/il_fullxfull.7962742919_gw7u.jpg",
+          "sha256": "8f2f4c9879d621e00727b0e1ee4a8194f6fca1c563a64d09a03f4027ac652df0",
+          "width": 2048,
+          "height": 2048,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "1765624488",
+      "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
+      "base_url": "https://thefeya.com/shop/festival-couple-costume-set-golden-leather-outfits-for-men-women-futuristic-costume-burning-man-wear-metallic-armor-rave-outfits-1765624488",
+      "title": "Festival Couple Costume Set - Golden Leather Outfits for Men & Women,  Futuristic Costume, Burning man wear, Metallic Armor, Rave Outfits",
+      "observed_at": "2026-11-06T12:52:52.113451+00:00",
+      "html_sha256": "8495414dca4270dc669cca7e54287109269bac63db755271ad81ec3da4578a78",
+      "approved_content_sha256": "8dda05a299e2af1035bf6364ecbb87a3a484a3ed7f427a5aca569596fa51edcf",
+      "source_default_color": "gold",
+      "media_count": 6,
+      "finding": "Frames1 and5 show both outfits;2–4 show the women's outfit alone. Source text explicitly lists the two outfits' pieces. Frame2 supports an optional women-only source configuration.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+          "sha256": "282b82cca02f93ca8c59b91321c2892854ddc3dc9294c1be7384cc8714387185",
+          "width": 836,
+          "height": 836,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+          "sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
+          "width": 821,
+          "height": 821,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+          "sha256": "c69f0ad089ba30a25e17ec60002c1f98e8eaabdac1eee52ea37a2774cef72727",
+          "width": 823,
+          "height": 823,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+          "sha256": "f418a336ff10842a839955eecffe9bb5440f497f8d4bd203e0a0d045b6b59f27",
+          "width": 818,
+          "height": 818,
+          "classification": "WOMENS_OUTFIT",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/251edb/6251618775/il_fullxfull.6251618775_7l9z.jpg",
+          "sha256": "fd1cf1ec1e73cca2b40e3c95259560edfc20a9ef5f804e5be1e4c66ac8dc12d5",
+          "width": 980,
+          "height": 995,
+          "classification": "BOTH_OUTFITS",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "1899282209",
+      "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
+      "base_url": "https://thefeya.com/shop/futuristic-silver-dance-set-festival-wear-for-rave-edc-burning-man-outfit-exotic-stripper-robot-showgirl-costume-metallic-party-wear-1899282209",
+      "title": "Futuristic Silver Dance Set – Festival Wear for Rave EDC, Burning Man Outfit, Exotic Stripper, Robot Showgirl Costume, Metallic Party Wear",
+      "observed_at": "2026-11-06T12:53:01.462694+00:00",
+      "html_sha256": "b2b204475ae743b36eee5ed8b38b8e946d9b4fd73c662b6924b6b55d47ef5600",
+      "approved_content_sha256": "1febf79a26486561412809d2d76782959ec08433941fcd0f7a78ebb519cc4839",
+      "source_default_color": "silver",
+      "media_count": 1,
+      "finding": "The CURRENT public gallery contains exactly one image. Approved copy identifies top/skirt/panties as modular options. The photo supports a top and lower skirt garment; it does not independently establish a separate panties layer. Leg covers visible in the styling are not included in the chosen Top+Skirt configuration. No extra photos are invented.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
+          "sha256": "9a1b73a5539cf4185a6e68c7421d91c10acfd8b86fe60a52131dd51a2347947f",
+          "width": 2160,
+          "height": 2696,
+          "classification": "TOP_AND_LOWER_GARMENT_WITH_STYLING_LEG_COVERS",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "1780729637",
+      "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+      "base_url": "https://thefeya.com/shop/golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-1780729637",
+      "title": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+      "observed_at": "2026-11-06T12:53:01.443040+00:00",
+      "html_sha256": "ed2bf4d49f8a4c1e4f5a23180a4ca74d0150164c047d3fa6678dd673c72470c6",
+      "approved_content_sha256": "6835b637b7797280ee541b682b6592fc1bea04302a1e3a32637f5dd41fd18115",
+      "source_default_color": "gold",
+      "media_count": 9,
+      "finding": "Frames4,5,8 show horns, bodysuit and leg covers together. This resolves a useful full-set image candidate, but neither the model nor the mixed size chart proves intended garment audience. The existing audience HOLD remains.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
+          "sha256": "c70da33160b3a3c384dbf756b04d4e88adb1d7e81c412903316152749350009f",
+          "width": 2000,
+          "height": 2048,
+          "classification": "HORNS_BODYSUIT_DETAIL",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/0b6c31/6255678609/il_fullxfull.6255678609_bluj.jpg",
+          "sha256": "9921782e27bbb9441a238f2cc26a9bab1fc2d36babe03dad65ce665b29e175ca",
+          "width": 2000,
+          "height": 2048,
+          "classification": "HORNS_BODYSUIT_DETAIL",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/ff69c0/6207649122/il_fullxfull.6207649122_5k9g.jpg",
+          "sha256": "759ae1b1cf24f6201a15422ded967cbc6d6988609d3f73403f1f63fced1e0681",
+          "width": 2000,
+          "height": 2048,
+          "classification": "HORNS_BODYSUIT_DETAIL",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/08ab89/6207649126/il_fullxfull.6207649126_th3q.jpg",
+          "sha256": "758be6641be834e00565b3ac2925ecb79550a80238aa217fba3ea90e46e87e03",
+          "width": 1935,
+          "height": 1935,
+          "classification": "FULL_SET_FRONT_OR_BACK",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/945494/6207649132/il_fullxfull.6207649132_bny3.jpg",
+          "sha256": "fd55bf118bc3723c9037fbca4d826e7a90018ed9b1d9dda5f70dd8de41e0cc7a",
+          "width": 1973,
+          "height": 1973,
+          "classification": "FULL_SET_FRONT_OR_BACK",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/3029d0/6255675973/il_fullxfull.6255675973_81jt.jpg",
+          "sha256": "973ddb36b6964fecd689950133a668fb4bda6f90206aa32e621dd5c7520c387c",
+          "width": 2000,
+          "height": 2048,
+          "classification": "HORNS_BODYSUIT_DETAIL",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/01de1f/6255676007/il_fullxfull.6255676007_n4f2.jpg",
+          "sha256": "4e451ada7d45f681ee9f21a612ca62c34f19991c2ef28744130ac8249b074de9",
+          "width": 1888,
+          "height": 1933,
+          "classification": "HORNS_BODYSUIT_DETAIL",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/810c8c/6255676011/il_fullxfull.6255676011_idwb.jpg",
+          "sha256": "efeded9cfbb0cbc1a7a37b5d475e16a2dbaf615d70ebabd5ef8a200d2a86b6f7",
+          "width": 1827,
+          "height": 1827,
+          "classification": "FULL_SET_FRONT_OR_BACK",
+          "reviewed": true
+        },
+        {
+          "position": 9,
+          "url": "https://i.etsystatic.com/54033853/r/il/5c4d0a/6188931994/il_fullxfull.6188931994_3ce7.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "4463955343",
+      "canonical_product_id": "3a006050-ab78-4b4d-9964-ed8c9f32e923",
+      "base_url": "https://thefeya.com/shop/men-s-silver-robot-arm-armor-futuristic-cyborg-sleeves-festival-wear-4463955343",
+      "title": "Men's Silver Robot Arm Armor – Futuristic Cyborg Sleeves, Festival Wear",
+      "observed_at": "2026-11-06T12:53:01.375391+00:00",
+      "html_sha256": "0f203ce39830d659f8fcd13e7fe09a3b9d027ec4de9cfac8b05442a44ed15d33",
+      "approved_content_sha256": "965bdd8a3b018265d3521406ef13bc5d2d565da2473f6b9d7e40ef2f1dc018f4",
+      "source_default_color": "silver",
+      "media_count": 10,
+      "finding": "Frames1–7 show two worn arm pieces. Frames8–9 show the pair without styling garments; frame8 is a strong two-piece candidate. No single-piece-only photo was found.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg",
+          "sha256": "1cc292bd500c8e0141c0136608def34d67f9705f00c99d88fce50c65d5b8b576",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/7e7d9e/7752697692/il_fullxfull.7752697692_jwb4.jpg",
+          "sha256": "cae0f4c5087328b959ffb2af004206e92665a2405a006bb9e711316b647b9999",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/52ac6f/7800647541/il_fullxfull.7800647541_hv5u.jpg",
+          "sha256": "c5dcc2b2495e6bf939559345bce34403c1f885f070d4b26c4e83e5ac09f00ce8",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/3d5d50/7800647549/il_fullxfull.7800647549_npqa.jpg",
+          "sha256": "c2eea56592d507e38258604a790b26ef56d37d67f9ab716e13d77f1a3ca1c41a",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/b6043d/7752697740/il_fullxfull.7752697740_3jaw.jpg",
+          "sha256": "608334e1c9030baae1d6e06c6a4f1d901b47ad667d943123e8ccf2d77d2e184c",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/8beaac/7800647633/il_fullxfull.7800647633_c9wl.jpg",
+          "sha256": "bc5733af9e87d4c33d4bee101186c0734a0ad72bd774ba94f1f95259a0c7c0b0",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/f41e47/7752697728/il_fullxfull.7752697728_1wg1.jpg",
+          "sha256": "3d5e8deb3d2d611e41014ef81d2880b14b8cb2fa721bdbb16af7183f2eb19eeb",
+          "width": 2048,
+          "height": 2048,
+          "classification": "TWO_WORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/726dab/7800667753/il_fullxfull.7800667753_r378.jpg",
+          "sha256": "c0f9c365088c091b48964421608d0eb37e5e50abbe5c413fa0edd51495e71a73",
+          "width": 1200,
+          "height": 1600,
+          "classification": "TWO_UNWORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 9,
+          "url": "https://i.etsystatic.com/54033853/r/il/c6866c/7800664677/il_fullxfull.7800664677_pag9.jpg",
+          "sha256": "f6376077a70f17e3b6b44a9409e64c9ca81056e1afbbd49362fbb73eb70ea47d",
+          "width": 1024,
+          "height": 1024,
+          "classification": "TWO_UNWORN_ARM_PIECES",
+          "reviewed": true
+        },
+        {
+          "position": 10,
+          "url": "https://i.etsystatic.com/54033853/r/il/378c8b/6230745105/il_fullxfull.6230745105_nt9f.jpg",
+          "sha256": "91fb526d046a5fc334ab3b9ea6999124cc0ac9ea3e8eb9335dc01655be5f4d5c",
+          "width": 1906,
+          "height": 1377,
+          "classification": "SIZE_CHART",
+          "reviewed": true
+        }
+      ]
+    },
+    {
+      "etsy_tail": "1888669170",
+      "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
+      "base_url": "https://thefeya.com/shop/unique-men-s-chest-harness-fetish-leather-harnesses-adjustable-bdsm-clothing-black-leather-body-belt-gay-pride-festival-outfit-1888669170",
+      "title": "Unique Men’s Chest Harness – Fetish Leather Harnesses, Adjustable BDSM Clothing, Black Leather Body Belt, Gay Pride Festival Outfit",
+      "observed_at": "2026-11-06T12:53:08.107736+00:00",
+      "html_sha256": "0b37ab700d7e528417e9f0d318fcfd4fc36b4f9d518a6ddf70c863aa5554cb1f",
+      "approved_content_sha256": "88d000fd7e10ea2d07c7ea651aa4e6a4d69e14d31f1580f14a1cbf09b29e44a4",
+      "source_default_color": "black",
+      "media_count": 10,
+      "finding": "Frames1–9 show the same black chest-harness design from several angles. Natural versus vegan material is not distinguishable by appearance; the existing configuration is the material/price authority. Frame10 is a size guide illustrated with a different harness, not a variant product photo.",
+      "media": [
+        {
+          "position": 1,
+          "url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
+          "sha256": "0feecfb1c4c289fe668e038ad8c8ccadc2f4fbcce53b3fb2d08b584b62650bb7",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 2,
+          "url": "https://i.etsystatic.com/54033853/r/il/6e4308/6838437479/il_fullxfull.6838437479_mj1a.jpg",
+          "sha256": "15007a55374a5972c18a0a385112db4986128f505171bdb3b038d4cdb6217a8a",
+          "width": 1963,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 3,
+          "url": "https://i.etsystatic.com/54033853/r/il/8a4aa2/6838437471/il_fullxfull.6838437471_rd1w.jpg",
+          "sha256": "403f19e9870458f867ef2af570d40c7a55686cc1027a52a996a27e0cb585cf11",
+          "width": 1963,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 4,
+          "url": "https://i.etsystatic.com/54033853/r/il/edc678/6790430604/il_fullxfull.6790430604_1d6k.jpg",
+          "sha256": "b5f0afe27f7c1ff94b2075b9dbf78035a1eb437cc3cd2b9cca0a3cfc725f8add",
+          "width": 1963,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 5,
+          "url": "https://i.etsystatic.com/54033853/r/il/94a293/6838420651/il_fullxfull.6838420651_6mbo.jpg",
+          "sha256": "585fee9ad7607fbe233fcfa7e7505086f8a1ba992fb9d565f3843666fa87e7aa",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 6,
+          "url": "https://i.etsystatic.com/54033853/r/il/840cca/6790413564/il_fullxfull.6790413564_qy1t.jpg",
+          "sha256": "7811831cce903c5876c60dbdb19409b2f6bbde57d684112f3a3e056451ab7ff9",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_REAR_OR_SIDE",
+          "reviewed": true
+        },
+        {
+          "position": 7,
+          "url": "https://i.etsystatic.com/54033853/r/il/75cbc6/6838420669/il_fullxfull.6838420669_nh4n.jpg",
+          "sha256": "2745f98fdd26a6a4eb2277e98c679a1ae6cbf8f2158d9bdd844426879f03f4d2",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_REAR_OR_SIDE",
+          "reviewed": true
+        },
+        {
+          "position": 8,
+          "url": "https://i.etsystatic.com/54033853/r/il/0f8db8/6838420665/il_fullxfull.6838420665_gfhi.jpg",
+          "sha256": "3f018e0c6764099cccb2d66013c3e049d6f07660d7b70e2c104c7fb6c239393b",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_REAR_OR_SIDE",
+          "reviewed": true
+        },
+        {
+          "position": 9,
+          "url": "https://i.etsystatic.com/54033853/r/il/1d4d0b/6790413572/il_fullxfull.6790413572_s8oc.jpg",
+          "sha256": "09cec63caae2b9795070e1549ae4b8d8ba8597ca2c7e52ac85def0b9cc3629b2",
+          "width": 2002,
+          "height": 3000,
+          "classification": "HARNESS_FRONT",
+          "reviewed": true
+        },
+        {
+          "position": 10,
+          "url": "https://i.etsystatic.com/54033853/r/il/3c860d/6837525001/il_fullxfull.6837525001_7s32.jpg",
+          "sha256": "f7fdf7c56ade3c067fe91384000947fc65e7a3d0df310392b37e2c618485964e",
+          "width": 1080,
+          "height": 1080,
+          "classification": "SIZE_CHART_OTHER_HARNESS_ILLUSTRATION",
+          "reviewed": true
+        }
+      ]
+    }
+  ]
+}
