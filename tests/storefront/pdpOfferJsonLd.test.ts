@@ -38,13 +38,41 @@ test('a PDP that asks the buyer to choose first claims only a price range', () =
   });
 });
 
-test('color-priced exception products never claim one color price', () => {
+test('color-priced products without a verified default claim only the known price range', () => {
   const offer = pdpOfferJsonLd(product([
     cfg('br', 'Full Set', 210, {is_full_set: true, configuration_color: 'Brown'}),
     cfg('bl', 'Full Set Black', 220, {configuration_color: 'Black'}),
     cfg('gr', 'Full Set Green', 230, {configuration_color: 'Green'}),
   ], {canonical_product_id: 'de38a842-37c4-40a7-86b4-393341c4c9aa'}), URL);
   assert.equal(offer?.['@type'], 'AggregateOffer');
+});
+
+test('each color-priced product emits the exact photographed color price already selected in the UI', () => {
+  for(const id of ['de38a842-37c4-40a7-86b4-393341c4c9aa','882793f6-15ca-4617-a579-5cd47290ce72','7cf4ea37-cd11-4203-860c-7eed4ae965ba']){
+    for(const [color,expectedId,expectedPrice] of [['brown','br','159.31'],['black','bl','130.35'],['green','gr','140.01']]){
+      const offer=pdpOfferJsonLd(product([
+        cfg('bl','Harness',130.35,{configuration_color:'Black'}),
+        cfg('br','Harness',159.31,{configuration_color:'Brown'}),
+        cfg('gr','Harness',140.01,{configuration_color:'Green'}),
+      ],{canonical_product_id:id,default_color_choice:color}),URL);
+      assert.equal(offer?.['@type'],'Offer');
+      assert.equal(offer && 'sku' in offer ? offer.sku:null,expectedId);
+      assert.equal(offer && 'price' in offer ? offer.price:null,expectedPrice);
+    }
+  }
+});
+
+test('unpriced White and malformed color-price sources cannot inherit another color quote',()=>{
+  const options=[
+    cfg('br','Harness',159.31,{configuration_color:'Brown'}),
+    cfg('bl','Harness',130.35,{configuration_color:'Black'}),
+    cfg('gr','Harness',140.01,{configuration_color:'Green'}),
+  ];
+  const base={canonical_product_id:'de38a842-37c4-40a7-86b4-393341c4c9aa',default_color_choice:'white'};
+  assert.equal(pdpOfferJsonLd(product(options,base),URL)?.['@type'],'AggregateOffer');
+  assert.equal(pdpOfferJsonLd(product([...options,cfg('wh','Harness',1,{configuration_color:'White'})],base),URL),null);
+  assert.equal(pdpOfferJsonLd(product(options.slice(0,2),{...base,default_color_choice:'brown'}),URL),null);
+  assert.equal(pdpOfferJsonLd(product([options[0],options[0],options[2]],{...base,default_color_choice:'brown'}),URL),null);
 });
 
 test('no price or non-EUR data emits no offer instead of inventing one', () => {
