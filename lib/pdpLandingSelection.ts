@@ -1,5 +1,5 @@
 import type {StorefrontProduct} from './types.ts';
-import {optionKey, optionPrice, sortedOptions} from './storefront.ts';
+import {isFullSetOption, optionKey, optionPrice, sortedOptions} from './storefront.ts';
 import {colorChoiceLabel, productColorChoices} from './bonanzaColorChoices.ts';
 import {coupleColorSelection} from './bonanzaCoupleColorChoices.ts';
 import {verifiedColorPriceRows} from './bonanzaColorPriceExceptions.ts';
@@ -45,6 +45,10 @@ export function resolvePdpLandingSelection(product:StorefrontProduct,query:PdpLa
   const choices=productColorChoices(product);
   const couple=coupleColorSelection(product);
   const paired=isSourceConfirmedPairedSet(option);
+  // The existing UI uses the exact couple adapter + Full Set rule. If its
+  // mode and the checkout's source-proof rule diverge, no link may hide that
+  // disagreement by collapsing two people into a single size.
+  if(Boolean(couple&&isFullSetOption(option,options.indexOf(option)))!==paired)return invalid();
   const audience=String(option.configuration_audience||'').toLowerCase();
   const partner=couple&&(audience==='women'||audience==='men')?audience:null;
   const selection:PdpLandingSelection={configurationId:values.configuration,colorCode:null,size:null,

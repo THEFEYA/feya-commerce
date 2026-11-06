@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import type {StorefrontProduct} from '../../lib/types.ts';
+import type {StorefrontConfiguration,StorefrontProduct} from '../../lib/types.ts';
 import {resolvePdpLandingSelection,pdpLandingHref,pdpLandingParams,type PdpLandingSelection} from '../../lib/pdpLandingSelection.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
 import {optionKey,optionPrice,sortedOptions} from '../../lib/storefront.ts';
@@ -78,6 +78,18 @@ test('a single partner outfit retains its own photographed color rather than the
       assert.equal(s.colorCode,couple.defaultPair[audience]);assert.equal(s.womenSize,null);assert.equal(s.menSize,null);
       assert.equal(quote(p,s).unit_minor,Math.round(optionPrice(option)!*100));
     }
+  }
+});
+
+test('an unproven replacement Full Set cannot make the paired UI accept one shared size',()=>{
+  for(const {product:p} of fixtures.filter(f=>coupleColorSelection(f.product))){
+    const changed=structuredClone(p),o=(changed.configurations as StorefrontConfiguration[]).find(o=>isSourceConfirmedPairedSet(o))!;
+    // A changed source identity cannot inherit the old tuple's explicit source
+    // proof from either the payload or the exact owner-reviewed adapters.
+    o.configuration_id='00000000-0000-4000-8000-000000000999';
+    o.source_confirmed_bundle_members=false;o.source_confirmed_paired_outfits=false;
+    assert.equal(resolvePdpLandingSelection(changed,{configuration:optionKey(o),size:'M'}).status,'invalid');
+    assert.equal(resolvePdpLandingSelection(changed,{configuration:optionKey(o),women_size:'S',men_size:'XL'}).status,'invalid');
   }
 });
 
