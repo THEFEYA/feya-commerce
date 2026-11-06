@@ -97,6 +97,7 @@ export function inspectPublicPage(html,url,pin,deploymentId){
     source_title:product.card_title||product.h1,
     selected_configuration:selected?{id:optionKey(selected),label:selected.public_label,
       full_set:isFullSetOption(selected),component_code:selected.component_code,
+      configuration_color:selected.configuration_color||null,
       unit_minor:Math.round(optionPrice(selected)*100)}:null,
     color,color_code:colorCode,gender,size_quotes:sizeQuotes,images:images.slice(0,6),
     primary_image_url:product.primary_image_url,size_mode:product.size_mode,

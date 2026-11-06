@@ -1,17 +1,17 @@
 {
   "version": "thefeya_merchant_catalog_manifest_v1",
-  "captured_at": "2026-11-06T11:15:23.737Z",
-  "source_git_sha": "25f621dbce376298109d2cdca5530fe5c37a99b7",
-  "deployment_id": "dpl_HFDV5CDE1xBDmcqHqJyQHyQBLFmA",
+  "captured_at": "2026-11-06T11:41:58.124Z",
+  "source_git_sha": "b81ae5269de7834b7f2b75db662eb97be7a81307",
+  "deployment_id": "dpl_8iJSGjREKALAY3ZnGdC5ocbat1WG",
   "reviewed_at": "2026-11-05T17:04:44.941859+00:00",
   "channel": "FREE_LISTINGS",
   "country": "US",
   "currency": "EUR",
   "totals": {
     "products": 207,
-    "ready": 193,
-    "hold": 14,
-    "offers": 1351,
+    "ready": 196,
+    "hold": 11,
+    "offers": 1372,
     "preserved_pilot_offers": 84
   },
   "products": [
@@ -648,20 +648,16 @@
       "etsy_tail": "1871310023",
       "title": "Brown Leather Body Harness for Fashion Photoshoots",
       "url": "https://thefeya.com/shop/deluxe-leather-harness-for-men-best-groomsmen-gift-vintage-brown-leather-harness-men-s-wedding-accessories-handmade-chest-harness-1871310023",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "4b56be10-1771-4a5c-9daa-6ae70e8650f0",
+      "price_eur": "159.31",
       "photographed_color": "Brown",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
       "image_url": "https://i.etsystatic.com/54033853/r/il/0b6186/6629669822/il_fullxfull.6629669822_md3z.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
@@ -908,20 +904,16 @@
       "etsy_tail": "1855580162",
       "title": "Brown Leather Chest Harness for Men",
       "url": "https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "9cf4b355-2c03-4c05-b5ba-2ca8c49ab572",
+      "price_eur": "147.11",
       "photographed_color": "Brown",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
       "image_url": "https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "5f0df65c-4b04-4905-80c5-53bd7e807063",
@@ -2252,20 +2244,16 @@
       "etsy_tail": "1867996009",
       "title": "Brown Leather Chest Harness for Men",
       "url": "https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "66058dbc-f8ed-4189-ba0e-464204df96df",
+      "price_eur": "141.83",
       "photographed_color": "Brown",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
       "image_url": "https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "abf11fbb-9794-484d-b93c-1449fa3a9a44",

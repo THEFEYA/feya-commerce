@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {buildRows as pilotRows} from './build-us-pilot-feed.mjs';
+import {isColorPriceException} from '../../lib/bonanzaColorPriceExceptions.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -95,7 +96,15 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     const conf=p.selected_configuration;
     if(!conf||p.offer?.['@type']!=='Offer')reasons.add('EXACT_SELECTED_OFFER_REQUIRED');
     if(conf&&!reasons.has('INDEPENDENT_PARTNER_SELECTION_REQUIRED')){
-      assert.match(conf.id,/^[a-f0-9-]{36}$/);assert.equal(conf.full_set,true);
+      assert.match(conf.id,/^[a-f0-9-]{36}$/);
+      if(!conf.full_set){
+        // The three reviewed color-price harnesses already preselect this exact
+        // photographed color in the UI. Other choose-first configurations stay held.
+        assert.ok(isColorPriceException(p.canonical_product_id),'non-Full-Set configuration needs reviewed source selection');
+        assert.equal(conf.component_code,'harness');
+        assert.ok(['Brown','Black','Green'].includes(conf.configuration_color));
+        assert.equal(conf.configuration_color,p.color,'selected configuration color differs from photograph');
+      }
       assert.equal(p.offer.sku,conf.id);assert.equal(p.offer.priceCurrency,'EUR');
       assert.equal(p.offer.availability,'https://schema.org/InStock');
       assert.ok(Number.isSafeInteger(conf.unit_minor)&&conf.unit_minor>0);
@@ -131,7 +140,7 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
         image_link:image.image_url,additional_image_link:'',availability:'in_stock',price:entry.price_eur+' EUR',
         condition:'new',brand:'TheFEYA',identifier_exists:'no',
         google_product_category:'Apparel & Accessories > Costumes & Accessories > Costumes',
-        product_type:'Costumes > Full Set',color:p.color.replace(/\s*\+\s*/g,'/'),size,size_system:'US',gender,
+        product_type:conf.full_set?'Costumes > Full Set':'Costumes > Harness',color:p.color.replace(/\s*\+\s*/g,'/'),size,size_system:'US',gender,
         age_group:'adult',custom_label_0:'us_catalog_20261105'});
     }
   }
