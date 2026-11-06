@@ -1,7 +1,7 @@
 export const instant = false;
 
 import type {Metadata} from 'next';
-import {notFound} from 'next/navigation';
+import {notFound,redirect} from 'next/navigation';
 import {connection} from 'next/server';
 import Link from 'next/link';
 import {Suspense} from 'react';
@@ -14,14 +14,19 @@ import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 import {brandAwareTitle} from '@/lib/pageTitle';
+import {
+  catalogPageHref,filterShopProducts,parseShopNavigation,shopHrefWithTracking,
+  shopNavigationHasFilterState,shopNavigationNeedsNormalization,SHOP_PAGE_SIZE,
+} from '@/lib/shopCatalogNavigation';
 
-type PageProps={params:Promise<{slug:string}>};
+type CollectionSearchParams=Record<string,string|string[]|undefined>;
+type PageProps={params:Promise<{slug:string}>;searchParams:Promise<CollectionSearchParams>};
 
 function jsonLd(value:unknown){
   return {__html:JSON.stringify(value).replace(/</g,'\\u003c')};
 }
 
-export async function generateMetadata({params}:PageProps):Promise<Metadata>{
+export async function generateMetadata({params,searchParams}:PageProps):Promise<Metadata>{
   // Search Release activation is mutable runtime governance. Keep the visible
   // collection payload cached, but resolve release-bound metadata after request
   // connection so a production build never freezes a pre/post-activation state.
@@ -31,27 +36,31 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   if(!candidate)return {title:'Collection not found',robots:{index:false,follow:true}};
 
   const path=`/collections/${candidate.slug}`;
+  const navigation=parseShopNavigation(await searchParams,{ignoreUnknownParams:process.env.VERCEL_ENV==='production'});
+  const canonicalPath=navigation?catalogPageHref(navigation.page,navigation.filters,path):path;
   const [metadata,robots]=await Promise.all([
     readSearchLandingMetadata(slug),
-    releaseRobotsForPath(`/collections/${candidate.slug}`),
+    // Query states are not in the approved release: remain noindex/follow,
+    // with their own canonical. Root collection authority stays unchanged.
+    releaseRobotsForPath(canonicalPath),
   ]);
   const content=metadata?.content;
 
   return {
     title:brandAwareTitle(content?.seo_title || candidate.title),
     description:content?.meta_description || candidate.description,
-    alternates:{canonical:path},
-    robots,
+    alternates:{canonical:canonicalPath},
+    robots:navigation?robots:{index:false,follow:true},
   };
 }
 
-export default async function SearchLandingCandidatePage({params}:PageProps){
+export default async function SearchLandingCandidatePage({params,searchParams}:PageProps){
   const {slug}=await params;
   const candidate=getSearchLandingCandidate(slug);
   if(!candidate||candidate.searchStatus==='hold_noindex')notFound();
 
   return <Suspense fallback={<CollectionRouteFallback/>}>
-    <ResolvedSearchLandingCandidatePage slug={slug}/>
+    <ResolvedSearchLandingCandidatePage slug={slug} searchParams={searchParams}/>
   </Suspense>;
 }
 
@@ -65,7 +74,12 @@ function CollectionRouteFallback(){
   </main>;
 }
 
-async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
+async function ResolvedSearchLandingCandidatePage({slug,searchParams}:{slug:string;searchParams:Promise<CollectionSearchParams>}){
+  // Request URL state resolves inside Suspense. The governed page version and
+  // full collection membership keep the existing shared persistent cache.
+  const params=await searchParams;
+  const navigation=parseShopNavigation(params,{ignoreUnknownParams:process.env.VERCEL_ENV==='production'});
+  if(!navigation)notFound();
   const release=await readCachedSearchLandingRelease(slug);
   if(!release)notFound();
 
@@ -73,6 +87,17 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
   const facetedProducts=products;
   const isHold=candidate.searchStatus==='hold_noindex';
   if(isHold)notFound();
+  const path=`/collections/${candidate.slug}`;
+  const filteredProducts=filterShopProducts(products,navigation.filters);
+  if(navigation.page>Math.max(1,Math.ceil(filteredProducts.length/SHOP_PAGE_SIZE)))notFound();
+  const canonicalPath=catalogPageHref(navigation.page,navigation.filters,path);
+  if(shopNavigationNeedsNormalization(params,navigation))redirect(shopHrefWithTracking(canonicalPath,params));
+  const strictNavigation=navigation.page>1?navigation:undefined;
+  const initialNavigation=strictNavigation?undefined:navigation;
+  const utilityState=navigation.page>1||shopNavigationHasFilterState(navigation);
+  const listedProducts=utilityState
+    ?filteredProducts.slice((navigation.page-1)*SHOP_PAGE_SIZE,navigation.page*SHOP_PAGE_SIZE)
+    :products;
   const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';
   const visualFaqPreview=isApprovedV13Presentation(process.env);
 
@@ -92,14 +117,14 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
     '@type':'CollectionPage',
     name:content.h1,
     description:content.meta_description,
-    url:`https://thefeya.com${content.path}`,
+    url:`https://thefeya.com${canonicalPath}`,
     isPartOf:{'@type':'WebSite',name:'TheFEYA',url:'https://thefeya.com'},
     mainEntity:{
       '@type':'ItemList',
-      numberOfItems:products.length,
-      itemListElement:products.map((product,index)=>({
+      numberOfItems:utilityState?filteredProducts.length:products.length,
+      itemListElement:listedProducts.map((product,index)=>({
         '@type':'ListItem',
-        position:index+1,
+        position:index+1+(utilityState?(navigation.page-1)*SHOP_PAGE_SIZE:0),
         url:`https://thefeya.com/shop/${product.product_slug || product.canonical_product_id}`,
         name:product.card_title || product.h1 || 'TheFEYA product',
       })),
@@ -166,7 +191,7 @@ async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
         </div>
 
         {facetedProducts.length
-          ? <ShopClient products={facetedProducts} embedded/>
+          ? <ShopClient key={canonicalPath} products={facetedProducts} embedded catalogPath={path} navigation={strictNavigation} initialNavigation={initialNavigation}/>
           : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current release products are present in this immutable membership snapshot.</div>}
       </section>
 

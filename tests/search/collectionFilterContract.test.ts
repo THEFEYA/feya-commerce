@@ -8,7 +8,8 @@ test('governed collection pages reuse the exact canonical Shop filter component'
   assert.match(source,/import \{ShopClient\} from '@\/components\/ShopClient'/);
   assert.match(source,/readCachedSearchLandingRelease/);
   assert.match(helper,/attachStorefrontFacets\(release\.products\)/);
-  assert.match(source,/<ShopClient products=\{facetedProducts\} embedded\/>/);
+  assert.match(source,/<ShopClient key=\{canonicalPath\} products=\{facetedProducts\} embedded catalogPath=\{path\}/);
+  assert.match(source,/navigation=\{strictNavigation\} initialNavigation=\{initialNavigation\}/);
 });
 
 test('embedded ShopClient preserves membership scope and only filters the supplied products', () => {

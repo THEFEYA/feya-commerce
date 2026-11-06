@@ -49,7 +49,9 @@ test('owner pages stay release-gated noindex and related PDP links come only fro
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
   const related=readFileSync('lib/searchProductLandingLinks.ts','utf8');
   const release=readFileSync('lib/searchReleaseIndexationServer.ts','utf8');
-  assert.match(collection,/releaseRobotsForPath\(\`\/collections\/\$\{candidate\.slug\}\`\)/);
+  assert.match(collection,/const path=\`\/collections\/\$\{candidate\.slug\}\`/);
+  assert.match(collection,/canonicalPath=navigation\?catalogPageHref\(navigation\.page,navigation\.filters,path\):path/);
+  assert.match(collection,/releaseRobotsForPath\(canonicalPath\)/);
   assert.match(collection,/export const instant = false/);
   assert.match(collection,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
   assert.ok(

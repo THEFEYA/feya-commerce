@@ -20,6 +20,7 @@ import {
   SORTS,
   STYLES,
   defaultShopFilters,
+  catalogPageHref,
   filterShopProducts,
   isShopTrackingParam,
   shopPageHref,
@@ -412,6 +413,7 @@ export function ShopClient({
   initialNavigation,
   defaultOpenFilterSections = [],
   embedded = false,
+  catalogPath = '/shop',
 }: {
   products: StorefrontProduct[];
   error?: string;
@@ -419,6 +421,7 @@ export function ShopClient({
   initialNavigation?: ShopNavigation;
   defaultOpenFilterSections?: string[];
   embedded?: boolean;
+  catalogPath?: string;
 }) {
   const seedNavigation=navigation ?? initialNavigation;
   const initial = seedNavigation?.filters ?? defaultShopFilters();
@@ -706,19 +709,23 @@ export function ShopClient({
           </div>
 
           {navigation ? (
-            <ShopPagination page={page} count={filtered.length} filters={filters} />
+            <ShopPagination page={page} count={filtered.length} filters={filters} basePath={catalogPath} />
           ) : canLoadMore ? (
             <div className="flex justify-center pt-10">
-              {embedded ? (
+              {embedded && catalogPath === '/shop' ? (
                 <button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">
                   Show 20 more
                 </button>
               ) : (
-                // Same approved zero-network load-more for shoppers; a real href to the
-                // equivalent server page lets crawlers reach /shop?page=2..N (and every PDP).
+                // Keep zero-network load-more for shoppers. The real next-page href
+                // preserves either Shop or the governed collection membership.
                 <a
-                  href={shopPageHref(Math.floor(visibleCount / PAGE_SIZE) + 1, filters)}
-                  onClick={(event) => { event.preventDefault(); setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length)); }}
+                  href={catalogPageHref(Math.floor(visibleCount / PAGE_SIZE) + 1, filters, catalogPath)}
+                  onClick={(event) => {
+                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length));
+                  }}
                   className="btn-ghost"
                 >
                   Show 20 more

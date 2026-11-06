@@ -202,6 +202,16 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   return `/shop${params.size ? '?' + params.toString() : ''}`;
 }
 
+/** Reuse the exact Shop query contract while keeping an immutable collection
+ * inside its own route. Never turn a collection's next page into all of Shop.
+ */
+export function catalogPageHref(page: number, filters: ShopFilters, basePath = '/shop') {
+  if (basePath !== '/shop' && !/^\/collections\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(basePath)) {
+    throw new Error('INVALID_CATALOG_PATH');
+  }
+  return basePath + shopPageHref(page, filters).slice('/shop'.length);
+}
+
 export function shopNavigationHasFilterState(navigation: ShopNavigation) {
   return shopPageHref(1, navigation.filters) !== '/shop';
 }
