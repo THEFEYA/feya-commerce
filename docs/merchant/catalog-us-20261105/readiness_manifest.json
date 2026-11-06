@@ -1,17 +1,17 @@
 {
   "version": "thefeya_merchant_catalog_manifest_v1",
-  "captured_at": "2026-11-06T11:41:58.124Z",
-  "source_git_sha": "b81ae5269de7834b7f2b75db662eb97be7a81307",
-  "deployment_id": "dpl_8iJSGjREKALAY3ZnGdC5ocbat1WG",
+  "captured_at": "2026-11-06T15:23:11.308Z",
+  "source_git_sha": "1de3a139aca1500d4b148cc31799f430cf841773",
+  "deployment_id": "dpl_3MRLECiHsMsfAgpMeU73AwYCf5ov",
   "reviewed_at": "2026-11-05T17:04:44.941859+00:00",
   "channel": "FREE_LISTINGS",
   "country": "US",
   "currency": "EUR",
   "totals": {
     "products": 207,
-    "ready": 196,
-    "hold": 11,
-    "offers": 1372,
+    "ready": 203,
+    "hold": 4,
+    "offers": 1421,
     "preserved_pilot_offers": 84
   },
   "products": [
@@ -20,20 +20,16 @@
       "etsy_tail": "4348580005",
       "title": "Gold Shoulder Armor for Burning Man",
       "url": "https://thefeya.com/shop/apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "c1c6a9e3-e86d-4306-83a0-0fe06392d31f",
+      "price_eur": "159.51",
       "photographed_color": "Gold",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
@@ -968,44 +964,32 @@
       "etsy_tail": "1824045326",
       "title": "Gold Futuristic Stage Outfit for Men and Women",
       "url": "https://thefeya.com/shop/festival-costume-set-futuristic-armored-clothes-for-men-women-rave-parties-burning-man-golden-wear-1824045326",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "3526fd7a-cad5-456a-b1f2-8327d95966e7",
+      "price_eur": "350.92",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": null,
+      "gender": "female",
+      "gender_evidence": "source_configuration",
       "image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
       "etsy_tail": "4302158749",
       "title": "Gold Futuristic Armor Costume for Couples",
       "url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-outfits-for-men-women-golden-leather-costume-burning-man-wear-metallic-rave-armor-4302158749",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": "6a68bce4-4a2c-4419-a3a1-2a85f1aa80af",
-      "price_eur": "502.46",
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "c5e525cb-3b26-4df7-af42-e63a399127d5",
+      "price_eur": "327.00",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
-      "reasons": [
-        "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Implement a source-backed two-partner size/color landing selection; do not collapse both partners into one size.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "gender": "female",
+      "gender_evidence": "source_configuration",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
@@ -1078,22 +1062,16 @@
       "etsy_tail": "1765624488",
       "title": "Gold Matching Couple Festival Outfits",
       "url": "https://thefeya.com/shop/festival-couple-costume-set-golden-leather-outfits-for-men-women-futuristic-costume-burning-man-wear-metallic-armor-rave-outfits-1765624488",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": "26274d0c-81c9-44e6-9ce7-c3056c62040c",
-      "price_eur": "460.44",
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "5074ad3c-af6a-4cf7-9624-ce351ee9cafc",
+      "price_eur": "327.00",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
-      "reasons": [
-        "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Implement a source-backed two-partner size/color landing selection; do not collapse both partners into one size.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "gender": "female",
+      "gender_evidence": "source_configuration",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
@@ -1324,20 +1302,16 @@
       "etsy_tail": "1899282209",
       "title": "Silver Metallic Top and Skirt Set",
       "url": "https://thefeya.com/shop/futuristic-silver-dance-set-festival-wear-for-rave-edc-burning-man-outfit-exotic-stripper-robot-showgirl-costume-metallic-party-wear-1899282209",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "7f1d8eb0-bb9a-49dd-9667-ab40cb313145",
+      "price_eur": "215.34",
       "photographed_color": "Silver",
       "gender": "female",
       "gender_evidence": "approved_copy",
       "image_url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
@@ -2388,20 +2362,16 @@
       "etsy_tail": "4463955343",
       "title": "Silver Robot Arm Armor for Men",
       "url": "https://thefeya.com/shop/men-s-silver-robot-arm-armor-futuristic-cyborg-sleeves-festival-wear-4463955343",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "fca12d8b-7be7-49ac-a35b-ca41f6bc0d79",
+      "price_eur": "295.09",
       "photographed_color": "Silver",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "image_url": "https://i.etsystatic.com/54033853/r/il/726dab/7800667753/il_fullxfull.7800667753_r378.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
@@ -3256,20 +3226,16 @@
       "etsy_tail": "1888669170",
       "title": "Black Leather Chest Harness for Men",
       "url": "https://thefeya.com/shop/unique-men-s-chest-harness-fetish-leather-harnesses-adjustable-bdsm-clothing-black-leather-body-belt-gay-pride-festival-outfit-1888669170",
-      "status": "HOLD",
-      "offer_count": 0,
-      "configuration_id": null,
-      "price_eur": null,
+      "status": "READY",
+      "offer_count": 7,
+      "configuration_id": "dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf",
+      "price_eur": "86.90",
       "photographed_color": "Black",
       "gender": "male",
       "gender_evidence": "storefront_facet_snapshot",
       "image_url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
-      "reasons": [
-        "EXACT_SELECTED_OFFER_REQUIRED"
-      ],
-      "remedies": [
-        "Add a source-backed configuration/color deep link that preselects an exact purchasable offer and matches checkout; retain the approved copy and prices."
-      ]
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",

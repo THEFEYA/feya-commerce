@@ -1,3 +1,9 @@
+# Released landing selection — 6 Nov 2026
+
+PR237 is merged; Production `dpl_3MRLECiHsMsfAgpMeU73AwYCf5ov` at `1de3a139aca1500d4b148cc31799f430cf841773` is READY. All14 exact selected public landings were verified against actual main image, Product image and Offer. Seven single-wearer configurations are now qualified for the controlled203-product feed; the remaining three couple-only products and audience-only product stay held. See `../catalog-us-20261105/README.md` and issue145 for current publication/Google receipts. The draft/read-only statements below describe the earlier stage and are superseded by the owner's explicit instruction to complete publication.
+
+---
+
 # Exact photographed-variant landing selection — draft, 6 Nov 2026
 
 This prepares the next open catalogue task in issue #145. **Not deployed to Production; no Merchant feed, price, approved copy, source policy or database changes.** Current published feed remains196 products /1,372 offers,11 held. Seven missing pilot offer resources and the source-processing receipt remain a separate investigation (checkpoint6684344598).

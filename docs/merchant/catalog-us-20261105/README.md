@@ -1,4 +1,24 @@
-# US free listings — complete catalogue readiness, updated 2026-11-06
+# US free listings — current publication preflight, 6 Nov 2026
+
+## Current result (supersedes the historical notes below)
+
+- Production app PR #237 merged at `1de3a139aca1500d4b148cc31799f430cf841773`; deployment `dpl_3MRLECiHsMsfAgpMeU73AwYCf5ov` READY. Fresh readback covers all207 approved public PDPs and all14 reviewed selected landings. Actual displayed main image, first Product image and exact Offer match each binding. All seven standard sizes of each ready configuration pass the existing server pricing helper without checkout/payment writes.
+- **203 READY products /1,421 offers; four HOLD products**. These are internally qualified feed rows, not proof of Google's ingestion, eligibility, indexing or traffic. One reviewed configuration/default photographed color per product, seven sizes; this is not every catalog option/color combination.
+- Seven added configurations: Both Shoulders4348580005 (photo7), Women's Outfit1824045326, Top+Skirt1899282209, Pair of Arm Pieces4463955343 (photo8), Vegan Leather Harness1888669170, Women's Outfit4302158749 (photo5), Women's Outfit1765624488 (photo2). Each row deep-links its own configuration/color/size. Feed copy appends the exact source configuration label; approved public PDP copy, V13, canonical URLs and prices remain unchanged.
+- **All previous1,372 rows remain byte-identical**, checked by reconstructing SHA256 `3a600dcbf248328f17f3f2ac1838a554e4334c706355232f02fde793b7b6c3d5`. All84 original pilot IDs/values remain intact. New TSV SHA256 `c425b50c9cb3b1941e6d4527b30e6ded0083df31b5d68f31f4c7210794e09495`.
+- Four holds: couple sets4488185754/4489232697/4488971627 have working independent partner landings but still need truthful Merchant bundle attributes (two sizes/intended audience), or an existing solo-configuration photograph before using a solo alternative. Current galleries show both outfits. Gold Witch1780729637 needs reliable intended-audience confirmation; original source title/tags/description were read again and do not establish a male/female/unisex garment audience. Do not infer it from a model or drag styling.
+- Existing account/source5322859215/10790734908, US/en FREE_LISTINGS, configured historical TSV URL and daily schedule remain unchanged. One manual source refresh is authorized after publication, with actual processing receipt recorded in issue145. Prior Google's `Internal error (9,0),896 affected` is a source-processing observation, not evidence that896 product attributes are incorrect. No account review, paid ads or adult-flag manipulation.
+
+## Reproduction and rollback
+
+Run Node24 `scripts/merchant/capture-catalog.mjs` with the actual Production deployment/code into a temporary capture, then `scripts/merchant/capture-selected-landings.mjs capture.json selected.json`. It checks all14 existing bindings and promotes only seven unambiguous single-wearer candidates. Review selected source images and copy the result into the existing `source_live_readback.json`. Run `scripts/merchant/build-catalog-feed.mjs --publish-preflight`; `--check` verifies offline deterministic exports. Targeted regression tests: `node --experimental-strip-types --test tests/search-db/merchant-catalog-feed.test.mjs`.
+
+The TSV remains a static reviewed snapshot, not a live database feed. A price/stock change requires a fresh controlled reconciliation. Rollback this feed commit to the previous196-product snapshot without undoing the app landing fix. Google must fetch it before its processing state changes. Historical84-row fallback remains separate and must not overwrite the active feed accidentally.
+
+---
+
+## Historical196-product stage (superseded above)
+
 
 Owner decision: issue #145, comment 6663461672. Export every currently safe product in one batch; no artificial 12/24-product limit. This is free-listing distribution, not paid advertising or proof of Google Search indexing.
 

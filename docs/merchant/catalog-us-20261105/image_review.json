@@ -4,10 +4,10 @@
   "products": [
     {
       "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "77c6481a3d652f8ac9d0cd8aa187ca3767d352bc0bc606c880746c0850a8bd3c",
-      "evidence": "catalogue visual sheet 01, item 001"
+      "reviewed_derivative_sha256": "e4fc567bbd42516bbab81b72324ea980f81a5f81e0ca5afd52f3931a86b6c23d",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 7; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
@@ -419,15 +419,15 @@
       "canonical_product_id": "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
       "image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "e23dc652d3569678ef262d84899a085ae839c018187e8b60dc58c480e3445fc0",
-      "evidence": "catalogue visual sheet 03, item 060"
+      "reviewed_derivative_sha256": "f418a336ff10842a839955eecffe9bb5440f497f8d4bd203e0a0d045b6b59f27",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "2e2da22ea109dcc031b1ed2459be46cd04970ece6cb0acf32e8d0a466ca70737",
-      "evidence": "catalogue visual sheet 03, item 061"
+      "reviewed_derivative_sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 5; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
@@ -452,10 +452,10 @@
     },
     {
       "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "4bbc9a4f221b9f3d9c4884d9f132790cf7c4977cac25b3a84dd24fb60eb469e6",
-      "evidence": "catalogue visual sheet 03, item 065"
+      "reviewed_derivative_sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 2; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
@@ -559,8 +559,8 @@
       "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
       "image_url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "bb75b0a4d611e82e9becf83b0c7d4d23c79c2054bc6c00e5ffd249d99dbf037f",
-      "evidence": "catalogue visual sheet 04, item 080"
+      "reviewed_derivative_sha256": "9a1b73a5539cf4185a6e68c7421d91c10acfd8b86fe60a52131dd51a2347947f",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
@@ -1019,10 +1019,10 @@
     },
     {
       "canonical_product_id": "3a006050-ab78-4b4d-9964-ed8c9f32e923",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/726dab/7800667753/il_fullxfull.7800667753_r378.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "1e303c8716602be8ba067d1aae3019b4b145b5fbe5364213557a5b21595b5acd",
-      "evidence": "catalogue visual sheet 07, item 146"
+      "reviewed_derivative_sha256": "c0f9c365088c091b48964421608d0eb37e5e50abbe5c413fa0edd51495e71a73",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 8; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
@@ -1399,8 +1399,8 @@
       "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
       "image_url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "d9c9184c062b59c5766eeb87933de0d060f38671f58669b5ec648863be1008f1",
-      "evidence": "catalogue visual sheet 09, item 200"
+      "reviewed_derivative_sha256": "0feecfb1c4c289fe668e038ad8c8ccadc2f4fbcce53b3fb2d08b584b62650bb7",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
@@ -1451,5 +1451,6 @@
       "reviewed_derivative_sha256": "8837aba0c303cfcdf847b5677d4fd338c84505512aab1a207b6e48c95035538c",
       "evidence": "catalogue visual sheet 09, item 207"
     }
-  ]
+  ],
+  "selected_landing_reviewed_at": "2026-11-06T15:23:11.308Z"
 }

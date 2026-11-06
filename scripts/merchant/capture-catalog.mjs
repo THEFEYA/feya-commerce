@@ -9,6 +9,9 @@ import {sortedOptions,optionKey,optionPrice,isFullSetOption,colorOptions,getMedi
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
 import {priceCartLine,PDP_SIZES} from '../../lib/payments/catalogLinePricing.ts';
 import {isSourceConfirmedPairedSet} from '../../lib/payments/pairedSetSelection.ts';
+import {resolvePdpLandingSelection} from '../../lib/pdpLandingSelection.ts';
+import {resolvePdpLandingMedia} from '../../lib/pdpLandingMedia.ts';
+import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
 
 export const ORIGIN='https://thefeya.com';
 const OMITTED_DUPLICATE='d42dd678-7b11-4f38-890e-411de686f418';
@@ -44,7 +47,7 @@ export function extractFlightProduct(html){
   return products[0];
 }
 
-export function inspectPublicPage(html,url,pin,deploymentId){
+export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
   assert.ok(html.includes(deploymentId),'mixed or unexpected deployment');
   const canonical=decode(html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]||'');
   assert.equal(canonical,url,'canonical differs from captured URL');
@@ -57,13 +60,24 @@ export function inspectPublicPage(html,url,pin,deploymentId){
     .map(m=>JSON.parse(m[1])).find(x=>x['@type']==='Product');
   assert.ok(jsonLd,'public Product JSON-LD missing');
   assert.equal(jsonLd.sku,pin.canonical_product_id);
-  const expected=pdpOfferJsonLd(product,url);
+  const landing=landingUrl?resolvePdpLandingSelection(product,Object.fromEntries(new URL(landingUrl).searchParams)):null;
+  if(landingUrl){assert.equal(new URL(landingUrl).origin+new URL(landingUrl).pathname,url);assert.equal(landing.status,'selected');}
+  const media=landing?resolvePdpLandingMedia(product,landing.selection):null;
+  if(landing)assert.equal(media.status,'bound','selected feed landing requires reviewed source image');
+  const expected=pdpOfferJsonLd(product,url,landing?.selection);
   assert.deepEqual(jsonLd.offers,expected,'live Offer differs from current shared pricing helper');
+  if(landing){
+    assert.equal(jsonLd.image[0],media.imageUrl,'Product first image differs from bound photograph');
+    const main=html.match(/<img\b[^>]*fetchPriority="high"[^>]*>/)?.[0];
+    assert.ok(main,'eager main image missing');
+    const src=decode(main.match(/\bsrc="([^"]+)"/)?.[1]||'');
+    assert.equal(new URL(src,ORIGIN).searchParams.get('url')||src,media.imageUrl,'displayed main image differs from selected photograph');
+  }
   const options=sortedOptions(product);
   const selected=expected?.['@type']==='Offer'
     ?options.find((o,i)=>optionKey(o,i)===expected.sku):null;
-  const colorCode=product.default_color_choice||null;
-  const color=colorOptions(product)[0]||null;
+  const colorCode=landing?.selection?.colorCode||product.default_color_choice||null;
+  const color=landing?.selection?.colorCode?colorChoiceLabel(colorCode):colorOptions(product)[0]||null;
   const images=getMedia(product).map(x=>String(x.url)).filter(x=>/^https:\/\//.test(x));
   const reasons=[];
   if(!selected)reasons.push('EXACT_SELECTED_OFFER_REQUIRED');
@@ -73,7 +87,9 @@ export function inspectPublicPage(html,url,pin,deploymentId){
   const text=jsonLd.name+' '+jsonLd.description+' '+product.card_title+' '+product.h1;
   const female=/\b(women|woman|female|girl|goddess|showgirl)\b/i.test(text);
   const male=/\b(men|man|male|boy)\b/i.test(text.replace(/burning\s+man/ig,''));
-  const gender=female&&!male?'female':male&&!female?'male':null;
+  const sourceGender=landing&&selected?(String(selected.configuration_audience||'').toLowerCase()==='women'||selected.public_label==="Women's Outfit"?'female'
+    :String(selected.configuration_audience||'').toLowerCase()==='men'||selected.public_label==="Men's Outfit"?'male':null):null;
+  const gender=sourceGender||(female&&!male?'female':male&&!female?'male':null);
   if(!gender)reasons.push('TARGET_GENDER_REVIEW_REQUIRED');
   const sizeQuotes=[];
   if(selected&&color&&!isSourceConfirmedPairedSet(selected)){
@@ -106,6 +122,10 @@ export function inspectPublicPage(html,url,pin,deploymentId){
     color,color_code:colorCode,gender,size_quotes:sizeQuotes,images,
     primary_image_url:product.primary_image_url,size_mode:product.size_mode,
     production_profile:product.production_profile,shipping_profile:product.shipping_profile,
+    ...(landing?{selected_landing:{url:landingUrl,selection:landing.selection,image_url:media.imageUrl,
+      product_first_image:jsonLd.image[0],displayed_image:media.imageUrl,
+      source_gender:sourceGender,source_audience:selected.configuration_audience||null,
+      source_label:selected.public_label}}:{}),
     candidate_reasons:[...new Set(reasons)],option_count:options.length,
   };
 }
