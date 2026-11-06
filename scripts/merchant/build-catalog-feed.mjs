@@ -6,6 +6,9 @@ import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {buildRows as pilotRows} from './build-us-pilot-feed.mjs';
 import {isColorPriceException} from '../../lib/bonanzaColorPriceExceptions.ts';
+import {PDP_LANDING_MEDIA_BINDINGS} from '../../lib/pdpLandingMediaBindings.ts';
+import {pdpLandingParams} from '../../lib/pdpLandingSelection.ts';
+import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -94,10 +97,32 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     if(image.decision!=='PASS'||!p.images.includes(image.image_url))reasons.add('IMAGE_REVIEW_REQUIRED');
     assert.match(image.reviewed_derivative_sha256,/^[a-f0-9]{64}$/);
     const conf=p.selected_configuration;
+    const landing=p.selected_landing;
+    if(landing){
+      const binding=PDP_LANDING_MEDIA_BINDINGS.find(b=>b.productId===p.canonical_product_id&&b.configurationId===conf?.id);
+      assert.ok(binding,'unreviewed selected configuration');
+      assert.equal(conf.label,binding.label);assert.equal(conf.component_code,binding.componentCode);
+      assert.equal(landing.source_label,conf.label);
+      assert.equal(landing.selection.configurationId,conf.id);
+      assert.ok(binding.colors.color,'paired bundles need separate Merchant qualification');
+      assert.equal(landing.selection.colorCode,binding.colors.color);
+      assert.equal(p.color_code,binding.colors.color);assert.equal(p.color,colorChoiceLabel(binding.colors.color));
+      assert.equal(landing.selection.size,'M');
+      for(const key of ['womenColorCode','menColorCode','womenSize','menSize'])assert.equal(landing.selection[key],null);
+      assert.equal(landing.url,p.url+'?'+new URLSearchParams(pdpLandingParams(landing.selection)));
+      assert.equal(p.offer.url,landing.url);
+      for(const observed of [landing.image_url,landing.product_first_image,landing.displayed_image,image.image_url])assert.equal(observed,binding.imageUrl);
+      assert.equal(image.reviewed_derivative_sha256,binding.imageSha256);
+      if(landing.source_gender){
+        const sourceGender=landing.source_audience==='Women'||landing.source_label==="Women's Outfit"?'female'
+          :landing.source_audience==='Men'||landing.source_label==="Men's Outfit"?'male':null;
+        assert.equal(landing.source_gender,sourceGender);assert.equal(gender,sourceGender);
+      }
+    }
     if(!conf||p.offer?.['@type']!=='Offer')reasons.add('EXACT_SELECTED_OFFER_REQUIRED');
     if(conf&&!reasons.has('INDEPENDENT_PARTNER_SELECTION_REQUIRED')){
       assert.match(conf.id,/^[a-f0-9-]{36}$/);
-      if(!conf.full_set){
+      if(!conf.full_set&&!landing){
         // The three reviewed color-price harnesses already preselect this exact
         // photographed color in the UI. Other choose-first configurations stay held.
         assert.ok(isColorPriceException(p.canonical_product_id),'non-Full-Set configuration needs reviewed source selection');
@@ -116,7 +141,7 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     const entry={canonical_product_id:p.canonical_product_id,etsy_tail:p.etsy_tail,title:p.title,url:p.url,
       status:holds.length?'HOLD':'READY',offer_count:holds.length?0:SIZES.length,
       configuration_id:conf?.id||null,price_eur:conf?(conf.unit_minor/100).toFixed(2):null,
-      photographed_color:p.color,gender,gender_evidence:facetGender?'storefront_facet_snapshot'
+      photographed_color:p.color,gender,gender_evidence:landing?.source_gender?'source_configuration':facetGender?'storefront_facet_snapshot'
         :p.gender?'approved_copy':sourceAudience?'source_listing_tag:'+sourceAudience.confirmed_tag:null,
       image_url:image.image_url,reasons:holds,remedies:holds.map(r=>REMEDIES[r]||'Resolve source/checkout parity: '+r)};
     manifest.push(entry);
@@ -135,12 +160,19 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       continue;
     }
     for(const size of SIZES){
-      rows.push({id:conf.id+'-'+size,item_group_id:conf.id,title:p.title,description:p.description,
-        link:p.url+'?utm_source=google&utm_medium=organic_shopping&utm_campaign=mc_us_free_listings_catalog',
+      const selectedUrl=landing?p.url+'?'+new URLSearchParams(pdpLandingParams({...landing.selection,size})):null;
+      const title=landing?p.title+' — '+conf.label:p.title;
+      const description=landing?'Selected configuration: '+conf.label+'. '+p.description:p.description;
+      assert.ok(title.length<=150&&description.length<=5000,'selected feed copy exceeds Google limits');
+      const types={shoulders:'Shoulder Armor',arms:'Arm Armor',top_skirt:'Top and Skirt Set',women_outfit:"Women's Outfit",womens_outfit:"Women's Outfit",harness:'Harness'};
+      const productType=landing?types[conf.component_code]:conf.full_set?'Full Set':'Harness';
+      assert.ok(productType,'selected component needs an accurate product type');
+      rows.push({id:conf.id+'-'+size,item_group_id:conf.id,title,description,
+        link:(selectedUrl||p.url+'?')+(selectedUrl?'&':'')+'utm_source=google&utm_medium=organic_shopping&utm_campaign=mc_us_free_listings_catalog',
         image_link:image.image_url,additional_image_link:'',availability:'in_stock',price:entry.price_eur+' EUR',
         condition:'new',brand:'TheFEYA',identifier_exists:'no',
         google_product_category:'Apparel & Accessories > Costumes & Accessories > Costumes',
-        product_type:conf.full_set?'Costumes > Full Set':'Costumes > Harness',color:p.color.replace(/\s*\+\s*/g,'/'),size,size_system:'US',gender,
+        product_type:'Costumes > '+productType,color:p.color.replace(/\s*\+\s*/g,'/'),size,size_system:'US',gender,
         age_group:'adult',custom_label_0:'us_catalog_20261105'});
     }
   }
