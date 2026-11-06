@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {ExternalLink,MapPin,MousePointerClick} from 'lucide-react';
 
-/** Kyiv Google Business Place ID (11 October 2026).
+/** Owner-approved Google Business Place IDs (11 October 2026).
  * These IDs identify the exact listed businesses. The private review
  * uses an address/name search iframe while Google Maps' official
  * query_place_id anchors the business profile link unambiguously.
@@ -13,6 +13,11 @@ const LOCATIONS={
     query:'Фея-Портупея, Харківське шосе, 19, Київ, Україна',
     placeId:'ChIJBWr-l83F1EARiaqJ10nf3mA',
     label:'Фея-Портупея · Kyiv showroom',
+  },
+  'us-warehouse':{
+    query:'Ship2C Seller Online LLC, 635 Somers Ave, Trevose, PA 19053, USA',
+    placeId:'ChIJQZawTZytxokRn5f9xm8D7xg',
+    label:'Ship2C / Seller Online LLC · Pennsylvania fulfillment facility',
   },
 } as const;
 

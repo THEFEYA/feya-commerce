@@ -1,5 +1,7 @@
 import 'server-only';
 
+import {applyReviewedBonanzaCatalogColors} from '@/lib/bonanzaColorCatalogServer';
+
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import { catalogSourceTimingFields, createTimedCatalogFetch, newCatalogSourceTiming } from '@/lib/storefrontSourceTiming';
 import { buildStorefrontFacets } from '@/lib/storefrontFacets';
@@ -147,7 +149,7 @@ function asStringArray(value: unknown): string[] {
 export async function readApprovedStorefrontCardProductsV1(): Promise<StorefrontProduct[]> {
   const rows = await readApprovedStorefrontCardRowsV1();
 
-  return rows.map((row) => ({
+  return rows.map((row) => applyReviewedBonanzaCatalogColors({
     canonical_product_id: row.canonical_product_id,
     product_slug: row.product_slug,
     matched_etsy_listing_id: null,

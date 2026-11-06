@@ -42,6 +42,10 @@ const fieldStyle='min-h-11 w-full rounded-lg border border-[rgba(216,214,211,.20
 const cardStyle='rounded-[16px] border border-[rgba(216,214,211,.15)] bg-[rgba(255,255,255,.025)] p-5 sm:p-7';
 const labelStyle='flex flex-col gap-1.5 text-[12px] font-medium text-[#d8d1c5]';
 
+function RequiredMark(){
+  return <><span aria-hidden="true" className="mr-1 inline-block font-semibold text-[#d4b26a] drop-shadow-[0_0_5px_rgba(212,178,106,.38)]">*</span><span className="sr-only">Required: </span></>;
+}
+
 function safeStorageRead():{items:OwnerCartPreviewItem[];invalid_count:number}{
   try{
     const stored=window.localStorage.getItem(OWNER_CART_STORAGE_KEY);
@@ -273,9 +277,9 @@ export function CartOwnerLiveReviewClient(){
                   <p>Men: {item.paired_selection.men.size} · {colorChoiceLabel(item.paired_selection.men.color)}</p>
                 </div> : null}
                 {!item.paired_selection ? <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
-                  <legend className="mb-1 text-[11px]">Intended wearer for this item</legend>
+                  <legend className="mb-1 text-[11px]"><RequiredMark/>Intended wearer for this item</legend>
                   {(['men','women'] as const).map(choice=><label key={choice} className="inline-flex cursor-pointer items-center gap-1.5">
-                    <input type="radio" name={'owner-wearer-'+item.id} value={choice}
+                    <input type="radio" name={'owner-wearer-'+item.id} required value={choice}
                       checked={wearerByItem[item.id]===choice}
                       onChange={()=>setWearerByItem(cur=>({...cur,[item.id]:choice}))}
                       className="h-4 w-4 accent-[#d4b26a]"/>
@@ -313,13 +317,13 @@ export function CartOwnerLiveReviewClient(){
         </section>
 
         <section className={cardStyle} aria-labelledby="owner-cart-shipping-title">
-          <h2 id="owner-cart-shipping-title" className="text-[22px] font-medium text-[#f7f3ec]">Delivery preference</h2>
+          <h2 id="owner-cart-shipping-title" className="text-[22px] font-medium text-[#f7f3ec]"><RequiredMark/>Delivery preference</h2>
           <p className="mt-2 text-[13px] leading-6 text-[var(--bone-dim)]">Choose how you would like your order delivered.</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {(['standard','express'] as const).map(choice=><label key={choice}
               className={`flex min-w-0 cursor-pointer flex-col rounded-xl border p-4 ${method===choice?'border-[#d4b26a] bg-[rgba(212,178,106,.07)]':'border-[rgba(216,214,211,.19)] hover:border-[rgba(212,178,106,.40)]'}`}>
               <span className="flex items-center gap-2">
-                <input type="radio" name="owner-cart-shipping" value={choice} checked={method===choice}
+                <input type="radio" name="owner-cart-shipping" required value={choice} checked={method===choice}
                   onChange={()=>setMethod(choice)} className="h-[18px] w-[18px] accent-[#d4b26a]"/>
                 {choice==='express'?<Clock3 size={17} className="text-[#d4b26a]"/>:<Truck size={17} className="text-[#d4b26a]"/>}
                 <strong className="text-[17px] text-[#f7f3ec]">{choice==='express'?'Express Shipping':'Standard Shipping'}</strong>
@@ -383,69 +387,76 @@ export function CartOwnerLiveReviewClient(){
 
           <form className="mt-5 space-y-5" autoComplete="off" onSubmit={e=>e.preventDefault()}>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className={labelStyle}>First name
+              <label className={labelStyle}><span><RequiredMark/>First name</span>
                 <input value={form.first_name} onChange={e=>change('first_name',e.target.value)}
-                  autoComplete="off" maxLength={100} className={fieldStyle} placeholder="First name"/>
+                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="First name"/>
               </label>
-              <label className={labelStyle}>Last name
+              <label className={labelStyle}><span><RequiredMark/>Last name</span>
                 <input value={form.last_name} onChange={e=>change('last_name',e.target.value)}
-                  autoComplete="off" maxLength={100} className={fieldStyle} placeholder="Last name"/>
+                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="Last name"/>
               </label>
-              <label className={labelStyle}>Email
+              <label className={labelStyle}><span><RequiredMark/>Email</span>
                 <input value={form.email} type="email" onChange={e=>change('email',e.target.value)}
-                  autoComplete="off" maxLength={320} className={fieldStyle} placeholder="you@example.com"/>
+                  autoComplete="off" required maxLength={320} className={fieldStyle} placeholder="you@example.com"/>
               </label>
-              <label className={labelStyle}>Telephone
+              <label className={labelStyle}><span><RequiredMark/>Telephone</span>
                 <input value={form.phone} type="tel" onChange={e=>change('phone',e.target.value)}
-                  autoComplete="off" maxLength={100} className={fieldStyle} placeholder="For the delivery courier"/>
+                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="For the delivery courier"/>
               </label>
             </div>
-            <label className={labelStyle}>Destination country
-              <select value={form.country} onChange={e=>change('country',e.target.value)} className={fieldStyle}>
+            <label className={labelStyle}><span><RequiredMark/>Destination country</span>
+              <select required value={form.country} onChange={e=>change('country',e.target.value)} className={fieldStyle}>
                 <option value="">Select your country</option>
                 {countryOptions.map(x=><option key={x.code} value={x.code}>{x.label}</option>)}
               </select>
             </label>
             {addressRegions.length>0&&<label className={labelStyle}>
-              {form.country==='US'?'State':form.country==='CA'?'Province / territory':'State / territory'}
-              <select className={fieldStyle} value={form.region} onChange={e=>change('region',e.target.value)}>
+              <span><RequiredMark/>{form.country==='US'?'State':form.country==='CA'?'Province / territory':'State / territory'}</span>
+              <select required className={fieldStyle} value={form.region} onChange={e=>change('region',e.target.value)}>
                 <option value="">Select region</option>
                 {addressRegions.map(([code,name])=><option value={code} key={code}>{name}</option>)}
               </select>
             </label>}
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className={labelStyle}>City
-                <input className={fieldStyle} autoComplete="off" maxLength={150}
+              <label className={labelStyle}><span><RequiredMark/>City</span>
+                <input className={fieldStyle} required autoComplete="off" maxLength={150}
                   value={form.city} onChange={e=>change('city',e.target.value)} placeholder="City"/>
               </label>
-              <label className={labelStyle}>ZIP / postal code
-                <input className={fieldStyle} autoComplete="off" maxLength={32}
+              <label className={labelStyle}><span><RequiredMark/>ZIP / postal code</span>
+                <input className={fieldStyle} required autoComplete="off" maxLength={32}
                   value={form.postal_code} onChange={e=>change('postal_code',e.target.value)} placeholder="Postal code"/>
               </label>
             </div>
-            <label className={labelStyle}>Street address
-              <input className={fieldStyle} autoComplete="off" maxLength={250}
+            <label className={labelStyle}><span><RequiredMark/>Street address</span>
+              <input className={fieldStyle} required autoComplete="off" maxLength={250}
                 value={form.address_line1} onChange={e=>change('address_line1',e.target.value)}
                 placeholder="Street and house number"/>
             </label>
-            <label className={labelStyle}>Apartment, suite, additional details (optional)
+            <label className={labelStyle}>Apartment, suite, additional details
               <input className={fieldStyle} autoComplete="off" maxLength={250}
                 value={form.address_line2} onChange={e=>change('address_line2',e.target.value)}
                 placeholder="Apartment, building, floor"/>
             </label>
-            <label className={labelStyle}>Order note (optional)
+            <label className={labelStyle}>Order note
               <textarea className={fieldStyle+' min-h-[100px]'} maxLength={1200}
                 value={form.order_comment} onChange={e=>change('order_comment',e.target.value)}
                 placeholder="Sizing details, event date or other requests"/>
             </label>
             <div className="space-y-3 rounded-xl border border-[rgba(216,214,211,.13)] p-4">
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#e7e1d6]">
-                <input type="checkbox" checked={acceptedTerms} onChange={e=>setAcceptedTerms(e.target.checked)}
+                <input type="checkbox" required checked={acceptedTerms} onChange={e=>setAcceptedTerms(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
-                <span>I have read the <Link className="underline underline-offset-4" href="/terms">terms</Link>,
+                <span><RequiredMark/>I have read the <Link className="underline underline-offset-4" href="/terms">terms</Link>,
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
+              <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
+                <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
+                  className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
+                <span>I would like to receive TheFEYA news and offers by email.</span>
+              </label>
+
+            </div>
               {checkoutActive?<p className="text-[11px] leading-5 text-[var(--bone-dim)]">
                 Your contact and delivery details are sent securely only to make and deliver this order.
                 Card details are entered on PayPal&apos;s page, never on thefeya.com. See the
@@ -454,13 +465,6 @@ export function CartOwnerLiveReviewClient(){
                 Necessary contact details are not stored or sent by this prepayment form. See the
                 {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
               </p>}
-              <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
-                <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
-                  className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
-                <span>Optional: I would like to receive TheFEYA news and offers by email.</span>
-              </label>
-
-            </div>
           </form>
         </section>
       </div>

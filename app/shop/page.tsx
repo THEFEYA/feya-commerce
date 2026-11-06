@@ -105,8 +105,8 @@ async function ResolvedShopPage({ searchParams }: ShopPageProps) {
   if (shouldTraceShop()) {
     console.info('feya_shop_trace_v1',JSON.stringify({stage:'catalog_ready',items:products.length,matched:filteredCount,page:navigation.page,hasError:Boolean(error)}));
   }
-  if (products.length && utilityState && filteredCount===0) console.warn('feya_shop_not_found','utility_without_results');
-  if (products.length && utilityState && filteredCount===0) notFound();
+  if (products.length && utilityState && filteredCount===0 && navigation.filters.color.length===0) console.warn('feya_shop_not_found','utility_without_results');
+  if (products.length && utilityState && filteredCount===0 && navigation.filters.color.length===0) notFound();
   if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) console.warn('feya_shop_not_found','invalid_page_number');
   if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
 
