@@ -13,7 +13,7 @@ Owner explicitly supplied eight screenshots and requested recovery of the agreed
 
 | Surface | Recovery / retained behavior |
 | --- | --- |
-| Catalog filter | Ten basic colors; multiple selections; URL reload/backed server parsing. Default photo mode matches all components of the reviewed main-photo colorway. `Include other available colors` matches any selected constituent of an approved available option. Other filter axes remain AND constraints. |
+| Catalog filter | Ten basic colors; multiple selections; URL reload/backed server parsing. Default photo mode matches all components of the reviewed main-photo colorway. `Include other available colors` matches any selected constituent of an approved available option. Other filter axes remain AND constraints. A valid zero-result color filter must reload as the filter page with the available-color suggestion, not 404; out-of-range pagination still returns 404. |
 | Two/three-tone PDP colors | Already in main: complete approved combinations, not arbitrary independently mixed colors. Preserve the 20-code owner manifest, display overrides and stronger holographic swatch. |
 | Product cards | Reveal all available base colors, separately as small circles; show a short explanation when an available-color match is not in the main preview. Keep the primary photo, video/hover, title, price and click tracking. |
 | Shop/collections data | Attach the same approved color manifest to both independent card sources, without additional DB requests or membership changes. Transport remains lossless. |
