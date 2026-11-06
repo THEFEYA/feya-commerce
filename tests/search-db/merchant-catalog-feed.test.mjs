@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
+import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh,POLICY_GENDER_CASES,UNSPECIFIED_GENDER_POLICY} from '../../scripts/merchant/build-catalog-feed.mjs';
 import {extractFlightProduct,inspectPublicPage} from '../../scripts/merchant/capture-catalog.mjs';
 import {EXACT_COLOR_PRICE_PRODUCTS} from '../../lib/bonanzaColorPriceExceptions.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
@@ -31,11 +31,11 @@ test('full gallery evidence preserves the seventh-frame Both Shoulders photo wit
 
 test('whole frozen207 corpus has explicit readiness and all84 accepted IDs survive',()=>{
   const data=inputs(),{rows,report}=buildCatalog(data);
-  assert.deepEqual(report.totals,{products:207,ready:203,hold:4,offers:1421,preserved_pilot_offers:84});
+  assert.deepEqual(report.totals,{products:207,ready:207,hold:0,offers:1575,preserved_pilot_offers:84});
   const actual=new Map(rows.map(r=>[r.id,r]));
   for(const prior of data.pilot)assert.deepEqual(actual.get(prior.id),prior);
   for(const p of report.products){
-    assert.equal(p.offer_count,p.status==='READY'?7:0);
+    assert.equal(p.offer_count,p.status==='READY'?(p.size_combinations||7):0);
     assert.equal(p.remedies.length,p.reasons.length);
     if(p.status==='HOLD')assert.ok(p.reasons.length);
   }
@@ -60,7 +60,7 @@ test('new unreviewed image and unresolved offer never enter the feed',()=>{
   d.qa.products.find(p=>p.canonical_product_id===id).image_url='https://example.invalid/new-unreviewed.jpg';
   const {rows,report}=buildCatalog(d);
   assert.ok(report.products.find(p=>p.canonical_product_id===id).reasons.includes('IMAGE_REVIEW_REQUIRED'));
-  assert.equal(rows.length,1414);
+  assert.equal(rows.length,1568);
   for(const p of d.capture.products.filter(p=>p.offer['@type']==='AggregateOffer')){
     assert.equal(report.products.find(r=>r.canonical_product_id===p.canonical_product_id).status,'HOLD');
   }
@@ -82,6 +82,10 @@ test('explicit original tags resolve only their own products; removing evidence 
   const addedGroups=new Set(report.products.filter(p=>d.confirmations.products.some(c=>c.canonical_product_id===p.canonical_product_id)).map(p=>p.configuration_id));
   const colorGroups=new Set(report.products.filter(p=>EXACT_COLOR_PRICE_PRODUCTS.includes(p.canonical_product_id)).map(p=>p.configuration_id));
   const selectedGroups=new Set(d.capture.products.filter(p=>p.selected_landing).map(p=>p.selected_configuration.id));
+  const newGroups=new Set([...POLICY_GENDER_CASES.values()].map(c=>c.configuration));
+  const prior203=rows.filter(r=>!newGroups.has(r.item_group_id));
+  assert.equal(prior203.length,1421);
+  assert.equal(createHash('sha256').update(toMerchantTsv(prior203)).digest('hex'),'c425b50c9cb3b1941e6d4527b30e6ded0083df31b5d68f31f4c7210794e09495');
   const prior196=rows.filter(r=>!selectedGroups.has(r.item_group_id));
   assert.equal(prior196.length,1372);
   assert.equal(createHash('sha256').update(toMerchantTsv(prior196)).digest('hex'),'3a600dcbf248328f17f3f2ac1838a554e4334c706355232f02fde793b7b6c3d5');
@@ -92,8 +96,8 @@ test('explicit original tags resolve only their own products; removing evidence 
   assert.equal(createHash('sha256').update(original193).digest('hex'),'81f5a14a3f56d5f71efbf875fe6a98f36a4cea809aa41ee71d986367960e70f3');
   d.confirmations.products=[];
   const fallback=buildCatalog(d);
-  assert.equal(fallback.rows.length,1407);assert.equal(fallback.report.totals.hold,6);
-  assert.equal(report.products.find(p=>p.etsy_tail==='1780729637').status,'HOLD');
+  assert.equal(fallback.rows.length,1561);assert.equal(fallback.report.totals.hold,2);
+  assert.equal(report.products.find(p=>p.etsy_tail==='1780729637').status,'READY');
 });
 
 test('only reviewed color-price harnesses can enter without a Full Set and must match the photographed color',()=>{
@@ -115,17 +119,28 @@ test('only reviewed color-price harnesses can enter without a Full Set and must 
 test('selected feed rows preserve exact size/configuration/photo and source audience; invalid proof fails closed',()=>{
   const d=inputs(),{rows}=buildCatalog(d);
   const selected=d.capture.products.filter(p=>p.selected_landing);
-  assert.equal(selected.length,7);
+  assert.equal(selected.length,11);
   for(const p of selected){
     const group=rows.filter(r=>r.item_group_id===p.selected_configuration.id);
-    assert.equal(group.length,7);
+    const paired=Boolean(p.selected_landing.selection.womenColorCode);
+    assert.equal(group.length,paired?49:7);
     for(const r of group){
       const url=new URL(r.link);
-      assert.equal(url.searchParams.get('size'),r.size);
+      if(paired){
+        const [w,m]=r.size.split('/');
+        assert.equal(url.searchParams.get('size'),null);
+        assert.equal(url.searchParams.get('women_size'),w);assert.equal(url.searchParams.get('men_size'),m);
+        assert.equal(url.searchParams.get('women_color'),p.selected_landing.selection.womenColorCode);
+        assert.equal(url.searchParams.get('men_color'),p.selected_landing.selection.menColorCode);
+        assert.equal(r.id,p.selected_configuration.id+'-W'+w+'-M'+m);
+        assert.ok(r.title.endsWith('Women '+w+' / Men '+m));
+      }else{
+        assert.equal(url.searchParams.get('size'),r.size);
+        assert.equal(url.searchParams.get('color'),p.color_code);
+        assert.ok(r.title.endsWith(p.selected_configuration.label));
+      }
       assert.equal(url.searchParams.get('configuration'),p.selected_configuration.id);
-      assert.equal(url.searchParams.get('color'),p.color_code);
       assert.equal(r.image_link,p.selected_landing.image_url);
-      assert.ok(r.title.endsWith(p.selected_configuration.label));
       assert.ok(r.description.startsWith('Selected configuration: '+p.selected_configuration.label+'.'));
       assert.equal(r.price,(p.selected_configuration.unit_minor/100).toFixed(2)+' EUR');
     }
@@ -154,6 +169,28 @@ test('misbound, ambiguous, contradictory or incomplete source audience evidence 
     d=>{d.confirmations.products.push(d.confirmations.products[0]);},
     d=>{d.facets.products.find(p=>p.canonical_product_id===d.confirmations.products[0].canonical_product_id).audience_values_json=['men'];},
   ]){const d=inputs();change(d);assert.throws(()=>buildCatalog(d));}
+});
+
+test('Google unspecified-gender mapping is narrow, does not override source audience, and pairs retain all49 independent sizes',()=>{
+  const d=inputs(),built=buildCatalog(d);
+  for(const [tail,c] of POLICY_GENDER_CASES){
+    const entry=built.report.products.find(p=>p.etsy_tail===tail);
+    assert.equal(entry.gender,'unisex');assert.equal(entry.gender_evidence,'google_unspecified_gender_mapping:'+UNSPECIFIED_GENDER_POLICY);
+    assert.equal(entry.offer_count,c.paired?49:7);
+  }
+  for(const change of [
+    p=>{p.selected_landing.source_pair_confirmed=false;},
+    p=>{p.selected_landing.selection.size='M';},
+    p=>{p.selected_landing.selection.menSize=null;},
+    p=>{p.selected_landing.selection.menColorCode=p.selected_landing.selection.womenColorCode;},
+    p=>{p.size_quotes.pop();},
+    p=>{p.size_quotes[0].men_size='M';},
+  ]){const x=inputs();change(x.capture.products.find(p=>p.etsy_tail==='4488185754'));assert.throws(()=>buildCatalog(x));}
+  const explicit=inputs(),witch=explicit.capture.products.find(p=>p.etsy_tail==='1780729637');
+  explicit.facets.products.find(p=>p.canonical_product_id===witch.canonical_product_id).audience_values_json=['women'];
+  assert.equal(buildCatalog(explicit).report.products.find(p=>p.etsy_tail==='1780729637').gender,'female');
+  const absent=inputs(),p=absent.capture.products.find(p=>p.etsy_tail==='1780729637');delete p.selected_landing;
+  assert.equal(buildCatalog(absent).report.products.find(p=>p.etsy_tail==='1780729637').status,'HOLD');
 });
 
 test('stale readbacks cannot be published while deterministic historical checks remain valid',()=>{

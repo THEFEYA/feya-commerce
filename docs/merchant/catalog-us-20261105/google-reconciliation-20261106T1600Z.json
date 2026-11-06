@@ -1,0 +1,225 @@
+{
+  "version": "thefeya_merchant_reconciliation_v1",
+  "observed_at": "2026-11-06T16:00:16.445Z",
+  "account": "5322859215",
+  "source": "10790734908",
+  "country": "US",
+  "destination": "FREE_LISTINGS",
+  "feed_git_sha": "86944eb3e6cdcee1aa005c21492696554abb4cc3",
+  "feed_sha256": "c425b50c9cb3b1941e6d4527b30e6ded0083df31b5d68f31f4c7210794e09495",
+  "expected_offers": 1421,
+  "expected_products": 203,
+  "pagination": {
+    "pages": 6,
+    "complete": true,
+    "rows": 1421,
+    "unique_ids": 1421
+  },
+  "reconciliation": {
+    "observed_at": "2026-11-06T16:00:16.445Z",
+    "expected": 1421,
+    "observed": 1421,
+    "unique": 1421,
+    "missing": 0,
+    "unexpected": 0,
+    "mismatches": 0,
+    "fields_checked": 25,
+    "extra_field_mismatches": 0
+  },
+  "eligibility": {
+    "approved": 1406,
+    "pending": 7,
+    "disapproved_image_processing": 8
+  },
+  "nonblocking_policy_labels": {
+    "restricted_nfs_policy_violation": 228,
+    "restricted_adult_policy_violation": 33
+  },
+  "last_update_distribution": {
+    "2026-11-06T08:00:00Z": 413,
+    "2026-11-06T15:36:31.347Z": 1008
+  },
+  "remaining_image_processing": [
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-XXXL",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-XXL",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "c1c6a9e3-e86d-4306-83a0-0fe06392d31f-XXXL",
+      "group": "c1c6a9e3-e86d-4306-83a0-0fe06392d31f",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-M",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-XL",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-M",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-XXL",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-L",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-L",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-XS",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-S",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_pending_crawl",
+          "severity": "DISAPPROVED",
+          "detail": "Google is processing your product image"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-XS",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "0cb575c9-d427-497b-be68-d59b53f93c1b-XL",
+      "group": "0cb575c9-d427-497b-be68-d59b53f93c1b",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8d9bb8/6846351843/il_fullxfull.6846351843_btwh.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-S",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    },
+    {
+      "id": "193f6dd4-31c2-4df3-a435-d513a1f14ced-XXXL",
+      "group": "193f6dd4-31c2-4df3-a435-d513a1f14ced",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/620316/6201821612/il_fullxfull.6201821612_olsv.jpg",
+      "issues": [
+        {
+          "code": "image_link_internal_error",
+          "severity": "DISAPPROVED",
+          "detail": "No action needed. The [image_link] image will be processed again within 3 days"
+        }
+      ]
+    }
+  ],
+  "interpretation": "Every submitted ID and all25 checked fields match. This verifies ingestion of the203-product snapshot, not207-product completion, indexing, impressions or sales. Internal Google processing mechanism is not observable. No repeat fetch was performed for this receipt."
+}

@@ -9,8 +9,9 @@ const capture=JSON.parse(readFileSync(capturePath,'utf8'));
 const candidates=JSON.parse(readFileSync(new URL('../../docs/merchant/variant-landings-20261106/configuration_photo_candidates.json',import.meta.url),'utf8'));
 const pins=JSON.parse(readFileSync(new URL('../../config/approved-content-review-bindings.json',import.meta.url),'utf8')).entries;
 const selected=[];
-// All14 reviewed application bindings are checked; only seven unambiguous
-// single-wearer configurations are eligible for this feed expansion.
+// All14 reviewed bindings are checked. Keep the seven already-published solo
+// configurations; add the three remaining true pairs and the unspecified-gender
+// full set. Audience mapping is separately governed in the feed builder.
 for(const candidate of candidates.bindings){
   const res=await fetch(candidate.landing_url_example,{redirect:'error',signal:AbortSignal.timeout(30000)});
   assert.equal(res.status,200);
@@ -24,13 +25,14 @@ for(const candidate of candidates.bindings){
 }
 const eligible=selected.filter(p=>{
   const c=candidates.bindings.find(c=>c.configuration_id===p.selected_configuration.id);
-  return c.source_gender&&c.role!=='alternative'&&!c.paired_selection;
+  return (c.source_gender&&c.role!=='alternative'&&!c.paired_selection)
+    ||['4488185754','4489232697','4488971627','1780729637'].includes(c.etsy_tail);
 });
-assert.equal(eligible.length,7);
-assert.equal(new Set(eligible.map(p=>p.canonical_product_id)).size,7);
+assert.equal(eligible.length,11);
+assert.equal(new Set(eligible.map(p=>p.canonical_product_id)).size,11);
 for(const p of eligible)capture.products[capture.products.findIndex(x=>x.canonical_product_id===p.canonical_product_id)]=p;
-capture.selected_landing_readback={observed_at:new Date().toISOString(),checked:14,qualified_products:7,
+capture.selected_landing_readback={observed_at:new Date().toISOString(),checked:14,qualified_products:11,
   configurations:selected.map(p=>({canonical_product_id:p.canonical_product_id,...p.selected_configuration,...p.selected_landing}))};
 capture.captured_at=new Date().toISOString();
 writeFileSync(outputPath,JSON.stringify(capture,null,2)+'\n');
-console.log(JSON.stringify({deployment_id:capture.deployment_id,checked:14,qualified_products:7}));
+console.log(JSON.stringify({deployment_id:capture.deployment_id,checked:14,qualified_products:11}));

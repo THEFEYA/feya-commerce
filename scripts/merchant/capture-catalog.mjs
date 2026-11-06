@@ -76,13 +76,15 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
   const options=sortedOptions(product);
   const selected=expected?.['@type']==='Offer'
     ?options.find((o,i)=>optionKey(o,i)===expected.sku):null;
-  const colorCode=landing?.selection?.colorCode||product.default_color_choice||null;
-  const color=landing?.selection?.colorCode?colorChoiceLabel(colorCode):colorOptions(product)[0]||null;
+  const pair=landing?.selection?.womenColorCode?landing.selection:null;
+  const colorCode=pair?null:landing?.selection?.colorCode||product.default_color_choice||null;
+  const color=pair?[...new Set([colorChoiceLabel(pair.womenColorCode),colorChoiceLabel(pair.menColorCode)])].join(' + ')
+    :landing?.selection?.colorCode?colorChoiceLabel(colorCode):colorOptions(product)[0]||null;
   const images=getMedia(product).map(x=>String(x.url)).filter(x=>/^https:\/\//.test(x));
   const reasons=[];
   if(!selected)reasons.push('EXACT_SELECTED_OFFER_REQUIRED');
-  if(selected&&isSourceConfirmedPairedSet(selected))reasons.push('INDEPENDENT_PARTNER_SELECTION_REQUIRED');
-  if(!color||color==='Mirror'||!colorCode)reasons.push('CONFIRMED_PHOTOGRAPHED_COLOR_REQUIRED');
+  if(selected&&isSourceConfirmedPairedSet(selected)&&!pair)reasons.push('INDEPENDENT_PARTNER_SELECTION_REQUIRED');
+  if(!color||color==='Mirror'||(!colorCode&&!pair))reasons.push('CONFIRMED_PHOTOGRAPHED_COLOR_REQUIRED');
   if(!images.length)reasons.push('PRODUCT_IMAGE_REQUIRED');
   const text=jsonLd.name+' '+jsonLd.description+' '+product.card_title+' '+product.h1;
   const female=/\b(women|woman|female|girl|goddess|showgirl)\b/i.test(text);
@@ -105,6 +107,20 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
       }catch(error){reasons.push('CHECKOUT_PARITY_REQUIRED:'+String(error.code||error.message));break;}
     }
   }
+  if(selected&&pair&&isSourceConfirmedPairedSet(selected)){
+    const sizes=PDP_SIZES.filter(s=>s!=='Custom');
+    for(const womenSize of sizes)for(const menSize of sizes){
+      const line=priceCartLine(product,{
+        id:product.canonical_product_id+'-merchant-'+womenSize+'-'+menSize,slug:product.product_slug,
+        configuration_id:optionKey(selected),size:womenSize,color:colorChoiceLabel(pair.womenColorCode),color_code:pair.womenColorCode,
+        quantity:1,wearer:null,made_to_measure:false,client_unit_minor:null,
+        paired_selection:{women:{size:womenSize,color:pair.womenColorCode},men:{size:menSize,color:pair.menColorCode}},
+      });
+      assert.equal(line.unit_minor,Math.round(Number(expected.price)*100));
+      assert.deepEqual(line.paired_selection,{women:{size:womenSize,color:pair.womenColorCode},men:{size:menSize,color:pair.menColorCode}});
+      sizeQuotes.push({size:womenSize+'/'+menSize,women_size:womenSize,men_size:menSize,unit_minor:line.unit_minor,line_minor:line.line_minor});
+    }
+  }
   return{
     canonical_product_id:product.canonical_product_id,etsy_tail:product.product_slug.match(/-(\d+)$/)?.[1],
     slug:product.product_slug,url,canonical,robots,observed_at:new Date().toISOString(),
@@ -125,7 +141,7 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
     ...(landing?{selected_landing:{url:landingUrl,selection:landing.selection,image_url:media.imageUrl,
       product_first_image:jsonLd.image[0],displayed_image:media.imageUrl,
       source_gender:sourceGender,source_audience:selected.configuration_audience||null,
-      source_label:selected.public_label}}:{}),
+      source_label:selected.public_label,source_pair_confirmed:isSourceConfirmedPairedSet(selected)}}:{}),
     candidate_reasons:[...new Set(reasons)],option_count:options.length,
   };
 }
