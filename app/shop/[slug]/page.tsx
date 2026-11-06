@@ -26,6 +26,7 @@ import {withOwnerApprovedComponentReview} from '@/lib/storefrontDescriptionCompo
 import {readExactPublicApprovedPdpCopy} from '@/lib/seoPublishedPinnedPdpServer';
 import { pdpOfferJsonLd } from '@/lib/storefrontOfferJsonLd';
 import {resolvePdpLandingSelection, type PdpLandingQuery} from '@/lib/pdpLandingSelection';
+import {resolvePdpLandingMedia} from '@/lib/pdpLandingMedia';
 
 type PageProps = { params: Promise<{ slug: string }>; searchParams?:Promise<PdpLandingQuery> };
 function canonicalProductUrl(slug: string) {
@@ -213,11 +214,17 @@ async function ResolvedProductPage({ params, searchParams }: PageProps) {
   // Await request-specific choices inside the existing Suspense boundary; the
   // cached product/copy authority and base canonical URL remain query-independent.
   const landing=resolvePdpLandingSelection(product,await searchParams||{});
-  const initialLandingSelection=landing.selection;
+  const landingMedia=resolvePdpLandingMedia(product,landing.selection);
+  const initialLandingSelection=landingMedia.status==='invalid'?null:landing.selection;
+  if(landingMedia.status==='bound'){
+    // Same first image as the existing client gallery on this selected visit;
+    // ordinary metadata/canonical and the complete source gallery stay intact.
+    jsonLd.image=[landingMedia.imageUrl,...productImages(product).filter(url=>url!==landingMedia.imageUrl)];
+  }
   const landingKey=initialLandingSelection?JSON.stringify(initialLandingSelection):product.canonical_product_id;
   // The Offer mirrors exactly the configuration and EUR price this page
   // preselects and the checkout charges; choose-first pages get a price range.
-  const offers = purchasable && landing.status!=='invalid'
+  const offers = purchasable && landing.status!=='invalid' && landingMedia.status!=='invalid'
     ? pdpOfferJsonLd(product, canonicalProductUrl(slug), initialLandingSelection) : null;
   if (offers) jsonLd.offers = offers;
   const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);

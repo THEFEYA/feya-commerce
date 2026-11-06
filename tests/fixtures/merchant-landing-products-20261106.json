@@ -61,8 +61,52 @@
             "price_confidence_status": "unverified",
             "sellable_configuration_id": "681ebfbb-6b1b-48ed-a207-51bf393520ef"
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/13010f/7139804113/il_fullxfull.7139804113_r440.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/03b84a/7091899112/il_fullxfull.7091899112_qp2a.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/437035/7139804143/il_fullxfull.7139804143_knar.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/fb5f1b/7139804111/il_fullxfull.7139804111_97pc.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/c0ee80/7091897242/il_fullxfull.7091897242_49p6.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/5c4d0a/6188931994/il_fullxfull.6188931994_3ce7.jpg",
+            "position": 8,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/f2f6e3/7139855273/il_fullxfull.7139855273_4lu1.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:51:57.907482+00:00"
     },
     {
       "etsy_tail": "1871310023",
@@ -295,8 +339,42 @@
             "sellable_configuration_id": "4417fa4e-ef8c-4278-8788-7e7b552816a4",
             "configuration_audience": "Women"
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/251edb/6251618775/il_fullxfull.6251618775_7l9z.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 6,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:45.040434+00:00"
     },
     {
       "etsy_tail": "4302158749",
@@ -387,8 +465,57 @@
             ],
             "source_confirmed_bundle_members": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/3d4549/6845750916/il_fullxfull.6845750916_brwa.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/9591a0/6893728047/il_fullxfull.6893728047_1xj4.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/5766f4/6893727999/il_fullxfull.6893727999_73qt.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/979e2c/6845754222/il_fullxfull.6845754222_f081.jpg",
+            "position": 8,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 9,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/358bbe/6845750996/il_fullxfull.6845750996_6vmg.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:45.066106+00:00"
     },
     {
       "etsy_tail": "4488185754",
@@ -479,8 +606,52 @@
             ],
             "source_confirmed_bundle_members": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/21825a/7909518676/il_fullxfull.7909518676_t3ws.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bfabde/7957474879/il_fullxfull.7957474879_67fc.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/866375/7957474875/il_fullxfull.7957474875_najv.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/81e085/7957474865/il_fullxfull.7957474865_5v4m.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/987b55/7909518706/il_fullxfull.7909518706_nsnu.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/4e4997/7909518674/il_fullxfull.7909518674_pvmq.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 8,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:45.017640+00:00"
     },
     {
       "etsy_tail": "4489232697",
@@ -571,8 +742,52 @@
             ],
             "source_confirmed_bundle_members": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/982e6c/7964520289/il_fullxfull.7964520289_2c4x.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/b709c4/7964520301/il_fullxfull.7964520301_92zv.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/2b96dd/7964520305/il_fullxfull.7964520305_3lbw.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/27e2b0/7964520367/il_fullxfull.7964520367_2shs.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/aeaca6/7916570454/il_fullxfull.7916570454_fecl.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/ff9f2f/7916570466/il_fullxfull.7916570466_arhy.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 8,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:51.741668+00:00"
     },
     {
       "etsy_tail": "4488971627",
@@ -665,8 +880,47 @@
             ],
             "source_confirmed_bundle_members": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/409455/7914791574/il_fullxfull.7914791574_vr0x.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/5278d9/7962742909/il_fullxfull.7962742909_1e8n.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bdc133/7962742913/il_fullxfull.7962742913_7n9r.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/dceaaa/7914791562/il_fullxfull.7914791562_r9j5.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/4bc23a/7962742919/il_fullxfull.7962742919_gw7u.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 7,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:51.774534+00:00"
     },
     {
       "etsy_tail": "1765624488",
@@ -787,8 +1041,42 @@
             ],
             "source_confirmed_paired_outfits": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/2ea3e7/6251618765/il_fullxfull.6251618765_duyr.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/251edb/6251618775/il_fullxfull.6251618775_7l9z.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/bed7b5/6230865411/il_fullxfull.6230865411_l59j.jpg",
+            "position": 6,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/4c6190/6251621237/il_fullxfull.6251621237_q5m7.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:52:52.113451+00:00"
     },
     {
       "etsy_tail": "1899282209",
@@ -959,8 +1247,17 @@
             ],
             "source_confirmed_bundle_members": true
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
+            "position": 1,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:53:01.462694+00:00"
     },
     {
       "etsy_tail": "1867996009",
@@ -1105,8 +1402,62 @@
             "price_confidence_status": "unverified",
             "sellable_configuration_id": "6b36c663-5b79-416c-8d44-cbc25322ef0b"
           }
-        ]
-      }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/7e7d9e/7752697692/il_fullxfull.7752697692_jwb4.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/52ac6f/7800647541/il_fullxfull.7800647541_hv5u.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/3d5d50/7800647549/il_fullxfull.7800647549_npqa.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/b6043d/7752697740/il_fullxfull.7752697740_3jaw.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/8beaac/7800647633/il_fullxfull.7800647633_c9wl.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/f41e47/7752697728/il_fullxfull.7752697728_1wg1.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/726dab/7800667753/il_fullxfull.7800667753_r378.jpg",
+            "position": 8,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/c6866c/7800664677/il_fullxfull.7800664677_pag9.jpg",
+            "position": 9,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/378c8b/6230745105/il_fullxfull.6230745105_nt9f.jpg",
+            "position": 10,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/9aaf9d/7800647565/il_fullxfull.7800647565_bd2h.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:53:01.375391+00:00"
     },
     {
       "etsy_tail": "1888669170",
@@ -1167,8 +1518,264 @@
             "sellable_configuration_id": "b5a5c1c7-6710-4a8e-a782-455f3f09205d",
             "configuration_material": "Natural Leather"
           }
+        ],
+        "media_gallery": [
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
+            "position": 1,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/6e4308/6838437479/il_fullxfull.6838437479_mj1a.jpg",
+            "position": 2,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/8a4aa2/6838437471/il_fullxfull.6838437471_rd1w.jpg",
+            "position": 3,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/edc678/6790430604/il_fullxfull.6790430604_1d6k.jpg",
+            "position": 4,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/94a293/6838420651/il_fullxfull.6838420651_6mbo.jpg",
+            "position": 5,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/840cca/6790413564/il_fullxfull.6790413564_qy1t.jpg",
+            "position": 6,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/75cbc6/6838420669/il_fullxfull.6838420669_nh4n.jpg",
+            "position": 7,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/0f8db8/6838420665/il_fullxfull.6838420665_gfhi.jpg",
+            "position": 8,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/1d4d0b/6790413572/il_fullxfull.6790413572_s8oc.jpg",
+            "position": 9,
+            "media_type": "image"
+          },
+          {
+            "url": "https://i.etsystatic.com/54033853/r/il/3c860d/6837525001/il_fullxfull.6837525001_7s32.jpg",
+            "position": 10,
+            "media_type": "image"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg"
+      },
+      "gallery_observed_at": "2026-11-06T12:53:08.107736+00:00"
+    },
+    {
+      "etsy_tail": "1780729637",
+      "observed_url": "https://thefeya.com/shop/golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-1780729637",
+      "gallery_observed_at": "2026-11-06T12:53:01.443040+00:00",
+      "product": {
+        "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+        "product_slug": "golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-1780729637",
+        "currency": "EUR",
+        "default_color_choice": "gold",
+        "color_choices": [
+          "gold",
+          "silver"
+        ],
+        "configurations": [
+          {
+            "currency": "EUR",
+            "is_bundle": false,
+            "sort_order": 1,
+            "is_full_set": false,
+            "public_label": "Leg Covers",
+            "component_code": "legs",
+            "component_family": "Legs",
+            "configuration_id": "95b12a71-2903-42ea-b1fa-93a59db60a35",
+            "discount_percent": null,
+            "base_price_amount": 159.51,
+            "price_source_mode": "source_option_text",
+            "sale_price_amount": null,
+            "has_fallback_price": false,
+            "needs_label_review": false,
+            "display_price_amount": 159.51,
+            "has_russian_raw_label": true,
+            "bundle_component_codes": [],
+            "compare_at_price_amount": null,
+            "price_confidence_status": "unverified",
+            "sellable_configuration_id": "44169cfa-405c-41ab-b9b1-d60a303f377d"
+          },
+          {
+            "currency": "EUR",
+            "is_bundle": false,
+            "sort_order": 2,
+            "is_full_set": false,
+            "public_label": "Horns",
+            "component_code": "horns",
+            "component_family": "Headpiece",
+            "configuration_id": "bb4393af-5252-4f66-9fb2-6a92601d7153",
+            "discount_percent": null,
+            "base_price_amount": 187.43,
+            "price_source_mode": "source_option_text",
+            "sale_price_amount": null,
+            "has_fallback_price": false,
+            "needs_label_review": false,
+            "display_price_amount": 187.43,
+            "has_russian_raw_label": true,
+            "bundle_component_codes": [],
+            "compare_at_price_amount": null,
+            "price_confidence_status": "unverified",
+            "sellable_configuration_id": "f030338d-cd5a-551b-a3ab-e7589d738617"
+          },
+          {
+            "currency": "EUR",
+            "is_bundle": false,
+            "sort_order": 3,
+            "is_full_set": false,
+            "public_label": "Bodysuit",
+            "component_code": "bodysuit",
+            "component_family": "Bodysuit",
+            "configuration_id": "a15aca16-2cf5-4677-b996-d3e980da2e31",
+            "discount_percent": null,
+            "base_price_amount": 295.09,
+            "price_source_mode": "source_option_text",
+            "sale_price_amount": null,
+            "has_fallback_price": false,
+            "needs_label_review": false,
+            "display_price_amount": 295.09,
+            "has_russian_raw_label": true,
+            "bundle_component_codes": [],
+            "compare_at_price_amount": null,
+            "price_confidence_status": "unverified",
+            "sellable_configuration_id": "b25d50ca-3be9-5c88-a420-759541b9005b"
+          },
+          {
+            "currency": "EUR",
+            "is_bundle": true,
+            "sort_order": 4,
+            "is_full_set": false,
+            "public_label": "Bodysuit + Leg Covers",
+            "component_code": "bodysuit_legs",
+            "component_family": "Bundle",
+            "configuration_id": "b804be30-7acd-4e09-82d3-74ca1b64db1c",
+            "discount_percent": null,
+            "base_price_amount": 430.68,
+            "price_source_mode": "source_option_text",
+            "sale_price_amount": null,
+            "has_fallback_price": false,
+            "needs_label_review": false,
+            "display_price_amount": 430.68,
+            "has_russian_raw_label": true,
+            "bundle_component_codes": [
+              "bodysuit",
+              "legs"
+            ],
+            "compare_at_price_amount": null,
+            "price_confidence_status": "unverified",
+            "sellable_configuration_id": "49e1f423-a26a-599c-8435-7df56337fe57",
+            "source_confirmed_bundle_members": true,
+            "bundle_component_labels": [
+              "Bodysuit",
+              "Leg Covers"
+            ]
+          },
+          {
+            "currency": "EUR",
+            "is_bundle": false,
+            "sort_order": 5,
+            "is_full_set": true,
+            "public_label": "Full Set",
+            "component_code": "full_set",
+            "component_family": "Bundle",
+            "configuration_id": "0116cc20-c437-4e4c-a07c-1e753f7743fb",
+            "discount_percent": null,
+            "base_price_amount": 594.18,
+            "price_source_mode": "source_option_text",
+            "sale_price_amount": null,
+            "has_fallback_price": false,
+            "needs_label_review": false,
+            "display_price_amount": 594.18,
+            "has_russian_raw_label": true,
+            "bundle_component_codes": [],
+            "compare_at_price_amount": null,
+            "price_confidence_status": "unverified",
+            "sellable_configuration_id": "e04822e5-3682-58b4-bde8-b18bd3556952"
+          }
+        ],
+        "primary_image_url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
+        "media_gallery": [
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
+            "position": 1,
+            "is_primary": true,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/0b6c31/6255678609/il_fullxfull.6255678609_bluj.jpg",
+            "position": 2,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/ff69c0/6207649122/il_fullxfull.6207649122_5k9g.jpg",
+            "position": 3,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/08ab89/6207649126/il_fullxfull.6207649126_th3q.jpg",
+            "position": 4,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/945494/6207649132/il_fullxfull.6207649132_bny3.jpg",
+            "position": 5,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/3029d0/6255675973/il_fullxfull.6255675973_81jt.jpg",
+            "position": 6,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/01de1f/6255676007/il_fullxfull.6255676007_n4f2.jpg",
+            "position": 7,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/810c8c/6255676011/il_fullxfull.6255676011_idwb.jpg",
+            "position": 8,
+            "is_primary": false,
+            "media_type": "image"
+          },
+          {
+            "alt": "Golden Horns Costume Set - Metallic Bodysuit with Horns and Leg Covers for Cosplay Parties Shows Carnivals Performances",
+            "url": "https://i.etsystatic.com/54033853/r/il/5c4d0a/6188931994/il_fullxfull.6188931994_3ce7.jpg",
+            "position": 9,
+            "is_primary": false,
+            "media_type": "image"
+          }
         ]
       }
     }
-  ]
+  ],
+  "gallery_evidence": "docs/merchant/variant-landings-20261106/gallery_review.json"
 }

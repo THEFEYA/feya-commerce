@@ -28,6 +28,7 @@ import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelec
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
 import { verifiedColorPriceRows } from '@/lib/bonanzaColorPriceExceptions';
 import type {PdpLandingSelection} from '@/lib/pdpLandingSelection';
+import {resolvePdpLandingMedia} from '@/lib/pdpLandingMedia';
 import {
   customMeasurementRequiredCount,customMeasurementSelectionNeedsReview,
 } from '@/lib/commerceCustomMeasurementsPreview';
@@ -49,7 +50,6 @@ import {
   colorOptions,
   componentCode,
   formatPrice,
-  getMedia,
   isFullSetOption,
   optionCompareAtPrice,
   optionDiscountPercent,
@@ -130,7 +130,7 @@ export function ProductDetailClient({
   embedded = false,
   initialLandingSelection = null,
 }: ProductDetailProps) {
-  const gallery = useMemo(() => getMedia(p), [p]);
+  const gallery = useMemo(() => resolvePdpLandingMedia(p,initialLandingSelection).gallery, [p,initialLandingSelection]);
   const options = useMemo(() => sortedOptions(p), [p]);
   const full = options.find((o, i) => isFullSetOption(o, i));
   const fullKey = full ? optionKey(full, options.indexOf(full)) : '';

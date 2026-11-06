@@ -3,6 +3,7 @@ import { isFullSetOption, optionKey, optionPrice, sortedOptions } from './storef
 import { verifiedColorPriceRows } from './bonanzaColorPriceExceptions.ts';
 import { colorChoiceLabel } from './bonanzaColorChoices.ts';
 import {pdpLandingParams, resolvePdpLandingSelection, type PdpLandingSelection} from './pdpLandingSelection.ts';
+import {resolvePdpLandingMedia} from './pdpLandingMedia.ts';
 
 /**
  * Offer markup for a PDP, derived from the same option list and the same
@@ -64,6 +65,7 @@ export function pdpOfferJsonLd(product: StorefrontProduct, url: string, landingS
   const full = options.find((option, index) => isFullSetOption(option, index));
   const landing=landingSelection?resolvePdpLandingSelection(product,pdpLandingParams(landingSelection)):null;
   if(landing&&landing.status!=='selected')return null;
+  if(landing?.selection&&resolvePdpLandingMedia(product,landing.selection).status==='invalid')return null;
   const offerUrl=landing?.selection
     ? url.split('?')[0]+'?'+new URLSearchParams(pdpLandingParams(landing.selection)).toString() : url;
   const preselected = landing?.selection
