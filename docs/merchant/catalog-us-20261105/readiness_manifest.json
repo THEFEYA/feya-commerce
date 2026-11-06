@@ -1,17 +1,17 @@
 {
   "version": "thefeya_merchant_catalog_manifest_v1",
-  "captured_at": "2026-11-06T15:23:11.308Z",
-  "source_git_sha": "1de3a139aca1500d4b148cc31799f430cf841773",
-  "deployment_id": "dpl_3MRLECiHsMsfAgpMeU73AwYCf5ov",
+  "captured_at": "2026-11-06T16:09:57.061Z",
+  "source_git_sha": "86944eb3e6cdcee1aa005c21492696554abb4cc3",
+  "deployment_id": "dpl_2aARVxaduQz3zGGUSrdHx5UqT2da",
   "reviewed_at": "2026-11-05T17:04:44.941859+00:00",
   "channel": "FREE_LISTINGS",
   "country": "US",
   "currency": "EUR",
   "totals": {
     "products": 207,
-    "ready": 203,
-    "hold": 4,
-    "offers": 1421,
+    "ready": 207,
+    "hold": 0,
+    "offers": 1575,
     "preserved_pilot_offers": 84
   },
   "products": [
@@ -996,66 +996,63 @@
       "etsy_tail": "4488185754",
       "title": "Gold & Silver Festival Couple Costume",
       "url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4488185754",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 49,
       "configuration_id": "6af8ef45-5709-4635-8149-e0254659fef5",
       "price_eur": "427.78",
-      "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
-      "reasons": [
-        "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
+      "photographed_color": "Gold + Silver",
+      "gender": "unisex",
+      "gender_evidence": "google_unspecified_gender_mapping:https://support.google.com/merchants/answer/13889434?hl=en",
+      "size_order": [
+        "women",
+        "men"
       ],
-      "remedies": [
-        "Implement a source-backed two-partner size/color landing selection; do not collapse both partners into one size.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "size_combinations": 49,
+      "image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
       "etsy_tail": "4489232697",
       "title": "Silver Futuristic Couple Costume",
       "url": "https://thefeya.com/shop/festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4489232697",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 49,
       "configuration_id": "619990bd-8e27-4996-bb32-2f1ca9a6c32f",
       "price_eur": "362.52",
       "photographed_color": "Silver",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
-      "reasons": [
-        "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
+      "gender": "unisex",
+      "gender_evidence": "google_unspecified_gender_mapping:https://support.google.com/merchants/answer/13889434?hl=en",
+      "size_order": [
+        "women",
+        "men"
       ],
-      "remedies": [
-        "Implement a source-backed two-partner size/color landing selection; do not collapse both partners into one size.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "size_combinations": 49,
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
       "etsy_tail": "4488971627",
       "title": "Gold & Black Futuristic Couple Costume",
       "url": "https://thefeya.com/shop/festival-couple-costume-set-gold-futuristic-rave-outfits-for-men-women-burning-man-wear-4488971627",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 49,
       "configuration_id": "5f9235ae-80e4-483c-98b3-ae7a496dc47b",
       "price_eur": "565.54",
       "photographed_color": "Black + Gold",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
-      "reasons": [
-        "INDEPENDENT_PARTNER_SELECTION_REQUIRED",
-        "TARGET_GENDER_REVIEW_REQUIRED"
+      "gender": "unisex",
+      "gender_evidence": "google_unspecified_gender_mapping:https://support.google.com/merchants/answer/13889434?hl=en",
+      "size_order": [
+        "women",
+        "men"
       ],
-      "remedies": [
-        "Implement a source-backed two-partner size/color landing selection; do not collapse both partners into one size.",
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "size_combinations": 49,
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
@@ -1878,20 +1875,16 @@
       "etsy_tail": "1780729637",
       "title": "Gold Witch Bodysuit Costume for Stage",
       "url": "https://thefeya.com/shop/golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-1780729637",
-      "status": "HOLD",
-      "offer_count": 0,
+      "status": "READY",
+      "offer_count": 7,
       "configuration_id": "0116cc20-c437-4e4c-a07c-1e753f7743fb",
       "price_eur": "594.18",
       "photographed_color": "Gold",
-      "gender": null,
-      "gender_evidence": null,
-      "image_url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
-      "reasons": [
-        "TARGET_GENDER_REVIEW_REQUIRED"
-      ],
-      "remedies": [
-        "Confirm the intended garment audience in Product Truth/source attributes; do not infer gender from the model or force unisex."
-      ]
+      "gender": "unisex",
+      "gender_evidence": "google_unspecified_gender_mapping:https://support.google.com/merchants/answer/13889434?hl=en",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/08ab89/6207649126/il_fullxfull.6207649126_th3q.jpg",
+      "reasons": [],
+      "remedies": []
     },
     {
       "canonical_product_id": "8b4e23fd-456e-462b-a6b3-8aaa0333debe",

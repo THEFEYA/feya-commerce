@@ -12,6 +12,18 @@ import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
+export const UNSPECIFIED_GENDER_POLICY='https://support.google.com/merchants/answer/13889434?hl=en';
+// Reviewed Merchant transport mapping, not a change to garment fit/Product Truth.
+// Google's free-listing guide explicitly permits unisex when gender is unspecified.
+// These four source records have no single specified garment audience. Never
+// extend this fallback to arbitrary products, or override an explicit audience.
+export const POLICY_GENDER_CASES=new Map([
+  ['4488185754',{configuration:'6af8ef45-5709-4635-8149-e0254659fef5',paired:true}],
+  ['4489232697',{configuration:'619990bd-8e27-4996-bb32-2f1ca9a6c32f',paired:true}],
+  ['4488971627',{configuration:'5f9235ae-80e4-483c-98b3-ae7a496dc47b',paired:true}],
+  ['1780729637',{configuration:'0116cc20-c437-4e4c-a07c-1e753f7743fb',paired:false}],
+]);
+const PAIR_SIZES=SIZES.flatMap(w=>SIZES.map(m=>w+'/'+m));
 // Only explicit original-listing audience tags reviewed for this feed. No
 // audience inference from photographs, styling, or ambiguous costume names.
 const SOURCE_AUDIENCE_TAGS=new Map([['female_armor','female'],['burning_man_women','female']]);
@@ -79,6 +91,7 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     const pin=pinsById.get(p.canonical_product_id);
     assert.equal(p.approved_content_sha256,pin.content_sha256,'approved content binding changed');
     assert.equal(p.url,'https://thefeya.com'+pin.url_path);
+    assert.equal(p.etsy_tail,p.url.match(/-(\d+)$/)?.[1],'source listing identity mismatch');
     assert.equal(p.canonical,p.url);assert.match(p.robots,/(?:^|,\s*)index(?:,|$)/);
     assert.doesNotMatch(p.robots,/noindex|nofollow/);
     assert.ok(p.title.length>0&&p.title.length<=150);
@@ -91,24 +104,40 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     const sourceAudience=confirmedById.get(p.canonical_product_id);
     const existingGender=facetGender||p.gender;
     assert.ok(!sourceAudience||!existingGender||sourceAudience.gender===existingGender,'source audience contradicts existing evidence');
-    const gender=existingGender||sourceAudience?.gender||null;
+    const policyCase=POLICY_GENDER_CASES.get(p.etsy_tail);
+    const policyMapped=!existingGender&&!sourceAudience&&policyCase&&p.selected_landing
+      &&p.selected_configuration?.id===policyCase.configuration;
+    if(policyMapped)assert.deepEqual(audience,policyCase.paired?['couples']:[],'unspecified-gender mapping requires unchanged source audience');
+    const gender=existingGender||sourceAudience?.gender||(policyMapped?'unisex':null);
     const reasons=new Set(p.candidate_reasons.filter(r=>r!=='TARGET_GENDER_REVIEW_REQUIRED'));
     if(!gender)reasons.add('TARGET_GENDER_REVIEW_REQUIRED');
     if(image.decision!=='PASS'||!p.images.includes(image.image_url))reasons.add('IMAGE_REVIEW_REQUIRED');
     assert.match(image.reviewed_derivative_sha256,/^[a-f0-9]{64}$/);
     const conf=p.selected_configuration;
     const landing=p.selected_landing;
+    const paired=Boolean(landing?.selection.womenColorCode);
     if(landing){
       const binding=PDP_LANDING_MEDIA_BINDINGS.find(b=>b.productId===p.canonical_product_id&&b.configurationId===conf?.id);
       assert.ok(binding,'unreviewed selected configuration');
       assert.equal(conf.label,binding.label);assert.equal(conf.component_code,binding.componentCode);
       assert.equal(landing.source_label,conf.label);
       assert.equal(landing.selection.configurationId,conf.id);
-      assert.ok(binding.colors.color,'paired bundles need separate Merchant qualification');
-      assert.equal(landing.selection.colorCode,binding.colors.color);
-      assert.equal(p.color_code,binding.colors.color);assert.equal(p.color,colorChoiceLabel(binding.colors.color));
-      assert.equal(landing.selection.size,'M');
-      for(const key of ['womenColorCode','menColorCode','womenSize','menSize'])assert.equal(landing.selection[key],null);
+      if(paired){
+        assert.ok(policyCase?.paired&&policyCase.configuration===conf.id,'unreviewed pair mapping');
+        assert.equal(landing.source_pair_confirmed,true,'source-confirmed two-outfit membership required');
+        assert.ok(binding.bundleComponents.includes('women_outfit')&&binding.bundleComponents.includes('men_outfit'));
+        assert.equal(landing.selection.colorCode,null);assert.equal(landing.selection.size,null);
+        assert.equal(landing.selection.womenColorCode,binding.colors.women);assert.equal(landing.selection.menColorCode,binding.colors.men);
+        assert.ok(SIZES.includes(landing.selection.womenSize)&&SIZES.includes(landing.selection.menSize),'both standard partner sizes required');
+        assert.equal(p.color_code,null);
+        assert.equal(p.color,[...new Set([colorChoiceLabel(binding.colors.women),colorChoiceLabel(binding.colors.men)])].join(' + '));
+      }else{
+        assert.ok(binding.colors.color,'single-wearer photo binding required');
+        assert.equal(landing.selection.colorCode,binding.colors.color);
+        assert.equal(p.color_code,binding.colors.color);assert.equal(p.color,colorChoiceLabel(binding.colors.color));
+        assert.equal(landing.selection.size,'M');
+        for(const key of ['womenColorCode','menColorCode','womenSize','menSize'])assert.equal(landing.selection[key],null);
+      }
       assert.equal(landing.url,p.url+'?'+new URLSearchParams(pdpLandingParams(landing.selection)));
       assert.equal(p.offer.url,landing.url);
       for(const observed of [landing.image_url,landing.product_first_image,landing.displayed_image,image.image_url])assert.equal(observed,binding.imageUrl);
@@ -134,15 +163,17 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       assert.equal(p.offer.availability,'https://schema.org/InStock');
       assert.ok(Number.isSafeInteger(conf.unit_minor)&&conf.unit_minor>0);
       assert.equal(Math.round(Number(p.offer.price)*100),conf.unit_minor);
-      assert.deepEqual(p.size_quotes.map(q=>q.size),SIZES,'all standard sizes must be priced');
+      assert.deepEqual(p.size_quotes.map(q=>q.size),paired?PAIR_SIZES:SIZES,'all standard sizes must be priced');
+      if(paired)for(const q of p.size_quotes)assert.equal(q.size,q.women_size+'/'+q.men_size,'both independent dimensions must survive');
       for(const q of p.size_quotes){assert.equal(q.unit_minor,conf.unit_minor);assert.equal(q.line_minor,conf.unit_minor);}
     }
     const holds=[...reasons].sort();
     const entry={canonical_product_id:p.canonical_product_id,etsy_tail:p.etsy_tail,title:p.title,url:p.url,
-      status:holds.length?'HOLD':'READY',offer_count:holds.length?0:SIZES.length,
+      status:holds.length?'HOLD':'READY',offer_count:holds.length?0:paired?49:7,
       configuration_id:conf?.id||null,price_eur:conf?(conf.unit_minor/100).toFixed(2):null,
       photographed_color:p.color,gender,gender_evidence:landing?.source_gender?'source_configuration':facetGender?'storefront_facet_snapshot'
-        :p.gender?'approved_copy':sourceAudience?'source_listing_tag:'+sourceAudience.confirmed_tag:null,
+        :p.gender?'approved_copy':sourceAudience?'source_listing_tag:'+sourceAudience.confirmed_tag:policyMapped?'google_unspecified_gender_mapping:'+UNSPECIFIED_GENDER_POLICY:null,
+      ...(paired?{size_order:['women','men'],size_combinations:49}:{}),
       image_url:image.image_url,reasons:holds,remedies:holds.map(r=>REMEDIES[r]||'Resolve source/checkout parity: '+r)};
     manifest.push(entry);
     if(holds.length)continue;
@@ -159,15 +190,18 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       }
       continue;
     }
-    for(const size of SIZES){
-      const selectedUrl=landing?p.url+'?'+new URLSearchParams(pdpLandingParams({...landing.selection,size})):null;
-      const title=landing?p.title+' — '+conf.label:p.title;
-      const description=landing?'Selected configuration: '+conf.label+'. '+p.description:p.description;
+    for(const size of paired?PAIR_SIZES:SIZES){
+      const [womenSize,menSize]=paired?size.split('/'):[];
+      const selection=landing?{...landing.selection,...(paired?{womenSize,menSize}:{size})}:null;
+      const selectedUrl=landing?p.url+'?'+new URLSearchParams(pdpLandingParams(selection)):null;
+      const title=paired?p.title+' — Women '+womenSize+' / Men '+menSize:landing?p.title+' — '+conf.label:p.title;
+      const description=paired?'Selected configuration: '+conf.label+". Size order: women's/men's; selected sizes "+size+'. '+p.description
+        :landing?'Selected configuration: '+conf.label+'. '+p.description:p.description;
       assert.ok(title.length<=150&&description.length<=5000,'selected feed copy exceeds Google limits');
-      const types={shoulders:'Shoulder Armor',arms:'Arm Armor',top_skirt:'Top and Skirt Set',women_outfit:"Women's Outfit",womens_outfit:"Women's Outfit",harness:'Harness'};
+      const types={shoulders:'Shoulder Armor',arms:'Arm Armor',top_skirt:'Top and Skirt Set',women_outfit:"Women's Outfit",womens_outfit:"Women's Outfit",harness:'Harness',full_set:paired?'Couple Costume Set':'Full Set'};
       const productType=landing?types[conf.component_code]:conf.full_set?'Full Set':'Harness';
       assert.ok(productType,'selected component needs an accurate product type');
-      rows.push({id:conf.id+'-'+size,item_group_id:conf.id,title,description,
+      rows.push({id:conf.id+(paired?'-W'+womenSize+'-M'+menSize:'-'+size),item_group_id:conf.id,title,description,
         link:(selectedUrl||p.url+'?')+(selectedUrl?'&':'')+'utm_source=google&utm_medium=organic_shopping&utm_campaign=mc_us_free_listings_catalog',
         image_link:image.image_url,additional_image_link:'',availability:'in_stock',price:entry.price_eur+' EUR',
         condition:'new',brand:'TheFEYA',identifier_exists:'no',

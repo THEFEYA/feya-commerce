@@ -1,3 +1,9 @@
+## Current207-product completion (supersedes historical holds below)
+
+All14 selected actual Production landings and complete galleries are verified. The [Google attribute mapping](merchant-attribute-mapping.md) resolves the prior over-strict last-four gate using documented unspecified-gender mapping and independent slash-separated pair dimensions. Export scope is207 products /1,575 offers /0HOLD, retaining every prior1,421 row byte-for-byte. Source-confirmed two-outfit membership, all49 separate server quote combinations, exact displayed/Product images and exact selected URLs are required for each of the three new pair groups. This is not a Google approval receipt. See ../catalog-us-20261105/README.md and issue145 for actual publication/processing.
+
+---
+
 # Released landing selection — 6 Nov 2026
 
 PR237 is merged; Production `dpl_3MRLECiHsMsfAgpMeU73AwYCf5ov` at `1de3a139aca1500d4b148cc31799f430cf841773` is READY. All14 exact selected public landings were verified against actual main image, Product image and Offer. Seven single-wearer configurations are now qualified for the controlled203-product feed; the remaining three couple-only products and audience-only product stay held. See `../catalog-us-20261105/README.md` and issue145 for current publication/Google receipts. The draft/read-only statements below describe the earlier stage and are superseded by the owner's explicit instruction to complete publication.

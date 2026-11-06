@@ -7,7 +7,7 @@
       "image_url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "e4fc567bbd42516bbab81b72324ea980f81a5f81e0ca5afd52f3931a86b6c23d",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 7; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 7; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
@@ -420,42 +420,42 @@
       "image_url": "https://i.etsystatic.com/54033853/r/il/7cb252/6251618785/il_fullxfull.6251618785_k5t6.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "f418a336ff10842a839955eecffe9bb5440f497f8d4bd203e0a0d045b6b59f27",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
       "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 5; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 5; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
       "image_url": "https://i.etsystatic.com/54033853/r/il/7b9f04/7957474881/il_fullxfull.7957474881_atod.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "368a281f64d65caeddf90caee089927945e2b51e947f540fff2a8a2fe4385b61",
-      "evidence": "catalogue visual sheet 03, item 062"
+      "reviewed_derivative_sha256": "fb7b778eb96f5f4824d9f8fef6df10c4ae8490dd444d5b6ce5f2a1b5c6a970b2",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
       "image_url": "https://i.etsystatic.com/54033853/r/il/f011e6/7964520319/il_fullxfull.7964520319_16l6.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "8ac108c690b46a1f6401cefa82b266ea1be80ece603778725969fd56eb135b06",
-      "evidence": "catalogue visual sheet 03, item 063"
+      "reviewed_derivative_sha256": "715e1a313fc1d77d3be0474797e56d87e72a133145ea68f0fc30dfa823557561",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
       "image_url": "https://i.etsystatic.com/54033853/r/il/fa7a6d/7962742911/il_fullxfull.7962742911_7pms.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "3d09839cd2df020dc6254f5fd2da0048a03cd68c65a4b493bfe32cbf385d076f",
-      "evidence": "catalogue visual sheet 03, item 064"
+      "reviewed_derivative_sha256": "8ebfd0f8f72b5eefc297012345ac87b6709be86b4145a248a9e8783c98aad3a4",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
       "image_url": "https://i.etsystatic.com/54033853/r/il/8e8352/6203587220/il_fullxfull.6203587220_tre9.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "b36c93d69ef894ddbd8b780a0be4a9d27367ab01a7be3639e047fb1fc6c96c58",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 2; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 2; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
@@ -560,7 +560,7 @@
       "image_url": "https://i.etsystatic.com/54033853/r/il/ce6a67/6820390671/il_fullxfull.6820390671_mtds.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "9a1b73a5539cf4185a6e68c7421d91c10acfd8b86fe60a52131dd51a2347947f",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
@@ -809,10 +809,10 @@
     },
     {
       "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
-      "image_url": "https://i.etsystatic.com/54033853/r/il/03b585/6255675971/il_fullxfull.6255675971_4lum.jpg",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/08ab89/6207649126/il_fullxfull.6207649126_th3q.jpg",
       "decision": "PASS",
-      "reviewed_derivative_sha256": "d1b87110865acca4dfc49ba3ca631e0ca1c5fe550e5af0bd0e0b06807fde51a2",
-      "evidence": "catalogue visual sheet 05, item 116"
+      "reviewed_derivative_sha256": "758be6641be834e00565b3ac2925ecb79550a80238aa217fba3ea90e46e87e03",
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 4; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
@@ -1022,7 +1022,7 @@
       "image_url": "https://i.etsystatic.com/54033853/r/il/726dab/7800667753/il_fullxfull.7800667753_r378.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "c0f9c365088c091b48964421608d0eb37e5e50abbe5c413fa0edd51495e71a73",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 8; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 8; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
@@ -1400,7 +1400,7 @@
       "image_url": "https://i.etsystatic.com/54033853/r/il/d60bd5/6790434356/il_fullxfull.6790434356_c9l6.jpg",
       "decision": "PASS",
       "reviewed_derivative_sha256": "0feecfb1c4c289fe668e038ad8c8ccadc2f4fbcce53b3fb2d08b584b62650bb7",
-      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; actual selected Production photo/JSON-LD/Offer parity verified 2026-11-06."
+      "evidence": "Full-gallery source photo review: docs/merchant/variant-landings-20261106/gallery_review.json, frame 1; selected Production image/Offer parity verified 2026-11-06."
     },
     {
       "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
@@ -1452,5 +1452,5 @@
       "evidence": "catalogue visual sheet 09, item 207"
     }
   ],
-  "selected_landing_reviewed_at": "2026-11-06T15:23:11.308Z"
+  "selected_landing_reviewed_at": "2026-11-06T16:09:57.061Z"
 }
