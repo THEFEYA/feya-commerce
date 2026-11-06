@@ -56,4 +56,8 @@ test('Collections uses the same approved tile strip and ten unchanged governed d
   const layout=readFileSync('app/collections/layout.tsx','utf8');
   assert.match(layout,/isApprovedV13Presentation/);
   assert.match(layout,/CollectionsDirectoryV13/);
+  assert.match(layout,/CollectionsDirectoryBoundary directory=/);
+  const boundary=readFileSync('components/CollectionsDirectoryBoundary.tsx','utf8');
+  assert.match(boundary,/useSelectedLayoutSegment/);
+  assert.match(boundary,/segment===null\?directory:children/);
 });
