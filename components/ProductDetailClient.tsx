@@ -12,17 +12,17 @@ import {
   ChevronRight,
   Clock3,
   FileText,
-  Heart,
-  RotateCcw,
   Ruler,
+  RotateCcw,
   Scissors,
-  Share2,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Star,
   Truck,
 } from 'lucide-react';
+import {SavePieceButton} from '@/components/SavedPiecesClient';
+import {ProductShareButton} from '@/components/ProductShareButton';
 import { FeyaColorSwatch } from '@/components/FeyaColorSwatch';
 import { CouplePartnerColorSelector } from '@/components/CouplePartnerColorSelector';
 import { coupleColorSelection, couplePairLabel } from '@/lib/bonanzaCoupleColorChoices';
@@ -510,7 +510,13 @@ export function ProductDetailClient({
             <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button type="button" aria-label="Decrease quantity" onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center" aria-live="polite">{qty}</span><button type="button" aria-label="Increase quantity" onClick={() => setQty(qty + 1)}>+</button></div><button type="button" className="btn-chrome justify-center rounded-md h-10" onClick={() => addToBag(false)}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
             <button type="button" className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={() => addToBag(true)}>Buy it now <ArrowUpRight size={13} /></button>
           </>}
-        <div className="recovered-policy-row mt-2.5 flex flex-wrap justify-center gap-4 text-[9px] tracking-[0.22em] uppercase"><a href="#save"><Heart size={11} className="inline mr-1" />Save</a><a href="#share"><Share2 size={11} className="inline mr-1" />Share</a><a href="#shipping"><Truck size={11} className="inline mr-1" />Shipping</a><a href="#returns"><RotateCcw size={11} className="inline mr-1" />Returns</a><a href="#policies"><FileText size={11} className="inline mr-1" />Store policies</a></div>
+        <div className="recovered-policy-row mt-2.5 flex flex-wrap justify-center gap-4 text-[9px] tracking-[0.22em] uppercase">
+          <SavePieceButton piece={{id:p.canonical_product_id,slug,title:shortHead,image:String(p.primary_image_url||'')}}/>
+          <ProductShareButton slug={slug} title={shortHead}/>
+          <Link href="/shipping"><Truck size={11} className="inline mr-1"/>Shipping</Link>
+          <Link href="/returns"><RotateCcw size={11} className="inline mr-1"/>Returns</Link>
+          <Link href="/terms"><FileText size={11} className="inline mr-1"/>Store policies</Link>
+        </div>
       </aside>
     </section>
 
@@ -723,7 +729,6 @@ function rightPanelIcon(key: string) {
 
 function rightPanelId(key: string) {
   if (key === 'shipping_delivery') return 'shipping';
-  if (key === 'customization') return 'policies';
   return undefined;
 }
 
