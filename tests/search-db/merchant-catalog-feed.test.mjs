@@ -4,10 +4,11 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh} from '../../scripts/merchant/build-catalog-feed.mjs';
 import {extractFlightProduct} from '../../scripts/merchant/capture-catalog.mjs';
+import {EXACT_COLOR_PRICE_PRODUCTS} from '../../lib/bonanzaColorPriceExceptions.ts';
 
 test('whole frozen207 corpus has explicit readiness and all84 accepted IDs survive',()=>{
   const data=inputs(),{rows,report}=buildCatalog(data);
-  assert.deepEqual(report.totals,{products:207,ready:193,hold:14,offers:1351,preserved_pilot_offers:84});
+  assert.deepEqual(report.totals,{products:207,ready:196,hold:11,offers:1372,preserved_pilot_offers:84});
   const actual=new Map(rows.map(r=>[r.id,r]));
   for(const prior of data.pilot)assert.deepEqual(actual.get(prior.id),prior);
   for(const p of report.products){
@@ -36,7 +37,7 @@ test('new unreviewed image and unresolved offer never enter the feed',()=>{
   d.qa.products.find(p=>p.canonical_product_id===id).image_url='https://example.invalid/new-unreviewed.jpg';
   const {rows,report}=buildCatalog(d);
   assert.ok(report.products.find(p=>p.canonical_product_id===id).reasons.includes('IMAGE_REVIEW_REQUIRED'));
-  assert.equal(rows.length,1344);
+  assert.equal(rows.length,1365);
   for(const p of d.capture.products.filter(p=>p.offer['@type']==='AggregateOffer')){
     assert.equal(report.products.find(r=>r.canonical_product_id===p.canonical_product_id).status,'HOLD');
   }
@@ -56,13 +57,32 @@ test('explicit original tags resolve only their own products; removing evidence 
     assert.equal(p.gender_evidence,'source_listing_tag:'+c.confirmed_tag);
   }
   const addedGroups=new Set(report.products.filter(p=>d.confirmations.products.some(c=>c.canonical_product_id===p.canonical_product_id)).map(p=>p.configuration_id));
-  const originalTsv=toMerchantTsv(rows.filter(r=>!addedGroups.has(r.item_group_id)));
+  const colorGroups=new Set(report.products.filter(p=>EXACT_COLOR_PRICE_PRODUCTS.includes(p.canonical_product_id)).map(p=>p.configuration_id));
+  const originalTsv=toMerchantTsv(rows.filter(r=>!addedGroups.has(r.item_group_id)&&!colorGroups.has(r.item_group_id)));
   // Preserve every previously published row, not only the first84 pilot IDs.
   assert.equal(createHash('sha256').update(originalTsv).digest('hex'),'e4d8ce334f7c6a2fb1e8562948f1765b7ddd3a88b79c3fd5d6958634dfb3705c');
+  const original193=toMerchantTsv(rows.filter(r=>!colorGroups.has(r.item_group_id)));
+  assert.equal(createHash('sha256').update(original193).digest('hex'),'81f5a14a3f56d5f71efbf875fe6a98f36a4cea809aa41ee71d986367960e70f3');
   d.confirmations.products=[];
   const fallback=buildCatalog(d);
-  assert.equal(fallback.rows.length,1337);assert.equal(fallback.report.totals.hold,16);
+  assert.equal(fallback.rows.length,1358);assert.equal(fallback.report.totals.hold,13);
   assert.equal(report.products.find(p=>p.etsy_tail==='1780729637').status,'HOLD');
+});
+
+test('only reviewed color-price harnesses can enter without a Full Set and must match the photographed color',()=>{
+  const d=inputs(),{rows,report}=buildCatalog(d);
+  for(const id of EXACT_COLOR_PRICE_PRODUCTS){
+    const p=d.capture.products.find(p=>p.canonical_product_id===id),entry=report.products.find(p=>p.canonical_product_id===id);
+    assert.equal(entry.status,'READY');assert.equal(entry.offer_count,7);
+    const emitted=rows.filter(r=>r.item_group_id===entry.configuration_id);
+    assert.equal(emitted.length,7);
+    for(const row of emitted){assert.equal(row.color,p.selected_configuration.configuration_color);assert.equal(row.product_type,'Costumes > Harness');}
+  }
+  for(const change of [
+    x=>{x.capture.products.find(p=>p.selected_configuration?.full_set&&!p.candidate_reasons.length).selected_configuration.full_set=false;},
+    x=>{x.capture.products.find(p=>p.canonical_product_id===EXACT_COLOR_PRICE_PRODUCTS[0]).selected_configuration.configuration_color='Black';},
+    x=>{x.capture.products.find(p=>p.canonical_product_id===EXACT_COLOR_PRICE_PRODUCTS[0]).selected_configuration.component_code='top';},
+  ]){const x=inputs();change(x);assert.throws(()=>buildCatalog(x));}
 });
 
 test('misbound, ambiguous, contradictory or incomplete source audience evidence fails closed',()=>{
