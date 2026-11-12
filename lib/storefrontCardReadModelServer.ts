@@ -1,6 +1,7 @@
 import 'server-only';
 
 import {applyReviewedBonanzaCatalogColors} from '@/lib/bonanzaColorCatalogServer';
+import {applyReviewedPrimaryImageAlt} from '@/lib/storefrontReviewedPrimaryImageAlts';
 
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import { catalogSourceTimingFields, createTimedCatalogFetch, newCatalogSourceTiming } from '@/lib/storefrontSourceTiming';
@@ -133,7 +134,7 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
     }
   }
 
-  return rows;
+  return rows.map(row => applyReviewedPrimaryImageAlt(row, row.source_draft_id));
 }
 
 
