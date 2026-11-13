@@ -60,4 +60,15 @@ test('site favicon set exists as stable app-router file conventions', () => {
   const png = readFileSync(new URL('../../app/icon.png', import.meta.url));
   assert.equal(png.readUInt32BE(16), 512);
   assert.equal(png.readUInt32BE(20), 512);
+  // Next/Turbopack decodes ICO frames and rejects PNG frames that are not RGBA.
+  const ico = readFileSync(new URL('../../app/favicon.ico', import.meta.url));
+  const frames = ico.readUInt16LE(4);
+  assert.ok(frames >= 3);
+  for (let i = 0; i < frames; i++) {
+    const size = ico.readUInt32LE(6 + 16 * i + 8);
+    const offset = ico.readUInt32LE(6 + 16 * i + 12);
+    const frame = ico.subarray(offset, offset + size);
+    assert.equal(frame.subarray(1, 4).toString('latin1'), 'PNG');
+    assert.equal(frame[25], 6, `ICO frame ${i} must be RGBA PNG`);
+  }
 });
