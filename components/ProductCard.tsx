@@ -147,7 +147,7 @@ export function ProductCard({ product: p, index = 0, matchingColors = [] }: { pr
       className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover-media' : ''}`}
       style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative overflow-hidden">
-        {primary ? <Image src={primary} alt={title} fill sizes={cardSizes} loading="lazy" className={primaryClassName} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
+        {primary ? <Image src={primary} alt={p.primary_image_alt || title} fill sizes={cardSizes} loading="lazy" className={primaryClassName} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
         {hoverRequested && video ? <video src={video} muted playsInline loop preload="metadata" onCanPlay={() => setHoverReady(true)} className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : hoverRequested && cleanSwap ? <Image src={cleanSwap} alt="" fill sizes={cardSizes} loading="lazy" onLoad={() => setHoverReady(true)} className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">

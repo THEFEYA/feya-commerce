@@ -1,3 +1,5 @@
+import { REVIEWED_PRIMARY_IMAGE_ALT_CATALOG_20261113 } from './storefrontReviewedPrimaryImageAltCatalog.ts';
+
 /**
  * Existing primary-alt candidates from the five pinned approved SEO packs.
  * Visually checked against these exact source photographs on 2026-11-12.
@@ -50,13 +52,29 @@ type AltProduct = {
   media_gallery?: unknown;
 };
 
+type ReviewedPrimaryImageAlt = {
+  readonly canonicalProductId: string;
+  readonly productSlug: string;
+  readonly sourceDraftId: string;
+  readonly imageUrl: string;
+  readonly altText: string;
+};
+
+/** PR244 pilot (5) + reviewed catalog (202): one binding per canonical product. */
+export const ALL_REVIEWED_PRIMARY_IMAGE_ALTS: readonly ReviewedPrimaryImageAlt[] = [
+  ...REVIEWED_PRIMARY_IMAGE_ALTS,
+  ...REVIEWED_PRIMARY_IMAGE_ALT_CATALOG_20261113,
+];
+
+const BINDING_BY_PRODUCT = new Map(ALL_REVIEWED_PRIMARY_IMAGE_ALTS.map(item => [item.canonicalProductId, item]));
+
 export function applyReviewedPrimaryImageAlt<T extends AltProduct>(product: T, sourceDraftId: string): T {
-  const binding = REVIEWED_PRIMARY_IMAGE_ALTS.find(item =>
-    item.canonicalProductId === product.canonical_product_id
-    && item.productSlug === product.product_slug
-    && item.sourceDraftId === sourceDraftId
-    && item.imageUrl === product.primary_image_url
-  );
+  const candidate = BINDING_BY_PRODUCT.get(product.canonical_product_id);
+  const binding = candidate
+    && candidate.productSlug === product.product_slug
+    && candidate.sourceDraftId === sourceDraftId
+    && candidate.imageUrl === product.primary_image_url
+    ? candidate : null;
   if (!binding) return product;
 
   const gallery = Array.isArray(product.media_gallery)
