@@ -5,6 +5,7 @@ import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
 import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
 import {readCachedApprovedStorefrontCatalogV1} from '@/lib/storefrontCatalogCacheServer';
 import {sitemapProductImages} from '@/lib/sitemapProductImages';
+import {reviewedGalleryPhotoUrls} from '@/lib/storefrontReviewedGalleryImageAlts';
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   // ACTIVE Search Release is mutable governance state; keep the sitemap request-time
@@ -23,12 +24,14 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     return{url:new URL(item.path,origin).toString()};
   });
 
-  // Reuse the already cached, exact approved card projection: one existing
-  // primary photo per product, not a 207-PDP/gallery query fan-out. ACTIVE
+  // Reuse the already cached, exact approved card projection: the existing
+  // primary photo plus the product's reviewed existing gallery photos from the
+  // static source-bound ALT catalog, not a 207-PDP/gallery query fan-out. ACTIVE
   // release membership remains request-time authority for every page URL.
   if(!items.some(item=>item.path.startsWith('/shop/')))return entries;
   try{
-    const images=sitemapProductImages(await readCachedApprovedStorefrontCatalogV1());
+    const images=sitemapProductImages(await readCachedApprovedStorefrontCatalogV1(),
+      product=>reviewedGalleryPhotoUrls(product.canonical_product_id,product.product_slug));
     return entries.map((entry,index)=>{
       const productImages=images.get(items[index].path);
       return productImages?{...entry,images:productImages}:entry;
