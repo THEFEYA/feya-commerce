@@ -1,3 +1,22 @@
+function publicImageLoc(source: string | null | undefined): string | null {
+  if (!source || source.trim() !== source) return null;
+  try {
+    const url = new URL(source);
+    // Match the storefront's existing public image host. No signed/private
+    // storage URLs, video URLs, invented images or optimizer URL replacement.
+    if (url.protocol !== 'https:' || url.hostname !== 'i.etsystatic.com'
+      || url.port || url.username || url.password || url.hash
+      || !/\.(?:bmp|gif|jpe?g|png|webp|svg|avif)$/i.test(url.pathname)) return null;
+    // Next 16.3.8's sitemap serializer interpolates image strings verbatim.
+    // Escape XML text, preserving the decoded original asset URL exactly.
+    return source.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  } catch {
+    // Invalid optional media must not remove a canonical page from discovery.
+    return null;
+  }
+}
+
 /** Existing public card photographs, keyed by the exact canonical PDP path.
  * This index enriches release-owned URLs; it never creates sitemap entries.
  */
@@ -7,7 +26,10 @@ export type SitemapImageProduct = {
   primary_image_url: string | null;
 };
 
-export function sitemapProductImages(products: readonly SitemapImageProduct[]): Map<string, string[]> {
+export function sitemapProductImages(
+  products: readonly SitemapImageProduct[],
+  galleryPhotos: (product: SitemapImageProduct) => readonly string[] = () => [],
+): Map<string, string[]> {
   const images = new Map<string, string[]>();
   const ids = new Set<string>();
   const paths = new Set<string>();
@@ -22,23 +44,14 @@ export function sitemapProductImages(products: readonly SitemapImageProduct[]): 
     if (paths.has(path)) throw new Error('SITEMAP_IMAGE_PRODUCT_PATH_AMBIGUOUS');
     paths.add(path);
 
-    const source = product.primary_image_url;
-    if (!source || source.trim() !== source) continue;
-    try {
-      const url = new URL(source);
-      // Match the storefront's existing public image host. No signed/private
-      // storage URLs, video URLs, invented images or optimizer URL replacement.
-      if (url.protocol !== 'https:' || url.hostname !== 'i.etsystatic.com'
-        || url.port || url.username || url.password || url.hash
-        || !/\.(?:bmp|gif|jpe?g|png|webp|svg|avif)$/i.test(url.pathname)) continue;
-      // Next 16.3.8's sitemap serializer interpolates image strings verbatim.
-      // Escape XML text, preserving the decoded original asset URL exactly.
-      const image = source.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-      images.set(path, [image]);
-    } catch {
-      // Invalid optional media must not remove a canonical page from discovery.
+    const photos: string[] = [];
+    for (const source of [product.primary_image_url, ...galleryPhotos(product)]) {
+      const image = publicImageLoc(source);
+      if (image && !photos.includes(image)) photos.push(image);
     }
+    // The primary photo stays first; reviewed gallery photos only enrich a page
+    // that already has its existing public primary photo.
+    if (photos.length && publicImageLoc(product.primary_image_url) === photos[0]) images.set(path, photos);
   }
   return images;
 }

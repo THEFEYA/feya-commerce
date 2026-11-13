@@ -5,6 +5,7 @@ import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerRe
 import {restoreSourceProvenPurchaseOptions} from './storefrontSourceOptionLabels.ts';
 import { applyReviewedBonanzaColors } from '@/lib/bonanzaColorCatalogServer';
 import {applyReviewedPrimaryImageAlt} from '@/lib/storefrontReviewedPrimaryImageAlts';
+import {applyReviewedGalleryImageAlts} from '@/lib/storefrontReviewedGalleryImageAlts';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const STOREFRONT_PRODUCT_DETAIL_READ_MODEL_V1 = 'feya_storefront_product_details_v1';
@@ -63,6 +64,6 @@ export async function readApprovedStorefrontProductDetailV1(slug: string): Promi
     || !Array.isArray(product.media_gallery)
   ) throw new Error('STOREFRONT_PRODUCT_DETAIL_PAYLOAD_MISMATCH');
 
-  const withReviewedAlt = applyReviewedPrimaryImageAlt(product, row.source_draft_id);
+  const withReviewedAlt = applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id));
   return applyReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(withReviewedAlt as Record<string, unknown>) as StorefrontProduct));
 }
