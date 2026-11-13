@@ -12,6 +12,13 @@ const v13Navigation=process.env.VERCEL==='1'
 const nextConfig: NextConfig = {
   env:{NEXT_PUBLIC_FEYA_V13_PUBLIC_DESIGN:v13Navigation?'1':'0'},
   cacheComponents: true,
+  // Next.js 16.3.8 treats bare "Googlebot" as a JS-executing DOM bot and streams
+  // title/description/robots/canonical into <body>. Google accepts rel=canonical
+  // only in <head>; URL Inspection of indexed PDPs showed "User-declared canonical:
+  // None". This is Next's default html-limited list (v16.3.8 html-bots.ts) plus
+  // Googlebot, so Search crawlers get blocking <head> metadata exactly like
+  // Google-InspectionTool already does. Human visitors keep streaming metadata.
+  htmlLimitedBots: /Googlebot|[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight/i,
   // Owner-approved Shipping & Delivery V13 public presentation; canonical URL
   // and ACTIVE Search Release v12 index/noindex behavior remain /shipping.
   // Other public routes, Footer and Contact do not participate in this rewrite.
