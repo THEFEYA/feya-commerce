@@ -62,39 +62,42 @@ const sample = () => {
   }};
 };
 
-test('gallery binding applies only to the exact product, slug and photograph and never mutates input', () => {
+test('gallery binding requires the exact approved draft, product, slug and photos without mutating input', () => {
   const {row, primary, product} = sample();
   const before = JSON.stringify(product);
-  const patched = applyReviewedGalleryImageAlts(product);
+  const patched = applyReviewedGalleryImageAlts(product, primary.sourceDraftId);
   assert.equal(JSON.stringify(product), before);
   assert.deepEqual(patched.media_gallery.map(item => item.alt), [primary.altText, row.altText, 'Video', 'Unreviewed']);
   assert.deepEqual(patched.media_gallery.map(item => item.url), product.media_gallery.map(item => item.url));
   assert.equal(patched.primary_image_alt, primary.altText);
-  assert.deepEqual(applyReviewedGalleryImageAlts(patched), patched, 'idempotent');
+  assert.deepEqual(applyReviewedGalleryImageAlts(patched, primary.sourceDraftId), patched, 'idempotent');
+  assert.equal(applyReviewedGalleryImageAlts(product, 'a-new-approved-draft'), product, 'new draft requires renewed review');
 
   for (const changed of [
     {product_slug: `${primary.productSlug}-copy`},
     {product_slug: null},
+    {primary_image_url: primary.imageUrl.replace('.jpg', '_replacement.jpg')},
     {canonical_product_id: '00000000-0000-0000-0000-000000000000'},
     {media_gallery: null},
   ]) {
     const foreign = {...product, ...changed};
-    assert.equal(applyReviewedGalleryImageAlts(foreign), foreign, JSON.stringify(changed));
+    assert.equal(applyReviewedGalleryImageAlts(foreign, primary.sourceDraftId), foreign, JSON.stringify(changed));
   }
   // A caption cannot travel to another product that shows a different gallery.
   const other = [...PRIMARY.values()].find(item => !row.canonicalProductIds.includes(item.canonicalProductId))!;
   const transplanted = {...product, canonical_product_id: other.canonicalProductId, product_slug: other.productSlug, primary_image_url: other.imageUrl};
-  assert.equal(applyReviewedGalleryImageAlts(transplanted), transplanted);
+  assert.equal(applyReviewedGalleryImageAlts(transplanted, other.sourceDraftId), transplanted);
 });
 
 test('sitemap keeps the primary photo first and adds only the product\'s reviewed gallery photos', () => {
-  const {row, primary} = sample();
-  const product = {canonical_product_id: primary.canonicalProductId, product_slug: primary.productSlug, primary_image_url: primary.imageUrl};
+  const {row, primary, product} = sample();
   const path = `/shop/${primary.productSlug}`;
-  const photos = reviewedGalleryPhotoUrls(primary.canonicalProductId, primary.productSlug);
+  const photos = reviewedGalleryPhotoUrls(product, primary.sourceDraftId);
   assert.ok(photos.includes(row.imageUrl));
-  assert.deepEqual(reviewedGalleryPhotoUrls(primary.canonicalProductId, `${primary.productSlug}-copy`), []);
-  const enriched = sitemapProductImages([product], p => [...reviewedGalleryPhotoUrls(p.canonical_product_id, p.product_slug), primary.imageUrl, 'https://private.example/a.jpg']).get(path)!;
+  assert.deepEqual(reviewedGalleryPhotoUrls({...product, product_slug: `${primary.productSlug}-copy`}, primary.sourceDraftId), []);
+  assert.deepEqual(reviewedGalleryPhotoUrls(product, 'a-new-approved-draft'), []);
+  assert.deepEqual(reviewedGalleryPhotoUrls({...product, media_gallery: []}, primary.sourceDraftId), [], 'removed photos cannot survive in XML');
+  const enriched = sitemapProductImages([product], p => [...reviewedGalleryPhotoUrls(p, primary.sourceDraftId), primary.imageUrl, 'https://private.example/a.jpg']).get(path)!;
   assert.equal(enriched[0], primary.imageUrl);
   assert.deepEqual(enriched.slice(1), [...photos]);
   assert.deepEqual(sitemapProductImages([product]).get(path), [primary.imageUrl]);
@@ -102,12 +105,28 @@ test('sitemap keeps the primary photo first and adds only the product\'s reviewe
     'gallery photos never stand in for a missing primary photo');
 });
 
-test('PDP reader and gallery thumbnails carry the reviewed ALT; sitemap uses the static catalog', () => {
+test('sitemap intersects current gallery membership and preserves current photo order', () => {
+  const {primary, product} = sample();
+  const rows = CATALOG.filter(row => row.canonicalProductIds.includes(primary.canonicalProductId));
+  assert.ok(rows.length > 1);
+  const current = {...product, media_gallery: [rows[1], rows[0]].map(row => ({media_type: 'image', url: row.imageUrl}))};
+  assert.deepEqual(reviewedGalleryPhotoUrls(current, primary.sourceDraftId), current.media_gallery.map(g => g.url));
+  const replaced = {...current, media_gallery: [current.media_gallery[1], {media_type: 'image', url: 'https://i.etsystatic.com/new-unreviewed-photo.jpg'}]};
+  assert.deepEqual(reviewedGalleryPhotoUrls(replaced, primary.sourceDraftId), [rows[0].imageUrl]);
+});
+
+test('PDP and sitemap share reviewed bindings; only the server loads current gallery metadata', () => {
   const reader = readFileSync('lib/storefrontProductDetailReadModelServer.ts', 'utf8');
-  assert.ok(reader.includes('applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id))'));
+  assert.ok(reader.includes('applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id), row.source_draft_id)'));
   const pdp = readFileSync('components/ProductDetailClient.tsx', 'utf8');
   assert.ok(pdp.includes('<Image src={String(g.url)} alt={g.alt || \'\'} fill sizes="132px" loading="lazy"'));
   assert.ok(pdp.includes('aria-label={`Show image ${i + 1} of ${gallery.length}`}'));
   const sitemap = readFileSync('app/sitemap.ts', 'utf8');
-  assert.ok(sitemap.includes('reviewedGalleryPhotoUrls(product.canonical_product_id,product.product_slug)'));
+  assert.ok(sitemap.includes('reviewedGalleryPhotoUrls(product,product.source_draft_id)'));
+  const mediaReader = readFileSync('lib/storefrontSitemapMediaServer.ts', 'utf8');
+  assert.ok(mediaReader.includes("import 'server-only'"));
+  assert.ok(mediaReader.includes("'use cache'"));
+  assert.ok(mediaReader.includes('media_gallery:product_json->media_gallery'));
+  assert.ok(mediaReader.includes('cacheTag(STOREFRONT_CACHE_TAGS.site, STOREFRONT_CACHE_TAGS.catalog)'));
+  assert.ok(!mediaReader.includes(".select('*')"));
 });

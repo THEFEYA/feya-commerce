@@ -1,0 +1,318 @@
+{
+  "checked_at": "2026-11-16T13:03:31.124174+00:00",
+  "source_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "source_view": "feya_storefront_product_details_v1",
+  "source_media_snapshot_sha256": "ea533c86a25aec801859f203ab19b85a7993198ac80d511424b130ea5b250997",
+  "products": 207,
+  "primary_bindings": 207,
+  "non_primary_bindings": 1559,
+  "photo_placements": 1766,
+  "unique_photos": 1371,
+  "missing_bindings": 0,
+  "orphan_bindings": 0,
+  "approved_source_binding_drift": [],
+  "manual_continuation_review": {
+    "sheets": [
+      "045",
+      "046",
+      "047",
+      "048",
+      "049",
+      "050",
+      "051",
+      "052",
+      "053",
+      "054",
+      "055"
+    ],
+    "image_ids": "I1101–I1371",
+    "additional_check": "Accessory mentions versus approved sellable-offer signatures across the full catalog"
+  },
+  "corrections": [
+    {
+      "image_id": "I0030",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/05b3fa/7787657989/il_fullxfull.7787657989_k4ar.jpg",
+      "old": "Gold fitted bodysuit, horned headpiece and matching leg covers, seated side view",
+      "new": "Gold fitted bodysuit and matching leg covers, seated side view",
+      "canonical_product_ids": [
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4"
+      ]
+    },
+    {
+      "image_id": "I0056",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/0b5c41/7739701942/il_fullxfull.7739701942_6t4m.jpg",
+      "old": "Gold sculpted bodysuit, curved horns and matching leg covers, seated front view",
+      "new": "Gold sculpted bodysuit and matching leg covers, seated front view",
+      "canonical_product_ids": [
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4"
+      ]
+    },
+    {
+      "image_id": "I0287",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/35e193/7053863254/il_fullxfull.7053863254_hge4.jpg",
+      "old": "Side view of a gold sunburst headpiece, pointed shoulders and long reflective fringe skirt outdoors",
+      "new": "Side view of gold pointed shoulder pieces and a long reflective fringe skirt outdoors",
+      "canonical_product_ids": [
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2"
+      ]
+    },
+    {
+      "image_id": "I0295",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/3754ae/8115435317/il_fullxfull.8115435317_7u8v.jpg",
+      "old": "Gold sunburst crown, layered shoulder armor and long reflective fringe skirt, front view in a desert setting",
+      "new": "Gold layered shoulder armor and a long reflective fringe skirt, front view in a desert setting",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0489",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/58a9ca/7053863190/il_fullxfull.7053863190_2gx8.jpg",
+      "old": "Gold fringe shoulder pieces and long fringe skirt with a sunburst headpiece, front view outdoors",
+      "new": "Gold fringe shoulder pieces and a long fringe skirt, front view outdoors",
+      "canonical_product_ids": [
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2"
+      ]
+    },
+    {
+      "image_id": "I0547",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/66b047/8115435355/il_fullxfull.8115435355_rhis.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder panels and long reflective skirt, three-quarter view with one hand raised",
+      "new": "Gold fringe shoulder panels and a long reflective skirt, three-quarter view with one hand raised",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0646",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/78c2a2/8067515026/il_fullxfull.8067515026_721i.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder pieces and long fringe skirt, close three-quarter view outdoors",
+      "new": "Gold fringe shoulder pieces and a long fringe skirt, close three-quarter view outdoors",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0763",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/8ed27e/8067515032/il_fullxfull.8067515032_1pfz.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder panels and long reflective fringe skirt, front view outdoors",
+      "new": "Gold fringe shoulder panels and a long reflective fringe skirt, front view outdoors",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0827",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/9a53d0/8115435335/il_fullxfull.8115435335_mspy.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder panels and long fringe skirt, close front view outdoors",
+      "new": "Gold fringe shoulder panels and a long fringe skirt, close front view outdoors",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0867",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a1cff2/8115435339/il_fullxfull.8115435339_ei40.jpg",
+      "old": "Close view of a gold sunburst headpiece, fringe shoulder panels and matching geometric necklace outdoors",
+      "new": "Close view of gold fringe shoulder panels and a matching geometric necklace outdoors",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I0904",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/a8598a/7101825139/il_fullxfull.7101825139_g7bq.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder pieces and long reflective fringe skirt, full three-quarter view outdoors",
+      "new": "Gold fringe shoulder pieces and a long reflective fringe skirt, full three-quarter view outdoors",
+      "canonical_product_ids": [
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2"
+      ]
+    },
+    {
+      "image_id": "I0981",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/b7a8da/6570757130/il_fullxfull.6570757130_aqdm.jpg",
+      "old": "Close detail of a reflective open-frame face mask and pointed shoulder pieces formed from narrow curved strips",
+      "new": "Close detail of reflective pointed shoulder pieces formed from narrow curved strips",
+      "canonical_product_ids": [
+        "d0625355-308f-4edd-9c28-e358491c12a3"
+      ]
+    },
+    {
+      "image_id": "I1053",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/c44d49/8067515078/il_fullxfull.8067515078_9hyx.jpg",
+      "old": "Gold sunburst headpiece, fringe shoulder pieces and long reflective fringe skirt, full front view outdoors",
+      "new": "Gold fringe shoulder pieces and a long reflective fringe skirt, full front view outdoors",
+      "canonical_product_ids": [
+        "481ca9fa-1100-439d-b52b-80caadba52a9"
+      ]
+    },
+    {
+      "image_id": "I1117",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/cf9b2e/6970079573/il_fullxfull.6970079573_751h.jpg",
+      "old": "Flat lay of silver layered shoulder armor and two segmented arm guards",
+      "new": "Silver layered shoulder armor and two segmented arm guards displayed on a white mannequin",
+      "canonical_product_ids": [
+        "043406cd-0a96-45c5-8796-57c5cc4b276e",
+        "5f0df65c-4b04-4905-80c5-53bd7e807063"
+      ]
+    },
+    {
+      "image_id": "I1130",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d25b1d/7091848976/il_fullxfull.7091848976_88yp.jpg",
+      "old": "Man in a rocky desert wearing gold layered shoulder armor with a chest strap and buckles",
+      "new": "Man in a rocky desert wearing layered silver and gold shoulder armor with buckled chest straps",
+      "canonical_product_ids": [
+        "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e"
+      ]
+    },
+    {
+      "image_id": "I1141",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d447e3/8136919005/il_fullxfull.8136919005_19k1.jpg",
+      "old": "Back view of a woman walking in a gold shoulder harness and long gold fringe skirt in a canyon",
+      "new": "Woman in a canyon wearing gold shoulder pieces, a waist belt and a long gold fringe skirt",
+      "canonical_product_ids": [
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea"
+      ]
+    },
+    {
+      "image_id": "I1154",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d60f37/6247946057/il_fullxfull.6247946057_fbb1.jpg",
+      "old": "Woman on a desert playa in layered white and silver shoulder armor, a torso panel and spiked arm piece",
+      "new": "Woman on a desert playa in white and gold reflective torso panels, a layered shoulder piece and spiked arm guard",
+      "canonical_product_ids": [
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b"
+      ]
+    },
+    {
+      "image_id": "I1163",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/d84eb4/7348864293/il_fullxfull.7348864293_4ubv.jpg",
+      "old": "Smiling woman with hands on hips in a black bodysuit with red geometric panels and a silver visor",
+      "new": "Smiling woman with hands on hips in a black bodysuit with red geometric panels and red shoulder details",
+      "canonical_product_ids": [
+        "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf"
+      ]
+    },
+    {
+      "image_id": "I1175",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/db8933/6572865218/il_fullxfull.6572865218_sul6.jpg",
+      "old": "White geometric harness corset with a bronze waist band against a dark wall",
+      "new": "White geometric harness corset with a dark waist band against a dark wall",
+      "canonical_product_ids": [
+        "fba170e8-582d-45fa-b954-f9136e733950"
+      ]
+    },
+    {
+      "image_id": "I1181",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dceaaa/7914791562/il_fullxfull.7914791562_r9j5.jpg",
+      "old": "Smiling couple at a desert festival in matching black and gold chest armor, arm cuffs and winged headpiece",
+      "new": "Smiling couple at a desert festival in matching black and gold chest armor and arm cuffs",
+      "canonical_product_ids": [
+        "fefd1c3e-2fd1-47c9-970f-c30962c1a737"
+      ]
+    },
+    {
+      "image_id": "I1182",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/dcef02/7739701926/il_fullxfull.7739701926_e47l.jpg",
+      "old": "Woman seated on a white floor in gold curved horns, a gold corset bodysuit and pointed gold leg covers",
+      "new": "Woman seated on a white floor in a gold corset bodysuit and pointed gold leg covers",
+      "canonical_product_ids": [
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4"
+      ]
+    },
+    {
+      "image_id": "I1219",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e56ba1/6598777210/il_fullxfull.6598777210_hbxv.jpg",
+      "old": "Leather color options chart with white, red and black swatches for the harness",
+      "new": "Harness color options chart with white, red and black swatches",
+      "canonical_product_ids": [
+        "11bb0057-8c1f-4347-8c03-46856df0653c",
+        "c3f1018e-665b-44a8-90db-ecc5bb64eedc"
+      ]
+    },
+    {
+      "image_id": "I1249",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/e9e955/6585122844/il_fullxfull.6585122844_3lfu.jpg",
+      "old": "Woman seated on a white floor in a black studded bodysuit and black mask, styled with bright yellow tulle",
+      "new": "Woman seated on a white floor wearing a black studded bodysuit and a black mask",
+      "canonical_product_ids": [
+        "a606be83-50aa-462d-ae54-04e9ce7aeb3b"
+      ]
+    },
+    {
+      "image_id": "I1272",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ee6fe7/6960184592/il_fullxfull.6960184592_r3z6.jpg",
+      "old": "Side view of a woman on a white plinth in silver layered shoulder armor and a long silver arm guard",
+      "new": "Side view of silver layered shoulder armor and a long segmented arm guard, worn in a grey studio",
+      "canonical_product_ids": [
+        "5f0df65c-4b04-4905-80c5-53bd7e807063"
+      ]
+    },
+    {
+      "image_id": "I1282",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/efb669/7362238813/il_fullxfull.7362238813_402p.jpg",
+      "old": "Woman with a long ponytail in a sheer nude bodysuit with holographic bust panels, strap trims and arm cuffs",
+      "new": "Sheer long-sleeved bodysuit with holographic bust panels, strap details and arm cuffs, side view",
+      "canonical_product_ids": [
+        "187f01a3-40e0-4820-b3aa-1bccc1eea6d2"
+      ]
+    },
+    {
+      "image_id": "I1310",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f51c34/6407715579/il_fullxfull.6407715579_ao4n.jpg",
+      "old": "Back view of a woman with green braids in a silver-tone strap top, short silver skirt and segmented arm bracelet",
+      "new": "Back view of a silver-tone strap top, flared hip panels and segmented arm bracelet, worn in a white room",
+      "canonical_product_ids": [
+        "b7003343-6537-437d-9dab-cdf902d37b7e"
+      ]
+    },
+    {
+      "image_id": "I1312",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f55d50/6609925304/il_fullxfull.6609925304_4nhb.jpg",
+      "old": "Woman with green hair on a purple background in a red top with puffed shoulders, a red collar and red and black skirt",
+      "new": "Woman with green hair posing in red ruffled shoulder pieces, a red collar and flared red hip panels",
+      "canonical_product_ids": [
+        "f473fb62-0440-473c-a7fb-a52dccafebc6"
+      ]
+    },
+    {
+      "image_id": "I1328",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/f90ed3/7912084951/il_fullxfull.7912084951_hjwv.jpg",
+      "old": "Blonde woman with braids walking on the desert playa in gold pointed shoulders, a gold chest plate and pleated skirt panels",
+      "new": "White and gold sculpted chest armor, layered shoulders and flared hip panels worn on a desert playa",
+      "canonical_product_ids": [
+        "adbb91ec-29d2-490f-9844-f73b22111e36"
+      ]
+    },
+    {
+      "image_id": "I1331",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fa2f44/6247699545/il_fullxfull.6247699545_kn0y.jpg",
+      "old": "Woman in a white face mask kneeling on a pink backdrop in a white top with silver shoulder armor and a short skirt",
+      "new": "Woman kneeling on pink steps in white and gold reflective torso panels, a layered shoulder piece and spiked arm guard",
+      "canonical_product_ids": [
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b"
+      ]
+    },
+    {
+      "image_id": "I1357",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/fd73cc/7300914290/il_fullxfull.7300914290_h8fi.jpg",
+      "old": "Woman in a clear visor and red makeup wearing a black long-sleeve bodysuit with glossy red geometric panels",
+      "new": "Woman with red geometric face paint wearing a black long-sleeve bodysuit with glossy red panels",
+      "canonical_product_ids": [
+        "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf"
+      ]
+    },
+    {
+      "image_id": "I1369",
+      "image_url": "https://i.etsystatic.com/54033853/r/il/ff69c0/6207649122/il_fullxfull.6207649122_5k9g.jpg",
+      "old": "Woman with gold horns on a coral backdrop in a gold plated bodysuit and matching gold leg covers",
+      "new": "Woman with gold horns on a coral backdrop in a gold sculpted bodysuit and matching gold leg covers",
+      "canonical_product_ids": [
+        "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986"
+      ]
+    }
+  ],
+  "google_indexation_verified_by_this_receipt": false,
+  "approved_copy_prices_variants_media_urls_changed": false
+}

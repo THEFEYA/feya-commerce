@@ -26,9 +26,9 @@ export type SitemapImageProduct = {
   primary_image_url: string | null;
 };
 
-export function sitemapProductImages(
-  products: readonly SitemapImageProduct[],
-  galleryPhotos: (product: SitemapImageProduct) => readonly string[] = () => [],
+export function sitemapProductImages<T extends SitemapImageProduct>(
+  products: readonly T[],
+  galleryPhotos: (product: T) => readonly string[] = () => [],
 ): Map<string, string[]> {
   const images = new Map<string, string[]>();
   const ids = new Set<string>();

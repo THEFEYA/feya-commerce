@@ -64,6 +64,6 @@ export async function readApprovedStorefrontProductDetailV1(slug: string): Promi
     || !Array.isArray(product.media_gallery)
   ) throw new Error('STOREFRONT_PRODUCT_DETAIL_PAYLOAD_MISMATCH');
 
-  const withReviewedAlt = applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id));
+  const withReviewedAlt = applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id), row.source_draft_id);
   return applyReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(withReviewedAlt as Record<string, unknown>) as StorefrontProduct));
 }

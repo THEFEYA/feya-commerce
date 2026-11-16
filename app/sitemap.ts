@@ -3,7 +3,7 @@ import {connection} from 'next/server';
 import {closedReviewRequested} from '@/lib/searchReviewPresentation';
 import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
 import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
-import {readCachedApprovedStorefrontCatalogV1} from '@/lib/storefrontCatalogCacheServer';
+import {readCachedApprovedStorefrontSitemapMediaV1} from '@/lib/storefrontSitemapMediaServer';
 import {sitemapProductImages} from '@/lib/sitemapProductImages';
 import {reviewedGalleryPhotoUrls} from '@/lib/storefrontReviewedGalleryImageAlts';
 
@@ -24,14 +24,13 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     return{url:new URL(item.path,origin).toString()};
   });
 
-  // Reuse the already cached, exact approved card projection: the existing
-  // primary photo plus the product's reviewed existing gallery photos from the
-  // static source-bound ALT catalog, not a 207-PDP/gallery query fan-out. ACTIVE
+  // One cached media-only read of the existing approved projection, intersected
+  // with exact reviewed photo bindings; never a 207-PDP query fan-out. ACTIVE
   // release membership remains request-time authority for every page URL.
   if(!items.some(item=>item.path.startsWith('/shop/')))return entries;
   try{
-    const images=sitemapProductImages(await readCachedApprovedStorefrontCatalogV1(),
-      product=>reviewedGalleryPhotoUrls(product.canonical_product_id,product.product_slug));
+    const images=sitemapProductImages(await readCachedApprovedStorefrontSitemapMediaV1(),
+      product=>reviewedGalleryPhotoUrls(product,product.source_draft_id));
     return entries.map((entry,index)=>{
       const productImages=images.get(items[index].path);
       return productImages?{...entry,images:productImages}:entry;
