@@ -373,7 +373,7 @@ export function ProductDetailClient({
             aria-label={`Show image ${i + 1} of ${gallery.length}`}
             aria-pressed={idx === i}
             className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
-            {g.url ? <Image src={String(g.url)} alt="" fill sizes="132px" loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {g.url ? <Image src={String(g.url)} alt={g.alt || ''} fill sizes="132px" loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
         <div className="col-span-12 lg:min-w-0 lg:flex-1 lg:self-start flex justify-center">

@@ -1,6 +1,6 @@
 {
   "source_commit": "1454b186b7a112cde484540abade673f15b5ea87",
-  "source_client_git_blob": "f3c7640babeea0122321987d3a34daaf074c00fa",
-  "scope": "Owner-authorized functional Save/Share and real policy links (6 November 2026); preserve the remaining PDP JSX, purchase selectors and approved copy.",
-  "normalized_jsx_sha256": "2ba20dc699b807787df7bf01849e2b74d8e5a2d395773a474aba35fc075a9dee"
+  "source_client_git_blob": "7999bf5d6828503bec48122500bdb50a7cb32c09",
+  "scope": "Owner-authorized functional Save/Share and real policy links (6 November 2026); preserve the remaining PDP JSX, purchase selectors and approved copy. Owner-approved 13 November 2026: gallery thumbnails carry the reviewed photo ALT (alt=\"\" -> alt={g.alt || ''}); no visual, class or layout change.",
+  "normalized_jsx_sha256": "2b621e1b2f3cbc00be6b2e34552ffc1935e0d0b46a9dbd241b0097b0bf75d77b"
 }
