@@ -1,6 +1,7 @@
 export const OWNER_ACTION_STEP_UP_PATHS = new Set([
   '/api/admin/company/work/shadow-indexability',
   '/api/admin/company/work/shadow-review-request',
+  '/api/admin/company/work/owner-case-triage',
   '/api/admin/company/owner-attention/shadow-l0-decision',
   '/api/admin/company/delivery-workspace',
   '/api/admin/company/carrier-review',
@@ -18,6 +19,10 @@ export function isOwnerActionAuthRequired(env:Record<string,string|undefined>){
 export function isOwnerActionStepUpPath(pathname:string){return OWNER_ACTION_STEP_UP_PATHS.has(pathname);}
 export function ownerPreviewMutationAllowed(pathname:string,method:string,env:Record<string,string|undefined>){
   if(pathname==='/admin/login') return ['GET','HEAD','POST'].includes(method.toUpperCase());
+  if(pathname==='/api/admin/company/work/owner-case-triage') return env.FEYA_OWNER_ACTION_AUTH_REQUIRED==='true' &&
+    env.FEYA_GROWTH_SHADOW_WORK_ENABLED==='true' &&
+    env.FEYA_GROWTH_CASE_TRIAGE_ENABLED==='true' &&
+    method.toUpperCase()==='POST';
   if(pathname==='/api/admin/company/work/shadow-indexability' ||
     pathname==='/api/admin/company/work/shadow-review-request' ||
     pathname==='/api/admin/company/owner-attention/shadow-l0-decision') return env.FEYA_OWNER_ACTION_AUTH_REQUIRED==='true' &&

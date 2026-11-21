@@ -8,9 +8,10 @@ import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growthGmelAiAdmission';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import { OwnerCaseRouteTruth } from '@/components/admin/OwnerCaseRouteTruth';
+import { OwnerCaseTriageClient } from '@/components/admin/OwnerCaseTriageClient';
 import { projectGrowthCaseRoute, type CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
 import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
-import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
+import { getOwnerActionConfigStatus, requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 type Row = Record<string, unknown>;
 
@@ -198,6 +199,19 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
   const item = row ? presentWorkItem({ ...row, gmel_review_state: gmelReview?.state }) : null;
   const shadowReviewConfig = getOwnerActionConfigStatus('growth_shadow_work');
+  const triageConfig = getOwnerActionConfigStatus('growth_case_triage');
+  // No new action surface until the independent Owner G2b feature flag and
+  // step-up auth are explicitly enabled. Render only for genuine saved L0.
+  const mayShowTriage = row?.case_type === 'TSEO_INDEXABILITY_SHADOW' &&
+    caseRoute?.caseStatus === 'OPEN' &&
+    caseRoute.permissibleNextStep === 'TRIAGED' &&
+    caseRoute.eventContinuity === 'VERIFIED_LATEST' &&
+    caseRoute.ownerL0 === 'CONFIRMED_INTERNAL_ONLY' &&
+    !!caseRoute.lastCaseEventId && !!readinessReceipt &&
+    ['DETERMINISTIC_RECONCILED','OPERATOR_REVIEWED'].includes(gmelReview?.state||'') &&
+    triageConfig.ready;
+  const triageActor = mayShowTriage
+    ? await requireOwnerActionActor('growth_case_triage') : null;
 
   return (
     <main className="owner-page">
@@ -213,6 +227,14 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {caseRoute ? <OwnerCaseRouteTruth route={caseRoute} /> : null}
+        {mayShowTriage && triageActor?.ok && caseRoute?.lastCaseEventId &&
+          caseRoute.ownershipEpoch ? (
+          <OwnerCaseTriageClient
+            caseId={caseRoute.caseId}
+            expectedEpoch={caseRoute.ownershipEpoch}
+            lastCaseEventId={caseRoute.lastCaseEventId}
+          />
+        ) : null}
         {caseRouteError ? <section className="owner-card is-warning" role="status"><h2 className="owner-card-title">История кейса не проверена</h2><p className="owner-card-copy">{caseRouteError}</p></section> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
         {gmelReview?.state === 'DETERMINISTIC_RECONCILED' ? (
