@@ -8,6 +8,10 @@ import { gmelShadowReviewForCase } from '@/lib/owner-ui/gmelShadowReview';
 import { evaluateGmelAiAdmission, type GmelAdmissionDecision } from '@/lib/growthGmelAiAdmission';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import { OwnerCaseRouteTruth } from '@/components/admin/OwnerCaseRouteTruth';
+import { OwnerGdaeArchivedEvidence } from '@/components/admin/OwnerGdaeArchivedEvidence';
+import { missionControlHref } from '@/lib/owner-ui/missionControlNavigation';
+import {projectGmelMetricGate,type MetricGate} from '@/lib/owner-ui/gmelMetricRegistryReadiness';
+import { projectGdaeArchiveForCase, type GdaeArchiveCaseGate } from '@/lib/owner-ui/gdaeArchivedSourceGate';
 import { projectGrowthCaseRoute, type CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
 import { OwnerShadowReviewRequestClient } from '@/components/admin/OwnerShadowReviewRequestClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
@@ -21,12 +25,15 @@ async function getWorkItem(id: string): Promise<{
   gmelAiAdmission?: GmelAdmissionDecision;
   caseRoute?: CaseRouteTruth;
   caseRouteError?: string;
+  gdaeArchive?: GdaeArchiveCaseGate;
+  metricGate?: MetricGate;
   readinessReceipt?: {
     releaseCode: string;
     releaseVersion: number;
     intendedIndex: number;
     intendedNoindex: number;
     approvedProducts: number;
+    targetOrigin: string;
     coverage: string;
     observedAt: string;
     note: string;
@@ -112,6 +119,8 @@ async function getWorkItem(id: string): Promise<{
   // The owner sees a persisted, bounded evidence summary after leaving the original chat.
   // No raw drafts or private workflow state are sent to the browser.
   let readinessReceipt;
+  let gdaeArchive: GdaeArchiveCaseGate | undefined;
+  let metricGate: MetricGate | undefined;
   let gmelAiAdmission: GmelAdmissionDecision | undefined;
   if (workResult.data.case_type === 'TSEO_INDEXABILITY_SHADOW') {
     const [workflowResponse, sourceResponse, roleResponse] = await Promise.all([
@@ -162,6 +171,7 @@ async function getWorkItem(id: string): Promise<{
           typeof receipt.intended_index === 'number' &&
           typeof receipt.intended_noindex === 'number' &&
           typeof receipt.approved_product_bindings === 'number' &&
+          receipt.target_origin === 'https://thefeya.com' &&
           receipt.release_version > 0 &&
           receipt.intended_index >= 0 &&
           receipt.intended_noindex >= 0 &&
@@ -172,6 +182,7 @@ async function getWorkItem(id: string): Promise<{
           intendedIndex: receipt.intended_index,
           intendedNoindex: receipt.intended_noindex,
           approvedProducts: receipt.approved_product_bindings,
+          targetOrigin: receipt.target_origin,
           coverage: typeof receipt.coverage === 'string' ? receipt.coverage : 'UNKNOWN',
           observedAt: typeof receipt.evidence_time === 'string' ? receipt.evidence_time : '',
           note: typeof receipt.conclusion === 'string' ? receipt.conclusion.slice(0, 350) : '',
@@ -179,8 +190,48 @@ async function getWorkItem(id: string): Promise<{
       }
     }
   }
+  if (workResult.data.case_type === 'TSEO_INDEXABILITY_SHADOW') {
+    // Existing private append-only GDAE ledger, owner-server only. Exact
+    // allowlisted columns; no payload_json, no private customer rows, no RPC.
+    // Missing access is UNKNOWN, never a fabricated zero/verified QA.
+    const metricResponse = await supabase
+      .from('feya_commerce_v_growth_metric_registry_safe_v1')
+      .select('metric_code,metric_state,owner_role,authority_source,version_no')
+      .eq('metric_code','TSEO_HTTP_INTENT_MISMATCH_COUNT').limit(2);
+    metricGate = projectGmelMetricGate({
+      rows:metricResponse.error ? null : (metricResponse.data || null),
+      readError:Boolean(metricResponse.error),
+    });
+    const [archiveResponse, canonicalResponse] = readinessReceipt
+      ? await Promise.all([
+        supabase.from('feya_growth_external_http_observation_receipts_v1')
+          .select('receipt_id,release_id,origin,source_code,source_channel,release_code,release_version,release_hash,evidence_level,verification_state,index_urls_observed,product_urls_sampled,product_urls_in_release,workflow_run_id,artifact_id,artifact_zip_sha256,payload_sha256,independent_qa_passed,google_indexed_state_known,business_outcome_measured,source_health_promoted,finished_at,recorded_at')
+          .eq('release_code', readinessReceipt.releaseCode)
+          .eq('release_version', readinessReceipt.releaseVersion)
+          .order('recorded_at', { ascending: false }).limit(3),
+        supabase.from('feya_search_releases_v1')
+          .select('release_id,release_code,release_version,release_hash,release_status,target_origin')
+          .eq('release_code', readinessReceipt.releaseCode)
+          .eq('release_version', readinessReceipt.releaseVersion).limit(2),
+      ])
+      : [null,null];
+    gdaeArchive = projectGdaeArchiveForCase({
+      caseType:String(workResult.data.case_type),
+      expectedRelease:readinessReceipt
+        ? {releaseCode:readinessReceipt.releaseCode,releaseVersion:readinessReceipt.releaseVersion,
+          intendedIndex:readinessReceipt.intendedIndex,
+          approvedProducts:readinessReceipt.approvedProducts,
+          targetOrigin:readinessReceipt.targetOrigin}
+        : null,
+      rows:archiveResponse?.error ? null : (archiveResponse?.data || null),
+      canonicalRows:canonicalResponse?.error ? null : (canonicalResponse?.data || null),
+      readError:Boolean(archiveResponse?.error || canonicalResponse?.error),
+    });
+  }
   return {
     row: workResult.data as Row,
+    gdaeArchive,
+    metricGate,
     caseRoute,
     caseRouteError,
     gmelAiAdmission,
@@ -192,7 +243,7 @@ async function getWorkItem(id: string): Promise<{
 
 export default async function OwnerWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, caseRoute, caseRouteError, error } = await getWorkItem(id);
+  const { row, handoffs, workflowEvents, gmelAiAdmission, readinessReceipt, caseRoute, caseRouteError, gdaeArchive, metricGate, error } = await getWorkItem(id);
 
   if (!row && !error) notFound();
   const gmelReview = row ? gmelShadowReviewForCase(row, handoffs) : null;
@@ -208,11 +259,21 @@ export default async function OwnerWorkDetailPage({ params }: { params: Promise<
             <h1>{item?.title || 'Рабочая ситуация'}</h1>
             <p>Полный owner-facing контекст процесса. Технические коды и диагностика остаются ниже и не заменяют бизнес-смысл работы.</p>
           </div>
-          <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+          <div className="owner-actions" style={{alignSelf:'center'}}>
+            <Link href={missionControlHref({caseId:id})} className="owner-button primary">
+              Показать агента на схеме
+            </Link>
+            <Link href={missionControlHref({view:'case',caseId:id})} className="owner-button">
+              Маршрут в центре
+            </Link>
+            <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+          </div>
         </header>
 
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
         {caseRoute ? <OwnerCaseRouteTruth route={caseRoute} /> : null}
+        {gdaeArchive ? <OwnerGdaeArchivedEvidence gate={gdaeArchive}
+          route={caseRoute || null} metricGate={metricGate || null} /> : null}
         {caseRouteError ? <section className="owner-card is-warning" role="status"><h2 className="owner-card-title">История кейса не проверена</h2><p className="owner-card-copy">{caseRouteError}</p></section> : null}
         {item ? <OwnerWorkDetailContent item={item} handoffs={handoffs} workflowEvents={workflowEvents} /> : null}
         {gmelReview?.state === 'DETERMINISTIC_RECONCILED' ? (

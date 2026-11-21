@@ -1,5 +1,8 @@
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import type { CaseRouteTruth } from '@/lib/owner-ui/growthCaseRouteTruth';
+import { explainGrowthCaseAndon } from '@/lib/owner-ui/growthCaseAndon';
+import {CircleCheck,Hourglass,ShieldAlert,Waypoints,Scale,ShieldCheck,ChartNoAxesCombined,Info} from 'lucide-react';
+import styles from './OwnerCaseRouteVisual.module.css';
 
 function formatTime(value: string) {
   const d = new Date(value);
@@ -36,8 +39,27 @@ const EVENT_LABELS: Record<CaseRouteTruth['timeline'][number]['kind'],string> = 
  */
 export function OwnerCaseRouteTruth({route}:{route:CaseRouteTruth}) {
   const consistent = route.eventContinuity === 'VERIFIED_LATEST';
+  const andon = explainGrowthCaseAndon(route);
+  const stages = [
+    {id:'case',name:'Бизнес-кейс',detail:statusLabel(route.caseStatus),
+      state:route.caseStatus==='CLOSED'?'recorded':'current',icon:CircleCheck},
+    {id:'workflow',name:'Техническая работа',
+      detail:route.workflowStatus==='COMPLETED'?'Шаг завершён, но кейс открыт':statusLabel(route.workflowStatus),
+      state:route.workflowStatus==='COMPLETED'?'recorded':route.workflowStatus==='FAILED'?'attention':'current',
+      icon:Hourglass},
+    {id:'owner',name:'Решение владельца',detail:ownerReviewLabels[route.ownerL0],
+      state:route.ownerL0==='CONFIRMED_INTERNAL_ONLY'?'recorded':
+        route.ownerL0==='REQUEST_PENDING'?'current':'unknown',icon:Scale},
+    {id:'qa',name:'Независимая QA',detail:'Отдельное подтверждение отсутствует',
+      state:'unknown',icon:ShieldCheck},
+    {id:'execution',name:'Контролируемое действие',detail:'Execution Receipt здесь не подтверждён',
+      state:'unknown',icon:ShieldAlert},
+    {id:'measurement',name:'Измерение и вывод',detail:measurementLabels[route.measurement],
+      state:route.measurement==='RECORDED_OUTCOME'?'recorded':
+        route.measurement==='LOCKED_NO_OUTCOME'?'current':'unknown',icon:ChartNoAxesCombined},
+  ] as const;
   return (
-    <section className="owner-card" aria-label="Подтверждённый маршрут Growth Case">
+    <section className={'owner-card '+styles.routeShell} aria-label="Подтверждённый маршрут Growth Case">
       <div className="owner-card-meta">
         <span className="owner-status is-info">Реальные данные · без симуляции</span>
         <span>{roleLabel(route.caseOwner)}</span>
@@ -48,7 +70,54 @@ export function OwnerCaseRouteTruth({route}:{route:CaseRouteTruth}) {
         или подтверждение владельца не закрывают сам кейс.
       </p>
 
-      <div className="owner-grid two" style={{marginTop:'12px'}}>
+      <div className={styles.journeyHeader}>
+        <span><Waypoints size={18}/> Доказательный маршрут · только сохранённые факты</span>
+        <small>Проверяется отдельно: кейс / workflow / решение / QA / исполнение / измерение</small>
+      </div>
+      <ol className={styles.journey} aria-label="Этапы реального Growth Case">
+        {stages.map((stage,index)=>{
+          const Icon=stage.icon;
+          return <li key={stage.id} data-state={stage.state} className={styles.journeyStep}>
+            <span className={styles.journeyNumber}>{String(index+1).padStart(2,'0')}</span>
+            <span className={styles.journeyIcon}><Icon size={24} strokeWidth={1.7}/></span>
+            <strong>{stage.name}</strong>
+            <small>{stage.detail}</small>
+            {index<stages.length-1?<span className={styles.journeyArrow} aria-hidden="true">›</span>:null}
+          </li>;
+        })}
+      </ol>
+      <div className={styles.journeyNote}>
+        <Info size={17}/>
+        <p>Зелёная отметка говорит только о записи конкретного этапа.
+          Независимая проверка и публикация не следуют из завершения workflow или согласования владельца.</p>
+      </div>
+
+      <section className={styles.andonPanel} data-state={andon.state} aria-label="Контроль следующего шага">
+        <div className={styles.andonHead}>
+          <div className={styles.andonIndicator} aria-hidden="true">●</div>
+          <div>
+            <div className={styles.andonEyebrow}>КОНТРОЛЬ ПРОЦЕССА · TOYOTA / ANDON</div>
+            <h3>{andon.title}</h3>
+            <p>{andon.explanation}</p>
+          </div>
+        </div>
+        <div className={styles.andonNext}>
+          <strong>Следующий шаг</strong>
+          <span>{andon.nextAction}</span>
+          <small>Ответственный: {andon.actor}. Выполнение автоматически не запускается.</small>
+        </div>
+        <details className={styles.andonDetails}>
+          <summary>Что необходимо для продолжения</summary>
+          <div>
+            {andon.missing.length
+              ? <ul>{andon.missing.map(item=><li key={item}>{item}</li>)}</ul>
+              : <p>Отсутствие требований здесь не является подтверждением готовности к публикации.</p>}
+            <p>Уровень доказательств: только сохранённые события Case. Статусы и права повторно проверяются защищённым Core.</p>
+          </div>
+        </details>
+      </section>
+
+      <div className={'owner-grid two '+styles.truthGrid} style={{marginTop:'12px'}}>
         <div className="owner-card">
           <div className="owner-section-kicker">1 · Бизнес-кейс</div>
           <strong>{statusLabel(route.caseStatus)}</strong>
@@ -103,7 +172,7 @@ export function OwnerCaseRouteTruth({route}:{route:CaseRouteTruth}) {
           {route.timeline.length ? (
             <div className="owner-timeline" style={{marginTop:'10px'}}>
               {route.timeline.map(entry => (
-                <div className="owner-timeline-row" key={entry.id}>
+                <div className={'owner-timeline-row '+styles.timelineEntry} data-kind={entry.kind} key={entry.id}>
                   <span className="owner-timeline-dot" aria-hidden="true" />
                   <div>
                     <strong>{entry.label}</strong>

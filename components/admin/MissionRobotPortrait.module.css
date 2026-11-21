@@ -1,0 +1,19 @@
+/* Tiny role portrait SVG: original vector, CSS shadows only, no external assets. */
+.avatar{color:var(--role-tone,#67beff);width:82px;height:77px;position:relative;
+  flex:0 0 auto;display:grid;place-items:center;isolation:isolate;}
+.avatar svg{width:100%;height:100%;display:block;position:relative;z-index:2;
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.58)) drop-shadow(0 0 5px var(--role-glow,rgba(73,160,240,.28)));}
+.avatar .halo{position:absolute;inset:14px 2px 0;z-index:0;
+  border-radius:50%;background:radial-gradient(ellipse,var(--role-glow,rgba(65,157,240,.25)),transparent 74%);
+  filter:blur(7px);pointer-events:none;}
+.ownerHalo{position:absolute;inset:10px;z-index:0;border-radius:100%;
+  background:radial-gradient(ellipse,rgba(246,192,91,.3),transparent 75%);filter:blur(9px);}
+.specialty{position:absolute;right:0;bottom:8px;z-index:3;color:var(--role-tone,#c6eaff);
+  background:linear-gradient(145deg,#0b1b35,#192d51);
+  border:1px solid color-mix(in srgb,var(--role-tone,#a4c9f1) 62%,transparent);
+  border-radius:7px;padding:3px 4px;display:grid;place-items:center;
+  box-shadow:0 0 10px var(--role-glow,rgba(75,165,240,.35));}
+.avatar[data-large="true"]{width:122px;height:115px;}
+.avatar[data-large="true"] .specialty{right:4px;bottom:11px;padding:6px;}
+.avatar[data-large="true"] .specialty svg{height:19px;width:19px;}
+@media(prefers-reduced-motion:reduce){.avatar svg,.halo{filter:none!important;}}
