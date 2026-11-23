@@ -142,6 +142,7 @@ export function CartOwnerLiveReviewClient(){
     return()=>window.clearTimeout(timer);
   },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country]);
 
+  const savedColourUnavailable = checkoutActive && !quoteLoading && quote?.code === 'checkout_color_invalid';
   const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
   const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
 
@@ -249,6 +250,12 @@ export function CartOwnerLiveReviewClient(){
               Continue shopping <ArrowRight size={15}/>
             </Link>
           </div>
+          {savedColourUnavailable && (
+            <p role="alert" className="mt-4 rounded-lg border border-amber-500/25 p-3 text-[13px] leading-6 text-amber-100">
+              A saved colour is no longer available. Use Edit options to choose a current colour and add it to your bag.
+              Then remove the original colour from your selected pieces to update the total.
+            </p>
+          )}
           {!hydrated?<p className="mt-7 text-[13px] text-[var(--bone-dim)]" role="status">Reading your browser bag…</p>
           :items.length===0?<div className="mt-6 rounded-xl border border-dashed border-[rgba(216,214,211,.20)] p-8 text-center">
             <ShoppingBag className="mx-auto text-[#d4b26a]" size={28} strokeWidth={1.4}/>
@@ -352,9 +359,9 @@ export function CartOwnerLiveReviewClient(){
                 <span className="text-[13px] text-[#e4c87d]">+€15 per piece</span>
               </div>
               <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements. For Custom size, this service is required and is included automatically in your order total.</p>
-              <div className="mt-2 grid gap-x-3 gap-y-1 sm:grid-cols-2">
+              <div className="mt-2 grid grid-cols-1 gap-x-3 gap-y-1 sm:grid-cols-2">
                 {items.map(item=><label key={item.id}
-                  className="flex min-h-8 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
+                  className="flex min-h-8 min-w-0 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
                   <input type="checkbox" checked={customFitIds.includes(item.id)}
                     disabled={requiresPaidCustomMeasurements(item)}
                     onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
@@ -547,6 +554,7 @@ export function CartOwnerLiveReviewClient(){
               <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
                 {!linesOrderable&&items.length>0
                   ?'One of the pieces in your bag needs to be selected again on its product page before payment.'
+                  :savedColourUnavailable?<a className="text-[#d4b26a] underline underline-offset-4" href="#owner-cart-lines-title">Review the saved colour in your selected pieces</a>
                   :quote&&!quote.ok?quote.message
                   :form.country?'Price in EUR, confirmed by TheFEYA. Customs/import charges, where applicable, may be collected separately on delivery.'
                   :'Select your destination country to confirm delivery charges.'}
