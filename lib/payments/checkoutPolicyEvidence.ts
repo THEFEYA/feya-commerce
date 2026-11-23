@@ -13,3 +13,9 @@ export const CHECKOUT_POLICY_BUNDLE_V1={
     privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'2b91f9c1cd7290e840fff91567e9cd7640ef36fb'},
   },
 } as const;
+
+/** Transit after dispatch, as displayed in the signed /shipping policy. */
+export const SHIPPING_TRANSIT_BUSINESS_DAYS = {
+  standard: '10–14',
+  express: '6–9',
+} as const;

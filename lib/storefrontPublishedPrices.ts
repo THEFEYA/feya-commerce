@@ -26,6 +26,7 @@ type ProductRelease = {
   etsySizeValues:Record<string,string>;
   etsyListedSizes?: string[];
   cardConfigurationId: string;
+  ownerPricedPair?: {configurationId: string; regularUsdMinor: number; approvedOn: string};
   separateConfigurationIds?: string[];
   baselineEurMinor: Record<string, number>;
   offers: Record<string, ReleasedOffer>;
@@ -137,6 +138,19 @@ function prepareProduct(release: ProductRelease) {
     regular.set(id,amount);
     current.set(id,amount);
   }
+  const pieces = release.separateConfigurationIds ?? [];
+  const pair = release.ownerPricedPair;
+  if (pair) {
+    const id = pair.configurationId;
+    if (id !== release.cardConfigurationId || !current.has(id) || regular.has(id)
+      || pieces.length !== 2 || !pieces.every(piece => regular.has(piece))) {
+      throw new Error('An owner-priced pair requires a separate full set and two priced outfits');
+    }
+    const amount = usdToEurMinor(pair.regularUsdMinor, priceRelease.fx.usdPerEur);
+    regular.set(id, amount);
+    current.set(id, amount);
+    confidence.set(id, 'owner_reviewed');
+  }
   const card = current.get(release.cardConfigurationId);
   if (!card || !regular.size) throw new Error('Missing catalog display price');
   const sizeAmounts = Array.from(sizePrices.values()).flatMap(prices => standardSizes.map(size => prices[size]));
@@ -144,7 +158,6 @@ function prepareProduct(release: ProductRelease) {
   if (values.some(amount => !Number.isSafeInteger(amount) || amount < 1)) throw new Error('Invalid catalog price');
   // Only compare a set when this catalog entry has one documented composition.
   // The frozen PDP presents one comparison for every set; omit it on multi-set products.
-  const pieces = release.separateConfigurationIds ?? [];
   if (new Set(pieces).size !== pieces.length || pieces.some(id => id === release.cardConfigurationId || !current.has(id))) {
     throw new Error('Invalid separate-purchase composition');
   }
@@ -202,9 +215,12 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     if (found.has(id) || (row.currency && row.currency !== 'EUR')) throw new Error('Released catalog configuration mismatch: ' + id);
     found.add(id);
     const offer = item.release.offers[id];
-    const label = offer.publicLabel;
+    const ownerPair = item.release.ownerPricedPair?.configurationId === id;
+    if (ownerPair && !isSourceConfirmedPairedSet(row)) throw new Error('Owner bundle requires both outfits');
+    const regularPriceSource = ownerPair ? 'owner_authorized_bundle' : 'etsy_regular_usd';
+    const label = offer?.publicLabel;
     const sizes = item.sizePrices.get(id);
-    const source = offer.evidence;
+    const source = offer?.evidence;
     if (label && source) {
       const selectedLabel = offer.publicLabelMode === 'omit_quantity_suffix'
         ? source.matchedOption?.replace(/ \*\d+$/, '') : source.matchedOption;
@@ -226,7 +242,7 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     return {...row, ...(label ? {public_label:label} : {}), ...bySize,
       base_price_amount:minor / 100, display_price_amount:minor / 100, sale_price_amount:null,
       compare_at_price_amount:null, discount_percent:null,
-      price_source_mode:sizes ? 'etsy_regular_selected_sizes_and_website_base' : 'etsy_regular_usd',
+      price_source_mode:sizes ? 'etsy_regular_selected_sizes_and_website_base' : regularPriceSource,
       price_confidence_status:item.confidence.get(id)};
   });
   if (found.size !== item.regular.size) throw new Error('Released catalog configuration is missing');

@@ -22,6 +22,7 @@ import {
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
 import {trackMeasurementEvent} from '@/lib/measurementClient';
+import {SHIPPING_TRANSIT_BUSINESS_DAYS} from '@/lib/payments/checkoutPolicyEvidence';
 import {buildBeginCheckoutMeasurement} from '@/lib/measurementContract';
 
 type ContactForm={
@@ -375,7 +376,7 @@ export function CartOwnerLiveReviewClient(){
               </span>
               <span className="mt-3 text-[24px] text-[#f7f3ec]">{currency(choice==='express'?3500:1900)}</span>
               <span className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]">
-                {choice==='express'?'6–9':'10–14'} business days
+                {SHIPPING_TRANSIT_BUSINESS_DAYS[choice]} business days
               </span>
               <span className="mt-2 text-[12px] text-[#e5d2a2]">{choice==='express'?'Priority order preparation':'Regular preparation'}</span>
             </label>)}

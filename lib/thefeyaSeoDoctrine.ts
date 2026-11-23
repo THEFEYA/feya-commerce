@@ -1,3 +1,5 @@
+import { SHIPPING_TRANSIT_BUSINESS_DAYS } from './payments/checkoutPolicyEvidence.ts';
+
 export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v25' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
@@ -75,13 +77,13 @@ function rightPanelBlock(block_key: string, heading: string, lines: readonly str
   };
 }
 
-// Active business-truth v1, rechecked 2026-09-24. Exact public copy, not an
-// inferred promise or a conversion of unspecified production days to weekdays.
-// Provenance: docs/search/fulfillment-truth-capture-20260924.json.
+// Production retains the day units in docs/search/fulfillment-truth-capture-20260924.json.
+// Carrier transit follows the later owner-saved delivery profile (revision 16)
+// and the published /shipping policy recorded in checkoutPolicyEvidence.
 export const THEFEYA_APPROVED_FULFILLMENT_COPY = {
   production: 'Production usually takes 3–5 days.',
-  standard: 'Standard international shipping usually takes 10–14 business days.',
-  express: 'Express shipping usually takes 7–10 business days.',
+  standard: `Standard international shipping usually takes ${SHIPPING_TRANSIT_BUSINESS_DAYS.standard} business days.`,
+  express: `Express shipping usually takes ${SHIPPING_TRANSIT_BUSINESS_DAYS.express} business days after dispatch.`,
 } as const;
 
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
