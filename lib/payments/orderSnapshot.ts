@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {colorChoiceLabel} from '../bonanzaColorChoices.ts';
-import {CHECKOUT_POLICY_BUNDLE_V1} from './checkoutPolicyEvidence.ts';
+import {CHECKOUT_POLICY_BUNDLE_V1, SHIPPING_TRANSIT_BUSINESS_DAYS} from './checkoutPolicyEvidence.ts';
 import type {CheckoutAddress, CheckoutBuyer, CheckoutRequestV1} from './checkoutRequest.ts';
 import {CHECKOUT_PRICING_V1, type CheckoutAmounts, type DeliveryMethod, type ExtraLine, type PricedLine} from './pricing.ts';
 
@@ -8,8 +8,8 @@ export const SELLER_ONLINE_CHECKOUT_DISCLOSURE =
   'Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.';
 
 export const DELIVERY_LABELS: Record<DeliveryMethod, {label: string; window: string}> = {
-  standard: {label: 'Standard Shipping', window: '10–14 business days'},
-  express: {label: 'Express Shipping', window: '6–9 business days, priority order preparation'},
+  standard: {label: 'Standard Shipping', window: `${SHIPPING_TRANSIT_BUSINESS_DAYS.standard} business days`},
+  express: {label: 'Express Shipping', window: `${SHIPPING_TRANSIT_BUSINESS_DAYS.express} business days, priority order preparation`},
 };
 
 export type OrderSnapshotLine = Omit<PricedLine, never>;

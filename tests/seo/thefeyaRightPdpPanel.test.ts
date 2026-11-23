@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { DELIVERY_LABELS } from '../../lib/payments/orderSnapshot.ts';
 import {
   THEFEYA_CANONICAL_RIGHT_PDP_PANEL,
   buildThefeyaSeoDoctrineUserLines,
@@ -21,9 +22,14 @@ test('arm and leg armor uses current owner-confirmed glossy vegan leather withou
   assert.ok(buildThefeyaSeoDoctrineUserLines({ canonical_product_id: id }).join('\n').includes(material));
 });
 
-test('storefront panel and writer use the active fulfillment truth with the original day units', () => {
+test('product panels and writer agree with checkout transit without changing production day units', () => {
   const capture = JSON.parse(readFileSync('docs/search/fulfillment-truth-capture-20260924.json', 'utf8'));
   const registry = JSON.parse(readFileSync('docs/search/inventory-capture-20260924.json', 'utf8')).business_truth;
+  const shippingPolicy = readFileSync('app/shipping-public-v13/page.tsx', 'utf8');
+  for (const [method, range] of [['standard', '10–14'], ['express', '6–9']] as const) {
+    assert.ok(shippingPolicy.includes(`${range} working days`));
+    assert.ok(DELIVERY_LABELS[method].window.startsWith(`${range} business days`));
+  }
   // Includes ordinary products and a product-specific material/fit override.
   for (const id of ['ordinary-product', 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56']) {
     const panel = resolveThefeyaRightPdpPanel({ canonical_product_id: id });
@@ -33,10 +39,14 @@ test('storefront panel and writer use the active fulfillment truth with the orig
       assert.equal(row.status, 'ACTIVE'); assert.equal(row.valid_to, null);
       assert.equal(row.version_no, original.version_no);
       const block = panel.find(b => b.block_key === (row.truth_type === 'PRODUCTION' ? 'production_timing' : 'shipping_delivery'));
-      assert.ok(block?.lines.includes(row.public_copy), row.truth_code);
-      assert.ok(prompt.includes(row.public_copy), row.truth_code);
+      // The October owner-saved Express profile supersedes this September capture.
+      const expected = row.truth_code === 'EXPRESS_SHIPPING_TIME'
+        ? 'Express shipping usually takes 6–9 business days after dispatch.'
+        : row.public_copy;
+      assert.ok(block?.lines.includes(expected), row.truth_code);
+      assert.ok(prompt.includes(expected), row.truth_code);
     }
-    assert.doesNotMatch(prompt, /3[-–]5 business days|6[-–]9 business days/);
+    assert.doesNotMatch(prompt, /3[-–]5 business days|7[-–]10 business days/);
   }
   assert.equal(registry.find((r: any) => r.truth_code === 'STANDARD_MADE_TO_ORDER_PRODUCTION_TIME').value_json.day_type, 'unspecified');
 });
