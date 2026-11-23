@@ -1,0 +1,31 @@
+[
+  {
+    "productId": "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+    "configurationId": "8adcff72-3599-429b-873d-48887f46b096",
+    "size": "M",
+    "color": "Gold",
+    "title": "Gold Horned Headpiece for Stage Costumes",
+    "description": "Gold horned costume headpiece in the original design. This option includes the headpiece only. The bodysuit and leg pieces are separate.",
+    "productType": "Costume Accessories > Headwear",
+    "imageUrl": "https://i.etsystatic.com/54033853/r/il/6d7281/6483108536/il_fullxfull.6483108536_9h4q.jpg",
+    "imageSha256": "2d5af04b4571265cf07428625fb2e64f2c796f38c31ea7c0f05bf1b352f56d38",
+    "countries": [
+      "AU",
+      "SG"
+    ]
+  },
+  {
+    "productId": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+    "configurationId": "a15aca16-2cf5-4677-b996-d3e980da2e31",
+    "size": "M",
+    "color": "Gold",
+    "title": "Gold Sculptural Bodysuit for Stage Costumes",
+    "description": "Gold sculptural stage bodysuit. This option includes the bodysuit only. The horned headpiece and leg pieces are separate.",
+    "productType": "Costumes > Bodysuits",
+    "imageUrl": "https://i.etsystatic.com/54033853/r/il/0b6c31/6255678609/il_fullxfull.6255678609_bluj.jpg",
+    "imageSha256": "f781ae89a8c48bdf5834c5aa33b2dd991be6ebc2bcfa4fcf1d3e4ddcbf452e8b",
+    "countries": [
+      "SG"
+    ]
+  }
+]

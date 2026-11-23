@@ -2,7 +2,16 @@
 
 ## Active file destinations · 23 November 2026
 
-The configured TSV now targets the United States and Hong Kong for free listings. The US entry inherits the existing account delivery services. Hong Kong has two explicit single-offer rates, Standard €19 (10–14 business days after dispatch) and Express €35 (6–9). Both use Monday–Friday and the model's approved production time. The 207 production ranges in `production-business-days-20261123.json` come from the published delivery workspace, revision 16. The generator reads prices and transit times from the checkout authorities. The old filename and feed label are part of the registered source identity.
+The original 1,575 offers carry US and HK delivery. Two additional exact selections use independent item prices and country-specific shipping as listed below. Their links open the selected gold configuration in size M. Prices, photos and chargeable options come from the existing public gallery and paid catalogue. The rows contain only free listings. A country is approved once Google reports it for that specific offer ID.
+
+| Offer ID | Configuration | Countries requested | Standard / Express |
+| --- | --- | --- | --- |
+| 8adcff72-3599-429b-873d-48887f46b096-M | Gold horned headpiece, original style, €700.64 | AU, SG | AU €39 / €55, SG €19 / €35 |
+| a15aca16-2cf5-4677-b996-d3e980da2e31-M | Gold sculptural bodysuit, €370.34 | SG | €19 / €35 |
+
+The two photographed selections are individually sold items. The Australian care labelling standard lists headwear as exempt. Australian Border Force applies the high-value import procedure above A$1,000, and Singapore Customs applies its low-value goods rules up to S$400 per item. Rates on 23 November put the advertised item values above these thresholds, before shipping. The checkout discloses import charges payable on delivery. Review the effective sale price and customs exchange rate before activating any promotion or extending the selection. The conservative release floors are €660 for AU and €310 for SG. If the thresholds or the fulfillment model change, remove the affected country from that row until its applicable treatment is confirmed. [Australian Border Force](https://www.abf.gov.au/imports/Pages/How-to-import/Import-declarations.aspx) · [Care labelling, s.7](https://www.legislation.gov.au/F2023L01187/asmade/2023-09-04/text/original/epub/OEBPS/document_1/document_1.html) · [Singapore Customs](https://www.customs.gov.sg/personal-shipment/buying-from-overseas/gst-on-low-value-goods/).
+
+The original catalogue targets the United States and Hong Kong for free listings. The US entry inherits the existing account delivery services. Hong Kong has two explicit single-offer rates, Standard €19 (10–14 business days after dispatch) and Express €35 (6–9). Both use Monday–Friday and the model's approved production time. The 207 production ranges in `production-business-days-20261123.json` come from the published delivery workspace, revision 16. The generator reads prices and transit times from the checkout authorities. The old filename and feed label are part of the registered source identity.
 
 A live recapture of all 207 product pages and 14 selected landings on deployment `dpl_66ywP4idbi94HJ14yHqyWoqza2tZ` reproduced both files, including all 1,575 exact offer IDs. For the size-M Silver Belt and Necklace (€171.41), the live Hong Kong checkout quoted €190.41 Standard and €206.41 Express. Google's per-country approval after import is recorded separately in issue #145.
 
