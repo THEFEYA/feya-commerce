@@ -32,13 +32,13 @@ export async function verifySavedCartColour({browser, env, out}) {
     }
     assert.ok(ready,'Cart on loopback must render');
     let orderAttempts=0;
-    let statusAttempts=0;
+    let statusAvailable=false;
     let paymentsEnabled=true;
     await context.route('**/*',async route=>{
       const url=new URL(route.request().url());
       if(url.origin!==origin)return route.abort();
       if(url.pathname==='/api/checkout/status'){
-        if(++statusAttempts===1){
+        if(!statusAvailable){
           await initialStatus;
           return route.fulfill({json:{ok:true,checkout_active:false,storage_ready:false}});
         }
@@ -65,6 +65,7 @@ export async function verifySavedCartColour({browser, env, out}) {
     const retry=page.getByRole('button',{name:'Check again'});
     await retry.waitFor();
     assert.equal(await page.getByText('Checkout not active',{exact:true}).count(),0);
+    statusAvailable=true;
     await retry.click();
     const silver=page.getByRole('button',{name:'Silver',exact:true});
     await silver.waitFor({timeout:60000});
