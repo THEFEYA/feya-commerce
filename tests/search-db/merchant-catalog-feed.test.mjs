@@ -80,6 +80,37 @@ test('live feeds publish the regular Silver Full Set price for the seven reviewe
   }
 });
 
+test('every submitted offer keeps US service inheritance and carries both quoted Hong Kong services',()=>{
+  const {report,files}=buildFiles(inputs());
+  const days=JSON.parse(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/production-business-days-20261123.json',import.meta.url)));
+  const byGroup=new Map(report.products.map(p=>[p.configuration_id,days[p.canonical_product_id]]));
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [columns,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  const xmlItems=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>').slice(1);
+  assert.equal(lines.length,1575);
+  assert.equal(xmlItems.length,lines.length);
+  for(const [index,cells] of lines.entries()){
+    const [low,high]=byGroup.get(cells[columns.indexOf('item_group_id')]);
+    const header='shipping(country:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
+    assert.equal(cells[columns.indexOf(header)],'US::::::,HK:Standard:19.00 EUR:'+low+':'+high+':10:14,HK:Express:35.00 EUR:'+low+':'+high+':6:9');
+    const xml=xmlItems[index];
+    const services=[...xml.matchAll(/<g:shipping>([\s\S]*?)<\/g:shipping>/g)].map(match=>match[1].trim());
+    assert.equal(services.length,3);
+    assert.equal(services[0],'<g:country>US</g:country>');
+    for(const [offset,method,price] of [[1,'Standard','19.00'],[2,'Express','35.00']]){
+      assert.ok(services[offset].includes('<g:service>'+method+'</g:service>'));
+      assert.ok(services[offset].includes('<g:price>'+price+' EUR</g:price>'));
+      assert.ok(services[offset].includes('<g:min_handling_time>'+low+'</g:min_handling_time>'));
+      assert.ok(services[offset].includes('<g:max_handling_time>'+high+'</g:max_handling_time>'));
+    }
+    for(const key of ['shipping_handling_business_days','shipping_transit_business_days']){
+      assert.equal(cells[columns.indexOf(key)],'HK:MTWRF');
+      assert.ok(xml.includes('<g:'+key+'>HK:MTWRF</g:'+key+'>'));
+    }
+    assert.equal(cells[columns.indexOf('excluded_destination')],'Shopping_ads');
+  }
+});
+
 test('changed checkout price, incomplete sizes, corpus or duplicate identity fail closed',()=>{
   for(const change of [
     d=>{d.capture.products[2].size_quotes[0].unit_minor++;},

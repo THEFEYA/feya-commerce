@@ -1,5 +1,13 @@
 # TheFEYA US free listings — complete207-product export, 6 Nov 2026
 
+## Active file destinations · 23 November 2026
+
+The configured TSV now targets the United States and Hong Kong for free listings. The US entry inherits the existing account delivery services. Hong Kong has two explicit single-offer rates, Standard €19 (10–14 business days after dispatch) and Express €35 (6–9). Both use Monday–Friday and the model's approved production time. The 207 production ranges in `production-business-days-20261123.json` come from the published delivery workspace, revision 16. The generator reads prices and transit times from the checkout authorities. The old filename and feed label are part of the registered source identity.
+
+A live recapture of all 207 product pages and 14 selected landings on deployment `dpl_66ywP4idbi94HJ14yHqyWoqza2tZ` reproduced both files, including all 1,575 exact offer IDs. For the size-M Silver Belt and Necklace (€171.41), the live Hong Kong checkout quoted €190.41 Standard and €206.41 Express. Google's per-country approval after import is recorded separately in issue #145.
+
+Google documents the [file-only country targeting method](https://support.google.com/merchants/answer/15404838?hl=en). For Hong Kong fulfilment, any product safety warning supplied on the article, packaging or insert must be legible in both Chinese and English. [Hong Kong Customs guidance](https://www.customs.gov.hk/en/service-enforcement-information/consumer-protection/faqs/index.html).
+
 ## Scope and result
 
 - Exact approved corpus: **207 READY /0HOLD /1,575 offers**. One reviewed source configuration/default photographed colorway per product;204 single-wearer configurations ×7sizes plus3 genuine paired configurations ×49 independent size combinations. This is not every possible component/color combination, nor evidence of Google eligibility, indexing, traffic or orders.

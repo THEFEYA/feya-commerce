@@ -10,6 +10,8 @@ import {PDP_LANDING_MEDIA_BINDINGS} from '../../lib/pdpLandingMediaBindings.ts';
 import {pdpLandingParams} from '../../lib/pdpLandingSelection.ts';
 import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
 import {publishedRegularEurMinor,publishedPriceNeedsSize,publishedPriceContractVersion} from '../../lib/storefrontPublishedPrices.ts';
+import {CHECKOUT_PRICING_V1,isRemoteDestination} from '../../lib/payments/pricing.ts';
+import {SHIPPING_TRANSIT_BUSINESS_DAYS} from '../../lib/payments/checkoutPolicyEvidence.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -230,7 +232,16 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
   }
   assert.equal(new Set(rows.map(r=>r.id)).size,rows.length,'duplicate offer IDs');
   const byId=new Map(rows.map(r=>[r.id,r]));
-  for(const old of pilot)assert.deepEqual(byId.get(old.id),old,'approved pilot row removed or changed');
+  // Fresh captures use the current published regular price. The dated pilot
+  // remains the authority for every other value on its original 84 offers.
+  const releasedByGroup=new Map(capture.products.filter(p=>p.selected_configuration?.price_contract_version===publishedPriceContractVersion)
+    .map(p=>[p.selected_configuration.id,p.canonical_product_id]));
+  for(const old of pilot){
+    const productId=releasedByGroup.get(old.item_group_id);
+    const minor=productId?publishedRegularEurMinor(productId,old.item_group_id,old.size):null;
+    const expected=minor===null?old:{...old,price:(minor/100).toFixed(2)+' EUR'};
+    assert.deepEqual(byId.get(old.id),expected,'approved pilot row removed or changed');
+  }
   for(const row of rows){assert.ok(row.id.length<=50);assert.ok(row.color.split('/').length<=3);}
   const report={version:'thefeya_merchant_catalog_manifest_v1',captured_at:capture.captured_at,
     source_git_sha:capture.source_git_sha,deployment_id:capture.deployment_id,
@@ -242,9 +253,30 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
 }
 
 export const xmlEscape=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-export function toXml(rows){
+const shippingFields=['country','service','price','min_handling_time','max_handling_time','min_transit_time','max_transit_time'];
+const shippingHeader='shipping('+shippingFields.join(':')+')';
+const businessDayFields=['shipping_handling_business_days','shipping_transit_business_days'];
+// Item-level targeting keeps the existing US account services. The quoted
+// international rates are for one advertised offer, as required in a feed.
+function offerDelivery(handling,country){
+  assert.ok(Array.isArray(handling)&&handling.length===2&&handling.every(Number.isInteger)&&
+    handling[0]>=0&&handling[1]>=handling[0],'missing or invalid production range');
+  const extra=isRemoteDestination(country)?CHECKOUT_PRICING_V1.remoteSurchargeMinor:0;
+  const services=Object.entries(CHECKOUT_PRICING_V1.shippingMinor).map(([method,minor])=>{
+    const [minTransit,maxTransit]=SHIPPING_TRANSIT_BUSINESS_DAYS[method].split('–').map(Number);
+    assert.ok(Number.isInteger(minTransit)&&Number.isInteger(maxTransit)&&minTransit<=maxTransit);
+    return {country,service:method==='standard'?'Standard':'Express',
+      price:((minor+extra)/100).toFixed(2)+' '+CHECKOUT_PRICING_V1.currency,
+      min_handling_time:handling[0],max_handling_time:handling[1],
+      min_transit_time:minTransit,max_transit_time:maxTransit};
+  });
+  return {services:[{country:'US'},...services],businessDays:country+':MTWRF'};
+}
+
+export function toXml(rows,deliveryByGroup){
   const field=(name,value)=>'      <g:'+name+'>'+xmlEscape(value)+'</g:'+name+'>\n';
-  let out='<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">\n  <channel>\n    <title>TheFEYA US free listings catalogue</title>\n    <link>https://thefeya.com</link>\n    <description>Owner-approved catalogue; photographed color and standard sizes.</description>\n';
+  const channelTitle=deliveryByGroup?'TheFEYA free listings catalogue':'TheFEYA US free listings catalogue';
+  let out='<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">\n  <channel>\n    <title>'+channelTitle+'</title>\n    <link>https://thefeya.com</link>\n    <description>Owner-approved catalogue; photographed color and standard sizes.</description>\n';
   for(const row of rows){
     out+='    <item>\n';
     for(const key of ['id','item_group_id'])out+=field(key,row[key]);
@@ -254,6 +286,15 @@ export function toXml(rows){
       out+=field(key,value);
     }
     for(const url of row.additional_image_link.split(',').filter(Boolean))out+=field('additional_image_link',url);
+    if(deliveryByGroup){
+      const {services,businessDays}=deliveryByGroup.get(row.item_group_id);
+      for(const service of services){
+        out+='      <g:shipping>\n';
+        for(const [key,value] of Object.entries(service))out+='  '+field(key,value);
+        out+='      </g:shipping>\n';
+      }
+      for(const key of businessDayFields)out+=field(key,businessDays);
+    }
     // The active account source currently targets FREE_LISTINGS only; also keep
     // an explicit destination exclusion if someone later links an Ads account.
     out+=field('excluded_destination','Shopping_ads');
@@ -265,15 +306,20 @@ export function toXml(rows){
 // Google text-feed syntax: digital_source_type:"content". Double quotes inside
 // a structured sub-attribute are doubled, not backslash-escaped. Keep the
 // already configured source URL and TSV format; no browser settings change.
-export function toMerchantTsv(rows){
+export function toMerchantTsv(rows,deliveryByGroup){
   const structured=value=>'trained_algorithmic_media:"'+String(value).replace(/"/g,'""')+'"';
   const columns=['id','item_group_id','structured_title','structured_description',
     ...Object.keys(rows[0]).filter(k=>!['id','item_group_id','title','description'].includes(k)),
-    'excluded_destination'];
+    'excluded_destination',...(deliveryByGroup?[shippingHeader,...businessDayFields]:[])];
   const cell=value=>{const s=String(value??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
   return [columns.join('\t'),...rows.map(row=>{
     const record={...row,structured_title:structured(row.title),
       structured_description:structured(row.description),excluded_destination:'Shopping_ads'};
+    if(deliveryByGroup){
+      const {services,businessDays}=deliveryByGroup.get(row.item_group_id);
+      record[shippingHeader]=services.map(service=>shippingFields.map(key=>service[key]??'').join(':')).join(',');
+      for(const key of businessDayFields)record[key]=businessDays;
+    }
     return columns.map(c=>cell(record[c])).join('\t');
   })].join('\n')+'\n';
 }
@@ -283,6 +329,9 @@ export function buildFiles(data){
   // The manifests describe the dated Google/readback review. The live XML and
   // configured TSV use the same published price as the storefront and checkout.
   const productByConfiguration=new Map(report.products.map(p=>[p.configuration_id,p.canonical_product_id]));
+  const productionDays=json(new URL('production-business-days-20261123.json',DIR));
+  const deliveryByGroup=new Map(report.products.filter(p=>p.status==='READY').map(p=>
+    [p.configuration_id,offerDelivery(productionDays[p.canonical_product_id],'HK')]));
   const liveRows=rows.map(row=>{
     const productId=productByConfiguration.get(row.item_group_id);
     assert.ok(productId,'feed offer has no reviewed product identity');
@@ -299,8 +348,8 @@ export function buildFiles(data){
   });
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
-  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(liveRows),
-    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(liveRows),
+  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(liveRows,deliveryByGroup),
+    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(liveRows,deliveryByGroup),
     'readiness_manifest.json':JSON.stringify(report,null,2)+'\n',
     'readiness_manifest.tsv':[columns.join('\t'),...report.products.map(p=>columns.map(c=>cell(p[c])).join('\t'))].join('\n')+'\n'}};
 }
