@@ -121,7 +121,11 @@ export function optionLabel(option: StorefrontConfiguration, index = 0) {
   const preferred = option.public_label || option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
   if (preferred) {
     const label = publicOptionLabel(preferred, index);
-    return option.configuration_color ? `${option.configuration_color} ${label}` : label;
+    const color = option.configuration_color?.trim();
+    if (!color) return label;
+    const name = label.toLowerCase();
+    const prefix = color.toLowerCase();
+    return name === prefix || name.startsWith(prefix + ' ') ? label : color + ' ' + label;
   }
   return `Option ${index + 1}`;
 }

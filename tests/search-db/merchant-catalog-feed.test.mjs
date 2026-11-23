@@ -6,6 +6,21 @@ import {inputs,buildCatalog,buildFiles,toXml,toMerchantTsv,assertFresh,POLICY_GE
 import {extractFlightProduct,inspectPublicPage} from '../../scripts/merchant/capture-catalog.mjs';
 import {EXACT_COLOR_PRICE_PRODUCTS} from '../../lib/bonanzaColorPriceExceptions.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
+import {applyPublishedProductPrices,publishedPriceContractVersion,publishedRegularEurMinor} from '../../lib/storefrontPublishedPrices.ts';
+import {applyOwnerReviewedStorefrontCorrections} from '../../lib/storefrontOwnerReviewedCorrections.ts';
+import {restoreSourceProvenPurchaseOptions} from '../../lib/storefrontSourceOptionLabels.ts';
+import {projectReviewedBonanzaColors} from '../../lib/bonanzaReviewedColorProjection.ts';
+import {resolvePdpLandingSelection} from '../../lib/pdpLandingSelection.ts';
+import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
+import {priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
+
+const priceFixtures=[1,2].flatMap(part=>JSON.parse(readFileSync(new URL('../fixtures/approved-product-selectors-20261026-part'+part+'.json',import.meta.url))).products);
+function capturedProduct(capture){
+  const source=priceFixtures.find(p=>p.canonical_product_id===capture.canonical_product_id);
+  const product={...source,primary_image_url:capture.primary_image_url,
+    media_gallery:capture.images.map((url,position)=>({url,position,media_type:'image'}))};
+  return applyPublishedProductPrices(projectReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(product)),'detail'));
+}
 
 test('full gallery evidence preserves the seventh-frame Both Shoulders photo without selecting or publishing a variant',()=>{
   const review=JSON.parse(readFileSync(new URL('../../docs/merchant/variant-landings-20261106/gallery_review.json',import.meta.url),'utf8'));
@@ -246,4 +261,113 @@ test('configured TSV source keeps IDs and uses correctly escaped structured copy
   assert.equal(r.structured_description,'trained_algorithmic_media:"A ""quoted"" word: and detail"');
   assert.equal(r.excluded_destination,'Shopping_ads');
   assert.ok(!columns.includes('title')&&!columns.includes('description'));
+});
+
+test('only the partially observed corset gains size-specific links with the correct price in both feeds',()=>{
+  const data=inputs();
+  const {rows}=buildCatalog(data);
+  const {files}=buildFiles(data);
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [header,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  const ids=header.indexOf('id'),links=header.indexOf('link'),prices=header.indexOf('price');
+  const current=new Map(lines.map(cells=>[cells[ids],cells]));
+  const xml=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>');
+  const selected='bc5d078e-6a54-4270-9f17-52c0b55a3dd8';
+  let changes=0;
+  for(const row of rows){
+    const cells=current.get(row.id);
+    assert.ok(cells);
+    if(row.item_group_id!==selected){
+      assert.equal(cells[links],row.link);continue;
+    }
+    const link=new URL(cells[links]),prior=new URL(row.link);
+    assert.equal(link.origin+link.pathname,prior.origin+prior.pathname);
+    assert.equal(link.searchParams.get('configuration'),selected);
+    assert.equal(link.searchParams.get('size'),row.size);
+    for(const [key,value] of prior.searchParams)assert.equal(link.searchParams.get(key),value);
+    const price=['XXL','XXXL'].includes(row.size)?'183.44 EUR':'230.21 EUR';
+    assert.equal(cells[prices],price);
+    const item=xml.find(block=>block.includes('<g:id>'+row.id+'</g:id>'));
+    assert.ok(item?.includes('<g:price>'+price+'</g:price>'));
+    assert.ok(item?.includes('<g:link>'+link.href.replaceAll('&','&amp;')+'</g:link>'));
+    changes++;
+  }
+  assert.equal(changes,7);
+});
+
+test('a fresh capture validates each size against its own published amount and keeps accepted pilot identities',()=>{
+  const d=inputs();
+  const corset=d.capture.products.find(p=>p.etsy_tail==='4373546738');
+  const silver=d.capture.products.find(p=>p.etsy_tail==='1883724741');
+  for(const product of [corset,silver]){
+    const config=product.selected_configuration;
+    config.price_contract_version=publishedPriceContractVersion;
+    config.unit_minor=publishedRegularEurMinor(product.canonical_product_id,config.id,'M');
+    product.offer.price=(config.unit_minor/100).toFixed(2);
+    for(const row of product.size_quotes){
+      row.unit_minor=publishedRegularEurMinor(product.canonical_product_id,config.id,row.size);
+      row.line_minor=row.unit_minor;
+    }
+  }
+  const {rows}=buildCatalog(d);
+  const matching=(config,size)=>rows.find(row=>row.item_group_id===config.id&&row.size===size);
+  assert.equal(matching(corset.selected_configuration,'XXL').price,'183.44 EUR');
+  assert.equal(matching(corset.selected_configuration,'M').price,'230.21 EUR');
+  assert.equal(matching(silver.selected_configuration,'M').price,'409.46 EUR');
+  const large=corset.size_quotes.find(row=>row.size==='XXL');
+  large.unit_minor=23021;large.line_minor=23021;
+  assert.throws(()=>buildCatalog(d),/quoted size price/);
+  corset.selected_configuration.price_contract_version='older-catalog';
+  assert.throws(()=>buildCatalog(d),/capture price release/);
+});
+
+test('public recapture accepts the reviewed default photograph and verifies both prices on a size-only landing',()=>{
+  const listing=inputs().capture.products.find(p=>p.etsy_tail==='4373546738');
+  const product=capturedProduct(listing);
+  const configuration=listing.selected_configuration.id;
+  const link=listing.url+'?configuration='+configuration+'&size=XXL';
+  const selection=resolvePdpLandingSelection(product,{configuration,size:'XXL'}).selection;
+  const offers=pdpOfferJsonLd(product,listing.url,selection);
+  const ld={'@type':'Product',sku:product.canonical_product_id,name:listing.title,description:listing.description,image:listing.images,offers};
+  const flight='1:'+JSON.stringify({product})+'\n';
+  const html='<link rel="canonical" href="'+listing.url+'"><meta name="robots" content="index, follow">'
+    +'<script type="application/ld+json">'+JSON.stringify(ld)+'</script>'
+    +'<img fetchPriority="high" src="'+listing.images[0]+'"><script>self.__next_f.push('+JSON.stringify([1,flight])+')</script><!--local-price-test-->';
+  const result=inspectPublicPage(html,listing.url,{canonical_product_id:product.canonical_product_id},'local-price-test',link);
+  assert.equal(result.selected_size_landing.size,'XXL');
+  assert.equal(result.selected_size_landing.image_url,listing.images[0]);
+  assert.equal(result.selected_configuration.unit_minor,18344);
+  assert.equal(result.size_quotes.find(row=>row.size==='M').unit_minor,23021);
+  assert.equal(result.size_quotes.find(row=>row.size==='XXL').unit_minor,18344);
+  assert.ok(!result.candidate_reasons.some(reason=>reason.startsWith('CHECKOUT_PARITY_REQUIRED')));
+  assert.throws(()=>inspectPublicPage(html.replace('src="'+listing.images[0]+'"','src="https://example.invalid/wrong.jpg"'),listing.url,
+    {canonical_product_id:product.canonical_product_id},'local-price-test',link),/displayed main image/);
+});
+
+test('all 1,575 Merchant URLs select the advertised SKU and charge the exact advertised size price',()=>{
+  const data=inputs();
+  const {report,files}=buildFiles(data);
+  const byConfig=new Map(report.products.map(p=>[p.configuration_id,p.canonical_product_id]));
+  const pages=new Map(data.capture.products.map(c=>[c.canonical_product_id,capturedProduct(c)]));
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [header,...rows]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  assert.equal(rows.length,1575);
+  for(const cells of rows){
+    const row=Object.fromEntries(header.map((key,i)=>[key,cells[i]]));
+    const product=pages.get(byConfig.get(row.item_group_id)),url=new URL(row.link);
+    const landing=resolvePdpLandingSelection(product,Object.fromEntries(url.searchParams));
+    assert.notEqual(landing.status,'invalid',row.id);
+    const selection=landing.selection,offer=pdpOfferJsonLd(product,url.origin+url.pathname,selection);
+    assert.equal(offer?.sku,row.item_group_id,row.id);
+    assert.equal(offer.price+' '+offer.priceCurrency,row.price,row.id);
+    const pair=selection?.womenSize?{
+      women:{size:selection.womenSize,color:selection.womenColorCode},men:{size:selection.menSize,color:selection.menColorCode},
+    }:null;
+    const color=pair?.women.color||selection?.colorCode||product.default_color_choice;
+    const unit=Math.round(Number(offer.price)*100);
+    const quote=priceCartLine(product,{id:product.canonical_product_id+'-'+row.id,slug:product.product_slug,
+      configuration_id:row.item_group_id,size:pair?.women.size||row.size,color:colorChoiceLabel(color),color_code:color,
+      quantity:1,wearer:null,made_to_measure:false,paired_selection:pair,client_unit_minor:unit});
+    assert.equal(quote.price_changed,false,row.id);assert.equal(quote.unit_minor,unit,row.id);
+  }
 });

@@ -2,6 +2,7 @@
 import {readFileSync,writeFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {inspectPublicPage} from './capture-catalog.mjs';
+import {publishedRegularEurMinor} from '../../lib/storefrontPublishedPrices.ts';
 
 const [capturePath,outputPath]=process.argv.slice(2);
 assert.ok(capturePath&&outputPath,'usage: capture-selected-landings.mjs capture.json output.json');
@@ -19,7 +20,8 @@ for(const candidate of candidates.bindings){
   const pin=pins.find(p=>p.canonical_product_id===candidate.canonical_product_id);
   const p=inspectPublicPage(html,candidate.base_url,pin,capture.deployment_id,candidate.landing_url_example);
   assert.equal(p.selected_configuration.id,candidate.configuration_id);
-  assert.equal(p.selected_configuration.unit_minor,candidate.unit_minor);
+  const amount=publishedRegularEurMinor(candidate.canonical_product_id,candidate.configuration_id,p.selected_landing.selection.size);
+  assert.equal(p.selected_configuration.unit_minor,amount??candidate.unit_minor);
   assert.equal(p.selected_landing.image_url,candidate.photo_url);
   selected.push(p);
 }

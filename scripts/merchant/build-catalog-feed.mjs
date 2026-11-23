@@ -9,7 +9,7 @@ import {isColorPriceException} from '../../lib/bonanzaColorPriceExceptions.ts';
 import {PDP_LANDING_MEDIA_BINDINGS} from '../../lib/pdpLandingMediaBindings.ts';
 import {pdpLandingParams} from '../../lib/pdpLandingSelection.ts';
 import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
-import {publishedRegularEurMinor} from '../../lib/storefrontPublishedPrices.ts';
+import {publishedRegularEurMinor,publishedPriceNeedsSize,publishedPriceContractVersion} from '../../lib/storefrontPublishedPrices.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -117,6 +117,17 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
     const conf=p.selected_configuration;
     const landing=p.selected_landing;
     const paired=Boolean(landing?.selection.womenColorCode);
+    const release=conf?.price_contract_version;
+    if(release)assert.equal(release,publishedPriceContractVersion,'capture price release differs from the catalog');
+    if(p.selected_size_landing){
+      const link=new URL(p.selected_size_landing.url);
+      assert.ok(release&&publishedPriceNeedsSize(p.canonical_product_id,conf.id),'unreviewed size-specific feed price');
+      assert.equal(link.origin+link.pathname,p.url);
+      assert.equal(link.searchParams.get('size'),p.selected_size_landing.size);
+      assert.equal(link.searchParams.get('configuration'),conf.id);
+      assert.equal(p.selected_size_landing.image_url,image.image_url);
+    }
+    const amountForSize=size=>release ? publishedRegularEurMinor(p.canonical_product_id,conf.id,size) : conf.unit_minor;
     if(landing){
       const binding=PDP_LANDING_MEDIA_BINDINGS.find(b=>b.productId===p.canonical_product_id&&b.configurationId===conf?.id);
       assert.ok(binding,'unreviewed selected configuration');
@@ -166,7 +177,11 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       assert.equal(Math.round(Number(p.offer.price)*100),conf.unit_minor);
       assert.deepEqual(p.size_quotes.map(q=>q.size),paired?PAIR_SIZES:SIZES,'all standard sizes must be priced');
       if(paired)for(const q of p.size_quotes)assert.equal(q.size,q.women_size+'/'+q.men_size,'both independent dimensions must survive');
-      for(const q of p.size_quotes){assert.equal(q.unit_minor,conf.unit_minor);assert.equal(q.line_minor,conf.unit_minor);}
+      if(release)assert.equal(conf.unit_minor,amountForSize(p.selected_size_landing?.size||landing?.selection?.size),'selected configuration price differs from the catalog');
+      for(const q of p.size_quotes){
+        assert.equal(q.unit_minor,amountForSize(q.size),'quoted size price differs from the catalog');
+        assert.equal(q.line_minor,q.unit_minor);
+      }
     }
     const holds=[...reasons].sort();
     const entry={canonical_product_id:p.canonical_product_id,etsy_tail:p.etsy_tail,title:p.title,url:p.url,
@@ -184,10 +199,12 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       // transport changes to Google's structured fields for the AI-assisted copy.
       for(const old of prior){
         assert.equal(old.title,p.title);assert.equal(old.description,p.description);
-        assert.equal(old.price,entry.price_eur+' EUR');assert.equal(old.gender,gender);
+        const price=(amountForSize(old.size)/100).toFixed(2)+' EUR';
+        if(!release)assert.equal(old.price,price);
+        assert.equal(old.gender,gender);
         assert.equal(old.color,p.color);assert.equal(old.image_link,image.image_url);
         assert.equal(new URL(old.link).pathname,new URL(p.url).pathname);
-        assert.equal(old.id,conf.id+'-'+old.size);rows.push({...old});
+        assert.equal(old.id,conf.id+'-'+old.size);rows.push({...old,price});
       }
       continue;
     }
@@ -204,7 +221,7 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
       assert.ok(productType,'selected component needs an accurate product type');
       rows.push({id:conf.id+(paired?'-W'+womenSize+'-M'+menSize:'-'+size),item_group_id:conf.id,title,description,
         link:(selectedUrl||p.url+'?')+(selectedUrl?'&':'')+'utm_source=google&utm_medium=organic_shopping&utm_campaign=mc_us_free_listings_catalog',
-        image_link:image.image_url,additional_image_link:'',availability:'in_stock',price:entry.price_eur+' EUR',
+        image_link:image.image_url,additional_image_link:'',availability:'in_stock',price:(amountForSize(size)/100).toFixed(2)+' EUR',
         condition:'new',brand:'TheFEYA',identifier_exists:'no',
         google_product_category:'Apparel & Accessories > Costumes & Accessories > Costumes',
         product_type:'Costumes > '+productType,color:p.color.replace(/\s*\+\s*/g,'/'),size,size_system:'US',gender,
@@ -269,8 +286,16 @@ export function buildFiles(data){
   const liveRows=rows.map(row=>{
     const productId=productByConfiguration.get(row.item_group_id);
     assert.ok(productId,'feed offer has no reviewed product identity');
-    const amount=publishedRegularEurMinor(productId,row.item_group_id);
-    return amount===null?row:{...row,price:(amount/100).toFixed(2)+' EUR'};
+    const amount=publishedRegularEurMinor(productId,row.item_group_id,row.size);
+    if(amount===null)return row;
+    const priced={...row,price:(amount/100).toFixed(2)+' EUR'};
+    if(publishedPriceNeedsSize(productId,row.item_group_id)){
+      const link=new URL(row.link);
+      link.searchParams.set('configuration',row.item_group_id);
+      link.searchParams.set('size',row.size);
+      priced.link=link.href;
+    }
+    return priced;
   });
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};

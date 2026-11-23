@@ -5,8 +5,10 @@ import {dirname,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
-import {sortedOptions,optionKey,optionPrice,isFullSetOption,colorOptions,getMedia} from '../../lib/storefront.ts';
+import {sortedOptions,optionKey,isFullSetOption,colorOptions,getMedia} from '../../lib/storefront.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
+import {publishedRegularEurMinor,publishedPriceContractVersion,publishedPriceNeedsSize} from '../../lib/storefrontPublishedPrices.ts';
+import {selectedOptionPrice} from '../../lib/storefrontSizePrice.ts';
 import {priceCartLine,PDP_SIZES} from '../../lib/payments/catalogLinePricing.ts';
 import {isSourceConfirmedPairedSet} from '../../lib/payments/pairedSetSelection.ts';
 import {resolvePdpLandingSelection} from '../../lib/pdpLandingSelection.ts';
@@ -47,6 +49,19 @@ export function extractFlightProduct(html){
   return products[0];
 }
 
+// A size-only landing for the canonical configuration retains its approved main photograph.
+function selectedLandingImage(product,canonical,selection,media){
+  if(media.status==='bound')return media.imageUrl;
+  const original=pdpOfferJsonLd(product,canonical);
+  assert.ok(media.status==='unreviewed'&&selection.size&&original?.sku===selection.configurationId
+    &&selection.colorCode===product.default_color_choice&&publishedPriceNeedsSize(product.canonical_product_id,selection.configurationId),
+  'selected feed landing requires reviewed source image');
+  const reviews=JSON.parse(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/image_review.json',import.meta.url),'utf8'));
+  const image=reviews.products.find(row=>row.canonical_product_id===product.canonical_product_id);
+  assert.ok(image?.decision==='PASS'&&image.image_url===media.gallery[0]?.url,'canonical size landing lost its approved photo');
+  return image.image_url;
+}
+
 export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
   assert.ok(html.includes(deploymentId),'mixed or unexpected deployment');
   const canonical=decode(html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]||'');
@@ -63,19 +78,24 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
   const landing=landingUrl?resolvePdpLandingSelection(product,Object.fromEntries(new URL(landingUrl).searchParams)):null;
   if(landingUrl){assert.equal(new URL(landingUrl).origin+new URL(landingUrl).pathname,url);assert.equal(landing.status,'selected');}
   const media=landing?resolvePdpLandingMedia(product,landing.selection):null;
-  if(landing)assert.equal(media.status,'bound','selected feed landing requires reviewed source image');
+  const landingImage=landing?selectedLandingImage(product,url,landing.selection,media):null;
   const expected=pdpOfferJsonLd(product,url,landing?.selection);
   assert.deepEqual(jsonLd.offers,expected,'live Offer differs from current shared pricing helper');
   if(landing){
-    assert.equal(jsonLd.image[0],media.imageUrl,'Product first image differs from bound photograph');
+    assert.equal(jsonLd.image[0],landingImage,'Product first image differs from bound photograph');
     const main=html.match(/<img\b[^>]*fetchPriority="high"[^>]*>/)?.[0];
     assert.ok(main,'eager main image missing');
     const src=decode(main.match(/\bsrc="([^"]+)"/)?.[1]||'');
-    assert.equal(new URL(src,ORIGIN).searchParams.get('url')||src,media.imageUrl,'displayed main image differs from selected photograph');
+    assert.equal(new URL(src,ORIGIN).searchParams.get('url')||src,landingImage,'displayed main image differs from selected photograph');
   }
   const options=sortedOptions(product);
   const selected=expected?.['@type']==='Offer'
     ?options.find((o,i)=>optionKey(o,i)===expected.sku):null;
+  const referenceSize=landing?.selection?.size || product.published_reference_size;
+  const contract=selected && publishedRegularEurMinor(product.canonical_product_id,optionKey(selected),referenceSize)!==null
+    ? product.price_contract_version : null;
+  if(contract?.startsWith('etsy_regular_eur_'))assert.equal(contract,publishedPriceContractVersion,'capture price release differs from the catalog');
+  const currentRelease=contract===publishedPriceContractVersion;
   const pair=landing?.selection?.womenColorCode?landing.selection:null;
   const colorCode=pair?null:landing?.selection?.colorCode||product.default_color_choice||null;
   const color=pair?[...new Set([colorChoiceLabel(pair.womenColorCode),colorChoiceLabel(pair.menColorCode)])].join(' + ')
@@ -102,7 +122,8 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
           configuration_id:optionKey(selected),size,color,color_code:colorCode,
           quantity:1,wearer:null,made_to_measure:false,client_unit_minor:null,
         });
-        assert.equal(line.unit_minor,Math.round(Number(expected.price)*100));
+        const amount=currentRelease ? publishedRegularEurMinor(product.canonical_product_id,optionKey(selected),size) : Math.round(Number(expected.price)*100);
+        assert.equal(line.unit_minor,amount);
         sizeQuotes.push({size,unit_minor:line.unit_minor,line_minor:line.line_minor});
       }catch(error){reasons.push('CHECKOUT_PARITY_REQUIRED:'+String(error.code||error.message));break;}
     }
@@ -130,7 +151,8 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
     selected_configuration:selected?{id:optionKey(selected),label:selected.public_label,
       full_set:isFullSetOption(selected),component_code:selected.component_code,
       configuration_color:selected.configuration_color||null,
-      unit_minor:Math.round(optionPrice(selected)*100)}:null,
+      ...(currentRelease?{price_contract_version:contract}:{}),
+      unit_minor:Math.round(selectedOptionPrice(selected,referenceSize)*100)}:null,
     // Keep the complete source gallery for configuration-specific photo review.
     // Tail4348580005's Both Shoulders photo is #7; limiting evidence to the
     // first six frames silently discarded an existing purchasable variant.
@@ -138,7 +160,8 @@ export function inspectPublicPage(html,url,pin,deploymentId,landingUrl=null){
     color,color_code:colorCode,gender,size_quotes:sizeQuotes,images,
     primary_image_url:product.primary_image_url,size_mode:product.size_mode,
     production_profile:product.production_profile,shipping_profile:product.shipping_profile,
-    ...(landing?{selected_landing:{url:landingUrl,selection:landing.selection,image_url:media.imageUrl,
+    ...(landing&&media.status!=='bound'?{selected_size_landing:{size:landing.selection.size,url:landingUrl,image_url:landingImage}}:{}),
+    ...(landing&&media.status==='bound'?{selected_landing:{url:landingUrl,selection:landing.selection,image_url:media.imageUrl,
       product_first_image:jsonLd.image[0],displayed_image:media.imageUrl,
       source_gender:sourceGender,source_audience:selected.configuration_audience||null,
       source_label:selected.public_label,source_pair_confirmed:isSourceConfirmedPairedSet(selected)}}:{}),
