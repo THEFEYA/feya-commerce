@@ -2,6 +2,7 @@ import 'server-only';
 import {randomBytes} from 'node:crypto';
 import {readCachedStorefrontProductPresentation} from '@/lib/storefrontProductPresentationServer';
 import type {StorefrontProduct} from '@/lib/types';
+import {priceCartLineForQuote} from './cartColourRecovery.ts';
 import {priceCartLine, type CartLineInput} from './catalogLinePricing.ts';
 import {
   CheckoutRequestError, parseCheckoutQuoteRequest, parseCheckoutRequest, type CheckoutRequestV1,
@@ -45,13 +46,13 @@ async function productBySlug(slug: string, cache: Map<string, StorefrontProduct 
 }
 
 /** Re-prices the bag from the published catalog (server authority). */
-export async function priceLines(lines: CartLineInput[]) {
+export async function priceLines(lines: CartLineInput[], priceLine = priceCartLine) {
   const cache = new Map<string, StorefrontProduct | null>();
   const priced: (PricedLine & {price_changed: boolean})[] = [];
   for (const line of lines) {
     const product = await productBySlug(line.slug, cache);
     if (!product) throw new CheckoutFlowError('checkout_product_mismatch');
-    priced.push(priceCartLine(product, line));
+    priced.push(priceLine(product, line));
   }
   return priced;
 }
@@ -69,7 +70,7 @@ export async function publicCheckoutState(): Promise<{active: boolean; engine: s
 /** Server-confirmed totals for the bag (no personal data). */
 export async function quoteCheckout(raw: unknown) {
   const request = parseCheckoutQuoteRequest(raw);
-  const lines = await priceLines(request.lines);
+  const lines = await priceLines(request.lines, priceCartLineForQuote);
   const extras = buildExtraLines(lines, {giftCard: request.gift_card, giftBox: request.gift_box});
   const amounts = computeCheckoutAmounts({lines, extras, method: request.method, country: request.country});
   const state = await publicCheckoutState();

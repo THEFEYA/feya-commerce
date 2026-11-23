@@ -1,6 +1,7 @@
 import type {NextRequest} from 'next/server';
 import {json, sameOrigin} from '@/lib/payments/access';
 import {checkoutErrorMessage} from '@/lib/payments/checkoutRequest';
+import {SavedColourError} from '@/lib/payments/cartColourRecovery';
 import {checkoutFailure, quoteCheckout} from '@/lib/payments/checkoutService';
 import {BodyError, readLimitedJson} from '@/lib/payments/http';
 
@@ -13,6 +14,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof BodyError) return json({ok: false, code: 'checkout_request_invalid', message: checkoutErrorMessage('checkout_request_invalid')}, error.status);
     const failure = checkoutFailure(error);
-    return json({ok: false, code: failure.code, field: failure.field ?? null, message: checkoutErrorMessage(failure.code)}, failure.status);
+    return json({ok: false, code: failure.code, field: failure.field ?? null,
+      ...(error instanceof SavedColourError ? {colour_recovery: error.recovery} : {}),
+      message: checkoutErrorMessage(failure.code)}, failure.status);
   }
 }
