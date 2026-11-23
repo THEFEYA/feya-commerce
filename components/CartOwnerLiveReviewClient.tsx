@@ -22,6 +22,7 @@ import {
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
 import {trackCartStageOnce,trackMeasurementEvent} from '@/lib/measurementClient';
+import {checkoutUsesPostalCode} from '@/lib/payments/checkoutAddress';
 import {SHIPPING_TRANSIT_BUSINESS_DAYS} from '@/lib/payments/checkoutPolicyEvidence';
 import {buildBeginCheckoutMeasurement,cartQuoteEvent,type CartFunnelEvent} from '@/lib/measurementContract';
 
@@ -124,12 +125,14 @@ export function CartOwnerLiveReviewClient(){
   const regularBeforeSale=items.reduce((n,item)=>n+Math.round((item.compare_at_unit_price_amount??item.price)*100)*item.qty,0);
   const saleSavings=Math.max(0,regularBeforeSale-totals.merchandise_subtotal_minor);
   const addressRegions=ownerCartAddressRegions(form.country);
+  const usesPostalCode=checkoutUsesPostalCode(form.country);
+  const isHongKong=form.country==='HK';
   const fulfilled=Boolean(
     form.first_name.trim()&&form.last_name.trim()&&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
     &&form.phone.trim()&&form.country
     &&(!addressRegions.length||form.region)
-    &&form.city.trim()&&form.postal_code.trim()&&form.address_line1.trim()
+    &&form.city.trim()&&(!usesPostalCode||form.postal_code.trim())&&form.address_line1.trim()
   );
 
   const checkoutLines=useMemo(()=>items.map(item=>({
@@ -205,7 +208,8 @@ export function CartOwnerLiveReviewClient(){
       gift_card:extras.includes('card'),gift_message:extras.includes('card')?giftMessage:'',
       gift_box:extras.includes('box'),
       buyer:{first_name:form.first_name,last_name:form.last_name,email:form.email,phone:form.phone},
-      address:{country:form.country,region:form.region,city:form.city,postal_code:form.postal_code,
+      address:{country:form.country,region:form.region,city:form.city,
+        ...(usesPostalCode?{postal_code:form.postal_code}:{}),
         line1:form.address_line1,line2:form.address_line2},
       note:form.order_comment,accepted_terms:acceptedTerms,marketing_opt_in:marketingConsent,
     };
@@ -241,6 +245,7 @@ export function CartOwnerLiveReviewClient(){
     setForm(current=>({
       ...current,[name]:value,
       ...(name==='country'?{region:''}:{}),
+      ...(name==='country'&&!checkoutUsesPostalCode(value)?{postal_code:''}:{}),
     }));
   };
 
@@ -500,14 +505,23 @@ export function CartOwnerLiveReviewClient(){
               </select>
             </label>}
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className={labelStyle}><span><RequiredMark/>City</span>
+              <label className={labelStyle}><span><RequiredMark/>{isHongKong?'District / locality':'City'}</span>
                 <input className={fieldStyle} required autoComplete={checkoutActive?'shipping address-level2':'off'} maxLength={150}
-                  value={form.city} onChange={e=>change('city',e.target.value)} placeholder="City"/>
+                  value={form.city} onChange={e=>change('city',e.target.value)} placeholder={isHongKong?'e.g. Wan Chai':'City'}/>
               </label>
-              <label className={labelStyle}><span><RequiredMark/>ZIP / postal code</span>
+              {usesPostalCode&&<label className={labelStyle}><span><RequiredMark/>ZIP / postal code</span>
                 <input className={fieldStyle} required autoComplete={checkoutActive?'shipping postal-code':'off'} maxLength={32}
                   value={form.postal_code} onChange={e=>change('postal_code',e.target.value)} placeholder="Postal code"/>
-              </label>
+              </label>}
+              {isHongKong&&<label className={labelStyle}><span>Area (optional)</span>
+                <select className={fieldStyle} autoComplete={checkoutActive?'shipping address-level1':'off'}
+                  value={form.region} onChange={e=>change('region',e.target.value)}>
+                  <option value="">Select area</option>
+                  <option value="Hong Kong">Hong Kong Island</option>
+                  <option>Kowloon</option>
+                  <option>New Territories</option>
+                </select>
+              </label>}
             </div>
             <label className={labelStyle}><span><RequiredMark/>Street address</span>
               <input className={fieldStyle} required autoComplete={checkoutActive?'shipping address-line1':'off'} maxLength={250}

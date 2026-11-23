@@ -1,14 +1,13 @@
 import {OWNER_CART_COUNTRIES, ownerCartAddressRegions} from '../commerceOwnerCartReview.ts';
 import {CHECKOUT_PRICING_V1, type DeliveryMethod} from './pricing.ts';
 import type {CartLineInput} from './catalogLinePricing.ts';
+import {checkoutUsesPostalCode, type CheckoutAddress} from './checkoutAddress.ts';
 import {parsePairedSetSelection} from './pairedSetSelection.ts';
+
+export type {CheckoutAddress} from './checkoutAddress.ts';
 
 /** Strict parser for the buyer's checkout request. Money in the request is ignored. */
 export type CheckoutBuyer = {first_name: string; last_name: string; email: string; phone: string};
-export type CheckoutAddress = {
-  country: string; region: string | null; city: string; postal_code: string;
-  line1: string; line2: string | null;
-};
 export type CheckoutRequestV1 = {
   idempotency_key: string;
   lines: CartLineInput[];
@@ -153,7 +152,7 @@ export function parseCheckoutRequest(raw: unknown): CheckoutRequestV1 {
   const address: CheckoutAddress = {
     country, region,
     city: text(raw.address.city, 'address.city', 120, {required: true})!,
-    postal_code: text(raw.address.postal_code, 'address.postal_code', 32, {required: true})!,
+    postal_code: text(raw.address.postal_code, 'address.postal_code', 32, {required: checkoutUsesPostalCode(country)}),
     line1: text(raw.address.line1, 'address.line1', 250, {required: true})!,
     line2: text(raw.address.line2, 'address.line2', 250),
   };
@@ -200,7 +199,7 @@ export const CHECKOUT_ERROR_MESSAGES: Record<string, string> = {
   provider_configuration_changed: 'Our payment settings were just updated. Please try again.',
   rate_limited: 'Too many checkout attempts. Please wait a few minutes and try again.',
   idempotency_conflict: 'Please refresh the page and try again.',
-  provider_rejected_address: 'PayPal could not accept this delivery address. Please check the postal code, city and state.',
+  provider_rejected_address: 'PayPal could not accept this delivery address. Please review the delivery details for your destination.',
   provider_unavailable: 'PayPal is not responding right now. Your payment status may be unknown. Please check your order status before trying again.',
   provider_rejected: 'PayPal could not start this payment. Please check your order status before trying again or contact us.',
   order_already_paid: 'This order has already been paid. Please check your email for the PayPal receipt.',
