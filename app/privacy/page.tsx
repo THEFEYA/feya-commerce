@@ -1,3 +1,4 @@
+import {withdrawalEnabled} from '@/lib/withdrawal/config';
 export const instant = false;
 
 import type {Metadata} from 'next';
@@ -74,14 +75,14 @@ export default async function PrivacyPage(){
           </div>
         </article>
 
-        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+        {withdrawalEnabled() && <article id="withdrawal-statements" className="scroll-mt-24 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">Withdrawal statements</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>If you use the online withdrawal function, the studio records your name, purchase details, acknowledgement email and statement. The record includes the submission time and receipt reference. We link it to your order when we can identify it.</p>
-            <p>Authorised staff use the record to handle the withdrawal and meet the seller’s legal obligations. Our email service handles the acknowledgement and its delivery status. We may share the details needed to resolve your notice with {SELLER_ONLINE_PROVIDER.legalName}, the legal seller for orders through this checkout. Your acknowledgement email is used for this request and does not enrol you in marketing.</p>
+            <p>Authorised staff use the record to handle the withdrawal and meet the seller’s legal obligations. The studio uses Google Mail to send your acknowledgement to your chosen address. The studio mailbox receives the receipt reference and time so staff can open the restricted case record. Depending on the agreed receipt arrangement, we send your statement, order details, chosen contact and submission time to {SELLER_ONLINE_PROVIDER.legalName}, the legal seller for orders through this checkout. Your acknowledgement email is used for this request and does not enrol you in marketing.</p>
             <p>We keep the notice and delivery record as needed to handle the withdrawal, meet legal recordkeeping duties and resolve related claims. Your browser can retain a submission identifier for this tab so a retry can retrieve the same receipt. <Link className="text-bone underline underline-offset-4" href="/returns#withdrawal-notice">Ways to give notice of withdrawal</Link>.</p>
           </div>
-        </article>
+        </article>}
 
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">Bag and browser storage</h2>

@@ -16,6 +16,7 @@ test('retry and reload reuse the same private attempt without retaining the form
     }}});
     const first = await withdrawalAttempt(fields, null);
     assert.deepEqual(await withdrawalAttempt(fields, null), first);
+    assert.notEqual((await withdrawalAttempt(fields, first, 'de')).key, first.key);
     const edited = await withdrawalAttempt({...fields, order_number: 'Another purchase'}, first);
     assert.notEqual(edited.key, first.key);
     assert.deepEqual(await withdrawalAttempt(fields, edited), first);

@@ -10,14 +10,13 @@ import {isApprovedV13Presentation} from '@/lib/approvedV13Presentation';
 
 export const metadata:Metadata={
   title:{absolute:'Bag | TheFEYA'},
-  description:'TheFEYA pre-launch bag and checkout status.',
+  description:'Review your pieces, choose delivery and check your order total before payment.',
   alternates:{canonical:'/cart'},
   robots:{index:false,follow:false},
 };
 
 export default function CartPage(){
-  // Owner-approved V13 shows real browser-selected variants in the nonpayable
-  // bag; the payment/order backend is still disabled.
+  // The published bag checks payment availability on the server.
   if(isOwnerRealCartReviewDeployment(process.env)||isApprovedV13Presentation(process.env)){
     return <main className="visual-commerce-shell relative min-h-screen">
       <Header/>

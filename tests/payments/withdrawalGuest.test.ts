@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {generateKeyPairSync, sign} from 'node:crypto';
 import test from 'node:test';
 import {parseWithdrawal, publicWithdrawalReceipt, WITHDRAWAL_DECLARATION} from '../../lib/withdrawal/contract.ts';
+import {withdrawalCopy} from '../../lib/withdrawal/language.ts';
 import {authorizedWithdrawalWorker} from '../../lib/withdrawal/googleWorkerIdentity.ts';
 import {parseWorkerCommand, renderAcknowledgement, type DeliveryJob} from '../../lib/withdrawal/transport.ts';
 
@@ -36,6 +37,24 @@ test('customer receives the recorded statement and time, the studio only its fix
   for (const value of [input.name,input.order_number,input.email]) assert.ok(!notice.body.includes(value));
   assert.throws(() => renderAcknowledgement({...job,kind: 'studio',to: 'another@example.test',statement: null}));
 });
+test('the chosen language binds the declaration and durable acknowledgement to the form shown', () => {
+  for (const language of ['en','nl','de'] as const) {
+    const parsed = parseWithdrawal({...input, language}, () => false);
+    assert.equal(parsed?.language, language);
+    const words = withdrawalCopy[language];
+    const message = renderAcknowledgement({...job, statement: {...job.statement!, language, declaration: words.declaration}});
+    assert.ok(message.subject.includes(words.receipt));
+    for (const value of [reference, words.received, words.declaration, input.order_number, input.name, input.email]) {
+      assert.ok(message.body.includes(value));
+    }
+  }
+  const seller = renderAcknowledgement({...job, kind:'seller', to:'office@seller-online.com'});
+  for (const value of [reference,job.statement!.name,job.statement!.email,job.statement!.contract,WITHDRAWAL_DECLARATION]) assert.ok(seller.body.includes(value));
+  for (const to of ['other@example.test','manager.feya@gmail.com']) assert.throws(() => renderAcknowledgement({...job, kind:'seller', to}));
+  assert.equal(parseWithdrawal({...input, language: 'other'}, () => false), null);
+  assert.throws(() => renderAcknowledgement({...job, statement: {...job.statement!, language: 'nl'}}));
+});
+
 test('the worker cannot submit custom messages, override recipients or select a named receipt', () => {
   assert.deepEqual(parseWorkerCommand({action: 'take',remaining: 0}), {action: 'take',remaining: 0});
   for (const invalid of [{action: 'take',remaining: 1,to: input.email},{action: 'take',remaining: '65'},

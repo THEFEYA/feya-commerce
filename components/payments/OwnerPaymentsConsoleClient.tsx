@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect, useState} from 'react';
 import {Check, Copy, Link2, Loader2, Power, RefreshCw} from 'lucide-react';
+import {shippingPostalCode, type CheckoutAddress} from '@/lib/payments/checkoutAddress';
 import {ownerLaunchSummary, type OwnerSearchGateState} from '@/lib/payments/ownerLaunchSummary';
 
 type Status = {
@@ -16,7 +17,7 @@ type Snapshot = {
   lines?: Line[]; extras?: {label: string; quantity: number; amount_minor: number}[];
   delivery?: {label: string; window: string} | null;
   buyer?: {first_name: string; last_name: string; email: string; phone: string} | null;
-  address?: {country: string; region: string | null; city: string; postal_code: string; line1: string; line2: string | null} | null;
+  address?: CheckoutAddress | null;
   gift_message?: string | null; note?: string | null; marketing_opt_in?: boolean;
   amounts?: {merchandise_minor: number; extras_minor: number; shipping_minor: number; remote_minor: number; handling_minor: number; total_minor: number};
 };
@@ -235,7 +236,7 @@ export function OwnerPaymentsConsoleClient() {
                   <p>{snap.buyer.first_name} {snap.buyer.last_name}</p>
                   <p>{snap.buyer.email} · {snap.buyer.phone}</p>
                 </> : <p className="text-[var(--bone-dim)]">—</p>}
-                {snap.address && <p className="mt-1">{snap.address.line1}{snap.address.line2 ? `, ${snap.address.line2}` : ''}, {snap.address.city}{snap.address.region ? `, ${snap.address.region}` : ''}, {snap.address.postal_code}, {snap.address.country}</p>}
+                {snap.address && <p className="mt-1">{[snap.address.line1, snap.address.line2, snap.address.city, snap.address.region, shippingPostalCode(snap.address), snap.address.country].filter(Boolean).join(', ')}</p>}
                 {snap.marketing_opt_in && <p className="mt-1 text-[var(--bone-dim)]">Согласие на рассылку: да</p>}
                 <p className="mt-2 text-[12px] text-[var(--bone-dim)]">PayPal: заказ {o.provider_order_id || '—'} · платёж {o.capture_id || '—'} · {o.environment === 'live' ? 'Live' : 'Sandbox'}{o.paid_at ? ` · оплачен ${date(o.paid_at)}` : ''}</p>
               </div>

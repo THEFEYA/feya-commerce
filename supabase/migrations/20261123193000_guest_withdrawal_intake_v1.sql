@@ -8,17 +8,23 @@ create table public.feya_withdrawal_notices_v1 (
   consumer_name text not null check(length(consumer_name) between 1 and 120),
   contract_reference text not null check(length(contract_reference) between 1 and 240),
   confirmation_email text not null check(length(confirmation_email) between 3 and 254),
-  declaration text not null default 'I hereby withdraw from the contract identified below.',
+  language text not null check(language in ('en','nl','de')),
+  declaration text not null,
   order_id uuid references public.feya_pay_orders_v1(order_id),
   recipient_basis text check(recipient_basis in ('checkout_identity','order_token_and_checkout_email','verified_by_operator')),
   verified_by text, verification_ref text, verified_at timestamptz,
-  handled_at timestamptz, handled_by text
+  seller_route text not null check(seller_route in ('seller_mailbox','studio_mandate')),
+  seller_receipt_basis text check(seller_receipt_basis in ('authorised_studio','seller_confirmed')),
+  seller_received_at timestamptz, seller_evidence_ref text, seller_recorded_by text, seller_recorded_at timestamptz,
+  handled_at timestamptz, handled_by text,
+  check(num_nonnulls(seller_receipt_basis,seller_received_at,seller_evidence_ref,seller_recorded_by,seller_recorded_at) in (0,5)),
+  check(handled_at is null or seller_received_at is not null)
 );
 create index feya_withdrawal_pending_cases_v1 on public.feya_withdrawal_notices_v1(submitted_at) where handled_at is null;
 create table public.feya_withdrawal_delivery_v1 (
   job_id uuid primary key default gen_random_uuid(),
   reference uuid not null references public.feya_withdrawal_notices_v1(reference),
-  kind text not null check(kind in ('customer','studio')),
+  kind text not null check(kind in ('customer','studio','seller')),
   state text not null check(state in ('ready','dispatching','submitted','review')),
   reason text check(reason in ('recipient_unverified','mail_outcome_unknown')),
   created_at timestamptz not null default clock_timestamp(),
@@ -52,12 +58,13 @@ alter table public.feya_withdrawal_limits_v1 enable row level security;
 alter table public.feya_withdrawal_dispatch_v1 enable row level security;
 revoke all on public.feya_withdrawal_notices_v1,public.feya_withdrawal_delivery_v1,public.feya_withdrawal_limits_v1,public.feya_withdrawal_dispatch_v1,public.feya_withdrawal_worker_v1 from public,anon,authenticated,service_role;
 
-create function public.feya_withdrawal_record_v1(p_key uuid,p_name text,p_order_reference text,p_email text,p_access_sha text,p_ip_sha text)
+create function public.feya_withdrawal_record_v1(p_key uuid,p_name text,p_order_reference text,p_email text,p_access_sha text,p_ip_sha text,p_language text,p_seller_route text)
 returns jsonb language plpgsql security definer set search_path=pg_catalog,pg_temp as $$
 declare n public.feya_withdrawal_notices_v1%rowtype; o public.feya_pay_orders_v1%rowtype;
   basis text; slot timestamptz:=date_trunc('hour',clock_timestamp(),'UTC'); quota record;
 begin
-  if p_key is null or p_name is null or p_order_reference is null or p_email is null
+  if p_seller_route is null or p_seller_route not in ('seller_mailbox','studio_mandate')
+    or p_language is null or p_language not in ('en','nl','de') or p_key is null or p_name is null or p_order_reference is null or p_email is null
     or length(p_name) not between 1 and 120 or length(p_order_reference) not between 1 and 240
     or length(p_email) not between 3 and 254 or p_name ~ '[[:cntrl:]]' or p_order_reference ~ '[[:cntrl:]]'
     or p_email ~ '[[:space:][:cntrl:],;<>]' or p_email !~ '^[^@]+@[^@]+[.][^@]+$'
@@ -68,7 +75,7 @@ begin
   perform pg_advisory_xact_lock(hashtextextended('withdrawal:'||p_key::text,0));
   select * into n from public.feya_withdrawal_notices_v1 where idempotency_key=p_key;
   if found then
-    if (n.consumer_name,n.contract_reference,n.confirmation_email) is distinct from (p_name,p_order_reference,p_email) then
+    if (n.consumer_name,n.contract_reference,n.confirmation_email,n.language) is distinct from (p_name,p_order_reference,p_email,p_language) then
       return jsonb_build_object('code','idempotency_conflict');
     end if;
     return jsonb_build_object('reference',n.reference,'submitted_at',n.submitted_at);
@@ -99,13 +106,19 @@ begin
       basis:=case when p_access_sha=o.access_token_sha256 then 'order_token_and_checkout_email' else 'checkout_identity' end;
     end if;
   end if;
-  insert into public.feya_withdrawal_notices_v1(idempotency_key,consumer_name,contract_reference,confirmation_email,order_id,recipient_basis)
-    values(p_key,p_name,p_order_reference,p_email,case when basis is not null then o.order_id end,basis)
+  insert into public.feya_withdrawal_notices_v1(idempotency_key,consumer_name,contract_reference,confirmation_email,order_id,recipient_basis,language,seller_route,declaration)
+    values(p_key,p_name,p_order_reference,p_email,case when basis is not null then o.order_id end,basis,p_language,p_seller_route,
+      case p_language when 'nl' then 'Hierbij ontbind ik de hieronder vermelde overeenkomst.'
+        when 'de' then 'Hiermit widerrufe ich den unten bezeichneten Vertrag.'
+        else 'I hereby withdraw from the contract identified below.' end)
     returning * into n;
   insert into public.feya_withdrawal_delivery_v1(reference,kind,state,reason) values
     (n.reference,'customer',case when basis is null then 'review' else 'ready' end,
        case when basis is null then 'recipient_unverified' end),
     (n.reference,'studio','ready',null);
+  if p_seller_route='seller_mailbox' then
+    insert into public.feya_withdrawal_delivery_v1(reference,kind,state) values(n.reference,'seller','ready');
+  end if;
   return jsonb_build_object('reference',n.reference,'submitted_at',n.submitted_at);
 end $$;
 
@@ -129,18 +142,19 @@ begin
     where attempt.issued_at>t-interval '24 hours';
   if spent>=90 then return '[]'::jsonb; end if;
   select * into j from public.feya_withdrawal_delivery_v1 d
-    where d.state='ready' and (d.kind='customer' or (p_remaining>20 and alerts<10))
-    order by (d.kind='customer') desc,d.created_at,d.job_id limit 1 for update skip locked;
+    where d.state='ready' and (d.kind='customer' or
+      (p_remaining>20 and spent<70 and (d.kind='seller' or alerts<10)))
+    order by case d.kind when 'customer' then 0 when 'seller' then 1 else 2 end,d.created_at,d.job_id limit 1 for update skip locked;
   if not found then return '[]'::jsonb; end if;
   select * into strict n from public.feya_withdrawal_notices_v1 where reference=j.reference;
   if j.kind='customer' and n.recipient_basis is null then raise exception 'recipient_unverified'; end if;
   insert into public.feya_withdrawal_dispatch_v1(job_id) values(j.job_id) returning * into a;
   update public.feya_withdrawal_delivery_v1 set state='dispatching',active_attempt=a.attempt_id where job_id=j.job_id;
   return jsonb_build_array(jsonb_build_object('job_id',j.job_id,'attempt_id',a.attempt_id,'kind',j.kind,
-    'to',case when j.kind='customer' then n.confirmation_email else 'manager.feya@gmail.com' end,
+    'to',case j.kind when 'customer' then n.confirmation_email when 'seller' then 'office@seller-online.com' else 'manager.feya@gmail.com' end,
     'reference',n.reference,'submitted_at',n.submitted_at,
-    'statement',case when j.kind='customer' then jsonb_build_object('name',n.consumer_name,
-    'contract',n.contract_reference,'email',n.confirmation_email,'declaration',n.declaration) end));
+    'statement',case when j.kind in ('customer','seller') then jsonb_build_object('name',n.consumer_name,
+    'contract',n.contract_reference,'email',n.confirmation_email,'declaration',n.declaration,'language',n.language) end));
 end $$;
 
 create function public.feya_withdrawal_report_v1(p_job uuid,p_attempt uuid,p_outcome text)
@@ -163,9 +177,9 @@ end $$;
 
 -- Restricted staff queue. Only individual-case detail contains the original personal information.
 create function public.feya_withdrawal_open_cases_v1(p_limit integer default 50)
-returns table(reference uuid,submitted_at timestamptz,needs_verified_recipient boolean,mail_state text,studio_state text)
+returns table(reference uuid,submitted_at timestamptz,needs_verified_recipient boolean,mail_state text,studio_state text,seller_received_at timestamptz)
 language sql stable security definer set search_path=pg_catalog,pg_temp as $$
-  select n.reference,n.submitted_at,n.recipient_basis is null,a.state,s.state
+  select n.reference,n.submitted_at,n.recipient_basis is null,a.state,s.state,n.seller_received_at
   from public.feya_withdrawal_notices_v1 n
   join public.feya_withdrawal_delivery_v1 a on a.reference=n.reference and a.kind='customer'
   join public.feya_withdrawal_delivery_v1 s on s.reference=n.reference and s.kind='studio'
@@ -178,13 +192,19 @@ returns jsonb language sql stable security definer set search_path=pg_catalog,pg
   select jsonb_build_object('last_poll_at',w.last_poll_at,'last_reported_google_quota',w.remaining_quota,
     'customer_pending',(select count(*) from public.feya_withdrawal_delivery_v1 where kind='customer' and state<>'submitted'),
     'oldest_unconfirmed_utc',(select min(created_at) from public.feya_withdrawal_delivery_v1 where kind='customer' and state<>'submitted'),
+    'seller_dispatch_pending',(select count(*) from public.feya_withdrawal_delivery_v1 where kind='seller' and state<>'submitted'),
+    'oldest_seller_dispatch_utc',(select min(created_at) from public.feya_withdrawal_delivery_v1 where kind='seller' and state<>'submitted'),
+    'awaiting_seller',(select count(*) from public.feya_withdrawal_notices_v1 where seller_received_at is null),
+    'oldest_awaiting_seller_utc',(select min(submitted_at) from public.feya_withdrawal_notices_v1 where seller_received_at is null),
     'studio_open',(select count(*) from public.feya_withdrawal_notices_v1 where handled_at is null))
   from public.feya_withdrawal_worker_v1 w where w.singleton
 $$;
 create function public.feya_withdrawal_case_v1(p_reference uuid)
 returns jsonb language sql stable security definer set search_path=pg_catalog,pg_temp as $$
   select jsonb_build_object('reference',reference,'submitted_at',submitted_at,'name',consumer_name,
-    'contract',contract_reference,'email',confirmation_email,'declaration',declaration,
+    'contract',contract_reference,'email',confirmation_email,'declaration',declaration,'language',n.language,
+    'seller_route',n.seller_route,'seller_receipt_basis',n.seller_receipt_basis,'seller_received_at',n.seller_received_at,'seller_evidence_ref',n.seller_evidence_ref,
+    'seller_recorded_by',n.seller_recorded_by,'seller_recorded_at',n.seller_recorded_at,
     'recipient_basis',n.recipient_basis,'verified_by',n.verified_by,'verification_ref',n.verification_ref,'verified_at',n.verified_at,
     'order_id',n.order_id,'handled_at',n.handled_at,'handled_by',n.handled_by,
     'deliveries',(select jsonb_agg(jsonb_build_object('job_id',d.job_id,'kind',d.kind,'state',d.state,'reason',d.reason,
@@ -208,12 +228,39 @@ begin
     where reference=p_reference and kind='customer' and state='review' and reason='recipient_unverified';
   return true;
 end $$;
+-- A studio alert or customer acknowledgement is not a seller receipt. A restricted
+-- operator records a verified seller acknowledgement, or a then-valid written mandate
+-- authorising the studio to take notices for this seller at the instant of filing.
+create function public.feya_withdrawal_confirm_seller_receipt_v1(p_reference uuid,p_basis text,p_received_at timestamptz,p_actor text,p_evidence text)
+returns boolean language plpgsql security definer set search_path=pg_catalog,pg_temp as $$
+declare n public.feya_withdrawal_notices_v1%rowtype; received timestamptz;
+begin
+  if p_basis is null or p_basis not in ('authorised_studio','seller_confirmed') or p_actor is null or p_evidence is null
+    or length(btrim(p_actor)) not between 1 and 128 or length(btrim(p_evidence)) not between 1 and 180
+    then raise exception 'seller_evidence_required'; end if;
+  select * into n from public.feya_withdrawal_notices_v1 where reference=p_reference for update;
+  if not found then return false; end if;
+  if p_basis='authorised_studio' then
+    if p_received_at is not null or n.seller_route<>'studio_mandate' then return false; end if;
+    received:=n.submitted_at;
+  else
+    if p_received_at is null or p_received_at<n.submitted_at or p_received_at>clock_timestamp() then return false; end if;
+    received:=p_received_at;
+  end if;
+  if n.seller_received_at is not null then
+    return (n.seller_receipt_basis,n.seller_received_at,n.seller_evidence_ref)=(p_basis,received,btrim(p_evidence));
+  end if;
+  update public.feya_withdrawal_notices_v1 set seller_receipt_basis=p_basis,seller_received_at=received,
+    seller_evidence_ref=btrim(p_evidence),seller_recorded_by=btrim(p_actor),seller_recorded_at=clock_timestamp()
+    where reference=p_reference;
+  return true;
+end $$;
 create function public.feya_withdrawal_resolve_case_v1(p_reference uuid,p_actor text)
 returns boolean language plpgsql security definer set search_path=pg_catalog,pg_temp as $$
 begin
   if p_actor is null or length(btrim(p_actor)) not between 1 and 128 then raise exception 'actor_required'; end if;
   update public.feya_withdrawal_notices_v1 set handled_at=coalesce(handled_at,clock_timestamp()),handled_by=coalesce(handled_by,p_actor)
-    where reference=p_reference;
+    where reference=p_reference and seller_received_at is not null;
   return found;
 end $$;
 -- Only a restricted staff operator may reconcile an uncertain attempt after positive
@@ -239,14 +286,14 @@ begin
   return true;
 end $$;
 
-revoke all on function public.feya_withdrawal_record_v1(uuid,text,text,text,text,text),public.feya_withdrawal_take_v1(integer),
+revoke all on function public.feya_withdrawal_record_v1(uuid,text,text,text,text,text,text,text),public.feya_withdrawal_take_v1(integer),
   public.feya_withdrawal_report_v1(uuid,uuid,text),public.feya_withdrawal_case_v1(uuid),public.feya_withdrawal_health_v1(),
   public.feya_withdrawal_open_cases_v1(integer),public.feya_withdrawal_verify_recipient_v1(uuid,text,text,text),
-  public.feya_withdrawal_resolve_case_v1(uuid,text),public.feya_withdrawal_reconcile_job_v1(uuid,uuid,text,text,text)
+  public.feya_withdrawal_confirm_seller_receipt_v1(uuid,text,timestamptz,text,text),public.feya_withdrawal_resolve_case_v1(uuid,text),public.feya_withdrawal_reconcile_job_v1(uuid,uuid,text,text,text)
   from public,anon,authenticated;
-grant execute on function public.feya_withdrawal_record_v1(uuid,text,text,text,text,text),public.feya_withdrawal_take_v1(integer),
+grant execute on function public.feya_withdrawal_record_v1(uuid,text,text,text,text,text,text,text),public.feya_withdrawal_take_v1(integer),
   public.feya_withdrawal_report_v1(uuid,uuid,text),public.feya_withdrawal_case_v1(uuid),public.feya_withdrawal_health_v1(),
   public.feya_withdrawal_open_cases_v1(integer),public.feya_withdrawal_verify_recipient_v1(uuid,text,text,text),
-  public.feya_withdrawal_resolve_case_v1(uuid,text),public.feya_withdrawal_reconcile_job_v1(uuid,uuid,text,text,text)
+  public.feya_withdrawal_confirm_seller_receipt_v1(uuid,text,timestamptz,text,text),public.feya_withdrawal_resolve_case_v1(uuid,text),public.feya_withdrawal_reconcile_job_v1(uuid,uuid,text,text,text)
   to service_role;
 commit;

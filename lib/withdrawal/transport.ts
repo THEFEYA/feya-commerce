@@ -1,13 +1,15 @@
+import {SELLER_ONLINE_PROVIDER} from '../sellerOnlineProvider.ts';
+import {isWithdrawalLanguage, withdrawalCopy, type WithdrawalLanguage} from './language.ts';
 import {publicWithdrawalReceipt, validWithdrawalEmail} from './contract.ts';
 
 export type DeliveryJob = {
   job_id: string;
   attempt_id: string;
-  kind: 'customer' | 'studio';
+  kind: 'customer' | 'studio' | 'seller';
   to: string;
   reference: string;
   submitted_at: string;
-  statement: {name: string; contract: string; email: string; declaration: string} | null;
+  statement: {name: string; contract: string; email: string; declaration: string; language?: WithdrawalLanguage} | null;
 };
 type WorkerCommand = {action: 'take'; remaining: number}
   | {action: 'report'; job_id: string; attempt_id: string; outcome: 'submitted' | 'unknown'};
@@ -42,11 +44,23 @@ export function renderAcknowledgement(job: DeliveryJob) {
       body: ['A customer has filed a withdrawal statement. Open the private withdrawal queue.', ref, time].join('\n')};
   }
   const statement = job.statement;
-  if (job.kind !== 'customer' || !statement || job.to.toLowerCase() !== statement.email.toLowerCase()) {
+  const sellerDelivery = job.kind === 'seller' && job.to === SELLER_ONLINE_PROVIDER.usOfficeEmail;
+  const customerDelivery = job.kind === 'customer' && job.to.toLowerCase() === statement?.email.toLowerCase();
+  if (!statement || (!sellerDelivery && !customerDelivery)) {
     throw new Error('invalid_queued_notice');
   }
-  return {to: job.to, subject: 'TheFEYA · Withdrawal acknowledgement · ' + receipt.reference,
-    body: ['TheFEYA has received your withdrawal statement.', ref, time, '', 'Your statement:',
-      statement.declaration, 'Name: ' + statement.name, 'Contract identified by: ' + statement.contract,
-      'Confirmation email: ' + statement.email].join('\n')};
+  const language = statement.language ?? 'en';
+  if (!isWithdrawalLanguage(language) || statement.declaration !== withdrawalCopy[language].declaration) {
+    throw new Error('invalid_queued_notice');
+  }
+  const words = withdrawalCopy[language];
+  if (sellerDelivery) {
+    return {to: job.to, subject: 'TheFEYA · Consumer withdrawal for ' + SELLER_ONLINE_PROVIDER.legalName + ' · ' + receipt.reference,
+      body: ['To ' + SELLER_ONLINE_PROVIDER.legalName, ref, time, '', statement.declaration, 'Name: ' + statement.name,
+        'Order or purchase: ' + statement.contract, 'Contact chosen by the consumer: ' + statement.email].join('\n')};
+  }
+  return {to: job.to, subject: 'TheFEYA · ' + words.receipt + ' · ' + receipt.reference,
+    body: [words.received, words.reference + ': ' + receipt.reference, words.time + ': ' + receipt.submitted_at, '',
+      statement.declaration, words.name + ': ' + statement.name, words.order + ': ' + statement.contract,
+      words.email + ': ' + statement.email].join('\n')};
 }

@@ -8,8 +8,13 @@ export function withdrawalWorkerAudience(env: Environment = process.env): string
   return audience && /^[a-z0-9][a-z0-9._-]{3,179}$/i.test(audience) ? audience : null;
 }
 
+export function withdrawalSellerRoute(env: Environment = process.env): 'seller_mailbox' | 'studio_mandate' | null {
+  const route = env.FEYA_WITHDRAWAL_SELLER_ROUTE;
+  return route === 'seller_mailbox' || route === 'studio_mandate' ? route : null;
+}
+
 /** An operator enables this only after a received mailbox test, a running timer and staffed review. */
 export function withdrawalEnabled(env: Environment = process.env): boolean {
-  return env.FEYA_WITHDRAWAL_LIVE === 'true' && Boolean(withdrawalWorkerAudience(env))
+  return env.FEYA_WITHDRAWAL_LIVE === 'true' && Boolean(withdrawalWorkerAudience(env)) && Boolean(withdrawalSellerRoute(env))
     && Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
 }

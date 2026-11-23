@@ -1,4 +1,5 @@
-import {publicWithdrawalReceipt, WITHDRAWAL_DECLARATION, type WithdrawalInput, type WithdrawalReceipt} from './contract.ts';
+import {withdrawalCopy, type WithdrawalLanguage} from './language.ts';
+import {publicWithdrawalReceipt, type WithdrawalInput, type WithdrawalReceipt} from './contract.ts';
 
 /** Only a fingerprint and a random request ID are kept in this tab across reloads. */
 export type WithdrawalFields = Pick<WithdrawalInput, 'name' | 'order_number' | 'email'>;
@@ -8,8 +9,8 @@ export type GuestWithdrawalReceipt = WithdrawalReceipt & {acknowledgement: 'pend
 const sessionKey = 'thefeya-withdrawal-attempt-v1';
 const uuid = /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i;
 
-export async function withdrawalAttempt(fields: WithdrawalFields, current: WithdrawalAttempt | null) {
-  const statement = JSON.stringify([fields.name, fields.order_number, fields.email]);
+export async function withdrawalAttempt(fields: WithdrawalFields, current: WithdrawalAttempt | null, language: WithdrawalLanguage = 'en') {
+  const statement = JSON.stringify([fields.name, fields.order_number, fields.email, language]);
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(statement));
   const fingerprint = Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('');
   if (current?.fingerprint === fingerprint) return current;
@@ -33,11 +34,12 @@ export function readWithdrawalReceipt(value: unknown): GuestWithdrawalReceipt | 
   return receipt ? {...receipt, acknowledgement: value.acknowledgement} : null;
 }
 
-export function withdrawalReceiptText(fields: WithdrawalFields, receipt: GuestWithdrawalReceipt, seller: string) {
+export function withdrawalReceiptText(fields: WithdrawalFields, receipt: GuestWithdrawalReceipt, seller: string, language: WithdrawalLanguage = 'en') {
+  const words = withdrawalCopy[language];
   return [
-    'TheFEYA · Withdrawal receipt', '', 'To: ' + seller, WITHDRAWAL_DECLARATION, '',
-    'Name: ' + fields.name, 'Order or purchase: ' + fields.order_number,
-    'Acknowledgement email: ' + fields.email, 'Receipt reference: ' + receipt.reference,
-    'Submitted at (UTC): ' + receipt.submitted_at,
+    'TheFEYA · ' + words.receipt, '', words.received, words.seller + ': ' + seller,
+    words.declaration, '', words.name + ': ' + fields.name, words.order + ': ' + fields.order_number,
+    words.email + ': ' + fields.email, words.reference + ': ' + receipt.reference,
+    words.time + ': ' + receipt.submitted_at,
   ].join('\n');
 }

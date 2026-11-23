@@ -8,10 +8,10 @@ import type {BuyerOrderReceipt} from './buyerOrderDetails';
 export const CHECKOUT_PENDING_KEY = 'feya_checkout_pending_v1';
 export const CHECKOUT_RECEIPTS_KEY = 'feya_checkout_receipts_v1';
 
-export type CheckoutStatus = {checkout_active: boolean; engine: string | null; remote_countries: string[]; remote_surcharge_minor: number};
+export type CheckoutStatus = {checkout_active: boolean; storage_ready: boolean; engine: string | null; remote_countries: string[]; remote_surcharge_minor: number};
 export type QuoteResult = {
   ok: boolean; code?: string; message?: string;
-  checkout_active?: boolean;
+  checkout_active?: boolean; country_selected?: boolean;
   colour_recovery?: CartColourRecovery;
   amounts?: {merchandise_minor: number; extras_minor: number; shipping_minor: number; remote_minor: number;
     handling_minor: number; total_minor: number};

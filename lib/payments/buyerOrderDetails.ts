@@ -56,7 +56,7 @@ export function buyerOrderDetails(receipt: BuyerOrderReceipt): string {
   text.push(
     `Original order total (${receipt.currency}): ${receiptMoney(receipt.total_minor)}`,
     '', `Legal seller: ${SELLER_ONLINE_PROVIDER.legalName}`, `Seller contact: ${SELLER_ONLINE_PROVIDER.usOfficeEmail}`,
-    'Order support: manager.feya@gmail.com', 'Returns and withdrawal: https://thefeya.com/returns',
+    'Order support: manager.feya@gmail.com', 'Returns and withdrawal: https://thefeya.com/returns#withdrawal-notice',
   );
   return text.join('\n') + '\n';
 }

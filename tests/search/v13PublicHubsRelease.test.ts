@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {STUDIO_EMAIL, STUDIO_TOPICS, studioEnquiryMailto} from '../../lib/studioEnquiry.ts';
 import {isApprovedV13Presentation,PUBLIC_V13_PROJECT,PUBLIC_V13_HUB_BRANCH} from '../../lib/approvedV13Presentation.ts';
 
 const file=(p:string)=>readFileSync(p,'utf8');
@@ -63,8 +64,12 @@ test('owner recovery restores qualified partner map while Shipping retains payme
 test('Contact mailto is honest and newsletter remains nonfunctional before consented CRM',()=>{
  const form=file('components/OwnerContactFormPreview.tsx');
  const news=file('components/OwnerNewsletterSignupPreview.tsx');
- assert.ok(form.includes('mailto:manager.feya@gmail.com'));
- assert.ok(form.includes('Please confirm sending'));
+ const email=new URL(studioEnquiryMailto(STUDIO_TOPICS[0], '', ''));
+ assert.equal(email.protocol,'mailto:'); assert.equal(email.pathname,STUDIO_EMAIL);
+ assert.equal(STUDIO_EMAIL,'manager.feya@gmail.com');
+ assert.ok(form.includes('window.location.assign(studioEnquiryMailto('));
+ assert.doesNotMatch(form,/href=\{\s*studioEnquiryMailto/);
+ assert.ok(form.includes('You can review and send the message in your email app.'));
  assert.ok(!form.includes("Your email app was opened"));
  assert.ok(news.includes('Newsletter subscriptions are coming soon'));
  assert.ok(news.includes('button type="submit" disabled'));

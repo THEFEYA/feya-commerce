@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseCheckoutQuoteRequest, parseCheckoutRequest, checkoutErrorMessage} from '../../lib/payments/checkoutRequest.ts';
+import {parseCheckoutQuoteRequest, parseCheckoutRequest, checkoutErrorMessage, CheckoutRequestError} from '../../lib/payments/checkoutRequest.ts';
 import {checkoutRequestFingerprint} from '../../lib/payments/orderSnapshot.ts';
 import {lineA, validCheckoutBody} from './fixtures.ts';
 
@@ -31,6 +31,25 @@ test('US/CA/AU require a valid state; blocked or unknown countries refused', () 
   assert.equal(parseCheckoutRequest(validCheckoutBody({address: {country: 'US', region: 'TX', city: 'Austin', postal_code: '73301', line1: '1 Main St'}})).address.region, 'TX');
   assert.throws(() => parseCheckoutRequest(validCheckoutBody({address: {country: 'UA', city: 'Kyiv', postal_code: '01001', line1: 'x'}})), /checkout_country_unavailable/);
   assert.throws(() => parseCheckoutRequest(validCheckoutBody({address: {country: 'ZZ', city: 'x', postal_code: '1', line1: 'x'}})), /checkout_country_unavailable/);
+});
+
+test('Hong Kong accepts a district without a postal code and keeps legacy requests retryable', () => {
+  const address = {country: 'HK', region: 'Kowloon', city: 'Kowloon Bay', line1: 'Test Road'};
+  const parse = (fields: Record<string, unknown>) => parseCheckoutRequest(validCheckoutBody({address: fields}));
+  const request = parse(address);
+  assert.deepEqual(request.address, {...address, postal_code: null, line2: null});
+  for (const blank of ['', '  ', null]) {
+    assert.equal(checkoutRequestFingerprint(parse({...address, postal_code: blank})), checkoutRequestFingerprint(request));
+  }
+  assert.equal(parse({...address, region: null}).address.region, null);
+  assert.equal(parse({...address, postal_code: 'legacy-value'}).address.postal_code, 'legacy-value');
+  assert.throws(() => parse({...address, city: ''}), (error: unknown) =>
+    error instanceof CheckoutRequestError && error.field === 'address.city');
+  assert.throws(() => parse({...address, postal_code: {}}), /checkout_field_invalid/);
+  for (const [country, region] of [['US','TX'], ['CA','ON'], ['AU','NSW'], ['GB',''], ['DE',''], ['CN','']]) {
+    assert.throws(() => parse({...address, country, region}), (error: unknown) =>
+      error instanceof CheckoutRequestError && error.field === 'address.postal_code');
+  }
 });
 
 test('line validation: duplicates, quantities, ids', () => {

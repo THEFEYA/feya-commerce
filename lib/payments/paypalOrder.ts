@@ -1,6 +1,7 @@
 import {decimalToMinor, minorToDecimal} from './pricing.ts';
 import {colorChoiceLabel} from '../bonanzaColorChoices.ts';
 import type {OrderSnapshotV1} from './orderSnapshot.ts';
+import {shippingPostalCode} from './checkoutAddress.ts';
 
 /** Facts stored with the TheFEYA order that a PayPal payment must match exactly. */
 export type ExpectedPayment = {
@@ -79,6 +80,7 @@ export function buildPayPalOrderRequest(input: {
   const physical = snapshot.kind === 'customer' && snapshot.address && snapshot.buyer;
   if (physical) {
     const a = snapshot.address!;
+    const postalCode = shippingPostalCode(a);
     unit.shipping = {
       type: 'SHIPPING',
       name: {full_name: clip(`${snapshot.buyer!.first_name} ${snapshot.buyer!.last_name}`, 300)},
@@ -87,7 +89,7 @@ export function buildPayPalOrderRequest(input: {
         ...(a.line2 ? {address_line_2: clip(a.line2, 300)} : {}),
         admin_area_2: clip(a.city, 120),
         ...(a.region ? {admin_area_1: clip(a.region, 300)} : {}),
-        postal_code: clip(a.postal_code, 60),
+        ...(postalCode ? {postal_code: clip(postalCode, 60)} : {}),
         country_code: a.country,
       },
     };

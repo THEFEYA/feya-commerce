@@ -10,7 +10,7 @@ export const CHECKOUT_POLICY_BUNDLE_V1={
     terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'d05c52b29b4864a6b3a014a221c084b9a37d511d'},
     shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'35a90d492f87f59c3166eefd4a020cad20c9bc4b'},
     returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'626ecd6da5574e8b3d9ce5e834dd07dec0d418c5'},
-    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'b40d84919707028266fa9f4cfc3d8d718f96afb0'},
+    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'f98f341206b9cd78ba0bf70f81f90c73040d1f91'},
   },
 } as const;
 

@@ -16,18 +16,20 @@ declare k uuid:=gen_random_uuid(); saved jsonb; unknown_notice jsonb; lost jsonb
 begin
   assert not has_table_privilege('anon','public.feya_withdrawal_notices_v1','select');
   assert not has_table_privilege('authenticated','public.feya_withdrawal_delivery_v1','select');
-  assert not has_function_privilege('anon','public.feya_withdrawal_record_v1(uuid,text,text,text,text,text)','execute');
+  assert not has_function_privilege('anon','public.feya_withdrawal_record_v1(uuid,text,text,text,text,text,text,text)','execute');
   assert not has_function_privilege('authenticated','public.feya_withdrawal_case_v1(uuid)','execute');
-  assert has_function_privilege('service_role','public.feya_withdrawal_record_v1(uuid,text,text,text,text,text)','execute');
-  saved:=public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,repeat('0',64));
+  assert has_function_privilege('service_role','public.feya_withdrawal_record_v1(uuid,text,text,text,text,text,text,text)','execute');
+  saved:=public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,repeat('0',64),'en','studio_mandate');
   assert saved ? 'reference' and saved ? 'submitted_at' and (saved->>'submitted_at')::timestamptz is not null;
-  assert saved=public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,null);
-  assert public.feya_withdrawal_record_v1(k,'Different person','FEYA-889991','verified@example.test',null,null)->>'code'='idempotency_conflict';
+  assert saved=public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,null,'en','studio_mandate');
+  assert public.feya_withdrawal_record_v1(k,'Different person','FEYA-889991','verified@example.test',null,null,'en','studio_mandate')->>'code'='idempotency_conflict';
   select count(*) into n from public.feya_withdrawal_delivery_v1 where reference=(saved->>'reference')::uuid;
   assert n=2;
   assert public.feya_withdrawal_case_v1((saved->>'reference')::uuid)->>'recipient_basis'='checkout_identity';
-  unknown_notice:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Visitor','FEYA-889991','alternate@example.test',repeat('c',64),null);
-  lost:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Other Visitor','The costume ordered on 3 October','lost@example.test',null,null);
+  unknown_notice:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Visitor','FEYA-889991','alternate@example.test',repeat('c',64),null,'en','studio_mandate');
+  lost:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Other Visitor','The costume ordered on 3 October','lost@example.test',null,null,'nl','studio_mandate');
+  assert public.feya_withdrawal_case_v1((lost->>'reference')::uuid)->>'declaration'='Hierbij ontbind ik de hieronder vermelde overeenkomst.';
+  assert public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,null,'de','studio_mandate')->>'code'='idempotency_conflict';
   assert (select array_agg(key order by key) from jsonb_object_keys(saved) key) =
          (select array_agg(key order by key) from jsonb_object_keys(lost) key);
   assert (public.feya_withdrawal_case_v1((unknown_notice->>'reference')::uuid)->>'recipient_basis') is null;
@@ -35,7 +37,7 @@ begin
   assert exists(select 1 from public.feya_withdrawal_open_cases_v1(10) where reference=(lost->>'reference')::uuid and needs_verified_recipient);
   assert public.feya_withdrawal_verify_recipient_v1((lost->>'reference')::uuid,'lost@example.test','test-staff','QA-002');
   assert not(public.feya_withdrawal_case_v1((lost->>'reference')::uuid)->>'declaration' is null);
-  later:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Unpaid Guest','FEYA-889992','unpaid@example.test',repeat('d',64),null);
+  later:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Unpaid Guest','FEYA-889992','unpaid@example.test',repeat('d',64),null,'en','studio_mandate');
   assert (public.feya_withdrawal_case_v1((later->>'reference')::uuid)->>'recipient_basis') is null;
 
   -- No recipient info leaves the database before an atomic send grant. A lost response cannot issue the same grant twice.
@@ -67,28 +69,58 @@ begin
   assert not public.feya_withdrawal_report_v1((job->>'job_id')::uuid,(firstjob->>'attempt_id')::uuid,'submitted');
   assert public.feya_withdrawal_report_v1((job->>'job_id')::uuid,(job->>'attempt_id')::uuid,'unknown');
   assert public.feya_withdrawal_reconcile_job_v1((job->>'job_id')::uuid,(job->>'attempt_id')::uuid,'confirmed_submitted','staff','QA-5');
+  assert not has_function_privilege('anon','public.feya_withdrawal_confirm_seller_receipt_v1(uuid,text,timestamptz,text,text)','execute');
+  assert not has_function_privilege('authenticated','public.feya_withdrawal_confirm_seller_receipt_v1(uuid,text,timestamptz,text,text)','execute');
+  assert not public.feya_withdrawal_resolve_case_v1((saved->>'reference')::uuid,'test-staff');
+  assert not public.feya_withdrawal_confirm_seller_receipt_v1((saved->>'reference')::uuid,'seller_confirmed',now()-interval '1 day','test-staff','QA-6');
+  assert not public.feya_withdrawal_confirm_seller_receipt_v1((saved->>'reference')::uuid,'seller_confirmed',null,'test-staff','QA-6');
+  assert public.feya_withdrawal_confirm_seller_receipt_v1((saved->>'reference')::uuid,'authorised_studio',null,'test-staff','QA-MANDATE');
+  assert public.feya_withdrawal_confirm_seller_receipt_v1((saved->>'reference')::uuid,'authorised_studio',null,'test-staff','QA-MANDATE');
+  assert not public.feya_withdrawal_confirm_seller_receipt_v1((saved->>'reference')::uuid,'authorised_studio',null,'test-staff','DIFFERENT');
+  assert public.feya_withdrawal_case_v1((saved->>'reference')::uuid)->>'seller_received_at'=saved->>'submitted_at';
+  assert public.feya_withdrawal_confirm_seller_receipt_v1((lost->>'reference')::uuid,'seller_confirmed',clock_timestamp(),'test-staff','QA-7');
   assert public.feya_withdrawal_resolve_case_v1((saved->>'reference')::uuid,'test-staff');
   assert exists(select 1 from public.feya_withdrawal_open_cases_v1(100) where reference=(saved->>'reference')::uuid);
-  assert public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,null)=saved;
+  assert public.feya_withdrawal_record_v1(k,'Ada Buyer','FEYA-889991','verified@example.test',null,null,'en','studio_mandate')=saved;
   job:=public.feya_withdrawal_take_v1(66)->0;
   assert job->>'kind'='studio' and job->>'to'='manager.feya@gmail.com' and job->'statement'='null'::jsonb;
 
   for n in 1..8 loop
-    other:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Description','quota@example.test',null,repeat('e',64));
+    other:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Description','quota@example.test',null,repeat('e',64),'en','studio_mandate');
     assert other ? 'reference';
   end loop;
-  assert public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Description','quota@example.test',null,repeat('e',64))->>'code'='rate_limited';
+  assert public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Description','quota@example.test',null,repeat('e',64),'en','studio_mandate')->>'code'='rate_limited';
   assert (select used from public.feya_withdrawal_limits_v1 where scope_key='ip:'||repeat('e',64))=8;
   -- A wave of anonymous descriptions cannot consume the buyer mail reserve.
   for n in 1..12 loop
-    perform public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Summary',format('c%s@example.test',n),null,null);
+    perform public.feya_withdrawal_record_v1(gen_random_uuid(),'Guest','Summary',format('c%s@example.test',n),null,null,'en','studio_mandate');
   end loop;
   for n in 1..9 loop assert (public.feya_withdrawal_take_v1(90)->0->>'kind')='studio'; end loop;
   assert public.feya_withdrawal_take_v1(90)='[]'::jsonb;
   assert (select count(*) from public.feya_withdrawal_dispatch_v1 a join public.feya_withdrawal_delivery_v1 d using(job_id) where d.kind='studio')=10;
   insert into public.feya_withdrawal_dispatch_v1(job_id) select (job->>'job_id')::uuid from generate_series(1,90);
-  later:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Ada Buyer','FEYA-889991','verified@example.test',null,null);
+  later:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Ada Buyer','FEYA-889991','verified@example.test',null,null,'en','studio_mandate');
   assert later ? 'reference' and public.feya_withdrawal_take_v1(100)='[]'::jsonb;
   raise notice 'withdrawal_v1: all assertions passed';
+end $$;
+do $$
+declare notice jsonb; job jsonb; ref uuid;
+begin
+  delete from public.feya_withdrawal_dispatch_v1;
+  delete from public.feya_withdrawal_delivery_v1;
+  delete from public.feya_withdrawal_notices_v1;
+  notice:=public.feya_withdrawal_record_v1(gen_random_uuid(),'Studio test','Test-only contract','review@example.test',null,null,'de','seller_mailbox');
+  ref:=(notice->>'reference')::uuid;
+  assert (select count(*)=3 from public.feya_withdrawal_delivery_v1 where reference=ref);
+  assert public.feya_withdrawal_take_v1(1)='[]'::jsonb;
+  job:=public.feya_withdrawal_take_v1(21)->0;
+  assert job->>'kind'='seller' and job->>'to'='office@seller-online.com';
+  assert job->'statement'->>'language'='de' and job->'statement'->>'declaration'='Hiermit widerrufe ich den unten bezeichneten Vertrag.';
+  assert job->'statement'->>'email'='review@example.test';
+  assert public.feya_withdrawal_report_v1((job->>'job_id')::uuid,(job->>'attempt_id')::uuid,'submitted');
+  assert not public.feya_withdrawal_resolve_case_v1(ref,'QA');
+  assert not public.feya_withdrawal_confirm_seller_receipt_v1(ref,'authorised_studio',null,'QA','QA-MANDATE');
+  assert public.feya_withdrawal_confirm_seller_receipt_v1(ref,'seller_confirmed',clock_timestamp(),'QA','QA-SELLER-CONFIRMATION');
+  assert public.feya_withdrawal_resolve_case_v1(ref,'QA');
 end $$;
 rollback;
