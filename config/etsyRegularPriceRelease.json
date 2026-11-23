@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-23.2",
+  "version": "2026-11-23.3",
   "fx": {
     "asOf": "2026-11-20",
     "usdPerEur": "1.0990",
@@ -1240,7 +1240,15 @@
       "etsySizeValues": {
         "M": "4703296989"
       },
-      "separateConfigurationIds": [],
+      "ownerPricedPair": {
+        "configurationId": "26274d0c-81c9-44e6-9ce7-c3056c62040c",
+        "regularUsdMinor": 67400,
+        "approvedOn": "2026-11-23"
+      },
+      "separateConfigurationIds": [
+        "aefa2c61-c430-4675-9964-9cd1e3f1658e",
+        "5074ad3c-af6a-4cf7-9624-ce351ee9cafc"
+      ],
       "baselineEurMinor": {
         "26274d0c-81c9-44e6-9ce7-c3056c62040c": 46044,
         "aefa2c61-c430-4675-9964-9cd1e3f1658e": 18344,

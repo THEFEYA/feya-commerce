@@ -9,7 +9,7 @@ import {projectReviewedBonanzaColors} from '../../lib/bonanzaReviewedColorProjec
 import {selectedOptionPrice,selectedPriceConfidence} from '../../lib/storefrontSizePrice.ts';
 import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
 import {coupleColorSelection} from '../../lib/bonanzaCoupleColorChoices.ts';
-import {isSourceConfirmedPairedSet} from '../../lib/payments/pairedSetSelection.ts';
+import {isSourceConfirmedPairedSet,PAIRED_SET_SIZES} from '../../lib/payments/pairedSetSelection.ts';
 import {colorOptions,fullSetOption,optionKey,optionLabel,optionPrice,sortedOptions} from '../../lib/storefront.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
 import {priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
@@ -112,6 +112,36 @@ test('bundle comparisons are truthful for single and multiple sets; the unverifi
   assert.equal(optionPrice(fullSetOption(currentProduct(spine))),255.22);
 });
 
+test('Gold Matching Couple charges the owner-approved pair price for both fits and compares against the two actual solo prices',()=>{
+  const productId = '057fbd51-52f5-4404-b126-e5d75b8599f4';
+  const book = release.products[productId];
+  const product = currentProduct(productId);
+  const config = book.ownerPricedPair.configurationId;
+  const pair = fullSetOption(product)!;
+  assert.equal(optionKey(pair),config);
+  assert.equal(Object.hasOwn(book.offers,config),false);
+  assert.equal(pair.price_source_mode,'owner_authorized_bundle');
+  assert.equal(pair.price_confidence_status,'owner_reviewed');
+  const separate = book.separateConfigurationIds.map(id=>publishedRegularEurMinor(productId,id));
+  assert.deepEqual(separate,[23021,41037]);
+  assert.equal(optionPrice(pair),613.28);
+  assert.equal(product.component_sum_display_price_amount,640.58);
+  assert.equal(product.full_set_savings_amount,27.30);
+  assert.equal(pair.sale_price_amount,null);
+  assert.equal(pair.compare_at_price_amount,null);
+  const colors = coupleColorSelection(product)!.defaultPair;
+  for (const women of PAIRED_SET_SIZES) for (const men of PAIRED_SET_SIZES) {
+    const line = {id:productId+'-'+config,slug:product.product_slug!,configuration_id:config,size:women,
+      color:colorChoiceLabel(colors.women),color_code:colors.women,wearer:null,quantity:1,made_to_measure:false,
+      paired_selection:{women:{size:women,color:colors.women},men:{size:men,color:colors.men}},client_unit_minor:46044};
+    const quote = priceCartLineForQuote(product,line);
+    assert.equal(quote.unit_minor,61328);
+    assert.equal(quote.price_changed,true);
+    assert.deepEqual(quote.paired_selection,line.paired_selection);
+    assert.equal(priceCartLine(product,{...line,client_unit_minor:61328}).price_changed,false);
+  }
+});
+
 test('unreleased products pass through with identity intact and missing exact IDs fail closed',()=>{
   const unrelated=source.find(row=>!released.some(([id])=>id===row.canonical_product_id))!;
   assert.equal(applyPublishedProductPrices(unrelated),unrelated);assert.equal(applyPublishedCardPrices(unrelated),unrelated);
@@ -141,7 +171,7 @@ test('keeps all catalog option identities, unaffected prices, colors and product
       else{assert.equal(optionPrice(row),expected/100);selected++;}
     }
   }
-  assert.equal(selected,629);assert.equal(unchanged,227);
+  assert.equal(selected,630);assert.equal(unchanged,226);
 });
 
 test('size selection, saved bags, site-only fit and Merchant landings agree on the corset prices',()=>{
