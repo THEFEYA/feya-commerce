@@ -1,4 +1,5 @@
 import 'server-only';
+import {applyPublishedCardPrices} from './storefrontPublishedPrices.ts';
 
 import {applyReviewedBonanzaCatalogColors} from '@/lib/bonanzaColorCatalogServer';
 import {applyReviewedPrimaryImageAlt} from '@/lib/storefrontReviewedPrimaryImageAlts';
@@ -134,7 +135,7 @@ export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCard
     }
   }
 
-  return rows.map(row => applyReviewedPrimaryImageAlt(row, row.source_draft_id));
+  return rows.map(row => applyPublishedCardPrices(applyReviewedPrimaryImageAlt(row, row.source_draft_id)));
 }
 
 

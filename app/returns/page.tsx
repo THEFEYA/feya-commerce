@@ -5,6 +5,9 @@ import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
+
+const euNoticeBase='https://europa.eu/youreurope/business/images/content/eu-legal-guarantee-notice-and-garan-label/Legal-guarantee-harmonised-notice_';
 
 export async function generateMetadata():Promise<Metadata>{
   return{
@@ -19,16 +22,16 @@ const sections=[
   {
     title:'Orders are made to order',
     body:[
-      'TheFEYA pieces enter production promptly after purchase. We do not offer discretionary cancellations after production begins or voluntary short-term “wear once and return” refunds. Your mandatory legal cancellation, withdrawal and remedy rights remain unaffected.',
-      'This store policy does not limit any mandatory consumer rights that cannot legally be waived.',
+      'Production starts promptly. If you need to change or cancel an order, contact the studio as soon as possible. Once production begins, we generally cannot accommodate a voluntary cancellation.',
+      'Your legal rights to withdraw from an eligible purchase or to obtain a remedy for a problem with your order still apply.',
     ],
   },
   {
     title:'If something is wrong',
     body:[
-      'Please inspect your order when it arrives. If the item is defective, materially different from the order, or the agreed size, color or configuration was supplied incorrectly, contact us as soon as possible.',
+      'Please inspect your piece when it arrives and tell the studio if it is damaged, faulty, the wrong size or colour, or different from the specifications you agreed with us.',
       'For our voluntary exchange/remake process, please contact us ideally within 1–3 days and within 7 days if possible. This preferred reporting window does not shorten legal guarantee rights or your right to report defects later. We may ask for clear photos and measurements to resolve the issue correctly.',
-      'Depending on the issue, the appropriate remedy may be an adjustment, repair, remake, replacement, exchange or another remedy required by applicable law.',
+      'Depending on your rights, the remedy may be a repair, replacement, price reduction or refund. We cover the necessary return cost for a faulty or incorrect item where required by law.',
     ],
   },
   {
@@ -39,33 +42,31 @@ const sections=[
     ],
   },
   {
-    title:'Mandatory withdrawal rights where applicable',
+    title:'Withdrawing from an EU or UK order',
     body:[
-      'For eligible online purchases by consumers covered by mandatory withdrawal rules, the legal withdrawal period applies. For example, EU consumers generally have 14 days after receiving eligible goods to notify the seller that they wish to withdraw, without giving a reason. Please contact us to arrange a legally eligible return.',
-      'Items genuinely made to your individual specifications or clearly personalised, including specifically measured custom garments, may be excluded from the ordinary withdrawal right where law permits. Ordinary standard-size made-to-order production and a reduced sale price do not, by themselves, remove that right.',
-      'The legal hygiene exception may apply to certain sealed, non-returnable-for-hygiene goods after the seal is broken, but not automatically to every wearable costume. Inspection comparable to trying an item in a shop differs from wearing it at an event; applicable law may allow a deduction for diminished value from use beyond necessary inspection.',
-      'Mandatory refund deadlines, permitted return-shipping charges, remedies for incorrect or defective goods and other consumer protections always take precedence over voluntary store policies.',
+      'For an eligible online purchase, you have 14 days after the day you or your chosen recipient receives the goods to tell the seller you are withdrawing. If goods from one order arrive separately, the period generally runs from receipt of the last item. You may also withdraw before delivery. No reason is needed.',
+      'Send the goods back within 14 days after giving notice. For a full withdrawal, the refund includes the price paid and the cost of the least expensive standard delivery we offered. We use the original payment method unless you expressly agree otherwise.',
+      'In the EU, we refund within 14 days of your notice. Unless we offered collection, we may wait for the goods or proof you sent them back, whichever comes first. In the UK, when you send goods back, we refund within 14 days of receiving the goods or earlier proof of posting.',
     ],
   },
   {
     title:'Sale items and store credit',
     body:[
-      'Where TheFEYA voluntarily accepts a return or exchange of an eligible sale item, the remedy is store credit unless a different remedy is required because the item is defective, incorrect or applicable law requires otherwise.',
-      'An exchange may be completed by placing a new order using the agreed store credit.',
+      'A sale price does not change your statutory rights. If you qualify for a refund, you can receive it through your original payment method. If we agree to a voluntary sale-item return outside those rights, we offer store credit for a future order.',
     ],
   },
   {
     title:'Events, shoots and one-time use',
     body:[
-      'A cancelled or changed event, photoshoot, performance, weather condition, missed call time or another circumstance outside TheFEYA’s control is not a reason for a voluntary cancellation or refund.',
-      'Delivery estimates are not guarantees that an order will arrive before a particular event date unless TheFEYA expressly accepted that deadline in writing for the specific order.',
+      'You may try a piece on as you would in a shop. Wearing it at a show or shoot goes beyond ordinary inspection. Where the law allows, any deduction reflects the actual loss in value caused by that handling.',
+      'A change to your event plans does not create an extra right to a refund. If delivery by a particular date is essential, tell us before ordering. Missing an essential delivery deadline may entitle you to cancel under applicable law.',
     ],
   },
   {
-    title:'Return shipping and authorization',
+    title:'Where to send your return',
     body:[
-      'Do not send a return to an address that has not been provided by TheFEYA for that specific case. Unauthorized returns may not be accepted.',
-      'For voluntary returns or exchanges that we agree to accept, the buyer is responsible for return shipping unless we expressly state otherwise. Where the item is defective, incorrect or non-conforming, shipping-cost responsibility follows the applicable mandatory rules.',
+      'Contact the studio for the correct parcel address and include your order number if available. You can send a withdrawal notice immediately, without waiting for instructions or approval.',
+      'For a change-of-mind return you pay the direct return postage where disclosed before purchase and permitted by law. If the item is faulty or incorrect, contact us so we can arrange the appropriate return. Keep proof of posting.',
     ],
   },
 ];
@@ -78,7 +79,7 @@ export default function ReturnsPage(){
         <div className="eyebrow-gold mb-5">Store policy · Made to order</div>
         <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Returns & Exchanges</h1>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[#aaa2a0]">
-          TheFEYA creates statement pieces for stage, festival, performance and editorial use. Our policy is designed to resolve genuine fit, production and order issues without turning made-to-order pieces into a free-rental service.
+          For a fit issue, damaged parcel or change to your order, <Link href="/contact" className="text-bone underline underline-offset-4">contact the studio</Link>. To give notice of withdrawal, use the <a href="#withdrawal-notice" className="text-bone underline underline-offset-4">email and notice details below</a>. Neither requires a customer account.
         </p>
       </div>
     </section>
@@ -91,12 +92,35 @@ export default function ReturnsPage(){
             {section.body.map(p=><p key={p}>{p}</p>)}
           </div>
         </article>)}
+        <article id="withdrawal-notice" className="scroll-mt-24 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+          <h2 className="text-bone text-xl">How to give notice of withdrawal</h2>
+          <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
+            <p>For an order sold by {SELLER_ONLINE_PROVIDER.legalName}, email <a className="break-all text-bone underline underline-offset-4" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}?subject=TheFEYA%20withdrawal%20notice`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a>. Identify your order and say you wish to withdraw. You may use your own words.</p>
+            <details>
+              <summary className="cursor-pointer text-bone underline underline-offset-4">Optional withdrawal form and postal address</summary>
+              <div className="mt-3 space-y-2">
+                <p>To {SELLER_ONLINE_PROVIDER.legalName}, {SELLER_ONLINE_PROVIDER.contactAddress.line1}, {SELLER_ONLINE_PROVIDER.contactAddress.city}, {SELLER_ONLINE_PROVIDER.contactAddress.region} {SELLER_ONLINE_PROVIDER.contactAddress.postalCode}, {SELLER_ONLINE_PROVIDER.contactAddress.country}.</p>
+                <p>I/we give notice that I/we withdraw from the purchase of the following goods:</p>
+                <p>Goods or order reference:<br/>Order date / date received:<br/>Name and address of customer(s):<br/>Date of notice:<br/>Signature (for a paper notice only):</p>
+                <p>This is the seller’s address for notices. Contact the studio for parcel routing.</p>
+              </div>
+            </details>
+          </div>
+        </article>
       </div>
 
       <div className="mt-6 rounded-xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-6 lg:p-7">
         <h2 className="text-bone text-xl">Before placing an order</h2>
         <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-          Checkout will require an active acknowledgement that you have read the current Terms, Returns & Exchanges and Shipping policies. The policy version accepted with the order is retained as part of the order record. This acknowledgement does not waive any rights that cannot legally be waived.
+          Checkout records the version of the Terms, Returns & Exchanges and Shipping policies you accept. Your statutory consumer rights continue to apply.
+        </p>
+        <p className="mt-3 text-[15px] leading-7 text-[var(--bone-dim)]">
+          If goods sold to you in the EU are faulty or differ from what was agreed, the legal guarantee generally protects you for at least two years. Read the official EU notice in{' '}
+          <a className="text-bone underline underline-offset-4" href={`${euNoticeBase}en.jpg`} hrefLang="en">English</a>,{' '}
+          <a className="text-bone underline underline-offset-4" href={`${euNoticeBase}ga.jpg`} hrefLang="ga" lang="ga">Gaeilge</a>,{' '}
+          <a className="text-bone underline underline-offset-4" href={`${euNoticeBase}nl.jpg`} hrefLang="nl" lang="nl">Nederlands</a> or{' '}
+          <a className="text-bone underline underline-offset-4" href={`${euNoticeBase}de.jpg`} hrefLang="de" lang="de">Deutsch</a>.{' '}
+          <a className="text-bone underline underline-offset-4" href="https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/index_en.htm">Read about your guarantee in text</a>.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/shipping" className="btn-ghost">Shipping policy</Link>

@@ -77,7 +77,7 @@ export function CheckoutReturnClient() {
         // PayPal Checkout: capture server-side, then show the verified result.
         const result = await checkoutApi.complete(token).catch(() => null);
         if (!result || !result.ok) {
-          setView({state: 'problem', message: result?.message || 'We could not confirm the payment yet. If PayPal charged you, your order is safe — we will confirm it by email or you can contact us with the PayPal receipt.'});
+          setView({state: 'problem', message: result?.message || 'We could not confirm the payment yet. If PayPal shows a charge, please contact TheFEYA with your PayPal receipt before trying again.'});
           return;
         }
         if (result.status === 'paid') return paid(result.order_number || pending?.order_number || '');

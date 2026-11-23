@@ -66,7 +66,11 @@ export function OrderReceiptClient() {
           {receipt.handling_minor > 0 && <div className="flex justify-between gap-4 py-3 text-[var(--bone-dim)]"><span>Additional packaging for multiple items</span><span>{money(receipt.handling_minor)}</span></div>}
           <div className="flex justify-between gap-4 py-4 text-[16px]"><strong className="font-medium text-[#f7f3ec]">Total</strong><strong className="font-medium text-[#e4c87d]">{money(receipt.total_minor)}</strong></div>
         </div>
-        <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner. Questions about this order: <a className="underline underline-offset-4" href="mailto:manager.feya@gmail.com">manager.feya@gmail.com</a>.</p>
+        <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</p>
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[var(--bone-dim)]">
+          <a className="underline underline-offset-4" href={'mailto:manager.feya@gmail.com?subject='+encodeURIComponent('Help with TheFEYA order '+receipt.order_number)}>Get help with this order</a>
+          <Link href="/returns" className="underline underline-offset-4">Returns and withdrawal</Link>
+        </div>
       </>}
     </div>
   </section>;

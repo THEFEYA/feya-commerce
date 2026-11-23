@@ -5,11 +5,11 @@
  */
 export const CHECKOUT_POLICY_BUNDLE_V1={
   contract:'thefeya_checkout_policy_evidence_v1',
-  version:'thefeya-sale-policy-20261029-v4',
+  version:'thefeya-sale-policy-20261123-v5',
   sources:{
-    terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'d82d04a6b3ff51b5de09c9eeb322db9ada4d2e2f'},
-    shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'03a63e803c7696f06a13405600ac6b1bb36b594e'},
-    returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'fa5570efe202ba0c0159959f65031916c773836b'},
+    terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'d05c52b29b4864a6b3a014a221c084b9a37d511d'},
+    shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'35a90d492f87f59c3166eefd4a020cad20c9bc4b'},
+    returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'7c7c687985e54112e8bdfec3bd1e6aeee1351669'},
     privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'2b91f9c1cd7290e840fff91567e9cd7640ef36fb'},
   },
 } as const;
