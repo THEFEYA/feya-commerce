@@ -76,7 +76,7 @@ export default async function TermsPage(){
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">Cancellations, returns and remedies</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
-            <p>The current made-to-order cancellation, return, exchange, repair, remake and replacement rules are published on the Returns & Exchanges page.</p>
+            <p>Returns & Exchanges explains how to give notice, return an eligible standard item or report a fault. A standard size, a listed colour or a sale price alone does not make an item personalised. A piece made to your individual measurements may be excluded from change-of-mind withdrawal where permitted by law.</p>
             <p>Nothing in these store terms removes rights that cannot legally be waived under applicable law.</p>
           </div>
           <Link href="/returns" className="btn-ghost mt-5">Returns & exchanges</Link>
@@ -86,7 +86,7 @@ export default async function TermsPage(){
           <h2 className="text-bone text-xl">Shipping, customs and event dates</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>Production and delivery estimates, customs responsibilities and event-date limitations are governed by the current Shipping & Delivery policy.</p>
-            <p>A delivery estimate is not an event-date guarantee unless TheFEYA expressly accepts a specific deadline in writing for the particular order.</p>
+            <p>If a particular delivery date is essential, tell us before ordering. You may have the right to end the contract if an essential deadline is missed or if delivery still has not occurred after an appropriate additional period.</p>
           </div>
           <Link href="/shipping" className="btn-ghost mt-5">Shipping policy</Link>
         </article>

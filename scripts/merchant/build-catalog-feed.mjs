@@ -9,6 +9,7 @@ import {isColorPriceException} from '../../lib/bonanzaColorPriceExceptions.ts';
 import {PDP_LANDING_MEDIA_BINDINGS} from '../../lib/pdpLandingMediaBindings.ts';
 import {pdpLandingParams} from '../../lib/pdpLandingSelection.ts';
 import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
+import {publishedRegularEurMinor} from '../../lib/storefrontPublishedPrices.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -262,10 +263,19 @@ export function toMerchantTsv(rows){
 
 export function buildFiles(data){
   const {rows,report}=buildCatalog(data);
+  // The manifests describe the dated Google/readback review. The live XML and
+  // configured TSV use the same published price as the storefront and checkout.
+  const productByConfiguration=new Map(report.products.map(p=>[p.configuration_id,p.canonical_product_id]));
+  const liveRows=rows.map(row=>{
+    const productId=productByConfiguration.get(row.item_group_id);
+    assert.ok(productId,'feed offer has no reviewed product identity');
+    const amount=publishedRegularEurMinor(productId,row.item_group_id);
+    return amount===null?row:{...row,price:(amount/100).toFixed(2)+' EUR'};
+  });
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
-  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(rows),
-    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(rows),
+  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(liveRows),
+    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(liveRows),
     'readiness_manifest.json':JSON.stringify(report,null,2)+'\n',
     'readiness_manifest.tsv':[columns.join('\t'),...report.products.map(p=>columns.map(c=>cell(p[c])).join('\t'))].join('\n')+'\n'}};
 }

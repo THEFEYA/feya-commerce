@@ -1,0 +1,607 @@
+{
+  "version": "2026-11-23.1",
+  "fx": {
+    "asOf": "2026-11-20",
+    "usdPerEur": "1.0990",
+    "sourceUrl": "https://www.ecb.europa.eu/stats/exchange/eurofxref/shared/pdf/2026/11/20261120.pdf"
+  },
+  "products": {
+    "7bb70eab-b2f5-4079-96e7-d116484d1466": {
+      "etsyListingId": "1883724741",
+      "sourceUrl": "https://www.etsy.com/listing/1883724741/futuristic-silver-reflective-armor-set",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "41e7d07b-761b-4edb-bdc3-ed4258c1aa4a",
+      "etsySizeValues": {
+        "XS": "5154143763",
+        "S": "5154143765",
+        "M": "5178156644",
+        "L": "5178156646",
+        "XL": "5154143767",
+        "XXL": "5178156648",
+        "XXXL": "5154143769"
+      },
+      "separateConfigurationIds": [
+        "c0cc2566-0355-48d7-ab77-722dee46ab92",
+        "04254157-450b-43d7-a820-78696f967966",
+        "92a3b614-bc27-4eeb-8ed5-8c2049b187e4",
+        "e2084829-bca3-436f-9b2f-6ec2dad78b35"
+      ],
+      "baselineEurMinor": {
+        "41e7d07b-761b-4edb-bdc3-ed4258c1aa4a": 18344,
+        "c0cc2566-0355-48d7-ab77-722dee46ab92": 9023,
+        "04254157-450b-43d7-a820-78696f967966": 10616,
+        "92a3b614-bc27-4eeb-8ed5-8c2049b187e4": 14331,
+        "e2084829-bca3-436f-9b2f-6ec2dad78b35": 15441
+      },
+      "offers": {
+        "41e7d07b-761b-4edb-bdc3-ed4258c1aa4a": {
+          "regularUsdMinor": 45000,
+          "etsyOptionValue": "5154143775",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "c0cc2566-0355-48d7-ab77-722dee46ab92": {
+          "regularUsdMinor": 10285,
+          "etsyOptionValue": "5154143757",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "04254157-450b-43d7-a820-78696f967966": {
+          "regularUsdMinor": 12100,
+          "etsyOptionValue": "5154143773",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ],
+          "publicLabel": "Bracelets"
+        },
+        "92a3b614-bc27-4eeb-8ed5-8c2049b187e4": {
+          "regularUsdMinor": 16335,
+          "etsyOptionValue": "5178156652",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "e2084829-bca3-436f-9b2f-6ec2dad78b35": {
+          "regularUsdMinor": 17600,
+          "etsyOptionValue": "5178156650",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "df030151-5853-46c1-be89-06f059224a44": {
+      "etsyListingId": "1797355053",
+      "sourceUrl": "https://www.etsy.com/listing/1797355053/fashion-dancer-costume-set-mirror",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "873e3347-8dae-413b-bde3-8e6e231913f8",
+      "etsySizeValues": {
+        "XS": "4782633166",
+        "S": "4780148987",
+        "M": "4782633168",
+        "L": "4780148991",
+        "XL": "4780148993",
+        "XXL": "4780148995",
+        "XXXL": "4780148997"
+      },
+      "separateConfigurationIds": [
+        "498929bd-ef47-4d18-8b04-738d95bd1543",
+        "696a4f90-7290-4c0c-88bd-3f9ab5c8acd4"
+      ],
+      "baselineEurMinor": {
+        "873e3347-8dae-413b-bde3-8e6e231913f8": 23927,
+        "498929bd-ef47-4d18-8b04-738d95bd1543": 13510,
+        "696a4f90-7290-4c0c-88bd-3f9ab5c8acd4": 15951
+      },
+      "offers": {
+        "873e3347-8dae-413b-bde3-8e6e231913f8": {
+          "regularUsdMinor": 33000,
+          "etsyOptionValue": "4780148999",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "498929bd-ef47-4d18-8b04-738d95bd1543": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "4782633174",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "696a4f90-7290-4c0c-88bd-3f9ab5c8acd4": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4782633160",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "5255562a-0181-4fe3-bf4f-e5083f5638e5": {
+      "etsyListingId": "1799675197",
+      "sourceUrl": "https://www.etsy.com/listing/1799675197/fashion-costume-set-with-golden-leather",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "0511880b-facd-4d52-a000-9da685b62d2d",
+      "etsySizeValues": {
+        "XS": "4794316338",
+        "S": "4790861867",
+        "M": "4794316340",
+        "L": "4794316344",
+        "XL": "4794316348",
+        "XXL": "4790861869",
+        "XXXL": "4794316352"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "0511880b-facd-4d52-a000-9da685b62d2d": 28712,
+        "30d69d12-f7bd-40f9-a63b-1e70d843ef0f": 13510,
+        "6c5b1ae7-297a-473d-ab94-59ef0ab56125": 13993,
+        "3edd5eef-f30f-4843-ad32-159459c6d928": 13993
+      },
+      "offers": {
+        "0511880b-facd-4d52-a000-9da685b62d2d": {
+          "regularUsdMinor": 44000,
+          "etsyOptionValue": "4794316358",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "30d69d12-f7bd-40f9-a63b-1e70d843ef0f": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "4790861871",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "6c5b1ae7-297a-473d-ab94-59ef0ab56125": {
+          "regularUsdMinor": 20000,
+          "etsyOptionValue": "4790861865",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "3edd5eef-f30f-4843-ad32-159459c6d928": {
+          "regularUsdMinor": 15950,
+          "etsyOptionValue": "4790861873",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "8223ea35-644b-4bd8-bd05-4ba7810b116a": {
+      "etsyListingId": "1823479818",
+      "sourceUrl": "https://www.etsy.com/listing/1823479818/party-bodysuit-with-helmet-with-horns",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "7265ce35-20ca-41f2-b1c7-0892db93f805",
+      "etsySizeValues": {
+        "XS": "4979001336",
+        "S": "4979001340",
+        "M": "4979001342",
+        "L": "4958823807",
+        "XL": "4979001346",
+        "XXL": "4958823811",
+        "XXXL": "4958823813"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "7265ce35-20ca-41f2-b1c7-0892db93f805": 60614,
+        "4957f3e1-9fed-4360-a34e-3192bddf9b06": 95706,
+        "7286939c-44c0-497d-8b76-3e9066b28683": 15951,
+        "b147aea3-8bf7-4a16-b4b0-610e962cc58c": 19939,
+        "8adcff72-3599-429b-873d-48887f46b096": 55829,
+        "0e235063-e459-45a0-8df2-6eb87ab1bd8e": 29509,
+        "1f23ad98-bd3f-4e96-83bf-6b56307f527e": 43068
+      },
+      "offers": {
+        "7265ce35-20ca-41f2-b1c7-0892db93f805": {
+          "regularUsdMinor": 83600,
+          "etsyOptionValue": "4979001376",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "4957f3e1-9fed-4360-a34e-3192bddf9b06": {
+          "regularUsdMinor": 132000,
+          "etsyOptionValue": "4979001374",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "7286939c-44c0-497d-8b76-3e9066b28683": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4958823831",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "b147aea3-8bf7-4a16-b4b0-610e962cc58c": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "4958823819",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "8adcff72-3599-429b-873d-48887f46b096": {
+          "regularUsdMinor": 77000,
+          "etsyOptionValue": "4958823799",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "0e235063-e459-45a0-8df2-6eb87ab1bd8e": {
+          "regularUsdMinor": 40700,
+          "etsyOptionValue": "4958823825",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "1f23ad98-bd3f-4e96-83bf-6b56307f527e": {
+          "regularUsdMinor": 59400,
+          "etsyOptionValue": "4979001370",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "31bde143-e483-454b-a397-14bcffa47f20": {
+      "etsyListingId": "4487555033",
+      "sourceUrl": "https://www.etsy.com/listing/4487555033/crome-spine-accessories-futuristic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "c45dfaca-600d-46ef-b6a7-556de132d0e1",
+      "etsySizeValues": {
+        "XS": "6499139697",
+        "S": "6500879970",
+        "M": "6500879972",
+        "L": "6499139701",
+        "XL": "6500879974",
+        "XXL": "6499139703",
+        "XXXL": "6500879978"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "c45dfaca-600d-46ef-b6a7-556de132d0e1": 25522,
+        "b6625b12-eb5b-49b6-942b-00570f562381": 13028,
+        "260e1e5f-b933-4315-a216-86bfc840d83e": 9650,
+        "8a01e45a-1278-4215-bbe9-92603659c9b4": 10616
+      },
+      "offers": {
+        "b6625b12-eb5b-49b6-942b-00570f562381": {
+          "regularUsdMinor": 15500,
+          "etsyOptionValue": null,
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "13300fb8-c39d-476f-9485-75747c4e6599": {
+      "etsyListingId": "4506732837",
+      "sourceUrl": "https://www.etsy.com/listing/4506732837/mens-silver-robot-armor-futuristic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "e97abcfb-98e4-46f0-b631-1321cbad10cf",
+      "etsySizeValues": {
+        "XS": "6623097698",
+        "S": "6623097696",
+        "M": "6623097694",
+        "L": "6624680161",
+        "XL": "6624680155",
+        "XXL": "6623097690",
+        "XXXL": "6624680149"
+      },
+      "separateConfigurationIds": [
+        "1b0f4316-bc85-4556-bfab-014ed9e2d1d1",
+        "fdb204ca-20b5-4f6e-882b-a4c623f1a5c3",
+        "fbd1129c-9af9-4822-9dbc-3d8c55f89c7f",
+        "452dea20-7b12-4e6b-b012-1864c9483519"
+      ],
+      "baselineEurMinor": {
+        "e97abcfb-98e4-46f0-b631-1321cbad10cf": 43503,
+        "1b0f4316-bc85-4556-bfab-014ed9e2d1d1": 11405,
+        "fdb204ca-20b5-4f6e-882b-a4c623f1a5c3": 14914,
+        "fbd1129c-9af9-4822-9dbc-3d8c55f89c7f": 16676,
+        "452dea20-7b12-4e6b-b012-1864c9483519": 17546
+      },
+      "offers": {
+        "e97abcfb-98e4-46f0-b631-1321cbad10cf": {
+          "regularUsdMinor": 63000,
+          "etsyOptionValue": "6623097704",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "1b0f4316-bc85-4556-bfab-014ed9e2d1d1": {
+          "regularUsdMinor": 13000,
+          "etsyOptionValue": "6624680169",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "fdb204ca-20b5-4f6e-882b-a4c623f1a5c3": {
+          "regularUsdMinor": 17000,
+          "etsyOptionValue": "6623097714",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "fbd1129c-9af9-4822-9dbc-3d8c55f89c7f": {
+          "regularUsdMinor": 26000,
+          "etsyOptionValue": "6623097706",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "452dea20-7b12-4e6b-b012-1864c9483519": {
+          "regularUsdMinor": 21000,
+          "etsyOptionValue": "6623097710",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    },
+    "f6b85532-eae2-4036-badc-401141c2ad6e": {
+      "etsyListingId": "4389402669",
+      "sourceUrl": "https://www.etsy.com/listing/4389402669/futuristic-festival-costume-for-burning",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "5094a13c-8d15-4685-8fed-43e2942b94ea",
+      "etsySizeValues": {
+        "XS": "5934214478",
+        "S": "5934214482",
+        "M": "5922613593",
+        "L": "5934214486",
+        "XL": "5934214488",
+        "XXL": "5922613595",
+        "XXXL": "5922613597"
+      },
+      "separateConfigurationIds": [
+        "05e13bf8-864c-4852-bc16-1532c530f549",
+        "23e886c4-9b3c-41ca-b19a-426263927f43",
+        "ebc92d0d-f9af-4b38-ae6b-dcf9edecbf6d",
+        "64f80e35-7e42-4a9f-a890-84fd8d67656a",
+        "30effd17-6bd6-48f7-bec0-cbb96fac5e11"
+      ],
+      "baselineEurMinor": {
+        "5094a13c-8d15-4685-8fed-43e2942b94ea": 59816,
+        "05e13bf8-864c-4852-bc16-1532c530f549": 11581,
+        "23e886c4-9b3c-41ca-b19a-426263927f43": 11581,
+        "ebc92d0d-f9af-4b38-ae6b-dcf9edecbf6d": 14476,
+        "64f80e35-7e42-4a9f-a890-84fd8d67656a": 17370,
+        "30effd17-6bd6-48f7-bec0-cbb96fac5e11": 19939
+      },
+      "offers": {
+        "5094a13c-8d15-4685-8fed-43e2942b94ea": {
+          "regularUsdMinor": 82500,
+          "etsyOptionValue": "5922613611",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "05e13bf8-864c-4852-bc16-1532c530f549": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5922613587",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "23e886c4-9b3c-41ca-b19a-426263927f43": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5934214504",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "ebc92d0d-f9af-4b38-ae6b-dcf9edecbf6d": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5934214498",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "64f80e35-7e42-4a9f-a890-84fd8d67656a": {
+          "regularUsdMinor": 19800,
+          "etsyOptionValue": "5922613607",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "30effd17-6bd6-48f7-bec0-cbb96fac5e11": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5934214512",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        }
+      }
+    }
+  }
+}

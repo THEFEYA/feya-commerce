@@ -46,6 +46,25 @@ test('committed XML and207-row manifests reproduce byte-for-byte without network
   for(const [name,value] of Object.entries(files))assert.equal(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/'+name,import.meta.url),'utf8'),value);
 });
 
+test('live feeds publish the regular Silver Full Set price for the seven reviewed sizes',()=>{
+  const data=inputs();
+  const {rows}=buildCatalog(data);
+  const {files}=buildFiles(data);
+  const configuration='41e7d07b-761b-4edb-bdc3-ed4258c1aa4a';
+  const baseline=rows.filter(row=>row.item_group_id===configuration);
+  assert.equal(baseline.length,7);
+  assert.ok(baseline.every(row=>row.price==='183.44 EUR'));
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [header,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  const prices=new Map(lines.map(cells=>[cells[header.indexOf('id')],cells[header.indexOf('price')]]));
+  const xml=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>');
+  for(const row of baseline){
+    assert.equal(prices.get(row.id),'409.46 EUR');
+    const item=xml.find(block=>block.includes('<g:id>'+row.id+'</g:id>'));
+    assert.ok(item?.includes('<g:price>409.46 EUR</g:price>'));
+  }
+});
+
 test('changed checkout price, incomplete sizes, corpus or duplicate identity fail closed',()=>{
   for(const change of [
     d=>{d.capture.products[2].size_quotes[0].unit_minor++;},

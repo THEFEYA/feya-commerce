@@ -1,4 +1,5 @@
 import 'server-only';
+import {applyPublishedCardPrices} from './storefrontPublishedPrices.ts';
 import {cache} from 'react';
 import {cacheLife, cacheTag} from 'next/cache';
 import type {StorefrontProduct} from '@/lib/types';
@@ -393,6 +394,7 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
     products = ids
       .map((id) => byId.get(id))
       .filter((row): row is StorefrontProduct => Boolean(row))
+      .map(applyPublishedCardPrices)
       .sort((a,b) => String(a.card_title || '').localeCompare(String(b.card_title || ''),'en'));
   }
 

@@ -42,7 +42,7 @@ test('Seller Online is identified and no extra tax is passed on to the buyer',()
   assert.doesNotMatch(terms,/requires a separately confirmed tax quote/);
   assert.match(bag,/Legal seller: Seller-Online LLC/);
   assert.match(SELLER_ONLINE_CHECKOUT_DISCLOSURE,/Legal seller: Seller-Online LLC/);
-  assert.equal(CHECKOUT_POLICY_BUNDLE_V1.version,'thefeya-sale-policy-20261029-v4');
+  assert.equal(CHECKOUT_POLICY_BUNDLE_V1.version,'thefeya-sale-policy-20261123-v5');
   const bytes=readFileSync('app/terms/page.tsx');
   const sha=createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex');
   assert.equal(sha,CHECKOUT_POLICY_BUNDLE_V1.sources.terms.git_blob_sha1);

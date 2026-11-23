@@ -37,6 +37,8 @@ const currency=(minor:number)=>new Intl.NumberFormat('en-IE',{
   style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2,
 }).format(minor/100);
 const labels=new Intl.DisplayNames(['en'],{type:'region'});
+const euGuaranteeCountries=new Set('AT BE BG HR CY CZ DE DK EE ES FI FR GR HU IE IT LT LU LV MT NL PL PT RO SE SI SK'.split(' '));
+const euGuaranteeLanguages:Readonly<Record<string,string>>={AT:'de',DE:'de',NL:'nl'};
 const countryOptions=OWNER_CART_COUNTRIES.map(code=>({
   code,label:labels.of(code)||code,
 })).sort((a,b)=>a.label.localeCompare(b.label,'en'));
@@ -80,6 +82,7 @@ export function CartOwnerLiveReviewClient(){
   const [paying,setPaying]=useState(false);
   const [payError,setPayError]=useState('');
   const quoteSeq=useRef(0);
+  const [quoteRefresh,setQuoteRefresh]=useState(0);
   const beginCheckoutTracked=useRef(false);
 
   useEffect(()=>{
@@ -145,10 +148,11 @@ export function CartOwnerLiveReviewClient(){
         .finally(()=>{if(seq===quoteSeq.current)setQuoteLoading(false);});
     },250);
     return()=>{window.clearTimeout(timer);quoteSeq.current++;};
-  },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country]);
+  },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country,quoteRefresh]);
 
   const colourRecovery=checkoutActive && !quoteLoading ? quote?.colour_recovery : undefined;
   const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
+  const quotedLines=new Map(quote?.ok ? quote.lines?.map(line=>[line.line_id,line] as const) : []);
   const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
 
   async function pay(){
@@ -167,7 +171,8 @@ export function CartOwnerLiveReviewClient(){
       }catch{/* measurement is optional */}
     }
     const request={
-      idempotency_key:newIdempotencyKey(),lines:checkoutLines,method,
+      idempotency_key:newIdempotencyKey(),
+      lines:checkoutLines.map(line=>({...line,client_unit_minor:quotedLines.get(line.id)?.unit_minor??line.client_unit_minor})),method,
       gift_card:extras.includes('card'),gift_message:extras.includes('card')?giftMessage:'',
       gift_box:extras.includes('box'),
       buyer:{first_name:form.first_name,last_name:form.last_name,email:form.email,phone:form.phone},
@@ -182,6 +187,11 @@ export function CartOwnerLiveReviewClient(){
         result=await checkoutApi.start(request);
       if(!result.ok||!result.session||!result.order_number){
         setPayError(result.message||'Checkout is temporarily unavailable. Please try again shortly.');
+        setPaying(false);return;
+      }
+      if(result.total_minor!==serverAmounts?.total_minor){
+        setQuote(null);setQuoteLoading(true);setQuoteRefresh(value=>value+1);
+        setPayError('The order total changed. Please review the updated total before continuing to PayPal.');
         setPaying(false);return;
       }
       rememberPendingCheckout({order_number:result.order_number,access_token:result.access_token??null});
@@ -337,7 +347,7 @@ export function CartOwnerLiveReviewClient(){
                     href={`/shop/${item.slug}`}>View product</Link>
                 </div>
                 <p className="mt-auto pt-2 text-right text-[17px] font-medium text-[#f7f3ec]">
-                  {currency(Math.round(item.price*100)*item.qty)}
+                  {currency(quotedLines.get(item.id)?.line_minor??Math.round(item.price*100)*item.qty)}
                 </p>
               </div>
               </div>
@@ -489,6 +499,9 @@ export function CartOwnerLiveReviewClient(){
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
+              {euGuaranteeCountries.has(form.country)&&<a className="w-fit text-[13px] leading-6 text-bone underline underline-offset-4"
+                href={'https://europa.eu/youreurope/business/images/content/eu-legal-guarantee-notice-and-garan-label/Legal-guarantee-harmonised-notice_'+(euGuaranteeLanguages[form.country] || 'en')+'.jpg'}
+                target="_blank" rel="noopener noreferrer">Your legal guarantee rights in the EU</a>}
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
                 <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>

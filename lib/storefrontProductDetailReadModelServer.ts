@@ -1,4 +1,5 @@
 import 'server-only';
+import {applyPublishedProductPrices} from './storefrontPublishedPrices.ts';
 
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
@@ -65,5 +66,6 @@ export async function readApprovedStorefrontProductDetailV1(slug: string): Promi
   ) throw new Error('STOREFRONT_PRODUCT_DETAIL_PAYLOAD_MISMATCH');
 
   const withReviewedAlt = applyReviewedGalleryImageAlts(applyReviewedPrimaryImageAlt(product, row.source_draft_id), row.source_draft_id);
-  return applyReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(withReviewedAlt as Record<string, unknown>) as StorefrontProduct));
+  const corrected = applyReviewedBonanzaColors(restoreSourceProvenPurchaseOptions(applyOwnerReviewedStorefrontCorrections(withReviewedAlt as Record<string, unknown>) as StorefrontProduct));
+  return applyPublishedProductPrices(corrected);
 }

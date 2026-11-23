@@ -117,7 +117,10 @@ export default function ShippingReviewPage(){
               Our team stays available if you need help with courier communication or delivery updates.
             </p>
             <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
-              Travel time is an estimate, not a guaranteed arrival date. Courier timetables, public holidays and customs clearance affect the route.
+              Courier timetables, public holidays and customs clearance can affect estimates. If delivery by a particular date is essential, tell us before ordering. If your parcel is late, lost or damaged, contact the studio. Your legal delivery and refund rights still apply.
+            </p>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
+              For EU and UK orders, when we arrange the carrier, the seller remains responsible until you or your chosen recipient receives the parcel. For US orders, if we cannot ship on time, we will notify you and offer the choice to accept a delay or cancel for a prompt refund.
             </p>
           </div>
         </article>
@@ -126,11 +129,10 @@ export default function ShippingReviewPage(){
           <div>
             <h2 className={smallTitle}>Documents & customs</h2>
             <p className="mt-3 text-[14px] leading-7 text-[var(--bone-dim)]">
-              We prepare the required export documents and Customs declarations carefully, using accurate
-              descriptions and any lawful tariff reductions that apply. We work to keep import costs as low as legally possible.
+              We prepare the export documents and customs declarations for your shipment. Import charges depend on the destination and the goods.
             </p>
             <p className="mt-3 text-[13px] leading-6 text-[var(--bone-dim)]">
-              If a destination authority assesses import duties or local taxes, the recipient pays them where applicable.
+              Where local rules require the recipient to pay import duties, taxes or carrier clearance fees that were not collected at checkout, the carrier or customs authority may collect them before delivery.
               Keep an eye on courier emails after customs clearance in case confirmation is requested.
             </p>
           </div>

@@ -27,9 +27,19 @@ export function OwnerContactFormPreview(){
     </div>
     <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">What can we help with?
       <select className={base} value={reason} onChange={e=>setReason(e.target.value)}>
-        <option>Product or fit</option><option>Custom design adjustment</option><option>Existing order</option><option>Returns or delivery</option><option>Press or collaboration</option>
+        <option>Product or fit</option>
+        <option>Custom design adjustment</option>
+        <option>Existing order or tracking</option>
+        <option>Damage, fault or incorrect item</option>
+        <option>Cancellation or withdrawal</option>
+        <option>Return or exchange</option>
+        <option>Press or collaboration</option>
       </select>
     </label>
+    {reason==='Cancellation or withdrawal'&&
+      <a href="/returns#withdrawal-notice" className="w-fit text-[13px] text-bone underline underline-offset-4">Withdrawal rights and how to give notice</a>}
+    {reason==='Damage, fault or incorrect item'&&
+      <p className="text-[13px] leading-6 text-[var(--bone-dim)]">Include your order number if available. You can attach a photo in your email app.</p>}
     <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">Your message
       <textarea className={base+' min-h-[130px]'} required minLength={5} maxLength={1800}
         value={message} onChange={e=>setMessage(e.target.value)} placeholder="Tell our studio what you need…"/>
