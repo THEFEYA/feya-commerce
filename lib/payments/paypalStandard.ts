@@ -1,6 +1,7 @@
 import {decimalToMinor, minorToDecimal} from './pricing.ts';
 import type {ExpectedPayment} from './paypalOrder.ts';
 import type {OrderSnapshotV1} from './orderSnapshot.ts';
+import {shippingPostalCode} from './checkoutAddress.ts';
 
 /**
  * Legacy fallback: PayPal Payments Standard hosted redirect, exactly the mechanism
@@ -40,6 +41,7 @@ export function buildPayPalStandardForm(input: {
     no_shipping: snapshot.kind === 'test' ? '1' : '2',
   };
   if (snapshot.kind === 'customer' && snapshot.buyer && snapshot.address) {
+    const postalCode = shippingPostalCode(snapshot.address);
     Object.assign(fields, {
       first_name: snapshot.buyer.first_name.slice(0, 64),
       last_name: snapshot.buyer.last_name.slice(0, 64),
@@ -48,7 +50,7 @@ export function buildPayPalStandardForm(input: {
       ...(snapshot.address.line2 ? {address2: snapshot.address.line2.slice(0, 100)} : {}),
       city: snapshot.address.city.slice(0, 40),
       ...(snapshot.address.region ? {state: snapshot.address.region} : {}),
-      zip: snapshot.address.postal_code.slice(0, 32),
+      ...(postalCode ? {zip: postalCode.slice(0, 32)} : {}),
       country: snapshot.address.country,
     });
   }

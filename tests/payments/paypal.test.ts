@@ -45,6 +45,7 @@ test('PayPal order: exact breakdown, items, payee = Seller Online, buyer address
   assert.equal(itemSum, 43300);
   assert.equal(unit.shipping.address.admin_area_1, 'TX');
   assert.equal(unit.shipping.address.country_code, 'US');
+  assert.equal(unit.shipping.address.postal_code, '73301');
   const ctx = (body.payment_source.paypal as any).experience_context;
   assert.equal(ctx.shipping_preference, 'SET_PROVIDED_ADDRESS');
   assert.equal(ctx.user_action, 'PAY_NOW');
@@ -198,6 +199,29 @@ test('PayPal Standard fallback form uses Seller Online documented fields', () =>
   assert.equal(form.fields.invoice, 'FEYA-100001');
   assert.equal(form.fields.amount, (expected.total_minor / 100).toFixed(2));
   assert.equal(form.fields.state, 'TX');
+  assert.equal(form.fields.zip, '73301');
+});
+
+test('both PayPal paths keep the Hong Kong shipping address and omit the postcode, including for old snapshots', () => {
+  const address = {country: 'HK', region: 'New Territories', city: 'Sha Tin', line1: '5 Test Road', line2: 'Flat 1'};
+  const {expected, snapshot} = customerOrder({address});
+  assert.ok(snapshot.address);
+  assert.equal(snapshot.address.postal_code, null);
+  const returnUrl = 'https://example.invalid/return';
+  for (const postal_code of [null, 'legacy-value']) {
+    const input = {expected, snapshot: {...snapshot, address: {...snapshot.address, postal_code}}, returnUrl, cancelUrl: returnUrl};
+    const rest = buildPayPalOrderRequest(input);
+    const shipping = rest.purchase_units[0].shipping as {address: Record<string, string>};
+    assert.deepEqual(shipping.address, {
+      country_code: 'HK', admin_area_1: 'New Territories', admin_area_2: 'Sha Tin',
+      address_line_1: '5 Test Road', address_line_2: 'Flat 1',
+    });
+    assert.equal((rest.payment_source.paypal.experience_context as Record<string, string>).shipping_preference, 'SET_PROVIDED_ADDRESS');
+    const {fields} = buildPayPalStandardForm({...input, environment: 'sandbox', notifyUrl: returnUrl});
+    assert.deepEqual([fields.country, fields.state, fields.city, fields.address1, fields.address2, fields.no_shipping],
+      ['HK', 'New Territories', 'Sha Tin', '5 Test Road', 'Flat 1', '2']);
+    assert.equal('zip' in fields, false);
+  }
 });
 
 test('IPN parsing (after PayPal VERIFIED)', () => {
