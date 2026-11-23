@@ -21,6 +21,8 @@ export async function verifySavedCartColour({browser, env, out}) {
   const choices=['Gold','Silver'].map(label=>({code:label.toLowerCase(),label,configuration_id:cfg,config:'Full Set',unit_minor:17954,compare_at_minor:null}));
   const context=await browser.newContext({viewport:{width:390,height:844},storageState:{cookies:[],origins:[{origin,
     localStorage:[{name:'feya_visual_cart_v1',value:JSON.stringify([old])}]}]}});
+  let finishInitialStatus;
+  const initialStatus=new Promise(resolve=>{finishInitialStatus=resolve;});
   try {
     let ready=false;
     for(let i=0;i<100 && !ready;i++){
@@ -30,10 +32,18 @@ export async function verifySavedCartColour({browser, env, out}) {
     }
     assert.ok(ready,'Cart on loopback must render');
     let orderAttempts=0;
+    let statusAvailable=false;
+    let paymentsEnabled=true;
     await context.route('**/*',async route=>{
       const url=new URL(route.request().url());
       if(url.origin!==origin)return route.abort();
-      if(url.pathname==='/api/checkout/status')return route.fulfill({json:{checkout_active:true}});
+      if(url.pathname==='/api/checkout/status'){
+        if(!statusAvailable){
+          await initialStatus;
+          return route.fulfill({json:{ok:true,checkout_active:false,storage_ready:false}});
+        }
+        return route.fulfill({json:{ok:true,checkout_active:paymentsEnabled,storage_ready:true}});
+      }
       if(url.pathname==='/api/checkout/quote'){
         const [line]=route.request().postDataJSON().lines;
         const valid=choices.some(c=>c.code===line.color_code&&c.label===line.color);
@@ -47,7 +57,16 @@ export async function verifySavedCartColour({browser, env, out}) {
     const page=await context.newPage();
     const hydrationErrors=[];
     page.on('pageerror',error=>{if(/hydrat/i.test(error.message))hydrationErrors.push(error.message);});
-    await page.goto(origin+'/cart');
+    await page.goto(origin+'/cart',{waitUntil:'domcontentloaded'});
+    await page.getByText('Checking payment availability…',{exact:true}).waitFor();
+    assert.equal(await page.getByText('Checkout not active',{exact:true}).count(),0);
+    assert.equal(await page.getByLabel('Have a coupon code?').count(),0);
+    finishInitialStatus();
+    const retry=page.getByRole('button',{name:'Check again'});
+    await retry.waitFor();
+    assert.equal(await page.getByText('Checkout not active',{exact:true}).count(),0);
+    statusAvailable=true;
+    await retry.click();
     const silver=page.getByRole('button',{name:'Silver',exact:true});
     await silver.waitFor({timeout:60000});
     assert.ok(await page.getByTestId('checkout-pay').isDisabled());
@@ -63,9 +82,14 @@ export async function verifySavedCartColour({browser, env, out}) {
     await page.getByTestId('server-order-summary').waitFor();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
     await page.screenshot({path:join(out,'saved-colour-desktop.png')});
+    paymentsEnabled=false;
+    await page.reload();
+    await page.getByRole('button',{name:'Checkout not active'}).waitFor();
+    assert.equal(await page.getByRole('button',{name:'Check again'}).count(),0);
     assert.equal(orderAttempts,0);
     assert.deepEqual(hydrationErrors,[]);
   } finally {
+    finishInitialStatus();
     await context.close();
     if(server.exitCode===null){server.kill('SIGTERM');await Promise.race([done,delay(4000)]);}
     if(server.exitCode===null)server.kill('SIGKILL');

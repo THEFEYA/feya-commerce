@@ -38,6 +38,7 @@ export function MeasurementRuntime(){
         if(cancelled||!body.ok||!body.context)return;
         setMeasurementPageContext(body.context);
         trackPageView();
+        window.dispatchEvent(new Event('feya:measurement-ready'));
       }catch(error){
         if(!cancelled&&(error as {name?:string})?.name!=='AbortError')setMeasurementPageContext(null);
       }

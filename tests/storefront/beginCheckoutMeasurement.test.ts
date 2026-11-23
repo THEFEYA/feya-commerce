@@ -64,7 +64,7 @@ test('changed quantity or absent configuration cannot reuse a stale quoted line'
 
 
 test('bag emits GA4 begin_checkout once, from server-confirmed EUR merchandise value', () => {
-  assert.match(cart, /import \{trackMeasurementEvent\} from '@\/lib\/measurementClient'/);
+  assert.match(cart, /import \{[^}]*trackMeasurementEvent[^}]*\} from '@\/lib\/measurementClient'/);
   assert.match(cart, /const beginCheckoutTracked=useRef\(false\)/);
   assert.match(cart, /if\(!beginCheckoutTracked\.current&&serverAmounts\)\{/);
   assert.match(cart, /const measurement=buildBeginCheckoutMeasurement\(items,quote\)/);
