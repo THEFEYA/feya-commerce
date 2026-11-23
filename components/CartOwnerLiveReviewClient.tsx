@@ -41,6 +41,7 @@ const currency=(minor:number)=>new Intl.NumberFormat('en-IE',{
 const labels=new Intl.DisplayNames(['en'],{type:'region'});
 const euGuaranteeCountries=new Set('AT BE BG HR CY CZ DE DK EE ES FI FR GR HU IE IT LT LU LV MT NL PL PT RO SE SI SK'.split(' '));
 const euGuaranteeLanguages:Readonly<Record<string,string>>={AT:'de',DE:'de',NL:'nl'};
+const guaranteeLinkStyle='inline-flex min-h-6 items-center text-bone underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b26a]';
 const countryOptions=OWNER_CART_COUNTRIES.map(code=>({
   code,label:labels.of(code)||code,
 })).sort((a,b)=>a.label.localeCompare(b.label,'en'));
@@ -125,6 +126,7 @@ export function CartOwnerLiveReviewClient(){
   const regularBeforeSale=items.reduce((n,item)=>n+Math.round((item.compare_at_unit_price_amount??item.price)*100)*item.qty,0);
   const saleSavings=Math.max(0,regularBeforeSale-totals.merchandise_subtotal_minor);
   const addressRegions=ownerCartAddressRegions(form.country);
+  const guaranteeLanguage=euGuaranteeLanguages[form.country] || 'en';
   const usesPostalCode=checkoutUsesPostalCode(form.country);
   const isHongKong=form.country==='HK';
   const fulfilled=Boolean(
@@ -546,9 +548,14 @@ export function CartOwnerLiveReviewClient(){
                   {' '}<Link className="underline underline-offset-4" href="/returns">returns</Link> and
                   {' '}<Link className="underline underline-offset-4" href="/shipping">shipping policy</Link>.</span>
               </label>
-              {euGuaranteeCountries.has(form.country)&&<a className="w-fit text-[13px] leading-6 text-bone underline underline-offset-4"
-                href={'https://europa.eu/youreurope/business/images/content/eu-legal-guarantee-notice-and-garan-label/Legal-guarantee-harmonised-notice_'+(euGuaranteeLanguages[form.country] || 'en')+'.jpg'}
-                target="_blank" rel="noopener noreferrer">Your legal guarantee rights in the EU</a>}
+              {euGuaranteeCountries.has(form.country)&&<div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] leading-6">
+                <a className={guaranteeLinkStyle} hrefLang={guaranteeLanguage}
+                  href={`https://europa.eu/youreurope/business/images/content/eu-legal-guarantee-notice-and-garan-label/Legal-guarantee-harmonised-notice_${guaranteeLanguage}.jpg`}
+                  target="_blank" rel="noopener noreferrer">Your legal guarantee rights in the EU<span className="sr-only"> (opens in a new tab)</span></a>
+                <a className={guaranteeLinkStyle} hrefLang={guaranteeLanguage}
+                  href={`https://europa.eu/youreurope/citizens/consumers/shopping/guarantees/index_${guaranteeLanguage}.htm`}
+                  target="_blank" rel="noopener noreferrer">Read the guarantee in text<span className="sr-only"> (opens in a new tab)</span></a>
+              </div>}
               <label className="flex items-start gap-3 text-[13px] leading-6 text-[#c9c1b6]">
                 <input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}
                   className="mt-1 h-[16px] w-[16px] shrink-0 accent-[#d4b26a]"/>
