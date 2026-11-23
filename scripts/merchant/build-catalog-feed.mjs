@@ -258,19 +258,24 @@ const shippingHeader='shipping('+shippingFields.join(':')+')';
 const businessDayFields=['shipping_handling_business_days','shipping_transit_business_days'];
 // Item-level targeting keeps the existing US account services. The quoted
 // international rates are for one advertised offer, as required in a feed.
-function offerDelivery(handling,country){
+function offerDelivery(handling,countries,inheritUs=false){
   assert.ok(Array.isArray(handling)&&handling.length===2&&handling.every(Number.isInteger)&&
     handling[0]>=0&&handling[1]>=handling[0],'missing or invalid production range');
-  const extra=isRemoteDestination(country)?CHECKOUT_PRICING_V1.remoteSurchargeMinor:0;
-  const services=Object.entries(CHECKOUT_PRICING_V1.shippingMinor).map(([method,minor])=>{
-    const [minTransit,maxTransit]=SHIPPING_TRANSIT_BUSINESS_DAYS[method].split('–').map(Number);
-    assert.ok(Number.isInteger(minTransit)&&Number.isInteger(maxTransit)&&minTransit<=maxTransit);
-    return {country,service:method==='standard'?'Standard':'Express',
-      price:((minor+extra)/100).toFixed(2)+' '+CHECKOUT_PRICING_V1.currency,
-      min_handling_time:handling[0],max_handling_time:handling[1],
-      min_transit_time:minTransit,max_transit_time:maxTransit};
+  const services=countries.flatMap(country=>{
+    const extra=isRemoteDestination(country)?CHECKOUT_PRICING_V1.remoteSurchargeMinor:0;
+    return Object.entries(CHECKOUT_PRICING_V1.shippingMinor).map(([method,minor])=>{
+      const [minTransit,maxTransit]=SHIPPING_TRANSIT_BUSINESS_DAYS[method].split('–').map(Number);
+      assert.ok(Number.isInteger(minTransit)&&Number.isInteger(maxTransit)&&minTransit<=maxTransit);
+      return {country,service:method==='standard'?'Standard':'Express',
+        price:((minor+extra)/100).toFixed(2)+' '+CHECKOUT_PRICING_V1.currency,
+        min_handling_time:handling[0],max_handling_time:handling[1],
+        min_transit_time:minTransit,max_transit_time:maxTransit};
+    });
   });
-  return {services:[{country:'US'},...services],businessDays:country+':MTWRF'};
+  if(inheritUs)services.unshift({country:'US'});
+  // This attribute is not repeatable. All listed services operate Mon–Fri.
+  const businessDays=countries.length===1?countries[0]+':MTWRF':'M-F';
+  return {services,businessDays};
 }
 
 export function toXml(rows,deliveryByGroup){
@@ -331,7 +336,7 @@ export function buildFiles(data){
   const productByConfiguration=new Map(report.products.map(p=>[p.configuration_id,p.canonical_product_id]));
   const productionDays=json(new URL('production-business-days-20261123.json',DIR));
   const deliveryByGroup=new Map(report.products.filter(p=>p.status==='READY').map(p=>
-    [p.configuration_id,offerDelivery(productionDays[p.canonical_product_id],'HK')]));
+    [p.configuration_id,offerDelivery(productionDays[p.canonical_product_id],['HK'],true)]));
   const liveRows=rows.map(row=>{
     const productId=productByConfiguration.get(row.item_group_id);
     assert.ok(productId,'feed offer has no reviewed product identity');
@@ -346,6 +351,30 @@ export function buildFiles(data){
     }
     return priced;
   });
+  // A single selected item can cross a local import threshold even when another
+  // configuration on the same product page does not. Never copy a Full Set price.
+  const extraOffers=json(new URL('international-offers-20261123.json',DIR));
+  for(const offer of extraOffers){
+    const page=data.capture.products.find(p=>p.canonical_product_id===offer.productId);
+    const parent=liveRows.find(row=>productByConfiguration.get(row.item_group_id)===offer.productId&&row.size===offer.size);
+    assert.ok(parent&&page&&page.images.includes(offer.imageUrl),'international offer lost its original photo or size');
+    assert.ok(!deliveryByGroup.has(offer.configurationId),'configuration already published');
+    const price=publishedRegularEurMinor(offer.productId,offer.configurationId,offer.size);
+    assert.ok(Number.isInteger(price)&&price>0,'missing independent configuration price');
+    const countries=offer.countries.filter(country=>{
+      assert.ok(country==='AU'||country==='SG','unreviewed international destination');
+      return price>=(country==='AU'?66000:31000);
+    });
+    if(!countries.length)continue;
+    const link=new URL(page.url);
+    link.search=new URLSearchParams({configuration:offer.configurationId,color:offer.color.toLowerCase(),
+      size:offer.size,utm_source:'google',utm_medium:'organic_shopping',utm_campaign:'mc_international_free_listings'}).toString();
+    liveRows.push({...parent,id:offer.configurationId+'-'+offer.size,item_group_id:offer.configurationId,
+      title:offer.title,description:offer.description,price:(price/100).toFixed(2)+' EUR',color:offer.color,
+      product_type:offer.productType,link:link.href,image_link:offer.imageUrl,additional_image_link:'',
+      custom_label_0:'international_single_items_20261123'});
+    deliveryByGroup.set(offer.configurationId,offerDelivery(productionDays[offer.productId],countries));
+  }
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
   return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(liveRows,deliveryByGroup),

@@ -87,10 +87,14 @@ test('every submitted offer keeps US service inheritance and carries both quoted
   const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
   const [columns,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
   const xmlItems=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>').slice(1);
-  assert.equal(lines.length,1575);
+  assert.equal(lines.length,1577);
   assert.equal(xmlItems.length,lines.length);
+  let originalOffers=0;
   for(const [index,cells] of lines.entries()){
-    const [low,high]=byGroup.get(cells[columns.indexOf('item_group_id')]);
+    const group=cells[columns.indexOf('item_group_id')];
+    if(!byGroup.has(group))continue;
+    originalOffers++;
+    const [low,high]=byGroup.get(group);
     const header='shipping(country:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
     assert.equal(cells[columns.indexOf(header)],'US::::::,HK:Standard:19.00 EUR:'+low+':'+high+':10:14,HK:Express:35.00 EUR:'+low+':'+high+':6:9');
     const xml=xmlItems[index];
@@ -109,6 +113,7 @@ test('every submitted offer keeps US service inheritance and carries both quoted
     }
     assert.equal(cells[columns.indexOf('excluded_destination')],'Shopping_ads');
   }
+  assert.equal(originalOffers,1575);
 });
 
 test('changed checkout price, incomplete sizes, corpus or duplicate identity fail closed',()=>{
@@ -375,14 +380,16 @@ test('public recapture accepts the reviewed default photograph and verifies both
     {canonical_product_id:product.canonical_product_id},'local-price-test',link),/displayed main image/);
 });
 
-test('all 1,575 Merchant URLs select the advertised SKU and charge the exact advertised size price',()=>{
+test('all Merchant URLs select the advertised SKU and charge the exact advertised size price',()=>{
   const data=inputs();
   const {report,files}=buildFiles(data);
   const byConfig=new Map(report.products.map(p=>[p.configuration_id,p.canonical_product_id]));
+  const extra=JSON.parse(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/international-offers-20261123.json',import.meta.url)));
+  for(const entry of extra)byConfig.set(entry.configurationId,entry.productId);
   const pages=new Map(data.capture.products.map(c=>[c.canonical_product_id,capturedProduct(c)]));
   const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
   const [header,...rows]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
-  assert.equal(rows.length,1575);
+  assert.equal(rows.length,1577);
   for(const cells of rows){
     const row=Object.fromEntries(header.map((key,i)=>[key,cells[i]]));
     const product=pages.get(byConfig.get(row.item_group_id)),url=new URL(row.link);
@@ -400,5 +407,31 @@ test('all 1,575 Merchant URLs select the advertised SKU and charge the exact adv
       configuration_id:row.item_group_id,size:pair?.women.size||row.size,color:colorChoiceLabel(color),color_code:color,
       quantity:1,wearer:null,made_to_measure:false,paired_selection:pair,client_unit_minor:unit});
     assert.equal(quote.price_changed,false,row.id);assert.equal(quote.unit_minor,unit,row.id);
+  }
+});
+
+test('international single items carry their own photo, effective price and checkout delivery to the reviewed destinations',()=>{
+  const {files}=buildFiles(inputs());
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [header,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  const rows=lines.map(cells=>Object.fromEntries(header.map((k,i)=>[k,cells[i]])));
+  const extra=JSON.parse(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/international-offers-20261123.json',import.meta.url)));
+  for(const entry of extra){
+    const row=rows.find(r=>r.item_group_id===entry.configurationId);
+    assert.equal(row.id,entry.configurationId+'-M');
+    assert.equal(row.price,entry.countries.includes('AU')?'700.64 EUR':'370.34 EUR');
+    assert.equal(row.image_link,entry.imageUrl);
+    assert.equal(row.excluded_destination,'Shopping_ads');
+    assert.match(row.structured_description,/only/);
+    const services=row[header.find(k=>k.startsWith('shipping('))].split(',').map(s=>s.split(':'));
+    assert.deepEqual(services.map(s=>s[0]),entry.countries.flatMap(c=>[c,c]));
+    for(const [c,method,price,, ,min,max] of services){
+      const standard=method==='Standard';
+      assert.equal(price,(c==='AU'?(standard?'39.00':'55.00'):(standard?'19.00':'35.00'))+' EUR');
+      assert.deepEqual([min,max],standard?['10','14']:['6','9']);
+    }
+    const xml=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>').find(s=>s.includes('<g:id>'+row.id+'</g:id>'));
+    assert.equal((xml.match(/<g:shipping>/g)||[]).length,services.length);
+    assert.ok(xml.includes('<g:image_link>'+entry.imageUrl+'</g:image_link>'));
   }
 });
