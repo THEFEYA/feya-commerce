@@ -33,11 +33,12 @@ export function isOwnerRealCartReviewDeployment(env:Record<string,string|undefin
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
   // A second EXACT Vercel-owner branch consolidates previews on one browser
   // origin. Public Production continues to display disabled nonpayable bag.
-  const exactCommerceColorPreview=env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
+  const exactCheckoutPreview=env.VERCEL==='1'&&env.VERCEL_ENV==='preview'
     &&env.VERCEL_PROJECT_ID===OWNER_CART_REVIEW_PROJECT
-    &&env.VERCEL_GIT_COMMIT_REF===BUYER_COLOR_PAYMENT_QA_BRANCH
+    &&(env.VERCEL_GIT_COMMIT_REF===BUYER_COLOR_PAYMENT_QA_BRANCH
+      ||env.VERCEL_GIT_COMMIT_REF==='work/cart-saved-colour-mobile-20261123')
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
-  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env)||exactCommerceColorPreview;
+  return originalOwnerReview||isOwnerUnifiedStorefrontPreview(env)||exactCheckoutPreview;
 }
 
 export type OwnerCartPreviewItem={
