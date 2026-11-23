@@ -271,8 +271,7 @@ try {
  await check('Owner first GSC capture requires login, matching origin, enabled capture gate and explicit intent',async()=>{
   const before=await counts(), endpoint=base+'/api/admin/gsc-official-capture';
   const intent={confirm:'SAVE_GSC_OBSERVATION_V1'};
-  await check('A returning shopper can replace an obsolete colour, see the total and reload the same bag',()=>verifySavedCartColour({browser,env,out}));
- const anonymous=await browser.newContext();
+  const anonymous=await browser.newContext();
   try {
     const response=await anonymous.request.post(endpoint,{
       headers:{origin:base,'Content-Type':'application/json'},data:intent

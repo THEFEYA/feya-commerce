@@ -45,6 +45,8 @@ export async function verifySavedCartColour({browser, env, out}) {
       return route.continue();
     });
     const page=await context.newPage();
+    const hydrationErrors=[];
+    page.on('pageerror',error=>{if(/hydrat/i.test(error.message))hydrationErrors.push(error.message);});
     await page.goto(origin+'/cart');
     const silver=page.getByRole('button',{name:'Silver',exact:true});
     await silver.waitFor({timeout:60000});
@@ -62,6 +64,7 @@ export async function verifySavedCartColour({browser, env, out}) {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
     await page.screenshot({path:join(out,'saved-colour-desktop.png')});
     assert.equal(orderAttempts,0);
+    assert.deepEqual(hydrationErrors,[]);
   } finally {
     await context.close();
     if(server.exitCode===null){server.kill('SIGTERM');await Promise.race([done,delay(4000)]);}

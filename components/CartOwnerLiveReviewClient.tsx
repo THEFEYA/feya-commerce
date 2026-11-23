@@ -446,7 +446,7 @@ export function CartOwnerLiveReviewClient(){
             <label className={labelStyle}><span><RequiredMark/>Destination country</span>
               <select required autoComplete={checkoutActive?'shipping country':'off'} value={form.country} onChange={e=>change('country',e.target.value)} className={fieldStyle}>
                 <option value="">Select your country</option>
-                {countryOptions.map(x=><option key={x.code} value={x.code}>{x.label}</option>)}
+                {hydrated&&countryOptions.map(x=><option key={x.code} value={x.code}>{x.label}</option>)}
               </select>
             </label>
             {addressRegions.length>0&&<label className={labelStyle}>
