@@ -18,11 +18,13 @@ type ReleasedOffer = {
   evidence?: Evidence;
   observedPricesBySize?: Record<string, {regularUsdMinor:number; sourceUrl:string}>;
   publicLabel?: string;
+  publicLabelMode?: string;
 };
 
 type ProductRelease = {
   etsyListingId:string;
   etsySizeValues:Record<string,string>;
+  etsyListedSizes?: string[];
   cardConfigurationId: string;
   separateConfigurationIds?: string[];
   baselineEurMinor: Record<string, number>;
@@ -51,7 +53,12 @@ export function usdToEurMinor(usdMinor: number, usdPerEur: string): number {
   return amount;
 }
 
-type SourceListing = Pick<ProductRelease,'etsyListingId'|'etsySizeValues'>;
+type SourceListing = Pick<ProductRelease,'etsyListingId'|'etsySizeValues'|'etsyListedSizes'>;
+
+function listedOnEtsy(product: SourceListing, size: string) {
+  const etsySize = size === 'XXL' ? '2X' : size === 'XXXL' ? '3X' : size;
+  return product.etsyListedSizes?.includes(etsySize) ?? false;
+}
 
 function checkObservedSelection(product: SourceListing, offer: ReleasedOffer, size: string | null, sourceUrl: string) {
   const url = new URL(sourceUrl);
@@ -82,7 +89,10 @@ export function validateRegularPriceEvidence(offer: ReleasedOffer, product: Sour
   if (evidence?.kind === 'observed_size_prices') {
     const selected = offer.observedPricesBySize;
     if (!selected || selected[defaultSize]?.regularUsdMinor !== offer.regularUsdMinor) throw new Error('Missing observed reference size price');
-    for (const [size, row] of Object.entries(selected)) checkObservedSelection(product, offer, size, row.sourceUrl);
+    for (const [size, row] of Object.entries(selected)) {
+      if (!listedOnEtsy(product, size)) throw new Error('Selected price size absent from the Etsy size menu');
+      checkObservedSelection(product, offer, size, row.sourceUrl);
+    }
     return 'verified_selected_sizes';
   }
   if (offer.observedPricesBySize) throw new Error('Conflicting size evidence');
@@ -97,7 +107,8 @@ export function validateRegularPriceEvidence(offer: ReleasedOffer, product: Sour
   if (evidence.kind !== 'configuration_base_policy' || evidence.policy !== 'owner-configuration-base-price-20260924-04' || evidence.observedSize !== defaultSize) {
     throw new Error('Missing approved configuration pricing policy');
   }
-  checkObservedSelection(product, offer, evidence.observedSize ?? '', evidence.sourceUrl);
+  if (!standardSizes.every(size => listedOnEtsy(product, size))) throw new Error('Website size missing from Etsy size menu');
+  checkObservedSelection(product, offer, evidence.observedSize, evidence.sourceUrl);
   return 'owner_configuration_base';
 }
 
@@ -194,8 +205,12 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     const label = offer.publicLabel;
     const sizes = item.sizePrices.get(id);
     const source = offer.evidence;
-    if (label && source && (!source.sourceOptionRowId || label !== source.matchedOption)) {
-      throw new Error('Published label requires the selected source option and its original price row');
+    if (label && source) {
+      const selectedLabel = offer.publicLabelMode === 'omit_quantity_suffix'
+        ? source.matchedOption?.replace(/ \*\d+$/, '') : source.matchedOption;
+      if (!source.sourceOptionRowId || label !== selectedLabel) {
+        throw new Error('Published label requires the selected source option and its original price row');
+      }
     }
     if (source?.optionAxis === 'Primary color' && row.configuration_color !== source.matchedOption) {
       throw new Error('Etsy color does not match the released configuration');

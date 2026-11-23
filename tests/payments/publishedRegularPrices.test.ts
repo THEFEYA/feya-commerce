@@ -93,7 +93,7 @@ test('every released size charges its verified configuration base and correctly 
       }
     }
   }
-  assert.equal(options,431);assert.equal(sizes,3143);
+  assert.equal(options,629);assert.equal(sizes,4571);
 });
 
 test('bundle comparisons are truthful for single and multiple sets; the unverified spine bundle keeps its original price',()=>{
@@ -141,7 +141,7 @@ test('keeps all catalog option identities, unaffected prices, colors and product
       else{assert.equal(optionPrice(row),expected/100);selected++;}
     }
   }
-  assert.equal(selected,431);assert.equal(unchanged,425);
+  assert.equal(selected,629);assert.equal(unchanged,227);
 });
 
 test('size selection, saved bags, site-only fit and Merchant landings agree on the corset prices',()=>{
@@ -179,8 +179,15 @@ test('each release distinguishes observed standard sizes, one-size price axes, h
     }
   }
   assert.deepEqual(counts,{
-    verified_standard_sizes:33,owner_configuration_base:386,verified_price_option:9,verified_selected_sizes:3,
+    verified_standard_sizes:33,owner_configuration_base:584,verified_price_option:9,verified_selected_sizes:3,
   });
+  const quantityNeutral = released.flatMap(([,product])=>Object.values(product.offers).filter(offer=>'publicLabelMode' in offer));
+  assert.equal(quantityNeutral.length,2);
+  for(const offer of quantityNeutral){
+    assert.ok('evidence' in offer && 'matchedOption' in offer.evidence && 'publicLabel' in offer);
+    assert.equal(offer.evidence.matchedOption,'Bracelets *2');
+    assert.equal(offer.publicLabel,'Bracelets');
+  }
   const silverRelease = release.products[silver];
   const silverFull = silverRelease.offers['41e7d07b-761b-4edb-bdc3-ed4258c1aa4a'];
   assert.throws(()=>validateRegularPriceEvidence(silverFull,{...silverRelease,etsySizeValues:{M:silverRelease.etsySizeValues.M}}),/Incomplete/);
@@ -202,6 +209,7 @@ test('each release distinguishes observed standard sizes, one-size price axes, h
   assert.match(currentProduct('453ffb2e-2ed9-4e8d-b74c-e891604f9644').product_slug!,/4324575912$/);
   assert.throws(()=>validateRegularPriceEvidence(gold,{...relisted,etsyListingId:relisted.originalEtsyListingId}),/Wrong source listing/);
   assert.throws(()=>validateRegularPriceEvidence({...gold,evidence:{...gold.evidence,observedSize:'XS'}},relisted),/approved configuration/);
+  assert.throws(()=>validateRegularPriceEvidence(gold,{...relisted,etsyListedSizes:['XS','S','M','L','XL']}),/Website size missing/);
 });
 
 test('six color-priced suspender options use their exact existing public names once in the selector and the checkout receipt',()=>{
