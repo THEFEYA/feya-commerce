@@ -9,6 +9,7 @@ type Evidence = {
   sourceUrl?: string;
   optionAxis?: string;
   matchedOption?: string;
+  sourceOptionRowId?: string;
 };
 type ReleasedOffer = {
   regularUsdMinor: number;
@@ -31,6 +32,7 @@ type ProductRelease = {
 const releases: Readonly<Record<string, ProductRelease>> = priceRelease.products;
 const standardSizes:readonly string[] = PAIRED_SET_SIZES.filter(size=>size!=='Custom');
 const defaultSize = 'M';
+export const publishedPriceContractVersion = 'etsy_regular_eur_' + priceRelease.version;
 
 // A versioned EUR amount is charged everywhere until the next catalog release.
 // Convert positive integer cents with a decimal exchange rate and round once.
@@ -69,8 +71,11 @@ function checkObservedSelection(product: SourceListing, offer: ReleasedOffer, si
 /** Source observations and the shop's own configuration-wide price policy are distinct. */
 export function validateRegularPriceEvidence(offer: ReleasedOffer, product: SourceListing) {
   if (offer.sizes) {
-    const complete = offer.sizes.length === standardSizes.length && standardSizes.every(size => offer.sizes!.includes(size));
-    if (!complete || offer.evidence || offer.observedPricesBySize) throw new Error('Incomplete or ambiguous observed sizes');
+    const observed = offer.sizes;
+    const sizeValues = standardSizes.map(size => product.etsySizeValues[size]);
+    const complete = observed.length === standardSizes.length && standardSizes.every(size => observed.includes(size));
+    const sourceIds = sizeValues.every(value => typeof value === 'string' && /^\d+$/.test(value)) && new Set(sizeValues).size === sizeValues.length;
+    if (!complete || !sourceIds || offer.evidence || offer.observedPricesBySize) throw new Error('Incomplete or ambiguous observed sizes');
     return 'verified_standard_sizes';
   }
   const evidence = offer.evidence;
@@ -101,7 +106,10 @@ function prepareProduct(release: ProductRelease) {
   const current = new Map(Object.entries(release.baselineEurMinor));
   const sizePrices = new Map<string,Record<string,number>>();
   const confidence = new Map<string,string>();
+  const sourceOptionIds = new Set<string | null>();
   for (const [id, offer] of Object.entries(release.offers)) {
+    if (sourceOptionIds.has(offer.etsyOptionValue)) throw new Error('Repeated Etsy option on a product');
+    sourceOptionIds.add(offer.etsyOptionValue);
     if (!current.has(id)) throw new Error('Unknown configuration: ' + id);
     confidence.set(id, validateRegularPriceEvidence(offer, release));
     const amount = usdToEurMinor(offer.regularUsdMinor, priceRelease.fx.usdPerEur);
@@ -186,6 +194,9 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     const label = offer.publicLabel;
     const sizes = item.sizePrices.get(id);
     const source = offer.evidence;
+    if (label && source && (!source.sourceOptionRowId || label !== source.matchedOption)) {
+      throw new Error('Published label requires the selected source option and its original price row');
+    }
     if (source?.optionAxis === 'Primary color' && row.configuration_color !== source.matchedOption) {
       throw new Error('Etsy color does not match the released configuration');
     }
@@ -206,7 +217,7 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
   if (found.size !== item.regular.size) throw new Error('Released catalog configuration is missing');
   const separate = item.separate;
   const savings = Math.max(0,separate - item.card);
-  return {...product, configurations, ...(item.sizePrices.size?{published_default_size:defaultSize}:{}), price_contract_version:'etsy_regular_eur_'+priceRelease.version,
+  return {...product, configurations, ...(item.sizePrices.size?{published_reference_size:defaultSize}:{}), price_contract_version:publishedPriceContractVersion,
     min_price:item.minimum / 100, max_price:item.maximum / 100,
     full_set_display_price_amount:item.card / 100, component_sum_display_price_amount:separate / 100,
     full_set_savings_amount:savings / 100,

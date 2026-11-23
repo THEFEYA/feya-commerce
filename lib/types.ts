@@ -105,7 +105,7 @@ export type StorefrontProduct = {
   configurations: unknown;
   storefront_candidate_flag: boolean | null;
   price_contract_version?: string | null;
-  published_default_size?: string;
+  published_reference_size?: string;
   price_source_mode?: string | null;
   price_confidence_status?: string | null;
   has_unverified_discount?: boolean | null;

@@ -145,8 +145,7 @@ export function ProductDetailClient({
     : fullKey || (options.length === 1 ? optionKey(options[0], 0) : '')));
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [size, setChosenSize] = useState(initialLandingSelection?.size || p.published_default_size || '');
-  const setSize = (value: string) => setChosenSize(value || p.published_default_size || '');
+  const [size, setSize] = useState(initialLandingSelection?.size || '');
   const [customMeasurementsEnabled,setCustomMeasurementsEnabled]=useState(false);
   const couple = useMemo(() => coupleColorSelection(p), [p]);
   const [womenColorCode, setWomenColorCode] = useState(initialLandingSelection?.womenColorCode || couple?.defaultPair.women || '');

@@ -72,7 +72,7 @@ export function pdpOfferJsonLd(product: StorefrontProduct, url: string, landingS
   const preselected = landing?.selection
     ? options.find((o,i)=>optionKey(o,i)===landing.selection!.configurationId)
     : pricedColors !== null ? photographedPriceRow : (full || (options.length === 1 ? options[0] : null));
-  const preselectedPrice = selectedOptionPrice(preselected,landing?.selection?.size||product.published_default_size);
+  const preselectedPrice = selectedOptionPrice(preselected,landing?.selection?.size||product.published_reference_size);
   if (preselected && positive(preselectedPrice)) {
     return {
       '@type': 'Offer',
