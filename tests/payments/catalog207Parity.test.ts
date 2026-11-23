@@ -139,6 +139,7 @@ test('all 856 actual buyer-visible configuration selections can obtain a trustwo
 test('a stale Mirror full set offers only the two current colours at their independently verified prices', () => {
   const raw = products.find(row => row.product_slug.endsWith('-1890025125'))!;
   const product = effective(raw);
+  assert.ok(product.product_slug);
   const cfg = raw.configurations.find(option => option.public_label === 'Full Set')!;
   const id = raw.canonical_product_id + '-' + cfg.configuration_id + '-M-Mirror';
   const line = {id, slug: product.product_slug, configuration_id: cfg.configuration_id, size: 'M', color: 'Mirror',
@@ -162,6 +163,7 @@ test('a stale Mirror full set offers only the two current colours at their indep
 
 test('colour-priced items offer only their own verified price rows after a stale or mismatched selection', () => {
   const product=effective(products.find(row=>row.canonical_product_id===EXACT_COLOR_PRICE_PRODUCTS[0])!);
+  assert.ok(product.product_slug);
   const options=sortedOptions(product);
   const brown=options.find(option=>option.configuration_color==='Brown')!;
   const id=product.canonical_product_id+'-saved';
