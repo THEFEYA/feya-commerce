@@ -1,0 +1,22 @@
+@media print {
+  :global(body):has(.receipt) :not(:has(.receipt)):not(.receipt):not(.receipt *) {
+    display: none !important;
+  }
+
+  :global(body):has(.receipt), :global(body):has(.receipt) :has(.receipt), .receipt {
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #111 !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  .receipt {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font: 12pt/1.5 sans-serif;
+  }
+}
