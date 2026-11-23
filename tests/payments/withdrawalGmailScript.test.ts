@@ -46,14 +46,32 @@ function fakeScript(failure: 'none' | 'ack network' | 'ambiguous mail' = 'none',
   };
   runInNewContext(code, ctx);
   return {sent, reports, logs, properties, getTriggers: () => triggers,
+    authorize: (hasConsent = true) => {
+      // Pair with no timer, network, mailbox or storage APIs in scope.
+      const execution = {Utilities: ctx.Utilities, console: ctx.console, ScriptApp: {
+        getIdentityToken: ctx.ScriptApp.getIdentityToken, AuthMode: {FULL: 'full'},
+        requireAllScopes: (mode: string) => {assert.equal(mode, 'full'); if (!hasConsent) throw new Error('Missing consent');},
+      }};
+      runInNewContext(code + '\nauthorizeStudioMail();', execution);
+    },
     run: () => runInNewContext('runWithdrawalWorker();', ctx),
     install: () => runInNewContext('installWithdrawalWorker();', ctx)};
 }
-test('installation checks the Google identity, logs only a public client ID and creates one timer', () => {
+test('first-run approval only logs the verified studio public audience with all declared permissions', () => {
+  assert.equal(/^function (\w+)\(/m.exec(code)?.[1], 'authorizeStudioMail');
+  const studio = fakeScript();
+  assert.throws(() => studio.authorize(false), /Missing consent/);
+  assert.deepEqual(studio.logs, []);
+  studio.authorize();
+  assert.deepEqual(studio.logs, ['Withdrawal worker OAuth audience: public-client-id']);
+  const other = fakeScript('none', 'other@example.test');
+  assert.throws(() => other.authorize(), /designated studio/);
+  assert.deepEqual(other.logs, []);
+});
+test('separate installation checks studio identity and creates one timer', () => {
   const script = fakeScript();
   script.install(); script.install();
   assert.equal(script.getTriggers(), 1);
-  assert.equal(script.logs[0], 'Withdrawal worker OAuth audience: public-client-id');
   assert.ok(manifest.oauthScopes.includes('https://www.googleapis.com/auth/script.send_mail'));
   assert.ok(!manifest.oauthScopes.some((s: string) => s.includes('gmail.read') || s.includes('mail.google.com')));
   assert.throws(() => fakeScript('none', 'other@example.test').install());

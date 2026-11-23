@@ -3,6 +3,13 @@ const WITHDRAWAL_ENDPOINT = 'https://thefeya.com/api/internal/withdrawal-deliver
 const WITHDRAWAL_ACCOUNT = 'manager.feya@gmail.com';
 const REPORT_PROPERTY = 'pendingWithdrawalMailReport';
 
+function authorizeStudioMail() {
+  ScriptApp.requireAllScopes(ScriptApp.AuthMode.FULL);
+  const identity = ownerIdentity_();
+  // The operator pairs this public OAuth client ID. The signed ID token stays in this execution.
+  console.log('Withdrawal worker OAuth audience: ' + identity.audience);
+}
+
 function ownerIdentity_() {
   const token = ScriptApp.getIdentityToken();
   if (typeof token !== 'string' || token.split('.').length !== 3) {
@@ -16,13 +23,11 @@ function ownerIdentity_() {
 }
 
 function installWithdrawalWorker() {
-  const identity = ownerIdentity_();
+  ownerIdentity_();
   const alreadyInstalled = ScriptApp.getProjectTriggers().some(function(trigger) {
     return trigger.getHandlerFunction() === 'runWithdrawalWorker';
   });
   if (!alreadyInstalled) ScriptApp.newTrigger('runWithdrawalWorker').timeBased().everyMinutes(5).create();
-  // This public OAuth client ID is all that the site operator pairs. Never log the ID token.
-  console.log('Withdrawal worker OAuth audience: ' + identity.audience);
 }
 
 function requestWithdrawal_(token, fields) {
