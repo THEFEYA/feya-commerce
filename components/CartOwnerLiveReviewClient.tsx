@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import {CartSavedColourPicker} from './CartSavedColourPicker';
+import {replaceSavedCartColour} from '@/lib/cartColourSelection';
+import type {CartColourChoice, CartColourRecovery} from '@/lib/payments/cartColourRecovery';
 import {colorChoiceLabel} from '@/lib/bonanzaColorChoices';
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {
@@ -64,6 +67,7 @@ export function CartOwnerLiveReviewClient(){
   const [marketingConsent,setMarketingConsent]=useState(false);
   // Owner visual-only selectable EUR proposals, never authorized payable prices.
   const [extras,setExtras]=useState<string[]>([]);
+  const [extrasOpen,setExtrasOpen]=useState(false);
   const [giftMessage,setGiftMessage]=useState('');
   const [wearerByItem,setWearerByItem]=useState<Record<string,'men'|'women'>>({});
   const [coupon,setCoupon]=useState('');
@@ -129,8 +133,9 @@ export function CartOwnerLiveReviewClient(){
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
 
   useEffect(()=>{
-    if(!checkoutActive||!hydrated||!linesOrderable){setQuote(null);return;}
     const seq=++quoteSeq.current;
+    setQuote(null);
+    if(!checkoutActive||!hydrated||!linesOrderable){setQuoteLoading(false);return;}
     setQuoteLoading(true);
     const timer=window.setTimeout(()=>{
       checkoutApi.quote({lines:checkoutLines,method,gift_card:extras.includes('card'),
@@ -139,9 +144,10 @@ export function CartOwnerLiveReviewClient(){
         .catch(()=>{if(seq===quoteSeq.current)setQuote({ok:false,message:'We could not confirm the total right now. Please try again.'});})
         .finally(()=>{if(seq===quoteSeq.current)setQuoteLoading(false);});
     },250);
-    return()=>window.clearTimeout(timer);
+    return()=>{window.clearTimeout(timer);quoteSeq.current++;};
   },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country]);
 
+  const colourRecovery=checkoutActive && !quoteLoading ? quote?.colour_recovery : undefined;
   const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
   const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
 
@@ -208,6 +214,28 @@ export function CartOwnerLiveReviewClient(){
       setStorageIssue('Your browser could not save this bag update. No server order was created.');
     }
   }
+  function chooseColour(item:OwnerCartPreviewItem,recovery:CartColourRecovery,choice:CartColourChoice,menChoice?:CartColourChoice){
+    try{
+      const raw=JSON.parse(window.localStorage.getItem(OWNER_CART_STORAGE_KEY)||'[]');
+      const update=replaceSavedCartColour(raw,item,choice,recovery.title,wearerByItem,menChoice);
+      if(!update){
+        window.dispatchEvent(new Event('storage'));
+        setStorageIssue('Your bag has changed. Please review the current selection.');
+        return;
+      }
+      window.localStorage.setItem(OWNER_CART_STORAGE_KEY,JSON.stringify(update.raw));
+      setQuote(null);setQuoteLoading(true);setPayError('');setStorageIssue('');
+      if(update.id!==item.id && wearerByItem[item.id]){
+        setWearerByItem(current=>{
+          const next={...current,[update.id]:current[item.id]};
+          delete next[item.id];
+          return next;
+        });
+      }
+      window.dispatchEvent(new Event('storage'));
+      window.localStorage.setItem(OWNER_BAG_COUNT_STORAGE_KEY,String(update.count));
+    }catch{setStorageIssue('Your browser could not save the colour. Please check your bag before continuing.');}
+  }
   function changeQty(id:string,delta:number){
     persist(items.map(x=>x.id!==id?x:{
       ...x,qty:Math.max(1,Math.min(100,x.qty+delta)),
@@ -257,7 +285,8 @@ export function CartOwnerLiveReviewClient(){
           </div>
           :<div className="mt-6 divide-y divide-[rgba(216,214,211,.12)]">
             {items.map(item=><article key={item.id}
-              className="flex gap-4 py-5 first:pt-0 sm:gap-5" aria-label={item.title}>
+              className="py-5 first:pt-0" aria-label={item.title}>
+              <div className="flex gap-4 sm:gap-5">
               <Link href={`/shop/${item.slug}`}
                 className="h-[138px] w-[106px] shrink-0 overflow-hidden rounded-lg bg-[#19191d] sm:h-[172px] sm:w-[136px]">
                 {item.image?
@@ -305,15 +334,21 @@ export function CartOwnerLiveReviewClient(){
                     <Trash2 size={14} aria-hidden="true"/> Remove
                   </button>
                   <Link className="text-[12px] text-[#d4b26a] underline underline-offset-4"
-                    href={`/shop/${item.slug}`}>Edit options</Link>
+                    href={`/shop/${item.slug}`}>View product</Link>
                 </div>
                 <p className="mt-auto pt-2 text-right text-[17px] font-medium text-[#f7f3ec]">
                   {currency(Math.round(item.price*100)*item.qty)}
                 </p>
               </div>
+              </div>
+              {colourRecovery?.line_id===item.id && <CartSavedColourPicker item={item} recovery={colourRecovery}
+                onChoose={(choice,menChoice)=>chooseColour(item,colourRecovery,choice,menChoice)}/>}
             </article>)}
           </div>}
 
+          {serverAmounts&&<a href="#order-summary" className="mt-3 flex min-h-11 items-center justify-between gap-3 border-t border-white/15 pt-2 text-[14px] text-[#e4c87d] xl:hidden">
+            <span>Order summary</span><strong>{currency(serverAmounts.total_minor)}</strong>
+          </a>}
         </section>
 
         <section className={cardStyle} aria-labelledby="owner-cart-shipping-title">
@@ -341,20 +376,24 @@ export function CartOwnerLiveReviewClient(){
         </section>
 
         <section className={cardStyle+' !p-4 sm:!p-5'} aria-labelledby="owner-cart-extras-title">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="owner-cart-extras-title" className="text-[21px] font-medium text-[#f7f3ec]">Make it yours</h2>
-            <span className="text-[11px] text-[var(--bone-dim)]">Optional extras</span>
+            <span className="hidden text-[12px] text-[var(--bone-dim)] sm:inline">Optional extras</span>
+            {!items.some(requiresPaidCustomMeasurements)&&<button type="button" aria-expanded={extrasOpen} aria-controls="bag-extras"
+              onClick={()=>setExtrasOpen(open=>!open)} className="inline-flex min-h-11 items-center gap-2 text-[13px] text-[#d4b26a] sm:hidden">
+              {extrasOpen?'Hide extras':'Fit & gifts'} {extrasOpen?<Minus size={15}/>:<Plus size={15}/>}
+            </button>}
           </div>
-          <div className="mt-3 space-y-2">
+          <div id="bag-extras" className={'mt-3 space-y-2 '+(extrasOpen||items.some(requiresPaidCustomMeasurements)?'block':'hidden sm:block')}>
             {items.length>0&&<div className="rounded-lg border border-white/[.12] px-3 py-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <strong className="text-[13px] font-medium text-[#f7f3ec]">Made to your measurements</strong>
                 <span className="text-[13px] text-[#e4c87d]">+€15 per piece</span>
               </div>
               <p className="mt-1 text-[11px] leading-5 text-[var(--bone-dim)]">We’ll contact you to confirm measurements. For Custom size, this service is required and is included automatically in your order total.</p>
-              <div className="mt-2 grid gap-x-3 gap-y-1 sm:grid-cols-2">
+              <div className="mt-2 grid grid-cols-1 gap-x-3 gap-y-1 sm:grid-cols-2">
                 {items.map(item=><label key={item.id}
-                  className="flex min-h-8 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
+                  className="flex min-h-8 min-w-0 cursor-pointer items-center gap-2 text-[12px] text-[#d8d0c6]">
                   <input type="checkbox" checked={customFitIds.includes(item.id)}
                     disabled={requiresPaidCustomMeasurements(item)}
                     onChange={()=>toggleCustomFit(item.id)} className="h-4 w-4 shrink-0 accent-[#d4b26a]"/>
@@ -385,55 +424,55 @@ export function CartOwnerLiveReviewClient(){
         <section className={cardStyle} aria-labelledby="owner-cart-address-title">
           <h2 id="owner-cart-address-title" className="text-[22px] font-medium text-[#f7f3ec]">Contact & delivery details</h2>
 
-          <form className="mt-5 space-y-5" autoComplete="off" onSubmit={e=>e.preventDefault()}>
+          <form className="mt-5 space-y-5" autoComplete={checkoutActive?'on':'off'} onSubmit={e=>e.preventDefault()}>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelStyle}><span><RequiredMark/>First name</span>
                 <input value={form.first_name} onChange={e=>change('first_name',e.target.value)}
-                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="First name"/>
+                  autoComplete={checkoutActive?'given-name':'off'} required maxLength={100} className={fieldStyle} placeholder="First name"/>
               </label>
               <label className={labelStyle}><span><RequiredMark/>Last name</span>
                 <input value={form.last_name} onChange={e=>change('last_name',e.target.value)}
-                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="Last name"/>
+                  autoComplete={checkoutActive?'family-name':'off'} required maxLength={100} className={fieldStyle} placeholder="Last name"/>
               </label>
               <label className={labelStyle}><span><RequiredMark/>Email</span>
                 <input value={form.email} type="email" onChange={e=>change('email',e.target.value)}
-                  autoComplete="off" required maxLength={320} className={fieldStyle} placeholder="you@example.com"/>
+                  autoComplete={checkoutActive?'email':'off'} required maxLength={320} className={fieldStyle} placeholder="you@example.com"/>
               </label>
               <label className={labelStyle}><span><RequiredMark/>Telephone</span>
                 <input value={form.phone} type="tel" onChange={e=>change('phone',e.target.value)}
-                  autoComplete="off" required maxLength={100} className={fieldStyle} placeholder="For the delivery courier"/>
+                  autoComplete={checkoutActive?'tel':'off'} required maxLength={100} className={fieldStyle} placeholder="For the delivery courier"/>
               </label>
             </div>
             <label className={labelStyle}><span><RequiredMark/>Destination country</span>
-              <select required value={form.country} onChange={e=>change('country',e.target.value)} className={fieldStyle}>
+              <select required autoComplete={checkoutActive?'shipping country':'off'} value={form.country} onChange={e=>change('country',e.target.value)} className={fieldStyle}>
                 <option value="">Select your country</option>
-                {countryOptions.map(x=><option key={x.code} value={x.code}>{x.label}</option>)}
+                {hydrated&&countryOptions.map(x=><option key={x.code} value={x.code}>{x.label}</option>)}
               </select>
             </label>
             {addressRegions.length>0&&<label className={labelStyle}>
               <span><RequiredMark/>{form.country==='US'?'State':form.country==='CA'?'Province / territory':'State / territory'}</span>
-              <select required className={fieldStyle} value={form.region} onChange={e=>change('region',e.target.value)}>
+              <select required autoComplete={checkoutActive?'shipping address-level1':'off'} className={fieldStyle} value={form.region} onChange={e=>change('region',e.target.value)}>
                 <option value="">Select region</option>
                 {addressRegions.map(([code,name])=><option value={code} key={code}>{name}</option>)}
               </select>
             </label>}
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelStyle}><span><RequiredMark/>City</span>
-                <input className={fieldStyle} required autoComplete="off" maxLength={150}
+                <input className={fieldStyle} required autoComplete={checkoutActive?'shipping address-level2':'off'} maxLength={150}
                   value={form.city} onChange={e=>change('city',e.target.value)} placeholder="City"/>
               </label>
               <label className={labelStyle}><span><RequiredMark/>ZIP / postal code</span>
-                <input className={fieldStyle} required autoComplete="off" maxLength={32}
+                <input className={fieldStyle} required autoComplete={checkoutActive?'shipping postal-code':'off'} maxLength={32}
                   value={form.postal_code} onChange={e=>change('postal_code',e.target.value)} placeholder="Postal code"/>
               </label>
             </div>
             <label className={labelStyle}><span><RequiredMark/>Street address</span>
-              <input className={fieldStyle} required autoComplete="off" maxLength={250}
+              <input className={fieldStyle} required autoComplete={checkoutActive?'shipping address-line1':'off'} maxLength={250}
                 value={form.address_line1} onChange={e=>change('address_line1',e.target.value)}
                 placeholder="Street and house number"/>
             </label>
             <label className={labelStyle}>Apartment, suite, additional details
-              <input className={fieldStyle} autoComplete="off" maxLength={250}
+              <input className={fieldStyle} autoComplete={checkoutActive?'shipping address-line2':'off'} maxLength={250}
                 value={form.address_line2} onChange={e=>change('address_line2',e.target.value)}
                 placeholder="Apartment, building, floor"/>
             </label>
@@ -470,7 +509,7 @@ export function CartOwnerLiveReviewClient(){
       </div>
 
       <aside className="min-w-0 self-start xl:sticky xl:top-28">
-        <section className={cardStyle+' border-[rgba(212,178,106,.26)]'} aria-label="Order summary">
+        <section id="order-summary" className={cardStyle+' scroll-mt-24 border-[rgba(212,178,106,.26)]'} aria-label="Order summary">
           <h2 className="text-[26px] font-medium text-[#f7f3ec]">Order summary</h2>
           {serverAmounts?<div className="mt-6 space-y-3 text-[13px]" data-testid="server-order-summary">
             <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
@@ -522,11 +561,11 @@ export function CartOwnerLiveReviewClient(){
                 <span>Included sale savings</span><span className="text-[#e4c87d]">−{currency(saleSavings)}</span>
               </div>
             </>}
-            <div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+            {!checkoutActive&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
               <span>Coupon discount</span><span className="text-[#f7f3ec]">Not applied</span>
-            </div>
+            </div>}
           </div>}
-          <div className="mt-5 rounded-xl border border-white/[.11] p-4">
+          {!checkoutActive&&<div className="mt-5 rounded-xl border border-white/[.11] p-4">
             <label htmlFor="preview-coupon" className="block text-[12px] font-medium text-[#f7f3ec]">Have a coupon code?</label>
             <div className="mt-2 flex gap-2">
               <input id="preview-coupon" value={coupon} onChange={e=>{setCoupon(e.target.value.slice(0,48));setCouponNotice(false);}}
@@ -535,7 +574,7 @@ export function CartOwnerLiveReviewClient(){
                 className="min-h-11 rounded-lg border border-[rgba(212,178,106,.4)] px-4 text-[13px] text-[#e4c87d]">Apply</button>
             </div>
             {couponNotice&&<p className="mt-2 text-[12px] leading-5 text-[var(--bone-dim)]" role="status">This coupon cannot be applied yet.</p>}
-          </div>
+          </div>}
           {checkoutActive?<>
             <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
               <div className="flex items-start justify-between gap-3">
@@ -547,6 +586,7 @@ export function CartOwnerLiveReviewClient(){
               <p className="mt-2 text-[11px] leading-5 text-[var(--bone-dim)]">
                 {!linesOrderable&&items.length>0
                   ?'One of the pieces in your bag needs to be selected again on its product page before payment.'
+                  :colourRecovery?<a className="text-[#d4b26a] underline underline-offset-4" href="#saved-bag-colour">Choose a current colour for your piece</a>
                   :quote&&!quote.ok?quote.message
                   :form.country?'Price in EUR, confirmed by TheFEYA. Customs/import charges, where applicable, may be collected separately on delivery.'
                   :'Select your destination country to confirm delivery charges.'}
@@ -562,7 +602,7 @@ export function CartOwnerLiveReviewClient(){
             {fulfilled&&!acceptedTerms&&<p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]">Please confirm the terms, returns and shipping policy.</p>}
             <p className="mt-3 flex gap-2 text-[11px] leading-5 text-[var(--bone-dim)]">
               <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#d4b26a]" aria-hidden="true"/>
-              <span>You will pay on PayPal&apos;s secure page with a card or your PayPal account.
+              <span>You’ll continue to PayPal. If guest checkout is available, you can pay by card without a PayPal account.
                 Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</span>
             </p>
           </>:<>

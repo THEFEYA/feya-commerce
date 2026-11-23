@@ -1,4 +1,8 @@
 import test from 'node:test';
+import {priceCartLineForQuote, SavedColourError, type CartColourRecovery} from '../../lib/payments/cartColourRecovery.ts';
+import {replaceSavedCartColour} from '../../lib/cartColourSelection.ts';
+import {parseOwnerCartStorage} from '../../lib/commerceOwnerCartReview.ts';
+import {EXACT_COLOR_PRICE_PRODUCTS} from '../../lib/bonanzaColorPriceExceptions.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {applyOwnerReviewedStorefrontCorrections} from '../../lib/storefrontOwnerReviewedCorrections.ts';
@@ -129,4 +133,91 @@ test('all 856 actual buyer-visible configuration selections can obtain a trustwo
   }
   assert.equal(failures.length,0,`${quoted} quotes/${paired} paired. ${failures.length} failures:\n${failures.join('\n')}`);
   assert.equal(quoted,856);
+});
+
+
+test('a stale Mirror full set offers only the two current colours at their independently verified prices', () => {
+  const raw = products.find(row => row.product_slug.endsWith('-1890025125'))!;
+  const product = effective(raw);
+  assert.ok(product.product_slug);
+  const cfg = raw.configurations.find(option => option.public_label === 'Full Set')!;
+  const id = raw.canonical_product_id + '-' + cfg.configuration_id + '-M-Mirror';
+  const line = {id, slug: product.product_slug, configuration_id: cfg.configuration_id, size: 'M', color: 'Mirror',
+    quantity: 1, wearer: null, made_to_measure: false, client_unit_minor: 1};
+  let recovery: CartColourRecovery | undefined;
+  assert.throws(() => priceCartLineForQuote(product,line), error => {
+    if (!(error instanceof SavedColourError)) return false;
+    recovery = error.recovery;
+    return true;
+  });
+  assert.equal(recovery!.line_id,id);
+  assert.deepEqual(recovery!.choices.map(c=>c.label).sort(),['Gold','Silver']);
+  for (const c of recovery!.choices) {
+    assert.equal(c.unit_minor,17954);
+    const priced=priceCartLine(product,{...line,configuration_id:c.configuration_id,color:c.label,color_code:c.code});
+    assert.equal(computeCheckoutAmounts({lines:[priced],extras:[],method:'standard',country:'US'}).total_minor,19854);
+  }
+  assert.throws(()=>priceCartLine(product,line),/checkout_color_invalid/);
+  assert.throws(()=>priceCartLineForQuote(product,{...line,configuration_id:'missing'}),/checkout_option_unavailable/);
+});
+
+test('colour-priced items offer only their own verified price rows after a stale or mismatched selection', () => {
+  const product=effective(products.find(row=>row.canonical_product_id===EXACT_COLOR_PRICE_PRODUCTS[0])!);
+  assert.ok(product.product_slug);
+  const options=sortedOptions(product);
+  const brown=options.find(option=>option.configuration_color==='Brown')!;
+  const id=product.canonical_product_id+'-saved';
+  for (const color of ['White','Black']) {
+    const line={id,slug:product.product_slug,configuration_id:configurationIdentity(brown),size:'M',color,
+      color_code:color.toLowerCase(),quantity:1,wearer:null,made_to_measure:false,client_unit_minor:1};
+    assert.throws(()=>priceCartLineForQuote(product,line),error=>{
+      assert.ok(error instanceof SavedColourError);
+      assert.deepEqual(error.recovery.choices.map(c=>c.label).sort(),['Black','Brown','Green']);
+      for (const c of error.recovery.choices) {
+        const current=options.find(o=>configurationIdentity(o)===c.configuration_id)!;
+        assert.equal(current.configuration_color,c.label);
+        assert.equal(c.unit_minor,Math.round(optionPrice(current)!*100));
+      }
+      return true;
+    });
+  }
+});
+
+test('cart colour replacement preserves unrelated rows, concurrent quantities, fit, wearer and duplicate limits', () => {
+  const base='067628e8-3ecd-4979-8501-6da61ca2f51a', cfg='30daa219-ee33-4feb-8870-a43b9b593745';
+  const row={id:base+'-'+cfg+'-M-Mirror',slug:'saved-set',title:'Set',config:'Full Set',size:'M',color:'Mirror',
+    configuration_id:cfg,price:179.54,currency:'EUR',qty:1,custom_measurements_selected:true,component_code:'component'};
+  const shown=parseOwnerCartStorage([row]).items[0];
+  const choice={code:'silver',label:'Silver',configuration_id:cfg,config:'Full Set',unit_minor:17954,compare_at_minor:null};
+  const other={...row,id:base+'-other',size:'S',custom_measurements_selected:false,qty:1};
+  const updated=replaceSavedCartColour([{...row,qty:2},other],shown,choice,'Current title',{})!;
+  assert.deepEqual(updated.raw[1],other);
+  assert.equal(updated.count,3);
+  assert.equal(updated.raw[0]?.component_code,'component');
+  assert.equal(updated.raw[0]?.qty,2);
+  const restored=parseOwnerCartStorage(JSON.parse(JSON.stringify(updated.raw)));
+  assert.equal(restored.invalid_count,0);
+  assert.equal(restored.items[0].size,'M');
+  assert.equal(restored.items[0].custom_measurements_selected,true);
+  assert.equal(restored.items[0].color_code,'silver');
+  const existing=updated.raw[0]!;
+  const merged=replaceSavedCartColour([row,existing],shown,choice,'Current title',{})!;
+  assert.equal(merged.raw.length,1);
+  assert.equal(merged.raw[0]?.qty,3);
+  for(const other of [{...existing,qty:100},{...existing,custom_measurements_selected:false}]) {
+    const separate=replaceSavedCartColour([row,other],shown,choice,'Current title',{})!;
+    assert.equal(separate.raw.length,2);
+    assert.equal(parseOwnerCartStorage(separate.raw).invalid_count,0);
+  }
+  assert.equal(replaceSavedCartColour([row,existing],shown,choice,'Current title',{[row.id]:'women',[updated.id]:'men'})!.raw.length,2);
+  assert.equal(replaceSavedCartColour([],shown,choice,'Current title',{}),null);
+  assert.equal(replaceSavedCartColour([{...row,size:'L'}],shown,choice,'Current title',{}),null);
+
+  const paired={...row,size:'S',paired_selection:{women:{size:'S',color:'obsolete'},men:{size:'Custom',color:'gold'}}};
+  const saved=parseOwnerCartStorage([paired]).items[0];
+  const corrected=replaceSavedCartColour([saved],saved,choice,'Set',{}, {...choice,code:'gold',label:'Gold'})!;
+  const reload=parseOwnerCartStorage(JSON.parse(JSON.stringify(corrected.raw)));
+  assert.equal(reload.invalid_count,0);
+  assert.equal(reload.items[0].size,"Women's S · Men's Custom");
+  assert.deepEqual(reload.items[0].paired_selection,{women:{size:'S',color:'silver'},men:{size:'Custom',color:'gold'}});
 });

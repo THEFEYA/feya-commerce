@@ -26,6 +26,7 @@ import {verifyClosedReviewRuntime} from './closed-review-runtime.mjs';
 import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
 import {verifyVariantDraftRuntime} from './variant-draft-runtime.mjs';
 import {verifyOwnerActionStepUpRuntime} from './owner-action-step-up-runtime.mjs';
+import {verifySavedCartColour} from './cart-saved-colour.mjs';
 import {verifyDeliveryWorkspaceRuntime} from './delivery-workspace-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
@@ -132,6 +133,7 @@ try {
  assert.ok(browserChannel===undefined||browserChannel==='chrome','Only bundled Chromium or installed Chrome are supported');
  browser=await chromium.launch({headless:true,...(browserChannel?{channel:browserChannel}:{})});
  report.runtime_browser={channel:browserChannel||'bundled_chromium',version:browser.version()};
+ await check('A returning shopper can replace an obsolete colour, see the total and reload the same bag',()=>verifySavedCartColour({browser,env,out}));
  const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
  await check('Storefront revalidation route authenticates, derives stock scope, audits delivery and replays idempotently',async()=>{
   const endpoint=base+'/api/internal/storefront-revalidate';

@@ -2,6 +2,8 @@
  * Browser-side helpers for the buyer checkout. Only same-origin TheFEYA endpoints are
  * called; card details are entered on PayPal's own page, never here.
  */
+import type {CartColourRecovery} from './cartColourRecovery';
+
 export const CHECKOUT_PENDING_KEY = 'feya_checkout_pending_v1';
 export const CHECKOUT_RECEIPTS_KEY = 'feya_checkout_receipts_v1';
 
@@ -9,6 +11,7 @@ export type CheckoutStatus = {checkout_active: boolean; engine: string | null; r
 export type QuoteResult = {
   ok: boolean; code?: string; message?: string;
   checkout_active?: boolean;
+  colour_recovery?: CartColourRecovery;
   amounts?: {merchandise_minor: number; extras_minor: number; shipping_minor: number; remote_minor: number;
     handling_minor: number; total_minor: number};
   lines?: {line_id: string; unit_minor: number; line_minor: number; price_changed: boolean}[];
