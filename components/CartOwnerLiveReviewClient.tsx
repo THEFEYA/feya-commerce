@@ -21,9 +21,9 @@ import {
   checkoutApi,newIdempotencyKey,redirectToProvider,rememberPendingCheckout,submitProviderForm,
   type QuoteResult,
 } from '@/lib/payments/checkoutBrowser';
-import {trackMeasurementEvent} from '@/lib/measurementClient';
+import {trackCartStageOnce,trackMeasurementEvent} from '@/lib/measurementClient';
 import {SHIPPING_TRANSIT_BUSINESS_DAYS} from '@/lib/payments/checkoutPolicyEvidence';
-import {buildBeginCheckoutMeasurement} from '@/lib/measurementContract';
+import {buildBeginCheckoutMeasurement,cartQuoteEvent,type CartFunnelEvent} from '@/lib/measurementContract';
 
 type ContactForm={
   first_name:string;last_name:string;email:string;phone:string;
@@ -77,21 +77,29 @@ export function CartOwnerLiveReviewClient(){
   const [couponNotice,setCouponNotice]=useState(false);
   const toggleExtra=(id:string)=>setExtras(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
   // Live checkout: availability and totals are decided by the server, never by this page.
-  const [checkoutActive,setCheckoutActive]=useState(false);
-  const [quote,setQuote]=useState<QuoteResult|null>(null);
+  const [availability,setAvailability]=useState<'loading'|'active'|'inactive'|'unavailable'>('loading');
+  const [statusAttempt,setStatusAttempt]=useState(0);
+  const checkoutActive=availability==='active';
+  const checkoutInactive=availability==='inactive';
   const [quoteLoading,setQuoteLoading]=useState(false);
   const [paying,setPaying]=useState(false);
   const [payError,setPayError]=useState('');
   const quoteSeq=useRef(0);
   const [quoteRefresh,setQuoteRefresh]=useState(0);
   const beginCheckoutTracked=useRef(false);
+  const reportedCartStages=useRef(new Set<CartFunnelEvent>());
 
   useEffect(()=>{
     let alive=true;
-    checkoutApi.status().then(state=>{if(alive)setCheckoutActive(state.checkout_active===true);})
-      .catch(()=>{if(alive)setCheckoutActive(false);});
-    return()=>{alive=false;};
-  },[]);
+    const timeout=window.setTimeout(()=>{if(alive)setAvailability('unavailable');},10000);
+    checkoutApi.status().then(state=>{
+      if(!alive)return;
+      if(state.ok===false||state.storage_ready===false||typeof state.checkout_active!=='boolean')setAvailability('unavailable');
+      else setAvailability(state.checkout_active?'active':'inactive');
+    }).catch(()=>{if(alive)setAvailability('unavailable');})
+      .finally(()=>window.clearTimeout(timeout));
+    return()=>{alive=false;window.clearTimeout(timeout);};
+  },[statusAttempt]);
 
   useEffect(()=>{
     const sync=()=>{
@@ -135,6 +143,13 @@ export function CartOwnerLiveReviewClient(){
     client_unit_minor:Math.round(item.price*100),
   })),[items,wearerByItem,customFitIds]);
   const linesOrderable=items.length>0&&items.every(item=>Boolean(item.configuration_id));
+  const quoteRequest=useMemo(()=>({
+    lines:checkoutLines,method,gift_card:extras.includes('card'),gift_box:extras.includes('box'),
+    country:form.country||'',
+  }),[checkoutLines,method,extras,form.country]);
+  const [settledQuote,setQuote]=useState<{request:typeof quoteRequest;result:QuoteResult}|null>(null);
+  // A render can precede cleanup of the previous quote on a country or bag change.
+  const quote=settledQuote?.request===quoteRequest?settledQuote.result:null;
 
   useEffect(()=>{
     const seq=++quoteSeq.current;
@@ -142,19 +157,33 @@ export function CartOwnerLiveReviewClient(){
     if(!checkoutActive||!hydrated||!linesOrderable){setQuoteLoading(false);return;}
     setQuoteLoading(true);
     const timer=window.setTimeout(()=>{
-      checkoutApi.quote({lines:checkoutLines,method,gift_card:extras.includes('card'),
-        gift_box:extras.includes('box'),country:form.country||''})
-        .then(result=>{if(seq===quoteSeq.current)setQuote(result);})
-        .catch(()=>{if(seq===quoteSeq.current)setQuote({ok:false,message:'We could not confirm the total right now. Please try again.'});})
+      checkoutApi.quote(quoteRequest)
+        .then(result=>{if(seq===quoteSeq.current)setQuote({request:quoteRequest,result});})
+        .catch(()=>{if(seq===quoteSeq.current)setQuote({request:quoteRequest,
+          result:{ok:false,message:'We could not confirm the total right now. Please try again.'}});})
         .finally(()=>{if(seq===quoteSeq.current)setQuoteLoading(false);});
     },250);
     return()=>{window.clearTimeout(timer);quoteSeq.current++;};
-  },[checkoutActive,hydrated,linesOrderable,checkoutLines,method,extras,form.country,quoteRefresh]);
+  },[checkoutActive,hydrated,linesOrderable,quoteRequest,quoteRefresh]);
 
   const colourRecovery=checkoutActive && !quoteLoading ? quote?.colour_recovery : undefined;
   const serverAmounts=checkoutActive&&quote?.ok?quote.amounts??null:null;
   const quotedLines=new Map(quote?.ok ? quote.lines?.map(line=>[line.line_id,line] as const) : []);
   const canPay=checkoutActive&&linesOrderable&&Boolean(serverAmounts)&&fulfilled&&acceptedTerms&&!paying&&!quoteLoading;
+
+  useEffect(()=>{
+    function reportVisibleStages(){
+      if(!checkoutActive||!hydrated||!linesOrderable||quoteLoading)return;
+      const stage=cartQuoteEvent(quote);
+      if(stage)trackCartStageOnce(stage,reportedCartStages.current);
+      if(canPay&&stage==='cart_quote_ready')trackCartStageOnce('cart_payment_ready',reportedCartStages.current);
+    }
+    reportVisibleStages();
+    // Consent or SPA navigation can supply the correct cart context after its quote.
+    // Recheck only what is still on screen. Never replay earlier clicks or failures.
+    window.addEventListener('feya:measurement-ready',reportVisibleStages);
+    return ()=>window.removeEventListener('feya:measurement-ready',reportVisibleStages);
+  },[checkoutActive,hydrated,linesOrderable,quoteLoading,quote,canPay]);
 
   async function pay(){
     if(!canPay)return;
@@ -166,8 +195,7 @@ export function CartOwnerLiveReviewClient(){
       try{
         const measurement=buildBeginCheckoutMeasurement(items,quote);
         if(measurement){
-          beginCheckoutTracked.current=true;
-          trackMeasurementEvent('begin_checkout',measurement);
+          beginCheckoutTracked.current=trackMeasurementEvent('begin_checkout',measurement).sent;
         }
       }catch{/* measurement is optional */}
     }
@@ -187,10 +215,12 @@ export function CartOwnerLiveReviewClient(){
       if(!result.ok&&(result.code==='checkout_unavailable'||result.code==='provider_unavailable'))
         result=await checkoutApi.start(request);
       if(!result.ok||!result.session||!result.order_number){
+        trackCartStageOnce('cart_start_failed',reportedCartStages.current);
         setPayError(result.message||'Checkout is temporarily unavailable. Please try again shortly.');
         setPaying(false);return;
       }
       if(result.total_minor!==serverAmounts?.total_minor){
+        trackCartStageOnce('cart_total_changed',reportedCartStages.current);
         setQuote(null);setQuoteLoading(true);setQuoteRefresh(value=>value+1);
         setPayError('The order total changed. Please review the updated total before continuing to PayPal.');
         setPaying(false);return;
@@ -198,7 +228,10 @@ export function CartOwnerLiveReviewClient(){
       rememberPendingCheckout({order_number:result.order_number,access_token:result.access_token??null});
       if(result.session.kind==='redirect')redirectToProvider(result.session.url);
       else submitProviderForm(result.session.form);
+      // The navigation call returned, not confirmation that PayPal loaded or took payment.
+      trackCartStageOnce('cart_provider_handoff',reportedCartStages.current);
     }catch{
+      trackCartStageOnce('cart_start_failed',reportedCartStages.current);
       setPayError('We could not reach PayPal. Your card has not been charged. Please try again.');
       setPaying(false);
     }
@@ -269,13 +302,12 @@ export function CartOwnerLiveReviewClient(){
       </p>
     </header>
 
-    {!checkoutActive&&<p className="sr-only">
+    {checkoutInactive&&<p className="sr-only">
       No payments or orders are accepted here; customer contact fields are never saved,
       transmitted or shared with a carrier by this private design preview.
     </p>}
     {invalidCount>0&&<p className="mt-5 rounded-lg border border-amber-500/25 bg-amber-500/5 p-4 text-[12px] leading-6 text-amber-100" role="alert">
-      {invalidCount} outdated or invalid cart line(s) were not used in this preview.
-      Revisit the product page to choose a current option. No unsafe price is accepted.
+      {invalidCount} saved item(s) could not be restored. Revisit the product page to choose a current option.
     </p>}
     {storageIssue&&<p className="mt-3 text-[12px] text-amber-100" role="alert">{storageIssue}</p>}
 
@@ -317,9 +349,9 @@ export function CartOwnerLiveReviewClient(){
                   <p>Men: {item.paired_selection.men.size} · {colorChoiceLabel(item.paired_selection.men.color)}</p>
                 </div> : null}
                 {!item.paired_selection ? <fieldset className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[var(--bone-dim)]">
-                  <legend className="mb-1 text-[11px]"><RequiredMark/>Intended wearer for this item</legend>
+                  <legend className="mb-1 text-[11px]">Intended wearer for this item (optional)</legend>
                   {(['men','women'] as const).map(choice=><label key={choice} className="inline-flex cursor-pointer items-center gap-1.5">
-                    <input type="radio" name={'owner-wearer-'+item.id} required value={choice}
+                    <input type="radio" name={'owner-wearer-'+item.id} value={choice}
                       checked={wearerByItem[item.id]===choice}
                       onChange={()=>setWearerByItem(cur=>({...cur,[item.id]:choice}))}
                       className="h-4 w-4 accent-[#d4b26a]"/>
@@ -382,7 +414,7 @@ export function CartOwnerLiveReviewClient(){
             </label>)}
           </div>
           <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">
-            Production usually takes 3–5 working days. Delivery times are approximate and vary by destination.
+            Each product page lists its production estimate. Delivery times start after dispatch and vary by destination.
           </p>
         </section>
 
@@ -514,10 +546,10 @@ export function CartOwnerLiveReviewClient(){
                 Your contact and delivery details are sent securely only to make and deliver this order.
                 Card details are entered on PayPal&apos;s page, never on thefeya.com. See the
                 {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
-              </p>:<p className="text-[11px] leading-5 text-[var(--bone-dim)]">
+              </p>:checkoutInactive?<p className="text-[11px] leading-5 text-[var(--bone-dim)]">
                 Necessary contact details are not stored or sent by this prepayment form. See the
                 {' '}<Link className="underline underline-offset-4" href="/privacy">privacy notice</Link>.
-              </p>}
+              </p>:null}
           </form>
         </section>
       </div>
@@ -575,11 +607,11 @@ export function CartOwnerLiveReviewClient(){
                 <span>Included sale savings</span><span className="text-[#e4c87d]">−{currency(saleSavings)}</span>
               </div>
             </>}
-            {!checkoutActive&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
+            {checkoutInactive&&<div className="flex justify-between gap-3 text-[var(--bone-dim)]">
               <span>Coupon discount</span><span className="text-[#f7f3ec]">Not applied</span>
             </div>}
           </div>}
-          {!checkoutActive&&<div className="mt-5 rounded-xl border border-white/[.11] p-4">
+          {checkoutInactive&&<div className="mt-5 rounded-xl border border-white/[.11] p-4">
             <label htmlFor="preview-coupon" className="block text-[12px] font-medium text-[#f7f3ec]">Have a coupon code?</label>
             <div className="mt-2 flex gap-2">
               <input id="preview-coupon" value={coupon} onChange={e=>{setCoupon(e.target.value.slice(0,48));setCouponNotice(false);}}
@@ -619,7 +651,7 @@ export function CartOwnerLiveReviewClient(){
               <span>You’ll continue to PayPal. If guest checkout is available, you can pay by card without a PayPal account.
                 Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</span>
             </p>
-          </>:<>
+          </>:checkoutInactive?<>
           <div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
             <div className="flex items-start justify-between gap-3">
               <span className="text-[13px] leading-6 text-[#f7f3ec]">Estimated order total</span>
@@ -636,7 +668,13 @@ export function CartOwnerLiveReviewClient(){
           <p className="mt-3 text-[12px] leading-5 text-[var(--bone-dim)]" role="status">
             Online checkout is not active yet. You cannot place an order.
           </p>
-          </>}
+          </>:<div className="mt-5 border-t border-[rgba(216,214,211,.16)] pt-5">
+            <p role="status" className="text-[14px] text-[var(--bone-dim)]">
+              {availability==='loading'?'Checking payment availability…':'We couldn’t check payment availability. Please try again.'}
+            </p>
+            {availability==='unavailable'&&<button type="button" className="mt-2 min-h-11 text-[14px] text-[#e4c87d] underline underline-offset-4"
+              onClick={()=>{setAvailability('loading');setStatusAttempt(value=>value+1);}}>Check again</button>}
+          </div>}
           <div className="mt-5 flex flex-wrap gap-3 text-[12px]">
             <Link className="inline-flex min-h-11 items-center text-[#d4b26a] underline underline-offset-4" href="/shop">Continue shopping</Link>
             <Link className="inline-flex min-h-11 items-center text-[var(--bone-dim)] underline underline-offset-4" href="/contact">Contact support</Link>

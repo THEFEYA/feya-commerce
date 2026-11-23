@@ -1,17 +1,34 @@
 export const FEYA_MEASUREMENT_CONTRACT_VERSION='feya_measurement_event_v1' as const;
 
+export const CART_FUNNEL_EVENTS=[
+  'cart_quote_ready','cart_colour_blocked','cart_quote_failed','cart_payment_ready',
+  'cart_start_failed','cart_total_changed','cart_provider_handoff',
+] as const;
+export type CartFunnelEvent=typeof CART_FUNNEL_EVENTS[number];
+
 export const FEYA_MEASUREMENT_EVENTS=[
   'page_view',
   'select_item',
   'view_item',
   'add_to_cart',
   'begin_checkout',
+  ...CART_FUNNEL_EVENTS,
   'purchase',
   'web_vital',
 ] as const;
 
 export type FeyaMeasurementEventName=typeof FEYA_MEASUREMENT_EVENTS[number];
 export type FeyaAnalyticsConsent='unset'|'denied'|'granted';
+
+export function cartQuoteEvent(quote:{
+  ok:boolean; country_selected?:boolean; amounts?:{total_minor:number}; colour_recovery?:unknown;
+}|null):CartFunnelEvent|null{
+  if(!quote)return null;
+  if(!quote.ok)return quote.colour_recovery?'cart_colour_blocked':'cart_quote_failed';
+  const total=quote.amounts?.total_minor;
+  if(!quote.country_selected||typeof total!=='number'||!Number.isSafeInteger(total)||total<0)return null;
+  return 'cart_quote_ready';
+}
 
 export type FeyaMeasurementPageContext={
   page_id:string;

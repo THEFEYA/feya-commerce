@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useEffect, useState} from 'react';
 import {checkoutApi} from '@/lib/payments/checkoutBrowser';
 import {buyerOrderDetails, paymentStatusLabel, receiptDeliveryLabel, receiptMoney as money, type BuyerOrderReceipt} from '@/lib/payments/buyerOrderDetails';
+import {ORDER_HELP_PATH, saveSupportOrderNumber} from '@/lib/studioEnquiry';
 
 function downloadOrderDetails(receipt: BuyerOrderReceipt) {
   const file = new Blob([buyerOrderDetails(receipt)], {type:'text/plain;charset=utf-8'});
@@ -35,7 +36,7 @@ export function OrderReceiptClient() {
       {missing && <>
         <h1 className="visual-display mt-4 text-[clamp(30px,4vw,44px)] text-[#f7f3ec]">Order not found</h1>
         <p className="mt-4 text-[14px] leading-7 text-[var(--bone-dim)]">Open this page from the link shown after payment, or contact us with your order number.</p>
-        <Link className="btn-ghost mt-6" href="/contact">Contact TheFEYA</Link>
+        <Link className="btn-ghost mt-6" href={ORDER_HELP_PATH}>Contact TheFEYA</Link>
       </>}
       {receipt && <>
         <h1 className="visual-display mt-4 text-[clamp(30px,4vw,44px)] text-[#f7f3ec]">Order {receipt.order_number}</h1>
@@ -59,7 +60,8 @@ export function OrderReceiptClient() {
         <p className="mt-4 text-[12px] leading-6 text-[var(--bone-dim)]">Legal seller: Seller-Online LLC. Payments are securely processed by Seller-Online LLC, our authorized payment recipient and logistics partner.</p>
         <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[var(--bone-dim)]">
           <button type="button" className="underline underline-offset-4" onClick={() => downloadOrderDetails(receipt)}>Download order details (.txt)</button>
-          <a className="underline underline-offset-4" href={'mailto:manager.feya@gmail.com?subject='+encodeURIComponent('Help with TheFEYA order '+receipt.order_number)}>Get help with this order</a>
+          <Link className="underline underline-offset-4" href={ORDER_HELP_PATH}
+            onNavigate={()=>saveSupportOrderNumber(receipt.order_number)}>Get help with this order</Link>
           <Link href="/returns" className="underline underline-offset-4">Returns and withdrawal</Link>
         </div>
       </>}

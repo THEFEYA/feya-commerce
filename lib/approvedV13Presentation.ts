@@ -10,9 +10,10 @@ export const PUBLIC_V13_HUB_BRANCH='work/v13-public-hubs-release-20261012';
 export const PHASE13_SHOP_WIRE_QA_BRANCH='work/phase13-shop-wire-payload-20261015';
 /** Exact protected preview for checkout-integrated owner-approved 207 color variant review. */
 export const BUYER_COLOR_PAYMENT_QA_BRANCH='work/paired-set-buyer-checkout-20261026';
+const CART_SUPPORT_PREVIEW_BRANCH='work/cart-status-order-help-20261123';
 export function isApprovedV13Presentation(env:Record<string,string|undefined>):boolean{
   if(env.VERCEL!=='1'||env.VERCEL_PROJECT_ID!==PUBLIC_V13_PROJECT)return false;
   if(env.VERCEL_ENV==='production')return true;
-  return env.VERCEL_ENV==='preview'&&[PUBLIC_V13_BRANCH,PUBLIC_V13_HUB_BRANCH,PHASE13_SHOP_WIRE_QA_BRANCH,BUYER_COLOR_PAYMENT_QA_BRANCH,'work/approved-color-ux-recovery-20261106','work/social-links-product-actions-20261106', 'work/collections-directory-route-boundary-20261106', 'work/cart-saved-colour-mobile-20261123'].includes(env.VERCEL_GIT_COMMIT_REF||'')
+  return env.VERCEL_ENV==='preview'&&[PUBLIC_V13_BRANCH,PUBLIC_V13_HUB_BRANCH,PHASE13_SHOP_WIRE_QA_BRANCH,BUYER_COLOR_PAYMENT_QA_BRANCH,CART_SUPPORT_PREVIEW_BRANCH,'work/approved-color-ux-recovery-20261106','work/social-links-product-actions-20261106', 'work/collections-directory-route-boundary-20261106', 'work/cart-saved-colour-mobile-20261123'].includes(env.VERCEL_GIT_COMMIT_REF||'')
     &&env.FEYA_OWNER_PREVIEW_DISABLED!=='true';
 }

@@ -8,9 +8,9 @@ import {Footer} from '@/components/Footer';
 import {CopySupportEmailButton} from '@/components/CopySupportEmailButton';
 import {OwnerLocationMapPreview} from '@/components/OwnerLocationMapPreview';
 import {OwnerContactFormPreview} from '@/components/OwnerContactFormPreview';
+import {STUDIO_EMAIL} from '@/lib/studioEnquiry';
 import {OwnerNewsletterSignupPreview} from '@/components/OwnerNewsletterSignupPreview';
 
-const contactEmail='manager.feya@gmail.com';
 const supportPhone='+380636556288';
 
 export function ContactExperienceV13Public(){
@@ -37,8 +37,8 @@ export function ContactExperienceV13Public(){
             <div>
               <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.16em] text-[#d9b873]"><Mail size={18} aria-hidden="true"/> Email the studio</p>
               <div className="mt-2 flex min-w-0 items-center gap-1">
-                <a href={`mailto:${contactEmail}`} className="min-w-0 break-all text-[15px] text-[#f7f3ec] underline decoration-[rgba(212,178,106,.35)] underline-offset-4 hover:text-[#e3cb93] sm:text-[16px]">{contactEmail}</a>
-                <CopySupportEmailButton email={contactEmail}/>
+                <a href={`mailto:${STUDIO_EMAIL}`} className="min-w-0 break-all text-[15px] text-[#f7f3ec] underline decoration-[rgba(212,178,106,.35)] underline-offset-4 hover:text-[#e3cb93] sm:text-[16px]">{STUDIO_EMAIL}</a>
+                <CopySupportEmailButton email={STUDIO_EMAIL}/>
               </div>
             </div>
             <div>
@@ -60,7 +60,7 @@ export function ContactExperienceV13Public(){
           </div>
         </div>
 
-        <div className="rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[rgba(255,255,255,.027)] p-6 sm:p-8" aria-labelledby="contact-message-heading">
+        <div id="order-help" className="scroll-mt-24 rounded-[18px] border border-[rgba(212,178,106,.24)] bg-[rgba(255,255,255,.027)] p-6 sm:p-8" aria-labelledby="contact-message-heading">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d4b26a]/20 bg-[#d4b26a]/[.075] text-[#d4b26a]"><Send size={24} strokeWidth={1.5} aria-hidden="true"/></div>
             <div>

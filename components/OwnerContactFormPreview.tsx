@@ -1,53 +1,69 @@
 'use client';
-import {useState} from 'react';
-import {Mail,Send} from 'lucide-react';
-const base='w-full min-h-11 rounded-lg border border-white/20 bg-[#141418] px-4 py-3 text-[14px] text-[#f7f3ec] placeholder:text-[#88817b] focus:outline-none focus:ring-2 focus:ring-[#d4b26a]';
+import {useEffect, useState} from 'react';
+import {Mail} from 'lucide-react';
+import {
+  ORDER_HELP_HASH, ORDER_QUESTION, STUDIO_EMAIL, STUDIO_TOPICS, studioEnquiryMailto,
+  takeSupportOrderNumber, type StudioTopic,
+} from '@/lib/studioEnquiry';
+
+const field='w-full min-w-0 min-h-11 rounded-lg border border-white/20 bg-[#141418] px-4 py-3 text-[14px] text-[#f7f3ec] placeholder:text-[#88817b] focus:outline-none focus:ring-2 focus:ring-[#d4b26a]';
+const label='flex min-w-0 flex-col gap-1.5 text-[13px] text-[#d8d1c5]';
+const link='text-bone underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d4b26a]';
+
 export function OwnerContactFormPreview(){
-  const [name,setName]=useState('');
-  const [email,setEmail]=useState('');
-  const [reason,setReason]=useState('Product or fit');
+  const [topic,setTopic]=useState<StudioTopic>(STUDIO_TOPICS[0]);
+  const [orderNumber,setOrderNumber]=useState('');
   const [message,setMessage]=useState('');
-  const [prepared,setPrepared]=useState(false);
-  function prepare(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault();
-    if(!name.trim()||!message.trim()||!email.includes('@'))return;
-    const subject=encodeURIComponent(`TheFEYA enquiry: ${reason} — ${name.trim()}`);
-    const body=encodeURIComponent(`Name: ${name.trim()}\nEmail: ${email.trim()}\nSubject: ${reason}\n\n${message.trim()}\n\nSent from the visitor's own email application.`);
-    setPrepared(true);
-    window.location.href=`mailto:manager.feya@gmail.com?subject=${subject}&body=${body}`;
-  }
-  return <form onSubmit={prepare} autoComplete="off" className="mt-5 grid gap-4" aria-label="Prepare email to TheFEYA">
-    <div className="grid gap-4 sm:grid-cols-2">
-      <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">Your name
-        <input className={base} required maxLength={100} value={name} onChange={e=>setName(e.target.value)} placeholder="Name"/>
+  const [attempted,setAttempted]=useState(false);
+
+  useEffect(()=>{
+    function enter(){
+      const number=takeSupportOrderNumber();
+      if(window.location.hash!==ORDER_HELP_HASH)return;
+      setTopic(ORDER_QUESTION);
+      if(number)setOrderNumber(number);
+    }
+    enter();
+    window.addEventListener('hashchange',enter);
+    return ()=>window.removeEventListener('hashchange',enter);
+  },[]);
+
+  return <>
+    <div id="studio-enquiry-fields" onChange={()=>setAttempted(false)}
+      className="mt-5 grid gap-4" role="group" aria-label="Prepare email to TheFEYA">
+      <label className={label}>What can we help with?
+        <select className={field} value={topic.label} aria-describedby="contact-topic-hint"
+          onChange={event=>setTopic(STUDIO_TOPICS.find(item=>item.label===event.target.value)!)}>
+          {[false,true].map(isOrder=><optgroup key={String(isOrder)} label={isOrder?'An existing order':'General enquiries'}>
+            {STUDIO_TOPICS.filter(item=>item.order===isOrder).map(item=><option key={item.label}>{item.label}</option>)}
+          </optgroup>)}
+        </select>
       </label>
-      <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">Your email
-        <input className={base} type="email" required maxLength={254} value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/>
+      {topic.order&&<label className={label}>Order number (optional)
+        <input className={field} maxLength={14} autoComplete="off"
+          value={orderNumber} onChange={event=>setOrderNumber(event.target.value)}
+          placeholder="FEYA-123456" autoCapitalize="characters" spellCheck={false}/>
+      </label>}
+      <label className={label}>Your message
+        <textarea className={field+' min-h-24'} rows={3} maxLength={1800}
+          aria-describedby="contact-topic-hint" value={message}
+          onChange={event=>setMessage(event.target.value)} />
       </label>
+      <p id="contact-topic-hint" className="text-[13px] leading-5 text-[var(--bone-dim)]" aria-live="polite">{topic.hint}</p>
+      <button type="button" onClick={()=>{
+        setAttempted(true);
+        window.location.assign(studioEnquiryMailto(topic,orderNumber,message));
+      }} data-testid="contact-email-prepare" className="btn-chrome inline-flex w-fit max-w-full items-center gap-2">
+        <Mail size={16} aria-hidden="true"/>Open email draft
+      </button>
+      <p className="text-[13px] leading-5 text-[var(--bone-dim)]" role="status">
+        {attempted?<>Send the message from your email app. If it didn’t open, write to <a className={link} href={'mailto:'+STUDIO_EMAIL}>{STUDIO_EMAIL}</a>.</>
+          :'You can review and send the message in your email app.'}
+      </p>
     </div>
-    <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">What can we help with?
-      <select className={base} value={reason} onChange={e=>setReason(e.target.value)}>
-        <option>Product or fit</option>
-        <option>Custom design adjustment</option>
-        <option>Existing order or tracking</option>
-        <option>Damage, fault or incorrect item</option>
-        <option>Cancellation or withdrawal</option>
-        <option>Return or exchange</option>
-        <option>Press or collaboration</option>
-      </select>
-    </label>
-    {reason==='Cancellation or withdrawal'&&
-      <a href="/returns#withdrawal-notice" className="w-fit text-[13px] text-bone underline underline-offset-4">Withdrawal rights and how to give notice</a>}
-    {reason==='Damage, fault or incorrect item'&&
-      <p className="text-[13px] leading-6 text-[var(--bone-dim)]">Include your order number if available. You can attach a photo in your email app.</p>}
-    <label className="flex flex-col gap-1.5 text-[12px] text-[#d8d1c5]">Your message
-      <textarea className={base+' min-h-[130px]'} required minLength={5} maxLength={1800}
-        value={message} onChange={e=>setMessage(e.target.value)} placeholder="Tell our studio what you need…"/>
-    </label>
-    <button type="submit" data-testid="contact-email-prepare" className="btn-chrome inline-flex w-fit max-w-full items-center gap-2"><Mail size={16}/> Open your email to send <Send size={14}/></button>
-    <p className="text-[12px] leading-6 text-[var(--bone-dim)]" role="status">
-      {prepared?'Email draft prepared. Please confirm sending in your email application. If it did not open, email our studio directly.':
-      'Your message opens in your email app for you to send.'}
-    </p>
-  </form>;
+    <noscript><style>{'#studio-enquiry-fields{display:none}'}</style>
+      <p className="mt-4 text-[14px] text-[var(--bone-dim)]">Email the studio at <a className={link} href={'mailto:'+STUDIO_EMAIL}>{STUDIO_EMAIL}</a>. Include your order number if you have it.</p>
+    </noscript>
+    <p className="mt-3 text-[13px] leading-5"><a className={link} href="/returns#withdrawal-notice">Give notice of withdrawal to the seller</a></p>
+  </>;
 }

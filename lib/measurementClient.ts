@@ -2,15 +2,17 @@
 
 import type {Metric} from 'web-vitals';
 import type {VerifiedPurchaseMeasurement} from './measurementVerifiedPurchase.ts';
-import {createWebVitalsCollector,resolveWebVitalContext} from '@/lib/measurementWebVitals';
+import {createWebVitalsCollector,resolveWebVitalContext} from './measurementWebVitals.ts';
 import {
+  CART_FUNNEL_EVENTS,
   buildMeasurementEnvelope,
   ga4EventParameters,
+  type CartFunnelEvent,
   type FeyaAnalyticsConsent,
   type FeyaMeasurementEventName,
   type FeyaMeasurementItem,
   type FeyaMeasurementPageContext,
-} from '@/lib/measurementContract';
+} from './measurementContract.ts';
 
 const CONSENT_KEY='feya_analytics_consent_v1';
 const SESSION_KEY='feya_measurement_session_v1';
@@ -236,6 +238,11 @@ export function trackMeasurementEvent(
   if(getAnalyticsConsent()!=='granted'){
     blockedCount+=1;state();return{sent:false,reason:'consent_not_granted'} as const;
   }
+  const cartEvent=eventName==='begin_checkout'||CART_FUNNEL_EVENTS.some(name=>name===eventName);
+  if(cartEvent&&(pageContext.path!=='/cart'||currentContext.path!=='/cart'
+    ||window.location.pathname.replace(/\/+$/,'')!=='/cart')){
+    return {sent:false,reason:'cart_context_unavailable'} as const;
+  }
   if(!currentContext.measurement_enabled||pageContext.environment!=='production'
     ||pageContext.ga4_measurement_id!==currentContext.ga4_measurement_id||!ensureGoogleTag()){
     blockedCount+=1;state();return{sent:false,reason:'measurement_disabled'} as const;
@@ -252,6 +259,7 @@ export function trackMeasurementEvent(
 
   window.gtag?.('event',eventName,{
     ...ga4EventParameters(envelope),
+    ...(cartEvent?{page_location:`${window.location.origin}/cart`,page_referrer:''}:{}),
     // PayPal return URLs can contain opaque authorization tokens. Never send
     // query strings or fragments as purchase page_location into Google Analytics.
     // PayPal can append an opaque checkout token to the return URL. It
@@ -269,6 +277,15 @@ export function trackMeasurementEvent(
   state();
   window.dispatchEvent(new CustomEvent('feya:measurement',{detail:envelope}));
   return{sent:true,envelope} as const;
+}
+
+/** Only the currently visible, consented cart can contribute a stage. A new
+ * mount starts a new bag visit. Retries, repeated quotes and rerenders do not. */
+export function trackCartStageOnce(event:CartFunnelEvent,reported:Set<CartFunnelEvent>){
+  if(reported.has(event))return;
+  try{
+    if(trackMeasurementEvent(event).sent)reported.add(event);
+  }catch{/* Optional diagnostics must never interrupt quoting or payment. */}
 }
 
 const PURCHASE_SENT_KEY='feya_ga4_paid_purchase_sent_v1';
