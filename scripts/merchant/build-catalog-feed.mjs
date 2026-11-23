@@ -9,7 +9,7 @@ import {isColorPriceException} from '../../lib/bonanzaColorPriceExceptions.ts';
 import {PDP_LANDING_MEDIA_BINDINGS} from '../../lib/pdpLandingMediaBindings.ts';
 import {pdpLandingParams} from '../../lib/pdpLandingSelection.ts';
 import {colorChoiceLabel} from '../../lib/bonanzaColorChoices.ts';
-import {publishedRegularEurMinor} from '../../lib/storefrontPublishedPrices.ts';
+import {publishedRegularEurMinor,publishedPriceNeedsSize} from '../../lib/storefrontPublishedPrices.ts';
 
 const DIR=new URL('../../docs/merchant/catalog-us-20261105/',import.meta.url);
 const SIZES=['XS','S','M','L','XL','XXL','XXXL'];
@@ -269,8 +269,16 @@ export function buildFiles(data){
   const liveRows=rows.map(row=>{
     const productId=productByConfiguration.get(row.item_group_id);
     assert.ok(productId,'feed offer has no reviewed product identity');
-    const amount=publishedRegularEurMinor(productId,row.item_group_id);
-    return amount===null?row:{...row,price:(amount/100).toFixed(2)+' EUR'};
+    const amount=publishedRegularEurMinor(productId,row.item_group_id,row.size);
+    if(amount===null)return row;
+    const priced={...row,price:(amount/100).toFixed(2)+' EUR'};
+    if(publishedPriceNeedsSize(productId,row.item_group_id)){
+      const link=new URL(row.link);
+      link.searchParams.set('configuration',row.item_group_id);
+      link.searchParams.set('size',row.size);
+      priced.link=link.href;
+    }
+    return priced;
   });
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};

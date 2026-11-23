@@ -1,4 +1,5 @@
 import type { StorefrontProduct } from './types.ts';
+import {selectedOptionPrice} from './storefrontSizePrice.ts';
 import { isFullSetOption, optionKey, optionPrice, sortedOptions } from './storefront.ts';
 import { verifiedColorPriceRows } from './bonanzaColorPriceExceptions.ts';
 import { colorChoiceLabel } from './bonanzaColorChoices.ts';
@@ -71,7 +72,7 @@ export function pdpOfferJsonLd(product: StorefrontProduct, url: string, landingS
   const preselected = landing?.selection
     ? options.find((o,i)=>optionKey(o,i)===landing.selection!.configurationId)
     : pricedColors !== null ? photographedPriceRow : (full || (options.length === 1 ? options[0] : null));
-  const preselectedPrice = optionPrice(preselected);
+  const preselectedPrice = selectedOptionPrice(preselected,landing?.selection?.size||product.published_default_size);
   if (preselected && positive(preselectedPrice)) {
     return {
       '@type': 'Offer',
@@ -84,7 +85,9 @@ export function pdpOfferJsonLd(product: StorefrontProduct, url: string, landingS
     };
   }
 
-  const prices = (pricedColors ?? options).map(option => optionPrice(option)).filter(positive);
+  const prices = (pricedColors ?? options).flatMap(option=> option.published_size_eur_minor
+    ? Object.entries(option.published_size_eur_minor).filter(([size])=>size!=='Custom').map(([,amount])=>amount/100)
+    : [optionPrice(option)]).filter(positive);
   if (!prices.length) return null;
   return {
     '@type': 'AggregateOffer',

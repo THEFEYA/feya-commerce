@@ -1,5 +1,6 @@
 import type {StorefrontConfiguration, StorefrontProduct} from '@/lib/types';
-import {colorOptions, getMedia, optionLabel, optionPrice, productTitle, sortedOptions} from '../storefront.ts';
+import {colorOptions, getMedia, optionLabel, productTitle, sortedOptions} from '../storefront.ts';
+import {selectedOptionPrice} from '../storefrontSizePrice.ts';
 import {CHECKOUT_PRICING_V1, CheckoutPricingError, type PricedLine} from './pricing.ts';
 import {isSourceConfirmedPairedSet, PAIRED_SET_SIZES, type PairedSetSelection} from './pairedSetSelection.ts';
 import {verifiedColorChoice} from './bonanzaColorAuthority.ts';
@@ -44,14 +45,14 @@ export function priceCartLine(product: StorefrontProduct, line: CartLineInput): 
   const index = options.findIndex(option => configurationIdentity(option) === line.configuration_id);
   if (index < 0) throw new CheckoutPricingError('checkout_option_unavailable');
   const option = options[index];
-  const price = optionPrice(option);
+  if (!(PDP_SIZES as readonly string[]).includes(line.size)) throw new CheckoutPricingError('checkout_size_invalid');
+  const price = selectedOptionPrice(option, line.size);
   if (price == null || !Number.isFinite(price) || price <= 0) throw new CheckoutPricingError('checkout_option_unpriced');
   const currency = (option as Record<string, unknown>).currency || product.currency || 'EUR';
   if (currency !== CHECKOUT_PRICING_V1.currency) throw new CheckoutPricingError('checkout_currency_unsupported');
   const unit = Math.round(price * 100);
   if (!Number.isSafeInteger(unit) || unit < 1) throw new CheckoutPricingError('checkout_option_unpriced');
 
-  if (!(PDP_SIZES as readonly string[]).includes(line.size)) throw new CheckoutPricingError('checkout_size_invalid');
   const colors = new Set<string>([
     ...(option.configuration_color ? [String(option.configuration_color)] : []),
     ...colorOptions(product).map(String),

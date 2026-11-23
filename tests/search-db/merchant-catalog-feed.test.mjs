@@ -247,3 +247,35 @@ test('configured TSV source keeps IDs and uses correctly escaped structured copy
   assert.equal(r.excluded_destination,'Shopping_ads');
   assert.ok(!columns.includes('title')&&!columns.includes('description'));
 });
+
+test('only the partially observed corset gains size-specific links with the correct price in both feeds',()=>{
+  const data=inputs();
+  const {rows}=buildCatalog(data);
+  const {files}=buildFiles(data);
+  const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [header,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
+  const ids=header.indexOf('id'),links=header.indexOf('link'),prices=header.indexOf('price');
+  const current=new Map(lines.map(cells=>[cells[ids],cells]));
+  const xml=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>');
+  const selected='bc5d078e-6a54-4270-9f17-52c0b55a3dd8';
+  let changes=0;
+  for(const row of rows){
+    const cells=current.get(row.id);
+    assert.ok(cells);
+    if(row.item_group_id!==selected){
+      assert.equal(cells[links],row.link);continue;
+    }
+    const link=new URL(cells[links]),prior=new URL(row.link);
+    assert.equal(link.origin+link.pathname,prior.origin+prior.pathname);
+    assert.equal(link.searchParams.get('configuration'),selected);
+    assert.equal(link.searchParams.get('size'),row.size);
+    for(const [key,value] of prior.searchParams)assert.equal(link.searchParams.get(key),value);
+    const price=['XXL','XXXL'].includes(row.size)?'183.44 EUR':'230.21 EUR';
+    assert.equal(cells[prices],price);
+    const item=xml.find(block=>block.includes('<g:id>'+row.id+'</g:id>'));
+    assert.ok(item?.includes('<g:price>'+price+'</g:price>'));
+    assert.ok(item?.includes('<g:link>'+link.href.replaceAll('&','&amp;')+'</g:link>'));
+    changes++;
+  }
+  assert.equal(changes,7);
+});

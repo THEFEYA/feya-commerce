@@ -3,6 +3,7 @@
  * called; card details are entered on PayPal's own page, never here.
  */
 import type {CartColourRecovery} from './cartColourRecovery';
+import type {BuyerOrderReceipt} from './buyerOrderDetails';
 
 export const CHECKOUT_PENDING_KEY = 'feya_checkout_pending_v1';
 export const CHECKOUT_RECEIPTS_KEY = 'feya_checkout_receipts_v1';
@@ -36,7 +37,7 @@ export const checkoutApi = {
   start: (body: unknown) => call<StartResult>('/api/checkout', body),
   complete: (providerOrderId: string) => call<{ok: boolean; status?: string; order_number?: string; retry_url?: string | null; code?: string; message?: string}>('/api/checkout/complete', {provider_order_id: providerOrderId}),
   cancel: (providerOrderId: string) => call<{ok: boolean; status?: string}>('/api/checkout/cancel', {provider_order_id: providerOrderId}),
-  receipt: (accessToken: string) => call<{ok: boolean; order?: Record<string, unknown>}>('/api/checkout/order', {access_token: accessToken}),
+  receipt: (accessToken: string) => call<{ok: boolean; order?: BuyerOrderReceipt}>('/api/checkout/order', {access_token: accessToken}),
 };
 
 export function newIdempotencyKey() {

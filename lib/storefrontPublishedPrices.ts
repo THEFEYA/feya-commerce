@@ -1,13 +1,27 @@
 import priceRelease from '../config/etsyRegularPriceRelease.json' with {type:'json'};
 import type {StorefrontConfiguration,StorefrontProduct} from './types.ts';
+import {isSourceConfirmedPairedSet,PAIRED_SET_SIZES} from './payments/pairedSetSelection.ts';
 
+type Evidence = {
+  kind: string;
+  policy?: string;
+  observedSize?: string;
+  sourceUrl?: string;
+  optionAxis?: string;
+  matchedOption?: string;
+};
 type ReleasedOffer = {
   regularUsdMinor: number;
-  sizes: string[];
+  etsyOptionValue: string | null;
+  sizes?: string[];
+  evidence?: Evidence;
+  observedPricesBySize?: Record<string, {regularUsdMinor:number; sourceUrl:string}>;
   publicLabel?: string;
 };
 
 type ProductRelease = {
+  etsyListingId:string;
+  etsySizeValues:Record<string,string>;
   cardConfigurationId: string;
   separateConfigurationIds?: string[];
   baselineEurMinor: Record<string, number>;
@@ -15,7 +29,8 @@ type ProductRelease = {
 };
 
 const releases: Readonly<Record<string, ProductRelease>> = priceRelease.products;
-const standardSizes = ['XS','S','M','L','XL','XXL','XXXL'];
+const standardSizes:readonly string[] = PAIRED_SET_SIZES.filter(size=>size!=='Custom');
+const defaultSize = 'M';
 
 // A versioned EUR amount is charged everywhere until the next catalog release.
 // Convert positive integer cents with a decimal exchange rate and round once.
@@ -34,21 +49,79 @@ export function usdToEurMinor(usdMinor: number, usdPerEur: string): number {
   return amount;
 }
 
+type SourceListing = Pick<ProductRelease,'etsyListingId'|'etsySizeValues'>;
+
+function checkObservedSelection(product: SourceListing, offer: ReleasedOffer, size: string | null, sourceUrl: string) {
+  const url = new URL(sourceUrl);
+  if (url.origin !== 'https://www.etsy.com' || !url.pathname.startsWith('/listing/' + product.etsyListingId + '/')) {
+    throw new Error('Wrong source listing for a reviewed price');
+  }
+  const optionIds = [url.searchParams.get('variation0'), url.searchParams.get('variation1')].filter(Boolean);
+  if (new Set(optionIds).size !== optionIds.length) throw new Error('Duplicate source option in price evidence');
+  if (offer.etsyOptionValue !== null && !optionIds.includes(offer.etsyOptionValue)) {
+    throw new Error('Wrong Etsy option in price evidence');
+  }
+  if (size !== null && (!standardSizes.includes(size) || product.etsySizeValues[size] === offer.etsyOptionValue || !optionIds.includes(product.etsySizeValues[size]))) {
+    throw new Error('Wrong Etsy size in price evidence');
+  }
+}
+
+/** Source observations and the shop's own configuration-wide price policy are distinct. */
+export function validateRegularPriceEvidence(offer: ReleasedOffer, product: SourceListing) {
+  if (offer.sizes) {
+    const complete = offer.sizes.length === standardSizes.length && standardSizes.every(size => offer.sizes!.includes(size));
+    if (!complete || offer.evidence || offer.observedPricesBySize) throw new Error('Incomplete or ambiguous observed sizes');
+    return 'verified_standard_sizes';
+  }
+  const evidence = offer.evidence;
+  if (evidence?.kind === 'observed_size_prices') {
+    const selected = offer.observedPricesBySize;
+    if (!selected || selected[defaultSize]?.regularUsdMinor !== offer.regularUsdMinor) throw new Error('Missing observed reference size price');
+    for (const [size, row] of Object.entries(selected)) checkObservedSelection(product, offer, size, row.sourceUrl);
+    return 'verified_selected_sizes';
+  }
+  if (offer.observedPricesBySize) throw new Error('Conflicting size evidence');
+  if (!evidence?.sourceUrl) throw new Error('Missing source for the configuration price');
+  if (evidence.kind === 'price_option_without_size') {
+    if (!offer.etsyOptionValue || !evidence.matchedOption || !evidence.optionAxis || Object.keys(product.etsySizeValues).length) {
+      throw new Error('Missing or conflicting source for a size-free option');
+    }
+    checkObservedSelection(product, offer, null, evidence.sourceUrl);
+    return 'verified_price_option';
+  }
+  if (evidence.kind !== 'configuration_base_policy' || evidence.policy !== 'owner-configuration-base-price-20260924-04' || evidence.observedSize !== defaultSize) {
+    throw new Error('Missing approved configuration pricing policy');
+  }
+  checkObservedSelection(product, offer, evidence.observedSize ?? '', evidence.sourceUrl);
+  return 'owner_configuration_base';
+}
+
 function prepareProduct(release: ProductRelease) {
   const regular = new Map<string, number>();
   const current = new Map(Object.entries(release.baselineEurMinor));
+  const sizePrices = new Map<string,Record<string,number>>();
+  const confidence = new Map<string,string>();
   for (const [id, offer] of Object.entries(release.offers)) {
-    // The current storefront uses a single configuration price for every standard size.
-    // An incomplete or size-dependent source requires a separate pricing model.
-    if (!current.has(id) || offer.sizes.length !== standardSizes.length ||
-        !standardSizes.every(size => offer.sizes.includes(size))) throw new Error('Incomplete standard-size price evidence: ' + id);
+    if (!current.has(id)) throw new Error('Unknown configuration: ' + id);
+    confidence.set(id, validateRegularPriceEvidence(offer, release));
     const amount = usdToEurMinor(offer.regularUsdMinor, priceRelease.fx.usdPerEur);
+    if (offer.observedPricesBySize) {
+      // Website-only fits retain their previously approved EUR base, including Custom.
+      const websiteBase = current.get(id)!;
+      const amounts: Record<string, number> = {};
+      for (const size of PAIRED_SET_SIZES) {
+        const observed = offer.observedPricesBySize[size];
+        amounts[size] = observed ? usdToEurMinor(observed.regularUsdMinor, priceRelease.fx.usdPerEur) : websiteBase;
+      }
+      sizePrices.set(id, amounts);
+    }
     regular.set(id,amount);
     current.set(id,amount);
   }
   const card = current.get(release.cardConfigurationId);
   if (!card || !regular.size) throw new Error('Missing catalog display price');
-  const values = [...current.values()];
+  const sizeAmounts = Array.from(sizePrices.values()).flatMap(prices => standardSizes.map(size => prices[size]));
+  const values = [...current.values(), ...sizeAmounts];
   if (values.some(amount => !Number.isSafeInteger(amount) || amount < 1)) throw new Error('Invalid catalog price');
   // Only compare a set when this catalog entry has one documented composition.
   // The frozen PDP presents one comparison for every set; omit it on multi-set products.
@@ -56,15 +129,25 @@ function prepareProduct(release: ProductRelease) {
   if (new Set(pieces).size !== pieces.length || pieces.some(id => id === release.cardConfigurationId || !current.has(id))) {
     throw new Error('Invalid separate-purchase composition');
   }
-  const separate = pieces.reduce((sum,id) => sum + current.get(id)!,0);
-  return {release, regular, minimum: Math.min(...values), maximum: Math.max(...values), card, separate};
+  const separate = sizePrices.size ? 0 : pieces.reduce((sum,id) => sum + current.get(id)!,0);
+  return {release, regular, sizePrices, confidence, minimum: Math.min(...values), maximum: Math.max(...values), card, separate};
 }
 
 const published = new Map(Object.entries(releases).map(([id,release]) => [id,prepareProduct(release)]));
 
 /** Exact released EUR cents, shared with Merchant and server-side price validation. */
-export function publishedRegularEurMinor(productId: string, configurationId: string): number | null {
-  return published.get(productId)?.regular.get(configurationId) ?? null;
+export function publishedRegularEurMinor(productId: string, configurationId: string, size?: string): number | null {
+  const product = published.get(productId);
+  const schedule = product?.sizePrices.get(configurationId);
+  if (schedule && size) {
+    if (!Object.hasOwn(schedule, size)) throw new Error('Unrecognized size in price lookup');
+    return schedule[size];
+  }
+  return product?.regular.get(configurationId) ?? null;
+}
+
+export function publishedPriceNeedsSize(productId: string, configurationId: string) {
+  return published.get(productId)?.sizePrices.has(configurationId) ?? false;
 }
 
 type Card = {
@@ -99,16 +182,31 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     if (minor == null) return row;
     if (found.has(id) || (row.currency && row.currency !== 'EUR')) throw new Error('Released catalog configuration mismatch: ' + id);
     found.add(id);
-    const label = item.release.offers[id].publicLabel;
-    return {...row, ...(label ? {public_label:label} : {}),
+    const offer = item.release.offers[id];
+    const label = offer.publicLabel;
+    const sizes = item.sizePrices.get(id);
+    const source = offer.evidence;
+    if (source?.optionAxis === 'Primary color' && row.configuration_color !== source.matchedOption) {
+      throw new Error('Etsy color does not match the released configuration');
+    }
+    if (source?.optionAxis === 'Material' && row.configuration_material !== source.matchedOption) {
+      throw new Error('Etsy material does not match the released configuration');
+    }
+    if (sizes && isSourceConfirmedPairedSet(row)) throw new Error('A paired set requires independent size pricing evidence');
+    const bySize = sizes && offer.observedPricesBySize ? {
+      published_size_eur_minor: sizes,
+      published_etsy_observed_sizes: Object.keys(offer.observedPricesBySize),
+    } : {};
+    return {...row, ...(label ? {public_label:label} : {}), ...bySize,
       base_price_amount:minor / 100, display_price_amount:minor / 100, sale_price_amount:null,
-      compare_at_price_amount:null, discount_percent:null, price_source_mode:'etsy_regular_usd',
-      price_confidence_status:'verified_standard_sizes'};
+      compare_at_price_amount:null, discount_percent:null,
+      price_source_mode:sizes ? 'etsy_regular_selected_sizes_and_website_base' : 'etsy_regular_usd',
+      price_confidence_status:item.confidence.get(id)};
   });
   if (found.size !== item.regular.size) throw new Error('Released catalog configuration is missing');
   const separate = item.separate;
   const savings = Math.max(0,separate - item.card);
-  return {...product, configurations, price_contract_version:'etsy_regular_eur_'+priceRelease.version,
+  return {...product, configurations, ...(item.sizePrices.size?{published_default_size:defaultSize}:{}), price_contract_version:'etsy_regular_eur_'+priceRelease.version,
     min_price:item.minimum / 100, max_price:item.maximum / 100,
     full_set_display_price_amount:item.card / 100, component_sum_display_price_amount:separate / 100,
     full_set_savings_amount:savings / 100,

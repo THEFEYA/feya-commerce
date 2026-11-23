@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import {selectedOptionPrice,selectedPriceConfidence} from '@/lib/storefrontSizePrice';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
@@ -144,7 +145,8 @@ export function ProductDetailClient({
     : fullKey || (options.length === 1 ? optionKey(options[0], 0) : '')));
   const [selectionWarning, setSelectionWarning] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [size, setSize] = useState(initialLandingSelection?.size || '');
+  const [size, setChosenSize] = useState(initialLandingSelection?.size || p.published_default_size || '');
+  const setSize = (value: string) => setChosenSize(value || p.published_default_size || '');
   const [customMeasurementsEnabled,setCustomMeasurementsEnabled]=useState(false);
   const couple = useMemo(() => coupleColorSelection(p), [p]);
   const [womenColorCode, setWomenColorCode] = useState(initialLandingSelection?.womenColorCode || couple?.defaultPair.women || '');
@@ -163,7 +165,7 @@ export function ProductDetailClient({
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || (options.length === 1 ? options[0] : null);
   const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
   const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Select configuration';
-  const display = optionPrice(activeConfig) ?? p.full_set_display_price_amount ?? p.max_price ?? p.min_price ?? 0;
+  const display = selectedOptionPrice(activeConfig,size) ?? p.full_set_display_price_amount ?? p.max_price ?? p.min_price ?? 0;
   const compareAt = optionCompareAtPrice(activeConfig);
   const hasCompareAt = compareAt != null && display != null && compareAt > display;
   const regular = hasCompareAt ? compareAt : display;
@@ -319,7 +321,7 @@ export function ProductDetailClient({
       price: sale,
       currency,
       price_contract_version: p.price_contract_version || null,
-      price_confidence_status: activeConfig?.price_confidence_status || p.price_confidence_status || null,
+      price_confidence_status: selectedPriceConfidence(activeConfig,size) || p.price_confidence_status || null,
       label_confidence_status: activeConfig?.needs_label_review ? 'needs_review' : activeConfig?.public_label ? 'approved' : null,
       component_code: componentCode(activeConfig),
       component_family: activeConfig?.component_family || null,

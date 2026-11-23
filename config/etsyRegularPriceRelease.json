@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-23.1",
+  "version": "2026-11-23.2",
   "fx": {
     "asOf": "2026-11-20",
     "usdPerEur": "1.0990",
@@ -600,6 +600,2355 @@
             "XXL",
             "XXXL"
           ]
+        }
+      }
+    },
+    "6ddd240e-01ae-4ac8-800e-3a14dbac64a0": {
+      "etsyListingId": "1785354749",
+      "sourceUrl": "https://www.etsy.com/listing/1785354749/broken-mirror-costume-set-reflective",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "4ecdb3fd-78b4-41bf-898d-cfd09ab5bc47",
+      "etsySizeValues": {
+        "M": "4727127545",
+        "XS": "4724414404",
+        "XXXL": "4727127551",
+        "S": "4727127541",
+        "L": "4724414412",
+        "XL": "4724414416",
+        "XXL": "4727127549"
+      },
+      "separateConfigurationIds": [
+        "b4d23709-c7fe-44db-a6a3-e0ead107358f",
+        "f81b0c29-c869-45d0-9a8f-f686a0f01c20",
+        "6769e255-63b9-4ec1-9214-04f10e3d54e3"
+      ],
+      "baselineEurMinor": {
+        "4ecdb3fd-78b4-41bf-898d-cfd09ab5bc47": 34295,
+        "b4d23709-c7fe-44db-a6a3-e0ead107358f": 13510,
+        "f81b0c29-c869-45d0-9a8f-f686a0f01c20": 14476,
+        "6769e255-63b9-4ec1-9214-04f10e3d54e3": 15951
+      },
+      "offers": {
+        "4ecdb3fd-78b4-41bf-898d-cfd09ab5bc47": {
+          "regularUsdMinor": 47300,
+          "etsyOptionValue": "4724414438",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "b4d23709-c7fe-44db-a6a3-e0ead107358f": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "4727127533",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1785354749/broken-mirror-costume-set-reflective?variation1=4727127545&variation0=4727127533"
+          }
+        },
+        "f81b0c29-c869-45d0-9a8f-f686a0f01c20": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "4727127559",
+          "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL",
+            "XXXL"
+          ]
+        },
+        "6769e255-63b9-4ec1-9214-04f10e3d54e3": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4724414436",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1785354749/broken-mirror-costume-set-reflective?variation1=4727127545&variation0=4724414436"
+          }
+        }
+      }
+    },
+    "4b0c8180-774d-4d5c-a12c-0864f305d1cb": {
+      "etsyListingId": "4487639486",
+      "sourceUrl": "https://www.etsy.com/listing/4487639486/burning-man-silver-outfit-cyber-warrior",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "aa40d23b-7bcf-4a59-ab91-7e1fca94fab8",
+      "etsySizeValues": {
+        "M": "6499558111"
+      },
+      "separateConfigurationIds": [
+        "bb5ae6b4-824d-45cf-a1ac-8e2a26111242",
+        "22aacfc5-7ffa-4a7e-800e-448ba0ec88dc",
+        "e0b68b79-a4a1-4b9e-a33e-8240777a52bc"
+      ],
+      "baselineEurMinor": {
+        "aa40d23b-7bcf-4a59-ab91-7e1fca94fab8": 28277,
+        "bb5ae6b4-824d-45cf-a1ac-8e2a26111242": 9650,
+        "22aacfc5-7ffa-4a7e-800e-448ba0ec88dc": 14476,
+        "e0b68b79-a4a1-4b9e-a33e-8240777a52bc": 14476
+      },
+      "offers": {
+        "aa40d23b-7bcf-4a59-ab91-7e1fca94fab8": {
+          "regularUsdMinor": 39000,
+          "etsyOptionValue": "6501308776",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4487639486/burning-man-silver-outfit-cyber-warrior?variation1=6499558111&variation0=6501308776"
+          }
+        },
+        "bb5ae6b4-824d-45cf-a1ac-8e2a26111242": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "6499558115",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4487639486/burning-man-silver-outfit-cyber-warrior?variation1=6499558111&variation0=6499558115"
+          }
+        },
+        "22aacfc5-7ffa-4a7e-800e-448ba0ec88dc": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "6501308774",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4487639486/burning-man-silver-outfit-cyber-warrior?variation1=6499558111&variation0=6501308774"
+          }
+        },
+        "e0b68b79-a4a1-4b9e-a33e-8240777a52bc": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "6501308758",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4487639486/burning-man-silver-outfit-cyber-warrior?variation1=6499558111&variation0=6501308758"
+          }
+        }
+      }
+    },
+    "d0625355-308f-4edd-9c28-e358491c12a3": {
+      "etsyListingId": "1859300877",
+      "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "f9a39fa2-ebd7-4cc5-b5f4-baa078b8afc6",
+      "etsySizeValues": {
+        "M": "5035525183"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "f9a39fa2-ebd7-4cc5-b5f4-baa078b8afc6": 47853,
+        "81902706-5baa-48ec-9c22-cf678899235b": 7720,
+        "8c1b1b63-567a-4fe4-8a0f-49ec8be6d243": 10616,
+        "60808c4d-f695-473a-b744-17d470b5346c": 19939,
+        "907cb371-0c4b-4680-8e18-a2b4df87d562": 19939,
+        "66f0cd0d-5fed-4887-a790-69f7faa7e887": 37485
+      },
+      "offers": {
+        "f9a39fa2-ebd7-4cc5-b5f4-baa078b8afc6": {
+          "regularUsdMinor": 66000,
+          "etsyOptionValue": "5035525177",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5035525177"
+          }
+        },
+        "81902706-5baa-48ec-9c22-cf678899235b": {
+          "regularUsdMinor": 8800,
+          "etsyOptionValue": "5035525203",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5035525203",
+            "sourceOptionRowId": "ce9d928e-f86f-58e6-b77f-572b8b988b34"
+          }
+        },
+        "8c1b1b63-567a-4fe4-8a0f-49ec8be6d243": {
+          "regularUsdMinor": 12100,
+          "etsyOptionValue": "5060304258",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5060304258"
+          }
+        },
+        "60808c4d-f695-473a-b744-17d470b5346c": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5035525197",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5035525197"
+          }
+        },
+        "907cb371-0c4b-4680-8e18-a2b4df87d562": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5060304262",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5060304262"
+          }
+        },
+        "66f0cd0d-5fed-4887-a790-69f7faa7e887": {
+          "regularUsdMinor": 51700,
+          "etsyOptionValue": "5035525189",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1859300877/carnival-dress-with-mask-top-skirt?variation1=5035525183&variation0=5035525189"
+          }
+        }
+      }
+    },
+    "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc": {
+      "etsyListingId": "4331068085",
+      "sourceUrl": "https://www.etsy.com/listing/4331068085/chrome-stage-armor-lingerie-set",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "7cc61314-3b3f-48f1-87d0-361ec15afee5",
+      "etsySizeValues": {
+        "M": "5553994334"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "7cc61314-3b3f-48f1-87d0-361ec15afee5": 18344,
+        "afd25522-da3e-4f55-91bd-bc82a7e7941f": 6756,
+        "732c0e17-2347-46b1-9511-f33fc46eb892": 9650,
+        "f498998c-a580-4f10-ab3c-bc6d758e5e93": 11581
+      },
+      "offers": {
+        "7cc61314-3b3f-48f1-87d0-361ec15afee5": {
+          "regularUsdMinor": 25300,
+          "etsyOptionValue": "5534466369",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4331068085/chrome-stage-armor-lingerie-set?variation1=5553994334&variation0=5534466369"
+          }
+        },
+        "afd25522-da3e-4f55-91bd-bc82a7e7941f": {
+          "regularUsdMinor": 7700,
+          "etsyOptionValue": "5553994324",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4331068085/chrome-stage-armor-lingerie-set?variation1=5553994334&variation0=5553994324"
+          }
+        },
+        "732c0e17-2347-46b1-9511-f33fc46eb892": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "5534466367",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4331068085/chrome-stage-armor-lingerie-set?variation1=5553994334&variation0=5534466367"
+          }
+        },
+        "f498998c-a580-4f10-ab3c-bc6d758e5e93": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5553994340",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4331068085/chrome-stage-armor-lingerie-set?variation1=5553994334&variation0=5553994340"
+          }
+        }
+      }
+    },
+    "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2": {
+      "etsyListingId": "4341603545",
+      "sourceUrl": "https://www.etsy.com/listing/4341603545/desert-goddess-costume-set-fringe",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "886ef3a5-32ac-4a11-a930-ca0288498aaf",
+      "etsySizeValues": {
+        "M": "5657181110"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "886ef3a5-32ac-4a11-a930-ca0288498aaf": 25123,
+        "2c29c695-804e-414f-a617-cd844e1d65bd": 13993,
+        "cfb33a82-2466-4f76-820e-204270cf4732": 15951
+      },
+      "offers": {
+        "886ef3a5-32ac-4a11-a930-ca0288498aaf": {
+          "regularUsdMinor": 34650,
+          "etsyOptionValue": "5641861407",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4341603545/desert-goddess-costume-set-fringe?variation1=5657181110&variation0=5641861407"
+          }
+        },
+        "2c29c695-804e-414f-a617-cd844e1d65bd": {
+          "regularUsdMinor": 15950,
+          "etsyOptionValue": "5657181118",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4341603545/desert-goddess-costume-set-fringe?variation1=5657181110&variation0=5657181118"
+          }
+        },
+        "cfb33a82-2466-4f76-820e-204270cf4732": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "5641861383",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4341603545/desert-goddess-costume-set-fringe?variation1=5657181110&variation0=5641861383"
+          }
+        }
+      }
+    },
+    "1eb4b55c-dedf-4399-92fd-c94c8d962091": {
+      "etsyListingId": "4326178885",
+      "sourceUrl": "https://www.etsy.com/listing/4326178885/desert-warrior-mens-costume-burning-man",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "a13e8013-c00b-44b5-b046-b92813a1842f",
+      "etsySizeValues": {
+        "M": "5523907654"
+      },
+      "separateConfigurationIds": [
+        "0a0b255e-93ec-4947-a1f5-eadf15544e1c",
+        "af1846ee-7a12-4796-b037-ded61847df01"
+      ],
+      "baselineEurMinor": {
+        "a13e8013-c00b-44b5-b046-b92813a1842f": 19141,
+        "0a0b255e-93ec-4947-a1f5-eadf15544e1c": 9650,
+        "af1846ee-7a12-4796-b037-ded61847df01": 16406
+      },
+      "offers": {
+        "a13e8013-c00b-44b5-b046-b92813a1842f": {
+          "regularUsdMinor": 26400,
+          "etsyOptionValue": "5503195631",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4326178885/desert-warrior-mens-costume-burning-man?variation1=5523907654&variation0=5503195631"
+          }
+        },
+        "0a0b255e-93ec-4947-a1f5-eadf15544e1c": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "5503195617",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4326178885/desert-warrior-mens-costume-burning-man?variation1=5523907654&variation0=5503195617"
+          }
+        },
+        "af1846ee-7a12-4796-b037-ded61847df01": {
+          "regularUsdMinor": 18700,
+          "etsyOptionValue": "5503195587",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4326178885/desert-warrior-mens-costume-burning-man?variation1=5523907654&variation0=5503195587",
+            "sourceOptionRowId": "3caf4296-5a0d-5cdd-8e13-a5ab7eea8430"
+          }
+        }
+      }
+    },
+    "5f0df65c-4b04-4905-80c5-53bd7e807063": {
+      "etsyListingId": "4324250573",
+      "sourceUrl": "https://www.etsy.com/listing/4324250573/female-warrior-armor-costume-set",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "fe1c8e75-1aee-434d-9700-e50bafcc27d3",
+      "etsySizeValues": {
+        "M": "5514131092"
+      },
+      "separateConfigurationIds": [
+        "832faf85-6da3-44d7-8080-7154d360d0bc",
+        "65cb9ce0-a9e4-4f28-bcb1-a659c733e50f"
+      ],
+      "baselineEurMinor": {
+        "fe1c8e75-1aee-434d-9700-e50bafcc27d3": 17546,
+        "832faf85-6da3-44d7-8080-7154d360d0bc": 9650,
+        "65cb9ce0-a9e4-4f28-bcb1-a659c733e50f": 13510
+      },
+      "offers": {
+        "fe1c8e75-1aee-434d-9700-e50bafcc27d3": {
+          "regularUsdMinor": 24200,
+          "etsyOptionValue": "5493176211",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4324250573/female-warrior-armor-costume-set?variation1=5514131092&variation0=5493176211"
+          }
+        },
+        "832faf85-6da3-44d7-8080-7154d360d0bc": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "5514131100",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4324250573/female-warrior-armor-costume-set?variation1=5514131092&variation0=5514131100"
+          }
+        },
+        "65cb9ce0-a9e4-4f28-bcb1-a659c733e50f": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5493176199",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4324250573/female-warrior-armor-costume-set?variation1=5514131092&variation0=5493176199",
+            "sourceOptionRowId": "2a11216a-d881-52d0-98ee-5a282a026817"
+          }
+        }
+      }
+    },
+    "a759b44e-1329-47a6-a444-0c9feabcc0ce": {
+      "etsyListingId": "4302158749",
+      "sourceUrl": "https://www.etsy.com/listing/4302158749/festival-couple-costume-set-futuristic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "6a68bce4-4a2c-4419-a3a1-2a85f1aa80af",
+      "etsySizeValues": {
+        "M": "5399603902"
+      },
+      "separateConfigurationIds": [
+        "c5e525cb-3b26-4df7-af42-e63a399127d5",
+        "6653af11-a640-423a-b355-3c64ccaa94af"
+      ],
+      "baselineEurMinor": {
+        "6a68bce4-4a2c-4419-a3a1-2a85f1aa80af": 50246,
+        "c5e525cb-3b26-4df7-af42-e63a399127d5": 32700,
+        "6653af11-a640-423a-b355-3c64ccaa94af": 19939
+      },
+      "offers": {
+        "6a68bce4-4a2c-4419-a3a1-2a85f1aa80af": {
+          "regularUsdMinor": 69300,
+          "etsyOptionValue": "5379320277",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4302158749/festival-couple-costume-set-futuristic?variation1=5399603902&variation0=5379320277"
+          }
+        },
+        "c5e525cb-3b26-4df7-af42-e63a399127d5": {
+          "regularUsdMinor": 45100,
+          "etsyOptionValue": "5379320261",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4302158749/festival-couple-costume-set-futuristic?variation1=5399603902&variation0=5379320261"
+          }
+        },
+        "6653af11-a640-423a-b355-3c64ccaa94af": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5379320275",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4302158749/festival-couple-costume-set-futuristic?variation1=5399603902&variation0=5379320275"
+          }
+        }
+      }
+    },
+    "fefd1c3e-2fd1-47c9-970f-c30962c1a737": {
+      "etsyListingId": "4488971627",
+      "sourceUrl": "https://www.etsy.com/listing/4488971627/festival-couple-costume-set-gold",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "5f9235ae-80e4-483c-98b3-ae7a496dc47b",
+      "etsySizeValues": {
+        "M": "6508556871"
+      },
+      "separateConfigurationIds": [
+        "375db1bb-bbc0-4e29-ace5-d7f2c4db334e",
+        "4b5cb858-4867-41da-97d3-96bc24dc8bb7"
+      ],
+      "baselineEurMinor": {
+        "5f9235ae-80e4-483c-98b3-ae7a496dc47b": 56554,
+        "375db1bb-bbc0-4e29-ace5-d7f2c4db334e": 29002,
+        "4b5cb858-4867-41da-97d3-96bc24dc8bb7": 32627
+      },
+      "offers": {
+        "5f9235ae-80e4-483c-98b3-ae7a496dc47b": {
+          "regularUsdMinor": 78000,
+          "etsyOptionValue": "6508556881",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4488971627/festival-couple-costume-set-gold?variation1=6508556871&variation0=6508556881"
+          }
+        },
+        "375db1bb-bbc0-4e29-ace5-d7f2c4db334e": {
+          "regularUsdMinor": 40000,
+          "etsyOptionValue": "6508556865",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4488971627/festival-couple-costume-set-gold?variation1=6508556871&variation0=6508556865"
+          }
+        },
+        "4b5cb858-4867-41da-97d3-96bc24dc8bb7": {
+          "regularUsdMinor": 45000,
+          "etsyOptionValue": "6511542816",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4488971627/festival-couple-costume-set-gold?variation1=6508556871&variation0=6511542816"
+          }
+        }
+      }
+    },
+    "057fbd51-52f5-4404-b126-e5d75b8599f4": {
+      "etsyListingId": "1765624488",
+      "sourceUrl": "https://www.etsy.com/listing/1765624488/festival-couple-costume-set-golden",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "26274d0c-81c9-44e6-9ce7-c3056c62040c",
+      "etsySizeValues": {
+        "M": "4703296989"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "26274d0c-81c9-44e6-9ce7-c3056c62040c": 46044,
+        "aefa2c61-c430-4675-9964-9cd1e3f1658e": 18344,
+        "5074ad3c-af6a-4cf7-9624-ce351ee9cafc": 32700
+      },
+      "offers": {
+        "aefa2c61-c430-4675-9964-9cd1e3f1658e": {
+          "regularUsdMinor": 25300,
+          "etsyOptionValue": "4699357648",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1765624488/festival-couple-costume-set-golden?variation1=4703296989&variation0=4699357648"
+          }
+        },
+        "5074ad3c-af6a-4cf7-9624-ce351ee9cafc": {
+          "regularUsdMinor": 45100,
+          "etsyOptionValue": "4699357640",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1765624488/festival-couple-costume-set-golden?variation1=4703296989&variation0=4699357640"
+          }
+        }
+      }
+    },
+    "5e034423-6c04-459b-b7d7-0d10ad564c4e": {
+      "etsyListingId": "4452695439",
+      "sourceUrl": "https://www.etsy.com/listing/4452695439/goddess-rave-outfit-fringe-skirt-harness",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "ce965e08-8741-442a-a490-ea9a01251148",
+      "etsySizeValues": {
+        "M": "6283985364"
+      },
+      "separateConfigurationIds": [
+        "90665dc5-1860-4f1d-8c02-f10511ff7f0f",
+        "b85fe542-6eaa-489c-99cd-ef8a54ea9a9d",
+        "43c218a1-a524-4a3b-96cd-78f9b4b8a52b"
+      ],
+      "baselineEurMinor": {
+        "ce965e08-8741-442a-a490-ea9a01251148": 28712,
+        "90665dc5-1860-4f1d-8c02-f10511ff7f0f": 7720,
+        "b85fe542-6eaa-489c-99cd-ef8a54ea9a9d": 13993,
+        "43c218a1-a524-4a3b-96cd-78f9b4b8a52b": 15951
+      },
+      "offers": {
+        "ce965e08-8741-442a-a490-ea9a01251148": {
+          "regularUsdMinor": 39600,
+          "etsyOptionValue": "6276939133",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4452695439/goddess-rave-outfit-fringe-skirt-harness?variation1=6283985364&variation0=6276939133"
+          }
+        },
+        "90665dc5-1860-4f1d-8c02-f10511ff7f0f": {
+          "regularUsdMinor": 8800,
+          "etsyOptionValue": "6276939121",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4452695439/goddess-rave-outfit-fringe-skirt-harness?variation1=6283985364&variation0=6276939121"
+          }
+        },
+        "b85fe542-6eaa-489c-99cd-ef8a54ea9a9d": {
+          "regularUsdMinor": 15950,
+          "etsyOptionValue": "6276939131",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4452695439/goddess-rave-outfit-fringe-skirt-harness?variation1=6283985364&variation0=6276939131"
+          }
+        },
+        "43c218a1-a524-4a3b-96cd-78f9b4b8a52b": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "6283985372",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4452695439/goddess-rave-outfit-fringe-skirt-harness?variation1=6283985364&variation0=6283985372"
+          }
+        }
+      }
+    },
+    "ffbf1db6-6fae-4606-afbe-013415d6421d": {
+      "etsyListingId": "1884437291",
+      "sourceUrl": "https://www.etsy.com/listing/1884437291/gold-fringe-harness-set-top-and-skirt",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "9b8f8993-0bfb-4aca-a5c7-29a0e36e5fc1",
+      "etsySizeValues": {
+        "M": "5181723072"
+      },
+      "separateConfigurationIds": [
+        "c06582dd-7988-4029-a19d-dcc315392989",
+        "2fd375d5-3658-4f18-91bc-b78bb4472ffc"
+      ],
+      "baselineEurMinor": {
+        "9b8f8993-0bfb-4aca-a5c7-29a0e36e5fc1": 17945,
+        "c06582dd-7988-4029-a19d-dcc315392989": 11099,
+        "2fd375d5-3658-4f18-91bc-b78bb4472ffc": 13993
+      },
+      "offers": {
+        "9b8f8993-0bfb-4aca-a5c7-29a0e36e5fc1": {
+          "regularUsdMinor": 24750,
+          "etsyOptionValue": "5158049819",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1884437291/gold-fringe-harness-set-top-and-skirt?variation0=5181723072&variation1=5158049819"
+          }
+        },
+        "c06582dd-7988-4029-a19d-dcc315392989": {
+          "regularUsdMinor": 12650,
+          "etsyOptionValue": "5181723062",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1884437291/gold-fringe-harness-set-top-and-skirt?variation0=5181723072&variation1=5181723062"
+          }
+        },
+        "2fd375d5-3658-4f18-91bc-b78bb4472ffc": {
+          "regularUsdMinor": 15950,
+          "etsyOptionValue": "5158049817",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1884437291/gold-fringe-harness-set-top-and-skirt?variation0=5181723072&variation1=5158049817"
+          }
+        }
+      }
+    },
+    "a3db3d94-aa6f-4d57-abce-905b31e14b4a": {
+      "etsyListingId": "4306378825",
+      "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "0693fead-19f6-401e-beaf-6d0d95462e7f",
+      "etsySizeValues": {
+        "M": "5422655660"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "0693fead-19f6-401e-beaf-6d0d95462e7f": 23129,
+        "914764bf-cfa4-43f5-8524-137a619754db": 6756,
+        "3f59da44-3fa1-41c1-a024-c6fe030b4703": 8685,
+        "c35579d0-742f-44b2-b074-61001094a9b3": 9168,
+        "a4c565d4-dcb0-4326-84b3-3d75df0dbc0e": 11581
+      },
+      "offers": {
+        "0693fead-19f6-401e-beaf-6d0d95462e7f": {
+          "regularUsdMinor": 31900,
+          "etsyOptionValue": "5422655676",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior?variation1=5422655660&variation0=5422655676"
+          }
+        },
+        "914764bf-cfa4-43f5-8524-137a619754db": {
+          "regularUsdMinor": 7700,
+          "etsyOptionValue": "5400850085",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior?variation1=5422655660&variation0=5400850085"
+          }
+        },
+        "3f59da44-3fa1-41c1-a024-c6fe030b4703": {
+          "regularUsdMinor": 9900,
+          "etsyOptionValue": "5422655670",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior?variation1=5422655660&variation0=5422655670",
+            "sourceOptionRowId": "eff0fff8-79fe-50a2-b3fd-4528b1913127"
+          }
+        },
+        "c35579d0-742f-44b2-b074-61001094a9b3": {
+          "regularUsdMinor": 10450,
+          "etsyOptionValue": "5422655666",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior?variation1=5422655660&variation0=5422655666"
+          }
+        },
+        "a4c565d4-dcb0-4326-84b3-3d75df0dbc0e": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5422655668",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/4306378825/gold-goddess-armor-set-female-warrior?variation1=5422655660&variation0=5422655668"
+          }
+        }
+      }
+    },
+    "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986": {
+      "etsyListingId": "1780729637",
+      "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "0116cc20-c437-4e4c-a07c-1e753f7743fb",
+      "etsySizeValues": {
+        "M": "4703085198"
+      },
+      "separateConfigurationIds": [],
+      "baselineEurMinor": {
+        "0116cc20-c437-4e4c-a07c-1e753f7743fb": 59418,
+        "95b12a71-2903-42ea-b1fa-93a59db60a35": 15951,
+        "bb4393af-5252-4f66-9fb2-6a92601d7153": 18743,
+        "a15aca16-2cf5-4677-b996-d3e980da2e31": 29509,
+        "b804be30-7acd-4e09-82d3-74ca1b64db1c": 43068
+      },
+      "offers": {
+        "0116cc20-c437-4e4c-a07c-1e753f7743fb": {
+          "regularUsdMinor": 81950,
+          "etsyOptionValue": "4703085216",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic?variation1=4703085198&variation0=4703085216"
+          }
+        },
+        "95b12a71-2903-42ea-b1fa-93a59db60a35": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4703085210",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic?variation1=4703085198&variation0=4703085210"
+          }
+        },
+        "bb4393af-5252-4f66-9fb2-6a92601d7153": {
+          "regularUsdMinor": 25850,
+          "etsyOptionValue": "4706796385",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic?variation1=4703085198&variation0=4706796385"
+          }
+        },
+        "a15aca16-2cf5-4677-b996-d3e980da2e31": {
+          "regularUsdMinor": 40700,
+          "etsyOptionValue": "4703085206",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic?variation1=4703085198&variation0=4703085206"
+          }
+        },
+        "b804be30-7acd-4e09-82d3-74ca1b64db1c": {
+          "regularUsdMinor": 59400,
+          "etsyOptionValue": "4706796395",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1780729637/golden-horns-costume-set-metallic?variation1=4703085198&variation0=4706796395"
+          }
+        }
+      }
+    },
+    "b0b2a75c-f301-45d6-857c-dd6575862619": {
+      "etsyListingId": "1890733162",
+      "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "b734518a-b6c3-423d-b958-e850f177f16b",
+      "etsySizeValues": {
+        "M": "5312369492"
+      },
+      "separateConfigurationIds": [
+        "86121b07-a7c8-4836-bf2b-2c5528ddaca5",
+        "a7aa21cf-cf0e-4975-92f0-0c21cdf84f59",
+        "3450d3fb-3d5a-4237-9408-04e26bc8372e",
+        "da2b43a3-d0ca-409c-86a9-da2802265bb4"
+      ],
+      "baselineEurMinor": {
+        "b734518a-b6c3-423d-b958-e850f177f16b": 39878,
+        "86121b07-a7c8-4836-bf2b-2c5528ddaca5": 11581,
+        "a7aa21cf-cf0e-4975-92f0-0c21cdf84f59": 12063,
+        "3450d3fb-3d5a-4237-9408-04e26bc8372e": 16406,
+        "da2b43a3-d0ca-409c-86a9-da2802265bb4": 17370
+      },
+      "offers": {
+        "b734518a-b6c3-423d-b958-e850f177f16b": {
+          "regularUsdMinor": 55000,
+          "etsyOptionValue": "6345719739",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg?variation1=5312369492&variation0=6345719739"
+          }
+        },
+        "86121b07-a7c8-4836-bf2b-2c5528ddaca5": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "6345719691",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg?variation1=5312369492&variation0=6345719691",
+            "sourceOptionRowId": "6a6dce66-3cdb-5f39-9631-1dc3976956f2"
+          }
+        },
+        "a7aa21cf-cf0e-4975-92f0-0c21cdf84f59": {
+          "regularUsdMinor": 13750,
+          "etsyOptionValue": "6345719703",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg?variation1=5312369492&variation0=6345719703"
+          }
+        },
+        "3450d3fb-3d5a-4237-9408-04e26bc8372e": {
+          "regularUsdMinor": 18700,
+          "etsyOptionValue": "6349908756",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg?variation1=5312369492&variation0=6349908756"
+          }
+        },
+        "da2b43a3-d0ca-409c-86a9-da2802265bb4": {
+          "regularUsdMinor": 19800,
+          "etsyOptionValue": "6345719725",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "sourceUrl": "https://www.etsy.com/listing/1890733162/mens-robot-arm-armor-silver-cyborg?variation1=5312369492&variation0=6345719725"
+          }
+        }
+      }
+    },
+    "665296a0-f5ad-422c-837c-868f611c45c6": {
+      "etsyListingId": "4373546738",
+      "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "bc5d078e-6a54-4270-9f17-52c0b55a3dd8",
+      "etsySizeValues": {
+        "M": "5841680980",
+        "XS": "5841680976",
+        "XL": "5841680984",
+        "S": "5841680978",
+        "L": "5841680982"
+      },
+      "baselineEurMinor": {
+        "bc5d078e-6a54-4270-9f17-52c0b55a3dd8": 18344,
+        "94c75b43-867a-492b-bc03-bb11ef04807e": 9650,
+        "5925744d-4f17-4c73-b0b8-062f2c702b0d": 15923
+      },
+      "offers": {
+        "94c75b43-867a-492b-bc03-bb11ef04807e": {
+          "etsyOptionValue": "5841680956",
+          "evidence": {
+            "kind": "observed_size_prices"
+          },
+          "observedPricesBySize": {
+            "M": {
+              "regularUsdMinor": 11000,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680956&variation0=5841680980"
+            },
+            "XS": {
+              "regularUsdMinor": 11000,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680956&variation0=5841680976"
+            },
+            "XL": {
+              "regularUsdMinor": 11000,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680956&variation0=5841680984"
+            },
+            "S": {
+              "regularUsdMinor": 11000,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680956&variation0=5841680978"
+            },
+            "L": {
+              "regularUsdMinor": 11000,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680956&variation0=5841680982"
+            }
+          },
+          "regularUsdMinor": 11000
+        },
+        "5925744d-4f17-4c73-b0b8-062f2c702b0d": {
+          "etsyOptionValue": "5829916333",
+          "evidence": {
+            "kind": "observed_size_prices"
+          },
+          "observedPricesBySize": {
+            "M": {
+              "regularUsdMinor": 18150,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5829916333&variation0=5841680980"
+            },
+            "XS": {
+              "regularUsdMinor": 18150,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5829916333&variation0=5841680976"
+            },
+            "XL": {
+              "regularUsdMinor": 18150,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5829916333&variation0=5841680984"
+            },
+            "S": {
+              "regularUsdMinor": 18150,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5829916333&variation0=5841680978"
+            },
+            "L": {
+              "regularUsdMinor": 18150,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5829916333&variation0=5841680982"
+            }
+          },
+          "regularUsdMinor": 18150
+        },
+        "bc5d078e-6a54-4270-9f17-52c0b55a3dd8": {
+          "etsyOptionValue": "5841680972",
+          "evidence": {
+            "kind": "observed_size_prices"
+          },
+          "observedPricesBySize": {
+            "M": {
+              "regularUsdMinor": 25300,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680972&variation0=5841680980"
+            },
+            "XS": {
+              "regularUsdMinor": 25300,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680972&variation0=5841680976"
+            },
+            "XL": {
+              "regularUsdMinor": 25300,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680972&variation0=5841680984"
+            },
+            "S": {
+              "regularUsdMinor": 25300,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680972&variation0=5841680978"
+            },
+            "L": {
+              "regularUsdMinor": 25300,
+              "sourceUrl": "https://www.etsy.com/listing/4373546738/fashion-corset-skirt-for-event-wear?variation1=5841680972&variation0=5841680982"
+            }
+          },
+          "regularUsdMinor": 25300
+        }
+      }
+    },
+    "de38a842-37c4-40a7-86b4-393341c4c9aa": {
+      "etsyListingId": "1871310023",
+      "sourceUrl": "https://www.etsy.com/listing/1871310023/deluxe-leather-harness-for-men-best",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "4b56be10-1771-4a5c-9daa-6ae70e8650f0",
+      "etsySizeValues": {},
+      "baselineEurMinor": {
+        "4b56be10-1771-4a5c-9daa-6ae70e8650f0": 15931,
+        "e689d3b4-acc1-4fa2-ad12-4463207fcdd9": 13035,
+        "9a3cd61f-e87f-4590-b39f-b143e75ca0f7": 14001
+      },
+      "offers": {
+        "4b56be10-1771-4a5c-9daa-6ae70e8650f0": {
+          "regularUsdMinor": 18150,
+          "etsyOptionValue": "5090573293",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Brown",
+            "sourceUrl": "https://www.etsy.com/listing/1871310023/deluxe-leather-harness-for-men-best?variation0=5090573293"
+          }
+        },
+        "e689d3b4-acc1-4fa2-ad12-4463207fcdd9": {
+          "regularUsdMinor": 14850,
+          "etsyOptionValue": "5116293988",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Black",
+            "sourceUrl": "https://www.etsy.com/listing/1871310023/deluxe-leather-harness-for-men-best?variation0=5116293988"
+          }
+        },
+        "9a3cd61f-e87f-4590-b39f-b143e75ca0f7": {
+          "regularUsdMinor": 15950,
+          "etsyOptionValue": "5090573297",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Green",
+            "sourceUrl": "https://www.etsy.com/listing/1871310023/deluxe-leather-harness-for-men-best?variation0=5090573297"
+          }
+        }
+      }
+    },
+    "882793f6-15ca-4617-a579-5cd47290ce72": {
+      "etsyListingId": "1855580162",
+      "sourceUrl": "https://www.etsy.com/listing/1855580162/fashionable-leather-suspenders-for-men",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "9cf4b355-2c03-4c05-b5ba-2ca8c49ab572",
+      "etsySizeValues": {},
+      "baselineEurMinor": {
+        "ac83c38f-b1b7-420f-b0a9-7ff5b7eb3b4a": 12069,
+        "86d29b33-ef45-49cf-8682-a7685f4596bf": 13125,
+        "9cf4b355-2c03-4c05-b5ba-2ca8c49ab572": 14711
+      },
+      "offers": {
+        "9cf4b355-2c03-4c05-b5ba-2ca8c49ab572": {
+          "regularUsdMinor": 16760,
+          "etsyOptionValue": "5108697656",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Brown",
+            "sourceUrl": "https://www.etsy.com/listing/1855580162/fashionable-leather-suspenders-for-men?variation0=5108697656"
+          }
+        },
+        "ac83c38f-b1b7-420f-b0a9-7ff5b7eb3b4a": {
+          "regularUsdMinor": 13750,
+          "etsyOptionValue": "5108697658",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Black",
+            "sourceUrl": "https://www.etsy.com/listing/1855580162/fashionable-leather-suspenders-for-men?variation0=5108697658"
+          }
+        },
+        "86d29b33-ef45-49cf-8682-a7685f4596bf": {
+          "regularUsdMinor": 14953,
+          "etsyOptionValue": "5108697660",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Green",
+            "sourceUrl": "https://www.etsy.com/listing/1855580162/fashionable-leather-suspenders-for-men?variation0=5108697660"
+          }
+        }
+      }
+    },
+    "7cf4ea37-cd11-4203-860c-7eed4ae965ba": {
+      "etsyListingId": "1867996009",
+      "sourceUrl": "https://www.etsy.com/listing/1867996009/luxury-brown-leather-suspenders",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "66058dbc-f8ed-4189-ba0e-464204df96df",
+      "etsySizeValues": {},
+      "baselineEurMinor": {
+        "66058dbc-f8ed-4189-ba0e-464204df96df": 14183,
+        "12298554-1ab7-4071-a222-3ff871a44a2e": 12069,
+        "27d80896-cc1e-4c7e-8e85-204a686e317f": 13125
+      },
+      "offers": {
+        "66058dbc-f8ed-4189-ba0e-464204df96df": {
+          "regularUsdMinor": 16158,
+          "etsyOptionValue": "5100467990",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Brown",
+            "sourceUrl": "https://www.etsy.com/listing/1867996009/luxury-brown-leather-suspenders?variation0=5100467990"
+          }
+        },
+        "12298554-1ab7-4071-a222-3ff871a44a2e": {
+          "regularUsdMinor": 13750,
+          "etsyOptionValue": "5100467992",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Black",
+            "sourceUrl": "https://www.etsy.com/listing/1867996009/luxury-brown-leather-suspenders?variation0=5100467992"
+          }
+        },
+        "27d80896-cc1e-4c7e-8e85-204a686e317f": {
+          "regularUsdMinor": 14953,
+          "etsyOptionValue": "5100467994",
+          "evidence": {
+            "kind": "price_option_without_size",
+            "optionAxis": "Primary color",
+            "matchedOption": "Green",
+            "sourceUrl": "https://www.etsy.com/listing/1867996009/luxury-brown-leather-suspenders?variation0=5100467994"
+          }
+        }
+      }
+    },
+    "88d4332c-95bc-4859-a31e-33d6ee89fb4d": {
+      "etsyListingId": "1888669170",
+      "sourceUrl": "https://www.etsy.com/listing/1888669170/unique-mens-chest-harness-fetish-leather",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "ee10b92e-397e-41a9-931e-0b398f840591",
+      "etsySizeValues": {
+        "M": "5296424696"
+      },
+      "baselineEurMinor": {
+        "dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf": 8690,
+        "ee10b92e-397e-41a9-931e-0b398f840591": 12552
+      },
+      "offers": {
+        "ee10b92e-397e-41a9-931e-0b398f840591": {
+          "regularUsdMinor": 14300,
+          "etsyOptionValue": "5275993459",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Material",
+            "matchedOption": "Natural Leather",
+            "sourceUrl": "https://www.etsy.com/listing/1888669170/unique-mens-chest-harness-fetish-leather?variation0=5296424696&variation1=5275993459"
+          }
+        },
+        "dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf": {
+          "regularUsdMinor": 9900,
+          "etsyOptionValue": "5275993465",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Material",
+            "matchedOption": "Vegan Leather",
+            "sourceUrl": "https://www.etsy.com/listing/1888669170/unique-mens-chest-harness-fetish-leather?variation0=5296424696&variation1=5275993465"
+          }
+        }
+      }
+    },
+    "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e": {
+      "etsyListingId": "1900339755",
+      "sourceUrl": "https://www.etsy.com/listing/1900339755/best-festival-outfit-with-top-shoulders",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "0c1a2561-efbc-497b-a3f4-4e3b8f7a06ae",
+      "etsySizeValues": {
+        "M": "5256816779"
+      },
+      "baselineEurMinor": {
+        "0c1a2561-efbc-497b-a3f4-4e3b8f7a06ae": 22331,
+        "96b4075e-b086-4f83-81f6-e5b7d1eac915": 14476,
+        "c41dabf6-e767-46c8-a92e-f24423947e62": 16020
+      },
+      "offers": {
+        "c41dabf6-e767-46c8-a92e-f24423947e62": {
+          "regularUsdMinor": 18260,
+          "etsyOptionValue": "5256816759",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulders",
+            "sourceUrl": "https://www.etsy.com/listing/1900339755/best-festival-outfit-with-top-shoulders?variation1=5256816779&variation0=5256816759"
+          }
+        },
+        "96b4075e-b086-4f83-81f6-e5b7d1eac915": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5277496588",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1900339755/best-festival-outfit-with-top-shoulders?variation1=5256816779&variation0=5277496588"
+          }
+        },
+        "0c1a2561-efbc-497b-a3f4-4e3b8f7a06ae": {
+          "regularUsdMinor": 30800,
+          "etsyOptionValue": "5277496636",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1900339755/best-festival-outfit-with-top-shoulders?variation1=5256816779&variation0=5277496636"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "96b4075e-b086-4f83-81f6-e5b7d1eac915",
+        "c41dabf6-e767-46c8-a92e-f24423947e62"
+      ]
+    },
+    "3c08ea9c-76a9-4079-bc08-58fa8a831019": {
+      "etsyListingId": "1892925089",
+      "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "d1cfe716-25f4-43a6-8a6b-21f5752830a9",
+      "etsySizeValues": {
+        "M": "5224035088"
+      },
+      "baselineEurMinor": {
+        "d1cfe716-25f4-43a6-8a6b-21f5752830a9": 31902,
+        "41b9c6d7-98e1-44c8-a6d2-aa7e0bc8ecca": 9168,
+        "78a003a1-2dc1-4658-bea8-9c2996b78aa1": 9650,
+        "c468e58b-5308-41c5-a6d5-fb75ec1879cf": 13510,
+        "a381bc9f-e613-4487-94de-994f5f8441d8": 14476
+      },
+      "offers": {
+        "41b9c6d7-98e1-44c8-a6d2-aa7e0bc8ecca": {
+          "regularUsdMinor": 10450,
+          "etsyOptionValue": "5224035082",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Choker",
+            "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival?variation1=5224035088&variation0=5224035082"
+          }
+        },
+        "a381bc9f-e613-4487-94de-994f5f8441d8": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5203396423",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top",
+            "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival?variation1=5224035088&variation0=5203396423"
+          }
+        },
+        "c468e58b-5308-41c5-a6d5-fb75ec1879cf": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5203396435",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival?variation1=5224035088&variation0=5203396435"
+          }
+        },
+        "78a003a1-2dc1-4658-bea8-9c2996b78aa1": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "5203396437",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bracelets",
+            "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival?variation1=5224035088&variation0=5203396437",
+            "sourceOptionRowId": "16cb7765-32e3-50da-9204-db09e0416f68"
+          }
+        },
+        "d1cfe716-25f4-43a6-8a6b-21f5752830a9": {
+          "regularUsdMinor": 44000,
+          "etsyOptionValue": "5203396439",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/1892925089/best-futuristic-costume-set-festival?variation1=5224035088&variation0=5203396439"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "41b9c6d7-98e1-44c8-a6d2-aa7e0bc8ecca",
+        "78a003a1-2dc1-4658-bea8-9c2996b78aa1",
+        "c468e58b-5308-41c5-a6d5-fb75ec1879cf",
+        "a381bc9f-e613-4487-94de-994f5f8441d8"
+      ]
+    },
+    "a6beccc2-bbd3-4040-8e29-af06efd6dd97": {
+      "etsyListingId": "1805788422",
+      "sourceUrl": "https://www.etsy.com/listing/1805788422/fashion-armor-costume-set-with-metallic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "993bf1da-692e-4949-abc3-0b5097470ae7",
+      "etsySizeValues": {
+        "M": "4897579796"
+      },
+      "baselineEurMinor": {
+        "993bf1da-692e-4949-abc3-0b5097470ae7": 25522,
+        "d42558a3-480f-4c01-9b2b-5d240cb42317": 9650,
+        "c4075b16-61c8-474a-a906-0f89743a46e6": 9650,
+        "5412e16d-c1e8-4d78-be09-bd0dde25955c": 17853
+      },
+      "offers": {
+        "5412e16d-c1e8-4d78-be09-bd0dde25955c": {
+          "regularUsdMinor": 20350,
+          "etsyOptionValue": "4897579788",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Corset",
+            "sourceUrl": "https://www.etsy.com/listing/1805788422/fashion-armor-costume-set-with-metallic?variation1=4897579796&variation0=4897579788"
+          }
+        },
+        "c4075b16-61c8-474a-a906-0f89743a46e6": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "4897579802",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Garters",
+            "sourceUrl": "https://www.etsy.com/listing/1805788422/fashion-armor-costume-set-with-metallic?variation1=4897579796&variation0=4897579802"
+          }
+        },
+        "d42558a3-480f-4c01-9b2b-5d240cb42317": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "4897579804",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Leg Bracelets",
+            "sourceUrl": "https://www.etsy.com/listing/1805788422/fashion-armor-costume-set-with-metallic?variation1=4897579796&variation0=4897579804"
+          }
+        },
+        "993bf1da-692e-4949-abc3-0b5097470ae7": {
+          "regularUsdMinor": 35200,
+          "etsyOptionValue": "4897579808",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1805788422/fashion-armor-costume-set-with-metallic?variation1=4897579796&variation0=4897579808"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "d42558a3-480f-4c01-9b2b-5d240cb42317",
+        "c4075b16-61c8-474a-a906-0f89743a46e6",
+        "5412e16d-c1e8-4d78-be09-bd0dde25955c"
+      ]
+    },
+    "bc59df1d-edd3-4e63-9393-175c28d9be2b": {
+      "etsyListingId": "1877356645",
+      "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "9aeaeb64-477c-4ca2-baf8-61e6d0d7f116",
+      "etsySizeValues": {
+        "M": "5145927990"
+      },
+      "baselineEurMinor": {
+        "9aeaeb64-477c-4ca2-baf8-61e6d0d7f116": 39100,
+        "ada04f1e-f71f-4dec-ad97-0f9e72afdcca": 9173,
+        "f833dfad-8e43-4ed4-ac83-33aba00b518a": 11587,
+        "4c128a5e-4040-46ce-9e1a-f0fca9f1f71a": 12069,
+        "f979e219-9ec4-4145-83d0-c9b858b61c67": 12069,
+        "5150d0e8-ed4c-4ac8-939f-377679bddb11": 13517
+      },
+      "offers": {
+        "ada04f1e-f71f-4dec-ad97-0f9e72afdcca": {
+          "regularUsdMinor": 10450,
+          "etsyOptionValue": "5145927984",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Mask",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5145927984"
+          }
+        },
+        "f979e219-9ec4-4145-83d0-c9b858b61c67": {
+          "regularUsdMinor": 13750,
+          "etsyOptionValue": "5145928002",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5145928002",
+            "sourceOptionRowId": "b6f051ea-3ed5-5078-8aed-93a3dd941692"
+          }
+        },
+        "5150d0e8-ed4c-4ac8-939f-377679bddb11": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5120527427",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5120527427"
+          }
+        },
+        "f833dfad-8e43-4ed4-ac83-33aba00b518a": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5145928004",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5145928004"
+          }
+        },
+        "4c128a5e-4040-46ce-9e1a-f0fca9f1f71a": {
+          "regularUsdMinor": 13750,
+          "etsyOptionValue": "5120527431",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bracelet",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5120527431"
+          }
+        },
+        "9aeaeb64-477c-4ca2-baf8-61e6d0d7f116": {
+          "regularUsdMinor": 53900,
+          "etsyOptionValue": "5145928016",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/1877356645/futuristic-festival-costume-for-burning?variation1=5145927990&variation0=5145928016"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "ada04f1e-f71f-4dec-ad97-0f9e72afdcca",
+        "f833dfad-8e43-4ed4-ac83-33aba00b518a",
+        "4c128a5e-4040-46ce-9e1a-f0fca9f1f71a",
+        "f979e219-9ec4-4145-83d0-c9b858b61c67",
+        "5150d0e8-ed4c-4ac8-939f-377679bddb11"
+      ]
+    },
+    "ce899f23-b983-4ede-ae81-3348757b1c15": {
+      "etsyListingId": "1842725537",
+      "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "3b0d3f60-3e99-40ab-b0b3-6e5034efcc9a",
+      "etsySizeValues": {
+        "M": "4974582301"
+      },
+      "baselineEurMinor": {
+        "3b0d3f60-3e99-40ab-b0b3-6e5034efcc9a": 30307,
+        "7c29ac2a-8276-4ebd-a374-ffcf5fe31355": 9168,
+        "7f9f2f1d-2a1b-4a48-b155-ff782b02f8e8": 9650,
+        "ed3b7548-e8b4-4342-8dbe-5093d70a9cfc": 9650,
+        "9ecc5baf-5028-407e-923c-cf216033364d": 12545,
+        "2bdff862-d860-49f9-b9ff-a99809620882": 15951
+      },
+      "offers": {
+        "9ecc5baf-5028-407e-923c-cf216033364d": {
+          "regularUsdMinor": 14300,
+          "etsyOptionValue": "4996323934",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4996323934",
+            "sourceOptionRowId": "3fae2f2c-7c83-5ef1-af89-e2a1f30b9dcf"
+          }
+        },
+        "ed3b7548-e8b4-4342-8dbe-5093d70a9cfc": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "4974582311",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top Harness",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4974582311"
+          }
+        },
+        "7c29ac2a-8276-4ebd-a374-ffcf5fe31355": {
+          "regularUsdMinor": 10450,
+          "etsyOptionValue": "4996323940",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Arm Bracelet",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4996323940"
+          }
+        },
+        "7f9f2f1d-2a1b-4a48-b155-ff782b02f8e8": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "4974582313",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Leg Garters",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4974582313"
+          }
+        },
+        "2bdff862-d860-49f9-b9ff-a99809620882": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4974582315",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder+Bracelet",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4974582315"
+          }
+        },
+        "3b0d3f60-3e99-40ab-b0b3-6e5034efcc9a": {
+          "regularUsdMinor": 41800,
+          "etsyOptionValue": "4996323942",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1842725537/burning-man-costume-set-with-bracelet?variation1=4974582301&variation0=4996323942"
+          }
+        }
+      }
+    },
+    "e247cf0a-cea9-4570-ab68-c8a5505a7845": {
+      "etsyListingId": "1879309908",
+      "sourceUrl": "https://www.etsy.com/listing/1879309908/chrome-futuristic-costume-set-festival",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "1c16a438-e11e-4ae3-9cb4-647deff899de",
+      "etsySizeValues": {
+        "M": "5206501297"
+      },
+      "baselineEurMinor": {
+        "1c16a438-e11e-4ae3-9cb4-647deff899de": 23927,
+        "68bb5ffa-2afb-478e-b883-d3905ec65073": 7238,
+        "5e0a05dc-34a3-4e3b-93af-4e1bb40ff4dc": 14476,
+        "6a980a15-05c9-4046-a37c-ee07dc5aee97": 15441
+      },
+      "offers": {
+        "68bb5ffa-2afb-478e-b883-d3905ec65073": {
+          "regularUsdMinor": 8250,
+          "etsyOptionValue": "5227193946",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Choker",
+            "sourceUrl": "https://www.etsy.com/listing/1879309908/chrome-futuristic-costume-set-festival?variation1=5206501297&variation0=5227193946"
+          }
+        },
+        "5e0a05dc-34a3-4e3b-93af-4e1bb40ff4dc": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5206501317",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top",
+            "sourceUrl": "https://www.etsy.com/listing/1879309908/chrome-futuristic-costume-set-festival?variation1=5206501297&variation0=5206501317"
+          }
+        },
+        "6a980a15-05c9-4046-a37c-ee07dc5aee97": {
+          "regularUsdMinor": 17600,
+          "etsyOptionValue": "5206501319",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1879309908/chrome-futuristic-costume-set-festival?variation1=5206501297&variation0=5206501319"
+          }
+        },
+        "1c16a438-e11e-4ae3-9cb4-647deff899de": {
+          "regularUsdMinor": 33000,
+          "etsyOptionValue": "5206501323",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/1879309908/chrome-futuristic-costume-set-festival?variation1=5206501297&variation0=5206501323"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "68bb5ffa-2afb-478e-b883-d3905ec65073",
+        "5e0a05dc-34a3-4e3b-93af-4e1bb40ff4dc",
+        "6a980a15-05c9-4046-a37c-ee07dc5aee97"
+      ]
+    },
+    "043406cd-0a96-45c5-8796-57c5cc4b276e": {
+      "etsyListingId": "1890268726",
+      "sourceUrl": "https://www.etsy.com/listing/1890268726/golden-amazon-armor-costume-set-metallic",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "da93d75f-cff3-4687-b15e-f99f880fcfa6",
+      "etsySizeValues": {
+        "M": "5305598012"
+      },
+      "baselineEurMinor": {
+        "da93d75f-cff3-4687-b15e-f99f880fcfa6": 19939,
+        "a12ae538-a512-4e83-9379-0eeeeaaeb936": 13510,
+        "d221377b-9699-4795-bd36-55d7bd3317bb": 14476
+      },
+      "offers": {
+        "a12ae538-a512-4e83-9379-0eeeeaaeb936": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5305671516",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder",
+            "sourceUrl": "https://www.etsy.com/listing/1890268726/golden-amazon-armor-costume-set-metallic?variation1=5305598012&variation0=5305671516",
+            "sourceOptionRowId": "575e6c93-f11e-53fd-8377-d67a13a89f63"
+          }
+        },
+        "d221377b-9699-4795-bd36-55d7bd3317bb": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5284931089",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Arm Covers",
+            "sourceUrl": "https://www.etsy.com/listing/1890268726/golden-amazon-armor-costume-set-metallic?variation1=5305598012&variation0=5284931089"
+          }
+        },
+        "da93d75f-cff3-4687-b15e-f99f880fcfa6": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5305598024",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1890268726/golden-amazon-armor-costume-set-metallic?variation1=5305598012&variation0=5305598024"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "a12ae538-a512-4e83-9379-0eeeeaaeb936",
+        "d221377b-9699-4795-bd36-55d7bd3317bb"
+      ]
+    },
+    "ea365de7-a807-40a1-abb4-374d9df7f156": {
+      "etsyListingId": "4328144233",
+      "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "2d473705-7a4b-4473-8b8e-5da51dd8513d",
+      "etsySizeValues": {
+        "M": "5514122293"
+      },
+      "baselineEurMinor": {
+        "2d473705-7a4b-4473-8b8e-5da51dd8513d": 42270,
+        "7f057562-3f09-43a1-be7b-b6941c534977": 9168,
+        "69953948-7004-4fe3-b4a4-0fb6cefed72d": 11581,
+        "a3237d3a-850d-4fca-bd85-afccc63f7cb2": 15951,
+        "018bbe66-3e38-40c9-b3e3-8d24465751fa": 15951
+      },
+      "offers": {
+        "018bbe66-3e38-40c9-b3e3-8d24465751fa": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "5514122285",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder",
+            "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder?variation1=5514122293&variation0=5514122285",
+            "sourceOptionRowId": "be3f8f34-eea2-5c44-8153-7d4043bf6a9b"
+          }
+        },
+        "7f057562-3f09-43a1-be7b-b6941c534977": {
+          "regularUsdMinor": 10450,
+          "etsyOptionValue": "5514122305",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder?variation1=5514122293&variation0=5514122305"
+          }
+        },
+        "a3237d3a-850d-4fca-bd85-afccc63f7cb2": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "5534285240",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Leg Covers",
+            "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder?variation1=5514122293&variation0=5534285240"
+          }
+        },
+        "69953948-7004-4fe3-b4a4-0fb6cefed72d": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5534285242",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bracelets",
+            "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder?variation1=5514122293&variation0=5534285242",
+            "sourceOptionRowId": "03de7b06-a939-5e77-80c9-990b6408ee71"
+          }
+        },
+        "2d473705-7a4b-4473-8b8e-5da51dd8513d": {
+          "regularUsdMinor": 58300,
+          "etsyOptionValue": "5514122321",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/4328144233/golden-armor-costume-set-with-shoulder?variation1=5514122293&variation0=5514122321"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "7f057562-3f09-43a1-be7b-b6941c534977",
+        "69953948-7004-4fe3-b4a4-0fb6cefed72d",
+        "a3237d3a-850d-4fca-bd85-afccc63f7cb2",
+        "018bbe66-3e38-40c9-b3e3-8d24465751fa"
+      ]
+    },
+    "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40": {
+      "etsyListingId": "1810732577",
+      "sourceUrl": "https://www.etsy.com/listing/1810732577/holographic-festival-costume-set-neon",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "ad3afca7-d8a1-481a-839f-f36d0c198805",
+      "etsySizeValues": {
+        "M": "4843555871"
+      },
+      "baselineEurMinor": {
+        "ad3afca7-d8a1-481a-839f-f36d0c198805": 25522,
+        "3d43d27e-8151-4520-9094-e8511c1cc1f2": 14476,
+        "e9d57a76-021e-46d6-8511-cb743515ce64": 15951
+      },
+      "offers": {
+        "e9d57a76-021e-46d6-8511-cb743515ce64": {
+          "regularUsdMinor": 22000,
+          "etsyOptionValue": "4843555865",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top Only",
+            "sourceUrl": "https://www.etsy.com/listing/1810732577/holographic-festival-costume-set-neon?variation1=4843555871&variation0=4843555865"
+          }
+        },
+        "3d43d27e-8151-4520-9094-e8511c1cc1f2": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "4851704938",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt Only",
+            "sourceUrl": "https://www.etsy.com/listing/1810732577/holographic-festival-costume-set-neon?variation1=4843555871&variation0=4851704938"
+          }
+        },
+        "ad3afca7-d8a1-481a-839f-f36d0c198805": {
+          "regularUsdMinor": 35200,
+          "etsyOptionValue": "4851704944",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1810732577/holographic-festival-costume-set-neon?variation1=4843555871&variation0=4851704944"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "3d43d27e-8151-4520-9094-e8511c1cc1f2",
+        "e9d57a76-021e-46d6-8511-cb743515ce64"
+      ]
+    },
+    "e51e0a66-8358-41f9-bd51-2ab4833b24b3": {
+      "etsyListingId": "4364292059",
+      "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "9b1052a5-83d3-40ce-a402-4dba22ee0edb",
+      "etsySizeValues": {
+        "M": "5788523660"
+      },
+      "baselineEurMinor": {
+        "9b1052a5-83d3-40ce-a402-4dba22ee0edb": 47056,
+        "833647ea-bee6-400d-b798-0f6d0b0657d9": 11581,
+        "39186d61-fe2e-4cdb-934a-931ec3cdd452": 14476,
+        "851f004d-6942-4ce8-9250-0e3d1af7687d": 14476,
+        "c7277bb1-350a-466b-9074-07e6ca5aecd8": 19939
+      },
+      "offers": {
+        "851f004d-6942-4ce8-9250-0e3d1af7687d": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5778365967",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Choker",
+            "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome?variation1=5788523660&variation0=5778365967"
+          }
+        },
+        "c7277bb1-350a-466b-9074-07e6ca5aecd8": {
+          "regularUsdMinor": 27500,
+          "etsyOptionValue": "5788523666",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Chest Armor",
+            "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome?variation1=5788523660&variation0=5788523666"
+          }
+        },
+        "39186d61-fe2e-4cdb-934a-931ec3cdd452": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "5788523670",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Belt Armor",
+            "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome?variation1=5788523660&variation0=5788523670"
+          }
+        },
+        "833647ea-bee6-400d-b798-0f6d0b0657d9": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5788523674",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Bracelets",
+            "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome?variation1=5788523660&variation0=5788523674",
+            "sourceOptionRowId": "76e28409-c61e-5c2c-b60a-48d8aa8e611e"
+          }
+        },
+        "9b1052a5-83d3-40ce-a402-4dba22ee0edb": {
+          "regularUsdMinor": 64900,
+          "etsyOptionValue": "5778365985",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/4364292059/mens-cyberpunk-captain-armor-chrome?variation1=5788523660&variation0=5778365985"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "833647ea-bee6-400d-b798-0f6d0b0657d9",
+        "39186d61-fe2e-4cdb-934a-931ec3cdd452",
+        "851f004d-6942-4ce8-9250-0e3d1af7687d",
+        "c7277bb1-350a-466b-9074-07e6ca5aecd8"
+      ]
+    },
+    "81224290-77db-4738-923b-65a16d1c691a": {
+      "etsyListingId": "1845688122",
+      "sourceUrl": "https://www.etsy.com/listing/1845688122/sparkling-pink-dress-for-drag-queen-show",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "ea518277-2d19-4f04-87d5-f07a0e7e7dbd",
+      "etsySizeValues": {
+        "M": "5063057464"
+      },
+      "baselineEurMinor": {
+        "ea518277-2d19-4f04-87d5-f07a0e7e7dbd": 31918,
+        "96c5cfff-e2af-49e9-9401-d322ea499e99": 9655,
+        "d3f4a05b-1345-4331-829c-866d595e123f": 26333
+      },
+      "offers": {
+        "d3f4a05b-1345-4331-829c-866d595e123f": {
+          "regularUsdMinor": 36300,
+          "etsyOptionValue": "5038248675",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Bodysuit",
+            "sourceUrl": "https://www.etsy.com/listing/1845688122/sparkling-pink-dress-for-drag-queen-show?variation0=5063057464&variation1=5038248675"
+          }
+        },
+        "96c5cfff-e2af-49e9-9401-d322ea499e99": {
+          "regularUsdMinor": 11000,
+          "etsyOptionValue": "5063057456",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Glove",
+            "sourceUrl": "https://www.etsy.com/listing/1845688122/sparkling-pink-dress-for-drag-queen-show?variation0=5063057464&variation1=5063057456",
+            "sourceOptionRowId": "597d5192-643c-556e-9c69-284457fd7aab"
+          }
+        },
+        "ea518277-2d19-4f04-87d5-f07a0e7e7dbd": {
+          "regularUsdMinor": 44000,
+          "etsyOptionValue": "5038248679",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose a set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/1845688122/sparkling-pink-dress-for-drag-queen-show?variation0=5063057464&variation1=5038248679"
+          }
+        }
+      },
+      "separateConfigurationIds": [
+        "96c5cfff-e2af-49e9-9401-d322ea499e99",
+        "d3f4a05b-1345-4331-829c-866d595e123f"
+      ]
+    },
+    "f473fb62-0440-473c-a7fb-a52dccafebc6": {
+      "etsyListingId": "1867311867",
+      "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "9cf78f88-d6e3-4b00-9824-17feee017b7f",
+      "etsySizeValues": {
+        "M": "5097475552"
+      },
+      "baselineEurMinor": {
+        "9cf78f88-d6e3-4b00-9824-17feee017b7f": 26333,
+        "60f3d37d-9ede-4724-959f-0bd92574113e": 12552,
+        "f2ab29bd-e614-4c38-9949-ae9e85d88ed5": 12552,
+        "73c3aded-088d-42a5-adfb-e15b604a8265": 13517,
+        "e590e789-6ac9-432d-9fa1-c9b277ad118e": 19550
+      },
+      "offers": {
+        "60f3d37d-9ede-4724-959f-0bd92574113e": {
+          "regularUsdMinor": 14300,
+          "etsyOptionValue": "5071327455",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Spine-Tail",
+            "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail?variation1=5097475552&variation0=5071327455"
+          }
+        },
+        "f2ab29bd-e614-4c38-9949-ae9e85d88ed5": {
+          "regularUsdMinor": 14300,
+          "etsyOptionValue": "5071327471",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top",
+            "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail?variation1=5097475552&variation0=5071327471"
+          }
+        },
+        "73c3aded-088d-42a5-adfb-e15b604a8265": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5097475556",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail?variation1=5097475552&variation0=5097475556"
+          }
+        },
+        "e590e789-6ac9-432d-9fa1-c9b277ad118e": {
+          "regularUsdMinor": 26950,
+          "etsyOptionValue": "5071327473",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Top & Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail?variation1=5097475552&variation0=5071327473"
+          }
+        },
+        "9cf78f88-d6e3-4b00-9824-17feee017b7f": {
+          "regularUsdMinor": 36300,
+          "etsyOptionValue": "5097475558",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1867311867/red-burlesque-dress-with-spine-tail?variation1=5097475552&variation0=5097475558"
+          }
+        }
+      }
+    },
+    "e7238b1d-565c-4c4d-a7ae-a4402de80720": {
+      "etsyListingId": "1804847653",
+      "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "f937757f-6a7b-4fe2-9264-23940001d945",
+      "etsySizeValues": {
+        "M": "4815961987"
+      },
+      "baselineEurMinor": {
+        "f937757f-6a7b-4fe2-9264-23940001d945": 39878,
+        "a33b87ea-f415-493a-871e-25b80a5d6b8e": 8203,
+        "14f946c4-5f24-4599-9290-e93ef53ec07a": 14476,
+        "7246011d-b286-495b-9487-d58b9eb4b10b": 14476,
+        "f6150b68-ca51-4b3e-8deb-6714afb3f528": 17546
+      },
+      "offers": {
+        "f6150b68-ca51-4b3e-8deb-6714afb3f528": {
+          "regularUsdMinor": 24200,
+          "etsyOptionValue": "4821203332",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bodysuit",
+            "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg?variation1=4815961987&variation0=4821203332"
+          }
+        },
+        "a33b87ea-f415-493a-871e-25b80a5d6b8e": {
+          "regularUsdMinor": 9350,
+          "etsyOptionValue": "4815961991",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg?variation1=4815961987&variation0=4815961991"
+          }
+        },
+        "14f946c4-5f24-4599-9290-e93ef53ec07a": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "4815961997",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Leg Covers",
+            "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg?variation1=4815961987&variation0=4815961997"
+          }
+        },
+        "7246011d-b286-495b-9487-d58b9eb4b10b": {
+          "regularUsdMinor": 16500,
+          "etsyOptionValue": "4821203356",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Spine & Tail",
+            "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg?variation1=4815961987&variation0=4821203356"
+          }
+        },
+        "f937757f-6a7b-4fe2-9264-23940001d945": {
+          "regularUsdMinor": 55000,
+          "etsyOptionValue": "4821203364",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/1804847653/red-dance-costume-set-bodysuit-skirt-leg?variation1=4815961987&variation0=4821203364"
+          }
+        }
+      }
+    },
+    "f96bb86c-43aa-49c1-a718-41fbe050a1ac": {
+      "etsyListingId": "1818587058",
+      "sourceUrl": "https://www.etsy.com/listing/1818587058/glaxy-festival-clothes-metallic-top",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "e84c5af8-af09-47e5-a048-22b2590186b3",
+      "etsySizeValues": {
+        "M": "4959157918"
+      },
+      "baselineEurMinor": {
+        "e84c5af8-af09-47e5-a048-22b2590186b3": 17410,
+        "30c9069c-33fa-4dcb-9dda-eec0ac61210c": 7022,
+        "352f29c3-1bd3-4867-8fb0-69c741d011c9": 10094,
+        "6f078b00-3fbe-4815-be73-d9911a997b7a": 12289
+      },
+      "offers": {
+        "30c9069c-33fa-4dcb-9dda-eec0ac61210c": {
+          "regularUsdMinor": 8000,
+          "etsyOptionValue": "4959157908",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Choker",
+            "sourceUrl": "https://www.etsy.com/listing/1818587058/glaxy-festival-clothes-metallic-top?variation1=4959157918&variation0=4959157908"
+          }
+        },
+        "352f29c3-1bd3-4867-8fb0-69c741d011c9": {
+          "regularUsdMinor": 11500,
+          "etsyOptionValue": "4940794909",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bra & Shoulders",
+            "sourceUrl": "https://www.etsy.com/listing/1818587058/glaxy-festival-clothes-metallic-top?variation1=4959157918&variation0=4940794909"
+          }
+        },
+        "6f078b00-3fbe-4815-be73-d9911a997b7a": {
+          "regularUsdMinor": 14000,
+          "etsyOptionValue": "4959157932",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Belt & Garters",
+            "sourceUrl": "https://www.etsy.com/listing/1818587058/glaxy-festival-clothes-metallic-top?variation1=4959157918&variation0=4959157932"
+          }
+        },
+        "e84c5af8-af09-47e5-a048-22b2590186b3": {
+          "regularUsdMinor": 24000,
+          "etsyOptionValue": "4959157942",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/1818587058/glaxy-festival-clothes-metallic-top?variation1=4959157918&variation0=4959157942"
+          }
+        }
+      }
+    },
+    "bffb3644-a34d-437d-accc-4a661d1cac6f": {
+      "etsyListingId": "4343466307",
+      "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather",
+      "observedOn": "2026-11-23",
+      "cardConfigurationId": "b1cfa5ff-d4d7-4912-aad2-18c760ed1922",
+      "etsySizeValues": {
+        "M": "5654420129"
+      },
+      "baselineEurMinor": {
+        "b1cfa5ff-d4d7-4912-aad2-18c760ed1922": 23129,
+        "e3a04e2f-cd4e-4f9d-8085-7638175a2dd3": 11581,
+        "dfa96a2e-bbaf-4189-867e-3f560c577158": 12545,
+        "5a65e878-f0df-4584-806d-99f0aa5e586d": 13510,
+        "89acc27e-a794-44f0-9765-c70f54e77b9e": 16749
+      },
+      "offers": {
+        "5a65e878-f0df-4584-806d-99f0aa5e586d": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5668979416",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulders",
+            "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather?variation1=5654420129&variation0=5668979416"
+          }
+        },
+        "e3a04e2f-cd4e-4f9d-8085-7638175a2dd3": {
+          "regularUsdMinor": 13200,
+          "etsyOptionValue": "5654420135",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Open Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather?variation1=5654420129&variation0=5654420135"
+          }
+        },
+        "dfa96a2e-bbaf-4189-867e-3f560c577158": {
+          "regularUsdMinor": 14300,
+          "etsyOptionValue": "5654420137",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Bracelets",
+            "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather?variation1=5654420129&variation0=5654420137",
+            "sourceOptionRowId": "063a6559-fcf5-5a6c-8545-9f56938a2615"
+          }
+        },
+        "89acc27e-a794-44f0-9765-c70f54e77b9e": {
+          "regularUsdMinor": 23100,
+          "etsyOptionValue": "5668979426",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulders & Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather?variation1=5654420129&variation0=5668979426"
+          }
+        },
+        "b1cfa5ff-d4d7-4912-aad2-18c760ed1922": {
+          "regularUsdMinor": 31900,
+          "etsyOptionValue": "5668979428",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full set",
+            "sourceUrl": "https://www.etsy.com/listing/4343466307/white-rave-outfit-festival-leather?variation1=5654420129&variation0=5668979428"
+          }
+        }
+      }
+    },
+    "453ffb2e-2ed9-4e8d-b74c-e891604f9644": {
+      "etsyListingId": "4324592783",
+      "originalEtsyListingId": "4324575912",
+      "sourceUrl": "https://www.etsy.com/listing/4324592783/unique-festival-outfit-with-gold-leather",
+      "observedOn": "2026-11-23",
+      "relistingEvidence": {
+        "matchedListingImages": 9,
+        "uniqueImagesAcrossCatalogs": 8,
+        "matchedTitle": true,
+        "matchedSetContents": [
+          "Shoulder",
+          "Skirt"
+        ],
+        "equalNormalizedDescriptionMd5": "acbc86d48c380db8bd3a61fc0eb11b52",
+        "matchedOptionAxesAndValues": true
+      },
+      "cardConfigurationId": "cdd8239c-35ec-4cb7-bb4f-67f83cceb64b",
+      "etsySizeValues": {
+        "M": "5515588708"
+      },
+      "separateConfigurationIds": [
+        "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa",
+        "cd1e606e-9e35-43c4-8ea0-4b71f6ff04b2"
+      ],
+      "baselineEurMinor": {
+        "cdd8239c-35ec-4cb7-bb4f-67f83cceb64b": 20338,
+        "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa": 13510,
+        "cd1e606e-9e35-43c4-8ea0-4b71f6ff04b2": 13510
+      },
+      "offers": {
+        "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5494683063",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Shoulder",
+            "sourceUrl": "https://www.etsy.com/listing/4324592783/unique-festival-outfit-with-gold-leather?variation0=5494683063&variation1=5515588708",
+            "sourceOptionRowId": "60f53bbb-2bf6-50cc-b2a9-4e0c6a76015c"
+          }
+        },
+        "cd1e606e-9e35-43c4-8ea0-4b71f6ff04b2": {
+          "regularUsdMinor": 15400,
+          "etsyOptionValue": "5515588714",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Skirt",
+            "sourceUrl": "https://www.etsy.com/listing/4324592783/unique-festival-outfit-with-gold-leather?variation0=5515588714&variation1=5515588708",
+            "sourceOptionRowId": "256221aa-4455-55c4-9bdb-a6dabb89ad7a"
+          }
+        },
+        "cdd8239c-35ec-4cb7-bb4f-67f83cceb64b": {
+          "regularUsdMinor": 28050,
+          "etsyOptionValue": "5494683075",
+          "evidence": {
+            "kind": "configuration_base_policy",
+            "policy": "owner-configuration-base-price-20260924-04",
+            "observedSize": "M",
+            "optionAxis": "Choose Your Set",
+            "matchedOption": "Full Set",
+            "sourceUrl": "https://www.etsy.com/listing/4324592783/unique-festival-outfit-with-gold-leather?variation0=5494683075&variation1=5515588708",
+            "sourceOptionRowId": "0c19a39f-c77a-5443-a1ed-9a751496c4d3"
+          }
         }
       }
     }

@@ -12,6 +12,8 @@ export type StorefrontMedia = {
 export type StorefrontConfiguration = {
   configuration_id?: string | null;
   configuration_price_id?: string | null;
+  published_size_eur_minor?: Record<string,number>;
+  published_etsy_observed_sizes?: string[];
   source_price_row_id?: string | null;
   sellable_configuration_id?: string | null;
   configuration_label?: string | null;
@@ -103,6 +105,7 @@ export type StorefrontProduct = {
   configurations: unknown;
   storefront_candidate_flag: boolean | null;
   price_contract_version?: string | null;
+  published_default_size?: string;
   price_source_mode?: string | null;
   price_confidence_status?: string | null;
   has_unverified_discount?: boolean | null;
