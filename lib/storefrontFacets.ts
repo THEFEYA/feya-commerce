@@ -17,6 +17,7 @@ export type StorefrontFacetSet = {
 
 export type StorefrontFacetSnapshotRow = {
   canonical_product_id: string;
+  source_draft_id?: string;
   parent_components_json?: unknown;
   child_components_json?: unknown;
   component_groups_json?: unknown;
@@ -140,6 +141,18 @@ export function buildStorefrontFacets(
   if (sellable.has('choker')) add(subtypes, 'Choker / Collar');
   if (children.has('horns')) add(subtypes, 'Horns');
   if (children.has('crown')) add(subtypes, 'Crown');
+
+  // Batch 28 option 2499f3fb sells Spine + Tail as one accessory. Its approved
+  // snapshot records both pieces as components but omitted them from the shopper filters.
+  if (
+    snapshot?.canonical_product_id === 'd17c17b6-76dd-429d-bf5c-ccd432cd1e0f' &&
+    snapshot.source_draft_id === '8b8570c7-dff2-4ddc-8b63-4af9c732f858' &&
+    sellable.size === 0 &&
+    components.has('spine') && components.has('tail')
+  ) {
+    sellable.add('spine');
+    sellable.add('tail');
+  }
 
   if (sellable.has('wings') || sellable.has('tail') || sellable.has('spine')) add(parts, 'Special');
   if (sellable.has('wings')) add(subtypes, 'Wings');
