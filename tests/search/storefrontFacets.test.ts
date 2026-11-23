@@ -55,6 +55,33 @@ test('legacy Backpiece and Cape/Tunic never become launch special facets', () =>
   assert.ok(!facets.subtypes.includes('Cape / Tunic'));
 });
 
+test('the owner-reviewed Gold Spine + Tail accessory appears in both piece filters', () => {
+  const snapshot = {
+    canonical_product_id: 'd17c17b6-76dd-429d-bf5c-ccd432cd1e0f',
+    source_draft_id: '8b8570c7-dff2-4ddc-8b63-4af9c732f858',
+    child_components_json: ['bra top', 'shoulder_piece'],
+    component_groups_json: ['bundle', 'composite', 'upper_body'],
+    component_values_json: ['harness', 'spine', 'tail'],
+    sellable_component_values_json: [],
+  };
+  const facets = buildStorefrontFacets(snapshot);
+  assert.deepEqual(facets.parts, ['Arms', 'Special']);
+  assert.deepEqual(facets.subtypes, ['Full Look', 'Shoulder', 'Tail', 'Spine']);
+
+  for (const unreviewed of [
+    {...snapshot, canonical_product_id: 'other'},
+    {...snapshot, source_draft_id: 'different-draft'},
+    {...snapshot, component_values_json: ['spine']},
+  ]) {
+    const result = buildStorefrontFacets(unreviewed);
+    assert.deepEqual(result.parts, ['Arms']);
+    assert.deepEqual(result.subtypes, ['Full Look', 'Shoulder']);
+  }
+
+  const manuallyReviewed = buildStorefrontFacets({...snapshot, sellable_component_values_json: ['tail']});
+  assert.deepEqual(manuallyReviewed.subtypes, ['Full Look', 'Shoulder', 'Tail']);
+});
+
 test('search-only component aliases do not create sellable shopper categories', () => {
   const facets = buildStorefrontFacets({
     canonical_product_id: 'p4',
