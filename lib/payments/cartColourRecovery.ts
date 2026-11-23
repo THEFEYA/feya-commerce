@@ -13,9 +13,13 @@ export type CartColourRecovery = {line_id: string; title: string; choices: CartC
 
 export class SavedColourError extends CheckoutPricingError {
   readonly recovery: CartColourRecovery;
-  constructor(recovery: CartColourRecovery) {
+  readonly productId: string;
+  readonly slug: string;
+  constructor(recovery: CartColourRecovery, productId: string, slug: string) {
     super('checkout_color_invalid');
     this.recovery = recovery;
+    this.productId = productId;
+    this.slug = slug;
   }
 }
 
@@ -31,7 +35,6 @@ export function priceCartLineForQuote(product: StorefrontProduct, line: CartLine
     if (error.message === 'checkout_option_unpriced' &&
         (!original || !pricedColours?.length || original.configuration_color === line.color)) throw error;
     const choices: CartColourChoice[] = [];
-    let title = '';
     for (const {code, label} of productColorChoices(product)) {
       const option = pricedColours === null ? original : pricedColours.find(row => row.configuration_color === label);
       if (!option) continue;
@@ -44,11 +47,10 @@ export function priceCartLineForQuote(product: StorefrontProduct, line: CartLine
         const compare = optionCompareAtPrice(option);
         choices.push({code, label, configuration_id, config: priced.option_label, unit_minor: priced.unit_minor,
           compare_at_minor: compare != null && Math.round(compare * 100) > priced.unit_minor ? Math.round(compare * 100) : null});
-        title = priced.title;
       } catch (candidateError) {
         if (!(candidateError instanceof CheckoutPricingError)) throw candidateError;
       }
     }
-    throw new SavedColourError({line_id: line.id, title, choices});
+    throw new SavedColourError({line_id: line.id, title: '', choices}, product.canonical_product_id, line.slug);
   }
 }
