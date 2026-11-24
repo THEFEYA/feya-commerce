@@ -1,11 +1,34 @@
 {
-  "version": "2026-11-24.1",
+  "version": "2026-11-24.2",
   "fx": {
     "asOf": "2026-11-20",
     "usdPerEur": "1.0990",
     "sourceUrl": "https://www.ecb.europa.eu/stats/exchange/eurofxref/shared/pdf/2026/11/20261120.pdf"
   },
   "products": {
+    "a9f110dc-4ed4-454f-9e28-f67ca5a042e1": {
+      "etsyListingId": "4297324701",
+      "etsySizeValues": {},
+      "cardConfigurationId": "0901f124-d832-40f4-aa3b-1dc2b20e0b8c",
+      "ownerWebsiteFullSet": {
+        "approvedOn": "2026-11-24",
+        "regularEurMinor": 50045
+      },
+      "separateConfigurationIds": [
+        "ec5063ec-a913-4155-95da-c509926f5d09",
+        "c5c7c429-3f42-4652-914e-5740110c877f",
+        "d97f43bd-2d3c-4ebd-94b1-8ce0ca69635e",
+        "1f00ab55-265d-4969-813a-65818ea573cf"
+      ],
+      "baselineEurMinor": {
+        "ec5063ec-a913-4155-95da-c509926f5d09": 8207,
+        "c5c7c429-3f42-4652-914e-5740110c877f": 14483,
+        "d97f43bd-2d3c-4ebd-94b1-8ce0ca69635e": 14483,
+        "1f00ab55-265d-4969-813a-65818ea573cf": 17555,
+        "0901f124-d832-40f4-aa3b-1dc2b20e0b8c": 39898
+      },
+      "offers": {}
+    },
     "a6239781-34bb-42a1-85ae-91a733f7df65": {
       "etsyListingId": "4332119985",
       "etsySizeValues": {},

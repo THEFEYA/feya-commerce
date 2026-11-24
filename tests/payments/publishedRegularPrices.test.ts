@@ -140,6 +140,34 @@ test('the runway petal Full Set charges its approved EUR price in every fit and 
   assert.equal(optionPrice(fullSetOption(currentProduct('6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40'))),320.29);
 });
 
+test('the two red/black spine-and-tail listings quote the same full set in every fit', () => {
+  const productId = 'a9f110dc-4ed4-454f-9e28-f67ca5a042e1';
+  const product = currentProduct(productId);
+  const sibling = currentProduct('e7238b1d-565c-4c4d-a7ae-a4402de80720');
+  const full = fullSetOption(product)!;
+  const siblingFull = fullSetOption(sibling)!;
+  const configurationId = optionKey(full);
+  assert.equal(configurationId, '0901f124-d832-40f4-aa3b-1dc2b20e0b8c');
+  assert.equal(full.price_source_mode, 'owner_authorized_full_set_eur');
+  assert.equal(product.component_sum_display_price_amount, 547.28);
+  assert.equal(product.full_set_savings_amount, 46.83);
+  const separate = (row:StorefrontProduct) => sortedOptions(row).filter(option => optionKey(option) !== configurationId);
+  assert.deepEqual(separate(product), separate(sourceProduct(productId)));
+  for (const size of PAIRED_SET_SIZES) {
+    assert.equal(selectedOptionPrice(full, size), 500.45);
+    assert.equal(selectedOptionPrice(siblingFull, size), 500.45);
+    const line:CartLineInput = {
+      id:productId + '-' + configurationId, slug:product.product_slug!, configuration_id:configurationId,
+      size, color:colorOptions(product)[0], wearer:null, made_to_measure:size === 'Custom',
+      quantity:1, client_unit_minor:39898,
+    };
+    const quote = priceCartLineForQuote(product, line);
+    assert.equal(quote.unit_minor, 50045);
+    assert.equal(quote.price_changed, true);
+    assert.equal(priceCartLine(product, {...line, client_unit_minor:50045}).price_changed, false);
+  }
+});
+
 test('Gold Matching Couple charges the owner-approved pair price for both fits and compares against the two actual solo prices',()=>{
   const productId = '057fbd51-52f5-4404-b126-e5d75b8599f4';
   const book = release.products[productId];
@@ -199,7 +227,7 @@ test('keeps all catalog option identities, unaffected prices, colors and product
       else{assert.equal(optionPrice(row),expected/100);selected++;}
     }
   }
-  assert.equal(selected,631);assert.equal(unchanged,225);
+  assert.equal(selected,632);assert.equal(unchanged,224);
 });
 
 test('size selection, saved bags, site-only fit and Merchant landings agree on the corset prices',()=>{
