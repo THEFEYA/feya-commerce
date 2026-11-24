@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   DEMAND_PROBE_BRANCH,
+  DEMAND_PROBE_PERIOD_24,
+  PERIOD_24_MONTHS,
+  alignMonthly,
+  compactMetricRows,
+  demandProbeIdeasPayload,
+  demandProbeJob,
+  demandProbeMetricsPayload,
+  normalizeProbeKeyword,
+  runDemandProbeJob,
   DEMAND_PROBE_PROJECT_ID,
   demandProbeAccount,
   demandProbeDeploymentAllowed,
@@ -12,6 +21,7 @@ import {
   demandProbePayload,
   runDemandProbe,
 } from '../../lib/googleAdsDemandProbe.ts';
+import { EXTRA_KEYWORD_PAGES, IDEA_SEEDS } from '../../lib/googleAdsDemandProbeSets.ts';
 
 const route = readFileSync('app/api/preview/google-ads-demand-probe/route.ts', 'utf8');
 const preview = { VERCEL: '1', VERCEL_ENV: 'preview', VERCEL_PROJECT_ID: DEMAND_PROBE_PROJECT_ID, VERCEL_GIT_COMMIT_REF: DEMAND_PROBE_BRANCH };
@@ -101,11 +111,14 @@ test('route is POST-only, deployment-gated first, same-origin, predefined set, a
   assert.ok(gate > 0 && gate < route.indexOf("request.headers.get('origin')"));
   assert.ok(gate < route.indexOf('request.json('));
   assert.ok(route.indexOf("request.headers.get('origin')") < route.indexOf('runDemandProbe('));
+  assert.ok(route.indexOf("request.headers.get('origin')") < route.indexOf('runDemandProbeJob('));
   assert.match(route, /status: 404/);
   assert.match(route, /demandProbeKeywords\(/);
   assert.match(route, /private, no-store/);
   assert.match(route, /noindex, nofollow/);
-  for (const forbidden of ['supabase', 'Supabase', '.insert(', '.upsert(', '.rpc(', 'GOOGLE_ADS_CLIENT_SECRET', 'GOOGLE_ADS_REFRESH_TOKEN', 'FEYA_INTERNAL_API_TOKEN', 'OPENAI_API_KEY', 'cron']) {
+  // v2 reads bank/master pages with a SELECT only; any write verb is forbidden.
+  assert.match(route, /\.select\(/);
+  for (const forbidden of ['.insert(', '.upsert(', '.update(', '.delete(', '.rpc(', 'GOOGLE_ADS_CLIENT_SECRET', 'GOOGLE_ADS_REFRESH_TOKEN', 'FEYA_INTERNAL_API_TOKEN', 'OPENAI_API_KEY', 'cron']) {
     assert.equal(route.includes(forbidden), false, forbidden);
   }
 });
@@ -124,4 +137,98 @@ test('OAuth exchange maps only Google\'s stable error field and never echoes bod
   }
   assert.equal(await demandProbeOAuthToken(account, reply(200, '{"access_token":"fixture-token"}')), 'fixture-token');
   await assert.rejects(demandProbeOAuthToken({ ...account, GOOGLE_ADS_REFRESH_TOKEN: '' }, reply(200, '{}')), (e: Error & { safeCode?: string }) => e.safeCode === 'GOOGLE_ADS_OAUTH_ENV_MISSING');
+});
+
+test('v2 jobs: only {set, market, page}; known sets, markets and page ranges', () => {
+  assert.deepEqual(demandProbeJob({ set: 'wave1' }), { kind: 'wave1' });
+  assert.equal(demandProbeJob({ set: 'wave1', market: 'us' }), null);
+  assert.deepEqual(demandProbeJob({ set: 'bank', page: 3 }), { kind: 'metrics', source: 'bank', market: 'us', page: 3 });
+  assert.deepEqual(demandProbeJob({ set: 'master', market: 'gb' }), { kind: 'metrics', source: 'master', market: 'gb', page: 0 });
+  assert.equal(demandProbeJob({ set: 'extra', page: EXTRA_KEYWORD_PAGES.length - 1 })?.kind, 'metrics');
+  assert.equal(demandProbeJob({ set: 'extra', page: EXTRA_KEYWORD_PAGES.length }), null);
+  const idea = demandProbeJob({ set: 'ideas', page: 0 });
+  assert.equal(idea?.kind, 'ideas');
+  assert.equal(demandProbeJob({ set: 'ideas', page: IDEA_SEEDS.length }), null);
+  for (const bad of [null, [], 'bank', { set: 'bank', keywords: ['x'] }, { set: 'bank', market: 'ua' }, { set: 'bank', market: '__proto__' }, { set: 'bank', market: 'toString' },
+    { set: 'bank', page: -1 }, { set: 'bank', page: 1.5 }, { set: 'bank', page: '2' }, { set: 'bank', page: 1000 }, { set: 'other' }, { set: 'constructor' }]) {
+    assert.equal(demandProbeJob(bad), null, JSON.stringify(bad));
+  }
+});
+
+test('v2 manifests are bounded, normalized and every idea seed builds a valid request', () => {
+  const all = EXTRA_KEYWORD_PAGES.flat();
+  assert.ok(EXTRA_KEYWORD_PAGES.every((page) => page.length >= 1 && page.length <= 200));
+  assert.equal(new Set(all).size, all.length);
+  assert.ok(all.every((k) => normalizeProbeKeyword(k) === k));
+  assert.ok(IDEA_SEEDS.length >= 40);
+  assert.equal(new Set(IDEA_SEEDS.map((s) => s.id)).size, IDEA_SEEDS.length);
+  for (const seed of IDEA_SEEDS) {
+    const payload = demandProbeIdeasPayload(seed, 'us') as Record<string, unknown>;
+    assert.equal(payload.includeAdultKeywords, false);
+    assert.deepEqual(payload.keywordAnnotation, ['KEYWORD_CONCEPT']);
+    assert.ok((payload.pageSize as number) <= 5000);
+    assert.equal(['keywordSeed', 'siteSeed', 'urlSeed'].filter((k) => k in payload).length, 1);
+  }
+  assert.throws(() => demandProbeIdeasPayload({ id: 'x', kind: 'url', url: 'https://example.com/a', pageSize: 10 }, 'us'));
+  assert.throws(() => demandProbeIdeasPayload({ id: 'x', kind: 'site', site: 'not a site', pageSize: 10 }, 'us'));
+  assert.throws(() => demandProbeIdeasPayload(IDEA_SEEDS[0], 'ua'));
+});
+
+test('v2 metrics payload: market geo, English, 24 complete months, Google keyword limits', () => {
+  assert.equal(PERIOD_24_MONTHS.length, 24);
+  assert.equal(PERIOD_24_MONTHS[0], '2024-11');
+  assert.equal(PERIOD_24_MONTHS[23], '2026-10');
+  const gb = demandProbeMetricsPayload(['rave outfits'], 'gb');
+  assert.deepEqual(gb.geoTargetConstants, ['geoTargetConstants/2826']);
+  assert.equal(gb.language, 'languageConstants/1000');
+  assert.deepEqual(gb.historicalMetricsOptions.yearMonthRange, DEMAND_PROBE_PERIOD_24);
+  assert.equal(normalizeProbeKeyword('  Rave   Outfits '), 'rave outfits');
+  for (const bad of ['', 'x'.repeat(81), 'a b c d e f g h i j k', 'emoji \u2728', 'semi;colon']) assert.equal(normalizeProbeKeyword(bad), null);
+  assert.throws(() => demandProbeMetricsPayload(['Rave Outfits'], 'us'));
+  assert.throws(() => demandProbeMetricsPayload(['a', 'a'], 'us'));
+});
+
+test('monthly values align to the 24-month window; null stays null; unexpected months are reported', () => {
+  const aligned = alignMonthly([{ year: 2024, month: 'NOVEMBER', monthlySearches: '10' }, { year: '2026', month: 'OCTOBER', monthlySearches: null }, { year: 2023, month: 'JANUARY', monthlySearches: '5' }]);
+  assert.equal(aligned.values?.[0], 10);
+  assert.equal(aligned.values?.[23], null);
+  assert.deepEqual(aligned.unaligned, ['2023-JANUARY']);
+  assert.equal(alignMonthly(undefined).values, null);
+  const compact = compactMetricRows([{ text: 'gold harness', keywordIdeaMetrics: { avgMonthlySearches: '590', competition: 'HIGH', competitionIndex: '87', averageCpcMicros: '1200000' }, keywordAnnotations: { concepts: [{ name: 'gold', conceptGroup: { name: 'Color', type: 'NON_BRAND' } }] } }], 'keywordIdeaMetrics');
+  assert.deepEqual(compact.rows[0].slice(0, 7), ['gold harness', [], 590, 'HIGH', 87, null, null]);
+  assert.deepEqual((compact.rows[0][8] as { concepts: unknown[] }).concepts, [['gold', 'Color', 'NON_BRAND']]);
+});
+
+test('v2 job: one read-only page, normalized unique keywords, one provider call, meta kept, nothing persisted', async () => {
+  let posts = 0;
+  let lastPayload: Record<string, unknown> | null = null;
+  const deps = {
+    getToken: async () => 'fixture-access',
+    getContext: async () => ({ currencyCode: 'UAH', timeZone: 'Europe/Kyiv' }),
+    post: async (_endpoint: string, payload: unknown) => { posts++; lastPayload = payload as Record<string, unknown>; return { payload: { results: [{ text: 'rave outfits', keywordMetrics: { avgMonthlySearches: '9900', monthlySearchVolumes: [{ year: '2026', month: 'OCTOBER', monthlySearches: '12100' }] } }] }, requestId: 'fixture-request' }; },
+    readPage: async () => ({ total: 3, rows: [{ keyword: 'Rave Outfits', meta: ['id1', 'Rave Outfits', 'approved_draft'] }, { keyword: 'rave outfits', meta: ['id2'] }, { keyword: 'bad;keyword', meta: ['id3'] }, { keyword: 'gold harness', meta: ['id4', 'gold harness', 'hold'] }] }),
+    now: () => new Date('2026-11-24T12:00:00Z'),
+  };
+  const job = demandProbeJob({ set: 'bank', page: 0 });
+  assert.ok(job && job.kind === 'metrics');
+  const out = await runDemandProbeJob(job, account, deps) as Record<string, unknown>;
+  assert.equal(out.ok, true);
+  assert.equal(posts, 1);
+  assert.deepEqual(out.requested, ['rave outfits', 'gold harness']);
+  assert.deepEqual(out.skipped, ['bad;keyword']);
+  assert.deepEqual(out.missing_requested_keywords, ['gold harness']);
+  assert.equal((out.requested_meta as unknown[][]).length, 2);
+  assert.deepEqual(((out.rows as unknown[][])[0][7] as unknown[]).slice(22), [null, 12100]);
+  assert.equal(out.production_db_writes, 0);
+  assert.deepEqual((lastPayload as unknown as Record<string, unknown>).keywords, ['rave outfits', 'gold harness']);
+  assert.equal(JSON.stringify(out).includes('fixture-access'), false);
+  const empty = await runDemandProbeJob(job, account, { ...deps, readPage: async () => ({ total: 3, rows: [] }) });
+  assert.equal(empty.code, 'GOOGLE_ADS_PROBE_PAGE_EMPTY');
+  assert.equal(posts, 1);
+  const failing = await runDemandProbeJob(job, account, { ...deps, post: async () => { throw new Error('Bearer abc.def refresh_token=zzz'); } });
+  assert.equal(failing.ok, false);
+  assert.equal(JSON.stringify(failing).includes('zzz'), false);
+  assert.equal(JSON.stringify(failing).includes('abc.def'), false);
+  const refused = await runDemandProbeJob(job, { ...account, GOOGLE_ADS_CUSTOMER_ID: '3332427758' }, deps);
+  assert.equal(refused.code, 'GOOGLE_ADS_CUSTOMER_NOT_ALLOWED');
 });

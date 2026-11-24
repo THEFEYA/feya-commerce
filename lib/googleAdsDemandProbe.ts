@@ -15,6 +15,7 @@ import {
   getGoogleAdsCustomerContext,
   runGoogleAdsKeywordMetrics,
 } from './googleAdsProvider.ts';
+import { EXTRA_KEYWORD_PAGES, IDEA_SEEDS, type IdeaSeed } from './googleAdsDemandProbeSets.ts';
 
 export const DEMAND_PROBE_BRANCH = 'work/google-ads-demand-probe-20261124';
 export const DEMAND_PROBE_PROJECT_ID = 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID';
@@ -245,4 +246,297 @@ export async function runDemandProbe(keywords: readonly string[], env: Env, deps
     const code = (error as { safeCode?: string } | null)?.safeCode ?? 'OAUTH_OR_RUNTIME_ERROR';
     return { ok: false as const, code, safe_error_message: safeMessage(error), ...base };
   }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * v2 (owner request 24.11, 12:28): full demand research for the SEO core.
+ * - metrics: generateKeywordHistoricalMetrics for the keyword bank (approved_draft + hold, read
+ *   server-side page by page), the keyword master, and a frozen `extra` manifest (GSC queries,
+ *   207-PDP phrases, Keyword Planner UI phrases); markets US/GB/CA/AU, English, 24 months.
+ * - ideas: generateKeywordIdeas from frozen Discover seeds (axes, audiences, funnel), site seeds
+ *   (own + competitors) and own collection URLs.
+ * Still read-only: no Supabase writes, no campaigns, no keyword-role changes, no retries.
+ * ---------------------------------------------------------------------------------------------- */
+
+const MONTHS = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'] as const;
+/** Twenty-four complete months ending with the last complete month at capture time (October 2026). */
+export const DEMAND_PROBE_PERIOD_24 = { start: { year: 2024, month: 'NOVEMBER' }, end: { year: 2026, month: 'OCTOBER' } } as const;
+export const PERIOD_24_MONTHS: readonly string[] = Object.freeze(Array.from({ length: 24 }, (_, i) => {
+  const index = 10 + i; // November 2024 = month index 10 of 2024
+  const year = 2024 + Math.floor(index / 12);
+  return `${year}-${String((index % 12) + 1).padStart(2, '0')}`;
+}));
+export const DEMAND_PROBE_MARKETS: Readonly<Record<string, string>> = Object.freeze({
+  us: 'geoTargetConstants/2840', gb: 'geoTargetConstants/2826', ca: 'geoTargetConstants/2124', au: 'geoTargetConstants/2036',
+});
+const ENGLISH = 'languageConstants/1000';
+export const DEMAND_PROBE_MAX_PAGE = 999;
+
+export type ProbeJob =
+  | { kind: 'wave1' }
+  | { kind: 'metrics'; source: 'bank' | 'master' | 'extra'; market: string; page: number }
+  | { kind: 'ideas'; market: string; page: number; seed: IdeaSeed };
+
+/** Body is {set, market?, page?}; everything else is refused. Free-form keywords are never accepted. */
+export function demandProbeJob(body: unknown): ProbeJob | null {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
+  const record = body as Record<string, unknown>;
+  if (Object.keys(record).some((key) => key !== 'set' && key !== 'market' && key !== 'page')) return null;
+  const { set } = record;
+  const market = record.market === undefined ? 'us' : record.market;
+  const page = record.page === undefined ? 0 : record.page;
+  if (typeof market !== 'string' || !Object.prototype.hasOwnProperty.call(DEMAND_PROBE_MARKETS, market)) return null;
+  if (typeof page !== 'number' || !Number.isInteger(page) || page < 0 || page > DEMAND_PROBE_MAX_PAGE) return null;
+  if (set === 'wave1') return record.market === undefined && record.page === undefined ? { kind: 'wave1' } : null;
+  if (set === 'bank' || set === 'master') return { kind: 'metrics', source: set, market, page };
+  if (set === 'extra') return page < EXTRA_KEYWORD_PAGES.length ? { kind: 'metrics', source: 'extra', market, page } : null;
+  if (set === 'ideas') return page < IDEA_SEEDS.length ? { kind: 'ideas', market, page, seed: IDEA_SEEDS[page] } : null;
+  return null;
+}
+
+const KEYWORD_SHAPE = /^[a-z0-9 '&.\-]+$/;
+/** Google limits: <= 80 characters and <= 10 words. Returns the normalized keyword or null. */
+export function normalizeProbeKeyword(value: unknown): string | null {
+  const keyword = String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!keyword || keyword.length > 80 || keyword.split(' ').length > 10 || !KEYWORD_SHAPE.test(keyword)) return null;
+  return keyword;
+}
+
+export function demandProbeMetricsPayload(keywords: readonly string[], market: string) {
+  if (keywords.length < 1 || keywords.length > DEMAND_PROBE_MAX_KEYWORDS) throw new Error('Select 1-200 keywords.');
+  if (new Set(keywords).size !== keywords.length || keywords.some((k) => normalizeProbeKeyword(k) !== k)) throw new Error('Keywords must be unique and normalized.');
+  const geo = DEMAND_PROBE_MARKETS[market];
+  if (!geo) throw new Error('Unknown market.');
+  return {
+    keywords: [...keywords],
+    geoTargetConstants: [geo],
+    language: ENGLISH,
+    keywordPlanNetwork: 'GOOGLE_SEARCH',
+    includeAdultKeywords: false,
+    historicalMetricsOptions: { yearMonthRange: DEMAND_PROBE_PERIOD_24 },
+  };
+}
+
+export function demandProbeIdeasPayload(seed: IdeaSeed, market: string) {
+  const geo = DEMAND_PROBE_MARKETS[market];
+  if (!geo) throw new Error('Unknown market.');
+  const pageSize = Math.min(Math.max(1, Math.floor(seed.pageSize)), 5000);
+  const base = {
+    geoTargetConstants: [geo],
+    language: ENGLISH,
+    keywordPlanNetwork: 'GOOGLE_SEARCH',
+    includeAdultKeywords: false,
+    historicalMetricsOptions: { yearMonthRange: DEMAND_PROBE_PERIOD_24, includeAverageCpc: true },
+    keywordAnnotation: ['KEYWORD_CONCEPT'],
+    pageSize,
+  };
+  if (seed.kind === 'keywords') {
+    if (seed.seeds.length < 1 || seed.seeds.length > 20 || seed.seeds.some((k) => normalizeProbeKeyword(k) !== k)) throw new Error('Invalid keyword seed.');
+    return { ...base, keywordSeed: { keywords: [...seed.seeds] } };
+  }
+  if (seed.kind === 'site') {
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(seed.site)) throw new Error('Invalid site seed.');
+    return { ...base, siteSeed: { site: seed.site } };
+  }
+  if (!/^https:\/\/thefeya\.com\/[a-z0-9/-]+$/.test(seed.url)) throw new Error('Invalid URL seed.');
+  return { ...base, urlSeed: { url: seed.url } };
+}
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && /^-?\d+$/.test(value)) return Number(value);
+  return null;
+};
+const asRecord = (value: unknown) => (value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : {});
+
+/** Monthly values aligned to PERIOD_24_MONTHS; missing months stay null; anything outside the period is reported. */
+export function alignMonthly(monthly: unknown) {
+  const values: (number | null)[] = PERIOD_24_MONTHS.map(() => null);
+  const unaligned: string[] = [];
+  if (!Array.isArray(monthly)) return { values: null, unaligned };
+  for (const item of monthly) {
+    const m = asRecord(item);
+    const monthIndex = MONTHS.indexOf(String(m.month) as (typeof MONTHS)[number]);
+    const key = `${m.year}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const at = monthIndex < 0 ? -1 : PERIOD_24_MONTHS.indexOf(key);
+    if (at < 0) unaligned.push(`${m.year}-${m.month}`);
+    else values[at] = toNumber(m.monthlySearches);
+  }
+  return { values: monthly.length ? values : null, unaligned };
+}
+
+/** Compact row: [text, close_variants, avg, competition, competition_index, low_bid_micros, high_bid_micros, monthly24, extra]. */
+export function compactMetricRows(results: unknown[], metricsKey: 'keywordMetrics' | 'keywordIdeaMetrics') {
+  const unaligned = new Set<string>();
+  const rows = results.map((value) => {
+    const row = asRecord(value);
+    const metrics = asRecord(row[metricsKey]);
+    const aligned = alignMonthly(metrics.monthlySearchVolumes);
+    aligned.unaligned.forEach((u) => unaligned.add(u));
+    const closeVariants = Array.isArray(row.closeVariants) ? row.closeVariants.filter((v): v is string => typeof v === 'string') : [];
+    const concepts = Array.isArray(asRecord(row.keywordAnnotations).concepts)
+      ? (asRecord(row.keywordAnnotations).concepts as unknown[]).map((c) => {
+        const concept = asRecord(c);
+        const group = asRecord(concept.conceptGroup);
+        return [typeof concept.name === 'string' ? concept.name : null, typeof group.name === 'string' ? group.name : null, typeof group.type === 'string' ? group.type : null];
+      })
+      : [];
+    return [
+      typeof row.text === 'string' ? row.text : null,
+      closeVariants,
+      toNumber(metrics.avgMonthlySearches),
+      typeof metrics.competition === 'string' ? metrics.competition : null,
+      toNumber(metrics.competitionIndex),
+      toNumber(metrics.lowTopOfPageBidMicros),
+      toNumber(metrics.highTopOfPageBidMicros),
+      aligned.values,
+      metricsKey === 'keywordIdeaMetrics' ? { average_cpc_micros: toNumber(metrics.averageCpcMicros), concepts } : null,
+    ];
+  });
+  return { rows, unaligned_months: [...unaligned] };
+}
+
+const COLUMNS = Object.freeze(['text', 'close_variants', 'avg_monthly_searches', 'competition', 'competition_index', 'low_top_of_page_bid_micros', 'high_top_of_page_bid_micros', 'monthly_2024_11_to_2026_10', 'idea_extra']);
+
+export type KeywordPage = { total: number; rows: { keyword: unknown; meta: unknown[] }[] };
+export type ProbeV2Deps = {
+  getToken: () => Promise<string>;
+  getContext: typeof getGoogleAdsCustomerContext;
+  post: (endpoint: string, payload: unknown, token: string) => Promise<{ payload: unknown; requestId: string | null }>;
+  readPage: (source: 'bank' | 'master', page: number, pageSize: number) => Promise<KeywordPage>;
+  now: () => Date;
+};
+
+class ProbeProviderError extends Error {
+  readonly status: number;
+  readonly providerStatus: string | null;
+  readonly codes: string[];
+  readonly requestId: string | null;
+  constructor(status: number, providerStatus: string | null, codes: string[], requestId: string | null, message: string) {
+    super(message.replace(SENSITIVE, '[REDACTED]').slice(0, 300));
+    this.status = status;
+    this.providerStatus = providerStatus;
+    this.codes = codes;
+    this.requestId = requestId;
+  }
+}
+
+function errorCodes(value: unknown, depth = 0, out = new Set<string>()) {
+  if (!value || depth > 8 || out.size >= 25) return out;
+  if (Array.isArray(value)) { value.forEach((v) => errorCodes(v, depth + 1, out)); return out; }
+  if (typeof value !== 'object') return out;
+  for (const [key, nested] of Object.entries(value as UnknownRecord)) {
+    if (key === 'errorCode' && nested && typeof nested === 'object') {
+      for (const [codeKey, codeValue] of Object.entries(nested as UnknownRecord)) if (typeof codeValue === 'string') out.add(`${codeKey}:${codeValue}`);
+    }
+    errorCodes(nested, depth + 1, out);
+  }
+  return out;
+}
+
+/** Same headers as the provider transport (login-customer-id from env), with a longer timeout for idea generation. */
+export function demandProbePost(env: Env, fetcher: typeof fetch = fetch) {
+  return async (endpoint: string, payload: unknown, token: string) => {
+    const login = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID || '').replaceAll('-', '').trim();
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    if (login) headers['login-customer-id'] = login;
+    const response = await fetcher(endpoint, { method: 'POST', headers, body: JSON.stringify(payload), cache: 'no-store', signal: AbortSignal.timeout(50_000) });
+    const requestId = response.headers.get('request-id') || response.headers.get('x-request-id');
+    const body: unknown = await response.json().catch(() => null);
+    if (!response.ok) {
+      const error = asRecord(asRecord(body).error);
+      throw new ProbeProviderError(response.status, typeof error.status === 'string' ? error.status : null, [...errorCodes(body)], requestId,
+        typeof error.message === 'string' ? error.message : `Google Ads request failed with status ${response.status}.`);
+    }
+    return { payload: body, requestId };
+  };
+}
+
+/** One provider request per call. No retries, no persistence. */
+export async function runDemandProbeJob(job: Exclude<ProbeJob, { kind: 'wave1' }>, env: Env, deps: ProbeV2Deps) {
+  const base = { production_db_writes: 0, data_written: false, ai_calls: 0, campaigns_changed: 0 } as const;
+  const account = demandProbeAccount(env);
+  if (!account.ok) return { ...account, ok: false as const, ...base };
+  const header = { set: job.kind === 'ideas' ? 'ideas' : job.source, market: job.market, page: job.page, geo: DEMAND_PROBE_MARKETS[job.market], language: ENGLISH, network: 'GOOGLE_SEARCH', period: PERIOD_24_MONTHS };
+  try {
+    let requested: string[] = [];
+    let requestedMeta: unknown[][] | null = null;
+    let skipped: string[] = [];
+    let total: number | null = null;
+    let payload: unknown;
+    let method: 'generateKeywordHistoricalMetrics' | 'generateKeywordIdeas';
+    if (job.kind === 'metrics') {
+      method = 'generateKeywordHistoricalMetrics';
+      let candidates: { keyword: unknown; meta: unknown[] | null }[];
+      if (job.source === 'extra') {
+        candidates = EXTRA_KEYWORD_PAGES[job.page].map((keyword) => ({ keyword, meta: null }));
+      } else {
+        const page = await deps.readPage(job.source, job.page, DEMAND_PROBE_MAX_KEYWORDS);
+        total = page.total;
+        candidates = page.rows;
+        if (!candidates.length) return { ok: false as const, code: 'GOOGLE_ADS_PROBE_PAGE_EMPTY', ...header, total_rows: total, ...base };
+      }
+      const seen = new Set<string>();
+      const metas: unknown[][] = [];
+      for (const candidate of candidates) {
+        const keyword = normalizeProbeKeyword(candidate.keyword);
+        if (!keyword) { skipped.push(String(candidate.keyword ?? '').slice(0, 120)); continue; }
+        if (seen.has(keyword)) continue;
+        seen.add(keyword);
+        requested.push(keyword);
+        if (candidate.meta) metas.push(candidate.meta);
+      }
+      if (job.source !== 'extra') requestedMeta = metas;
+      if (!requested.length) return { ok: false as const, code: 'GOOGLE_ADS_PROBE_NOTHING_VALID', ...header, skipped, ...base };
+      payload = demandProbeMetricsPayload(requested, job.market);
+    } else {
+      method = 'generateKeywordIdeas';
+      payload = demandProbeIdeasPayload(job.seed, job.market);
+    }
+    const token = await deps.getToken();
+    const context = await deps.getContext(account.customerId, token);
+    if (!context.currencyCode || !context.timeZone) return { ok: false as const, code: 'ACCOUNT_CONTEXT_UNAVAILABLE', ...header, ...base };
+    const endpoint = `https://googleads.googleapis.com/${account.apiVersion}/customers/${account.customerId}:${method}`;
+    const result = await deps.post(endpoint, payload, token);
+    const results = Array.isArray(asRecord(result.payload).results) ? asRecord(result.payload).results as unknown[] : null;
+    if (!results) {
+      // An empty idea list is a valid Google answer; anything else with no `results` array is unknown.
+      if (job.kind === 'ideas' && result.payload && typeof result.payload === 'object') {
+        return { ok: true as const, code: 'GOOGLE_ADS_DEMAND_PROBE_OK', mode: 'OFFICIAL_GOOGLE_ADS_READ_ONLY', method, ...header, seed: job.seed, captured_at: deps.now().toISOString(), request_id: result.requestId, api_version: account.apiVersion, customer_last4: account.customerId.slice(-4), login_customer_class: account.loginCustomerClass, account_currency: context.currencyCode, columns: COLUMNS, rows: [], unaligned_months: [], ...base };
+      }
+      return { ok: false as const, code: 'PROVIDER_RESULT_SHAPE_UNKNOWN', ...header, request_id: result.requestId, ...base };
+    }
+    const compact = compactMetricRows(results, job.kind === 'ideas' ? 'keywordIdeaMetrics' : 'keywordMetrics');
+    const returned = new Set(compact.rows.flatMap((row) => [row[0], ...(row[1] as string[])]).map(norm));
+    return {
+      ok: true as const,
+      code: 'GOOGLE_ADS_DEMAND_PROBE_OK',
+      mode: 'OFFICIAL_GOOGLE_ADS_READ_ONLY',
+      method,
+      ...header,
+      ...(job.kind === 'ideas' ? { seed: job.seed } : { requested, requested_meta: requestedMeta, skipped, total_rows: total, missing_requested_keywords: requested.filter((k) => !returned.has(k)) }),
+      captured_at: deps.now().toISOString(),
+      request_id: result.requestId,
+      api_version: account.apiVersion,
+      customer_last4: account.customerId.slice(-4),
+      login_customer_class: account.loginCustomerClass,
+      account_currency: context.currencyCode,
+      columns: COLUMNS,
+      rows: compact.rows,
+      unaligned_months: compact.unaligned_months,
+      null_policy: 'null = Google returned no value (not zero); rows sharing one metric set are close variants and are never summed',
+      ...base,
+    };
+  } catch (error) {
+    if (error instanceof ProbeProviderError) {
+      return { ok: false as const, code: 'GOOGLE_ADS_PROVIDER_ERROR', ...header, http_status: error.status, provider_error_status: error.providerStatus, provider_error_codes: error.codes, request_id: error.requestId, safe_error_message: error.message, ...base };
+    }
+    const code = (error as { safeCode?: string } | null)?.safeCode ?? 'OAUTH_OR_RUNTIME_ERROR';
+    return { ok: false as const, code, ...header, safe_error_message: safeMessage(error), ...base };
+  }
+}
+
+
+export function demandProbeV2Deps(env: Env, readPage: ProbeV2Deps['readPage']): ProbeV2Deps {
+  return { getToken: () => demandProbeOAuthToken(env), getContext: getGoogleAdsCustomerContext, post: demandProbePost(env), readPage, now: () => new Date() };
 }
