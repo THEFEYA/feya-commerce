@@ -273,9 +273,9 @@ function offerDelivery(handling,countries,inheritUs=false){
     });
   });
   if(inheritUs)services.unshift({country:'US'});
-  // This attribute is not repeatable. All listed services operate Mon–Fri.
-  const businessDays=countries.length===1?countries[0]+':MTWRF':'M-F';
-  return {services,businessDays};
+  // All destinations share the shop's Monday–Friday calendar. Google accepts
+  // one unqualified range for these two non-repeatable attributes.
+  return {services,businessDays:'M-F'};
 }
 
 export function toXml(rows,deliveryByGroup){

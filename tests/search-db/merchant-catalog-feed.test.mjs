@@ -117,13 +117,17 @@ test('every submitted offer keeps US service inheritance and carries both quoted
   assert.equal(xmlItems.length,lines.length);
   let originalOffers=0;
   for(const [index,cells] of lines.entries()){
+    const xml=xmlItems[index];
+    for(const key of ['shipping_handling_business_days','shipping_transit_business_days']){
+      assert.equal(cells[columns.indexOf(key)],'M-F');
+      assert.ok(xml.includes('<g:'+key+'>M-F</g:'+key+'>'));
+    }
     const group=cells[columns.indexOf('item_group_id')];
     if(!byGroup.has(group))continue;
     originalOffers++;
     const [low,high]=byGroup.get(group);
     const header='shipping(country:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
     assert.equal(cells[columns.indexOf(header)],'US::::::,HK:Standard:19.00 EUR:'+low+':'+high+':10:14,HK:Express:35.00 EUR:'+low+':'+high+':6:9');
-    const xml=xmlItems[index];
     const services=[...xml.matchAll(/<g:shipping>([\s\S]*?)<\/g:shipping>/g)].map(match=>match[1].trim());
     assert.equal(services.length,3);
     assert.equal(services[0],'<g:country>US</g:country>');
@@ -132,10 +136,6 @@ test('every submitted offer keeps US service inheritance and carries both quoted
       assert.ok(services[offset].includes('<g:price>'+price+' EUR</g:price>'));
       assert.ok(services[offset].includes('<g:min_handling_time>'+low+'</g:min_handling_time>'));
       assert.ok(services[offset].includes('<g:max_handling_time>'+high+'</g:max_handling_time>'));
-    }
-    for(const key of ['shipping_handling_business_days','shipping_transit_business_days']){
-      assert.equal(cells[columns.indexOf(key)],'HK:MTWRF');
-      assert.ok(xml.includes('<g:'+key+'>HK:MTWRF</g:'+key+'>'));
     }
     assert.equal(cells[columns.indexOf('excluded_destination')],'Shopping_ads');
   }
