@@ -61,6 +61,32 @@ test('committed XML and207-row manifests reproduce byte-for-byte without network
   for(const [name,value] of Object.entries(files))assert.equal(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/'+name,import.meta.url),'utf8'),value);
 });
 
+test('reviewed clothing accessories keep their own categories across sizes', () => {
+  const {files} = buildFiles(inputs());
+  const tsv = files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [columns, ...rows] = tsv.trimEnd().split('\n').map(line => line.split('\t'));
+  const groupIndex = columns.indexOf('item_group_id');
+  const categoryIndex = columns.indexOf('google_product_category');
+  const typeIndex = columns.indexOf('product_type');
+  const accessories = 'Apparel & Accessories > Clothing Accessories';
+  const costumes = 'Apparel & Accessories > Costumes & Accessories > Costumes';
+  const cases = [
+    ['66058dbc-f8ed-4189-ba0e-464204df96df', accessories + ' > Suspenders', 'Clothing Accessories > Suspenders'],
+    ['9cf4b355-2c03-4c05-b5ba-2ca8c49ab572', accessories + ' > Suspenders', 'Clothing Accessories > Suspenders'],
+    ['4b56be10-1771-4a5c-9daa-6ae70e8650f0', accessories, 'Clothing Accessories > Chest Harnesses'],
+    ['0f849f66-1594-4689-b86c-fb4e6aca62c3', costumes, 'Costumes > Full Set'],
+    ['dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf', costumes, 'Costumes > Harness'],
+  ];
+  for (const [group, category, type] of cases) {
+    const matching = rows.filter(row => row[groupIndex] === group);
+    assert.equal(matching.length, 7);
+    for (const row of matching) {
+      assert.equal(row[categoryIndex], category);
+      assert.equal(row[typeIndex], type);
+    }
+  }
+});
+
 test('live feeds publish the regular Silver Full Set price for the seven reviewed sizes',()=>{
   const data=inputs();
   const {rows}=buildCatalog(data);
