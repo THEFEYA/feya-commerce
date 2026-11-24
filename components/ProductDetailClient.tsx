@@ -501,7 +501,7 @@ export function ProductDetailClient({
         </p> : null}
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
-          Shipping method and delivery dates are selected in the cart.
+          Ships from Ukraine. Choose delivery in your bag. Your carrier may collect import taxes, duty or clearance fees on delivery.
         </div>
 
         <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {activeConfig ? `${qty} × ${formatPrice(sale,currency)}` : 'Choose configuration'}</div><div className="font-price text-gold-grad text-[29px] leading-none">{activeConfig ? formatPrice(total,currency) : '—'}</div></div>

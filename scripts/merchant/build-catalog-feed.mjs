@@ -255,6 +255,8 @@ export function buildCatalog({capture,facets,qa,confirmations,bindings,pilot}){
 export const xmlEscape=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
 const shippingFields=['country','service','price','min_handling_time','max_handling_time','min_transit_time','max_transit_time'];
 const shippingHeader='shipping('+shippingFields.join(':')+')';
+const postalShippingFields=['country','postal_code',...shippingFields.slice(1)];
+const postalShippingHeader='shipping('+postalShippingFields.join(':')+')';
 const businessDayFields=['shipping_handling_business_days','shipping_transit_business_days'];
 // Item-level targeting keeps the existing US account services. The quoted
 // international rates are for one advertised offer, as required in a feed.
@@ -315,14 +317,17 @@ export function toMerchantTsv(rows,deliveryByGroup){
   const structured=value=>'trained_algorithmic_media:"'+String(value).replace(/"/g,'""')+'"';
   const columns=['id','item_group_id','structured_title','structured_description',
     ...Object.keys(rows[0]).filter(k=>!['id','item_group_id','title','description'].includes(k)),
-    'excluded_destination',...(deliveryByGroup?[shippingHeader,...businessDayFields]:[])];
+    'excluded_destination',...(deliveryByGroup?[shippingHeader,postalShippingHeader,...businessDayFields]:[])];
   const cell=value=>{const s=String(value??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
   return [columns.join('\t'),...rows.map(row=>{
     const record={...row,structured_title:structured(row.title),
       structured_description:structured(row.description),excluded_destination:'Shopping_ads'};
     if(deliveryByGroup){
       const {services,businessDays}=deliveryByGroup.get(row.item_group_id);
-      record[shippingHeader]=services.map(service=>shippingFields.map(key=>service[key]??'').join(':')).join(',');
+      for(const [header,fields] of [[shippingHeader,shippingFields],[postalShippingHeader,postalShippingFields]]){
+        record[header]=services.filter(service=>Boolean(service.postal_code)===(header===postalShippingHeader))
+          .map(service=>fields.map(key=>service[key]??'').join(':')).join(',');
+      }
       for(const key of businessDayFields)record[key]=businessDays;
     }
     return columns.map(c=>cell(record[c])).join('\t');
@@ -336,6 +341,10 @@ const suspenderCategory = {
   google_product_category: clothingAccessories + ' > Suspenders',
   product_type: 'Clothing Accessories > Suspenders',
 };
+// The five Canadian postal zones cover Ontario. Limit this first release to
+// the two reviewed standalone suspenders, in the photographed brown option.
+const ontarioPostalZones=['K*','L*','M*','N*','P*'];
+const ontarioSuspenders=new Set(['66058dbc-f8ed-4189-ba0e-464204df96df','9cf4b355-2c03-4c05-b5ba-2ca8c49ab572']);
 const accessoryCategories = new Map([
   ['66058dbc-f8ed-4189-ba0e-464204df96df', suspenderCategory],
   ['9cf4b355-2c03-4c05-b5ba-2ca8c49ab572', suspenderCategory],
@@ -353,16 +362,24 @@ export function buildFiles(data){
   const productionDays=json(new URL('production-business-days-20261123.json',DIR));
   const deliveryByGroup=new Map(report.products.filter(p=>p.status==='READY').map(p=>
     [p.configuration_id,offerDelivery(productionDays[p.canonical_product_id],['HK'],true)]));
+  for(const group of ontarioSuspenders){
+    const handling=productionDays[productByConfiguration.get(group)];
+    const canadianServices=offerDelivery(handling,['CA']).services;
+    for(const postal_code of ontarioPostalZones){
+      deliveryByGroup.get(group).services.push(...canadianServices.map(service=>({...service,postal_code})));
+    }
+  }
   const liveRows=rows.map(row=>{
     const productId=productByConfiguration.get(row.item_group_id);
     assert.ok(productId,'feed offer has no reviewed product identity');
     const amount=publishedRegularEurMinor(productId,row.item_group_id,row.size);
     if(amount===null)return row;
     const priced={...row,price:(amount/100).toFixed(2)+' EUR'};
-    if(publishedPriceNeedsSize(productId,row.item_group_id)){
+    if(publishedPriceNeedsSize(productId,row.item_group_id)||ontarioSuspenders.has(row.item_group_id)){
       const link=new URL(row.link);
       link.searchParams.set('configuration',row.item_group_id);
       link.searchParams.set('size',row.size);
+      if(ontarioSuspenders.has(row.item_group_id))link.searchParams.set('color','brown');
       priced.link=link.href;
     }
     return priced;

@@ -113,6 +113,9 @@ test('every submitted offer keeps US service inheritance and carries both quoted
   const tsv=files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
   const [columns,...lines]=tsv.trimEnd().split('\n').map(line=>line.split('\t'));
   const xmlItems=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>').slice(1);
+  const postalHeader='shipping(country:postal_code:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
+  const caGroups=['66058dbc-f8ed-4189-ba0e-464204df96df','9cf4b355-2c03-4c05-b5ba-2ca8c49ab572'];
+  let ontarioOffers=0;
   assert.equal(lines.length,1577);
   assert.equal(xmlItems.length,lines.length);
   let originalOffers=0;
@@ -123,6 +126,8 @@ test('every submitted offer keeps US service inheritance and carries both quoted
       assert.ok(xml.includes('<g:'+key+'>M-F</g:'+key+'>'));
     }
     const group=cells[columns.indexOf('item_group_id')];
+    const postal=cells[columns.indexOf(postalHeader)];
+    assert.equal(Boolean(postal),caGroups.includes(group));
     if(!byGroup.has(group))continue;
     originalOffers++;
     const [low,high]=byGroup.get(group);
@@ -134,7 +139,22 @@ test('every submitted offer keeps US service inheritance and carries both quoted
     ])];
     assert.equal(cells[columns.indexOf(header)],expected.join(','));
     const services=[...xml.matchAll(/<g:shipping>([\s\S]*?)<\/g:shipping>/g)].map(match=>match[1].trim());
-    assert.equal(services.length,expected.length);
+    const caServices=services.filter(value=>value.includes('<g:country>CA</g:country>'));
+    assert.equal(services.length,expected.length+caServices.length);
+    if(caGroups.includes(group)){
+      ontarioOffers++;
+      const zones=['K*','L*','M*','N*','P*'];
+      assert.equal(postal,zones.flatMap(zone=>[
+        'CA:'+zone+':Standard:19.00 EUR:'+low+':'+high+':10:14',
+        'CA:'+zone+':Express:35.00 EUR:'+low+':'+high+':6:9',
+      ]).join(','));
+      assert.equal(caServices.length,10);
+      for(const zone of zones)assert.equal(caServices.filter(value=>value.includes('<g:postal_code>'+zone+'</g:postal_code>')).length,2);
+      const query=new URL(cells[columns.indexOf('link')]).searchParams;
+      assert.equal(query.get('configuration'),group);
+      assert.equal(query.get('color'),'brown');
+      assert.equal(query.get('size'),cells[columns.indexOf('size')]);
+    }else assert.equal(caServices.length,0);
     assert.equal(services[0],'<g:country>US</g:country>');
     for(const [i,country] of countries.entries()){
       for(const offset of [1,2])assert.ok(services[2*i+offset].includes('<g:country>'+country+'</g:country>'));
@@ -148,6 +168,7 @@ test('every submitted offer keeps US service inheritance and carries both quoted
     assert.equal(cells[columns.indexOf('excluded_destination')],'Shopping_ads');
   }
   assert.equal(originalOffers,1575);
+  assert.equal(ontarioOffers,14);
 });
 
 test('changed checkout price, incomplete sizes, corpus or duplicate identity fail closed',()=>{
@@ -333,7 +354,7 @@ test('configured TSV source keeps IDs and uses correctly escaped structured copy
   assert.ok(!columns.includes('title')&&!columns.includes('description'));
 });
 
-test('only the partially observed corset gains size-specific links with the correct price in both feeds',()=>{
+test('only the reviewed corset and two brown suspender groups gain variant links with the correct price in both feeds',()=>{
   const data=inputs();
   const {rows}=buildCatalog(data);
   const {files}=buildFiles(data);
@@ -343,26 +364,27 @@ test('only the partially observed corset gains size-specific links with the corr
   const current=new Map(lines.map(cells=>[cells[ids],cells]));
   const xml=files['thefeya_us_free_listings_catalog_20261105.xml'].split('<item>');
   const selected='bc5d078e-6a54-4270-9f17-52c0b55a3dd8';
+  const suspenders=new Map([['66058dbc-f8ed-4189-ba0e-464204df96df','147.02 EUR'],['9cf4b355-2c03-4c05-b5ba-2ca8c49ab572','152.50 EUR']]);
   let changes=0;
   for(const row of rows){
     const cells=current.get(row.id);
     assert.ok(cells);
-    if(row.item_group_id!==selected){
+    if(row.item_group_id!==selected&&!suspenders.has(row.item_group_id)){
       assert.equal(cells[links],row.link);continue;
     }
     const link=new URL(cells[links]),prior=new URL(row.link);
     assert.equal(link.origin+link.pathname,prior.origin+prior.pathname);
-    assert.equal(link.searchParams.get('configuration'),selected);
+    assert.equal(link.searchParams.get('configuration'),row.item_group_id);
     assert.equal(link.searchParams.get('size'),row.size);
     for(const [key,value] of prior.searchParams)assert.equal(link.searchParams.get(key),value);
-    const price=['XXL','XXXL'].includes(row.size)?'183.44 EUR':'230.21 EUR';
+    const price=suspenders.get(row.item_group_id)??(['XXL','XXXL'].includes(row.size)?'183.44 EUR':'230.21 EUR');
     assert.equal(cells[prices],price);
     const item=xml.find(block=>block.includes('<g:id>'+row.id+'</g:id>'));
     assert.ok(item?.includes('<g:price>'+price+'</g:price>'));
     assert.ok(item?.includes('<g:link>'+link.href.replaceAll('&','&amp;')+'</g:link>'));
     changes++;
   }
-  assert.equal(changes,7);
+  assert.equal(changes,21);
 });
 
 test('a fresh capture validates each size against its own published amount and keeps accepted pilot identities',()=>{

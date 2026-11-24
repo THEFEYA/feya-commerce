@@ -19790,7 +19790,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=XS&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -19826,6 +19826,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -19841,7 +19941,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=S&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -19877,6 +19977,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -19892,7 +20092,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=M&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -19928,6 +20128,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -19943,7 +20243,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=L&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -19979,6 +20279,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -19994,7 +20394,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=XL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -20030,6 +20430,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -20045,7 +20545,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=XXL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -20081,6 +20581,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -20096,7 +20696,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable fit and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=9cf4b355-2c03-4c05-b5ba-2ca8c49ab572&amp;size=XXXL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/cd1723/6670210801/il_fullxfull.6670210801_j8fu.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>152.50 EUR</g:price>
@@ -20131,6 +20731,106 @@
         <g:max_handling_time>3</g:max_handling_time>
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
       </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
@@ -55273,7 +55973,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=XS&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55309,6 +56009,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55324,7 +56124,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=S&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55360,6 +56160,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55375,7 +56275,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=M&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55411,6 +56311,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55426,7 +56426,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=L&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55462,6 +56462,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55477,7 +56577,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=XL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55513,6 +56613,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55528,7 +56728,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=XXL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55564,6 +56764,106 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -55579,7 +56879,7 @@
         <g:digital_source_type>trained_algorithmic_media</g:digital_source_type>
         <g:content>Brown leather chest harness suspenders for men with adjustable straps and metal hardware, handmade for classic fashion and editorial photoshoot styling.</g:content>
       </g:structured_description>
-      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog</g:link>
+      <g:link>https://thefeya.com/shop/luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009?utm_source=google&amp;utm_medium=organic_shopping&amp;utm_campaign=mc_us_free_listings_catalog&amp;configuration=66058dbc-f8ed-4189-ba0e-464204df96df&amp;size=XXXL&amp;color=brown</g:link>
       <g:image_link>https://i.etsystatic.com/54033853/r/il/436162/6661370783/il_fullxfull.6661370783_l0xa.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>147.02 EUR</g:price>
@@ -55614,6 +56914,106 @@
         <g:max_handling_time>3</g:max_handling_time>
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>K*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>L*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>M*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>N*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>3</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+        <g:postal_code>P*</g:postal_code>
       </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>

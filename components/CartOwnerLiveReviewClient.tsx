@@ -655,6 +655,8 @@ export function CartOwnerLiveReviewClient(){
                   ?'One of the pieces in your bag needs to be selected again on its product page before payment.'
                   :colourRecovery?<a className="text-[#d4b26a] underline underline-offset-4" href="#saved-bag-colour">Choose a current colour for your piece</a>
                   :quote&&!quote.ok?quote.message
+                  :form.country==='CA'&&form.region==='ON'
+                    ?<>You pay in EUR. On import, Ontario generally charges 13% HST on the customs value plus applicable duty. Your carrier may also charge a clearance fee. <a className="underline underline-offset-2" href="https://www.cbsa-asfc.gc.ca/travel-voyage/dte-acl/est-cal-eng.html" target="_blank" rel="noreferrer">Estimate Canadian import charges</a></>
                   :form.country?'Price in EUR, confirmed by TheFEYA. Customs/import charges, where applicable, may be collected separately on delivery.'
                   :'Select your destination country to confirm delivery charges.'}
               </p>

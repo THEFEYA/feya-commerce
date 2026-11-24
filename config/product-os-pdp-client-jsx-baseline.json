@@ -1,6 +1,6 @@
 {
   "source_commit": "1454b186b7a112cde484540abade673f15b5ea87",
   "source_client_git_blob": "7999bf5d6828503bec48122500bdb50a7cb32c09",
-  "scope": "Owner-authorized functional Save/Share and real policy links (6 November 2026); preserve the remaining PDP JSX, purchase selectors and approved copy. Owner-approved 13 November 2026: gallery thumbnails carry the reviewed photo ALT (alt=\"\" -> alt={g.alt || ''}); no visual, class or layout change.",
-  "normalized_jsx_sha256": "2b621e1b2f3cbc00be6b2e34552ffc1935e0d0b46a9dbd241b0097b0bf75d77b"
+  "scope": "Owner-authorized functional Save/Share and real policy links (6 November 2026); preserve the remaining PDP JSX, purchase selectors and approved copy. Owner-approved 13 November 2026: gallery thumbnails carry the reviewed photo ALT (alt=\"\" -> alt={g.alt || ''}); no visual, class or layout change. The Ontario free-listings release updates the single existing shipping sentence to identify dispatch from Ukraine and possible import charges.",
+  "normalized_jsx_sha256": "1e334348cf12f2f5da5b55768a0a3bd523e0e19d12ee3330ed1233be2b2d1c45"
 }
