@@ -13,7 +13,6 @@
 import {
   GoogleAdsApiError,
   getGoogleAdsCustomerContext,
-  getOAuthAccessToken,
   runGoogleAdsKeywordMetrics,
 } from './googleAdsProvider.ts';
 
@@ -170,17 +169,48 @@ export function demandProbeObservations(keywords: readonly string[], providerPay
   };
 }
 
+/**
+ * Token exchange with the same bounded classification as lib/gscOfficialReadOnly.ts:
+ * only Google's stable OAuth `error` field maps to a code; raw descriptions and bodies are discarded.
+ */
+export async function demandProbeOAuthToken(env: Env, fetcher: typeof fetch = fetch): Promise<string> {
+  const fail = (safeCode: string) => Object.assign(new Error(safeCode), { safeCode });
+  if (!env.GOOGLE_ADS_CLIENT_ID || !env.GOOGLE_ADS_CLIENT_SECRET || !env.GOOGLE_ADS_REFRESH_TOKEN) throw fail('GOOGLE_ADS_OAUTH_ENV_MISSING');
+  let response: Response;
+  try {
+    response = await fetcher('https://oauth2.googleapis.com/token', {
+      method: 'POST', cache: 'no-store', signal: AbortSignal.timeout(15000),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ client_id: env.GOOGLE_ADS_CLIENT_ID, client_secret: env.GOOGLE_ADS_CLIENT_SECRET, refresh_token: env.GOOGLE_ADS_REFRESH_TOKEN, grant_type: 'refresh_token' }),
+    });
+  } catch { throw fail('GOOGLE_OAUTH_UNAVAILABLE'); }
+  if (!response.ok) {
+    if (response.status === 429 || response.status >= 500) throw fail('GOOGLE_OAUTH_UNAVAILABLE');
+    let oauthError: unknown = null;
+    try { const raw = await response.text(); if (raw.length <= 4096) { const parsed: unknown = JSON.parse(raw); oauthError = parsed && typeof parsed === 'object' ? (parsed as UnknownRecord).error : null; } } catch { /* discarded */ }
+    if (oauthError === 'invalid_grant') throw fail('GOOGLE_ADS_OAUTH_REFRESH_REJECTED');
+    if (oauthError === 'invalid_client') throw fail('GOOGLE_ADS_OAUTH_CLIENT_REJECTED');
+    if (oauthError === 'unauthorized_client') throw fail('GOOGLE_ADS_OAUTH_CLIENT_NOT_ALLOWED');
+    if (oauthError === 'invalid_request') throw fail('GOOGLE_ADS_OAUTH_REQUEST_INVALID');
+    throw fail('GOOGLE_ADS_OAUTH_REJECTED');
+  }
+  const payload: UnknownRecord | null = await response.json().catch(() => null);
+  const accessToken = payload && typeof payload.access_token === 'string' ? payload.access_token.trim() : '';
+  if (!accessToken) throw fail('GOOGLE_OAUTH_INVALID_RESPONSE');
+  return accessToken;
+}
+
 type ProbeDeps = {
-  getToken: typeof getOAuthAccessToken;
+  getToken: () => Promise<string>;
   getContext: typeof getGoogleAdsCustomerContext;
   run: typeof runGoogleAdsKeywordMetrics;
   now: () => Date;
 };
-const DEFAULT_DEPS: ProbeDeps = { getToken: getOAuthAccessToken, getContext: getGoogleAdsCustomerContext, run: runGoogleAdsKeywordMetrics, now: () => new Date() };
+const defaultDeps = (env: Env): ProbeDeps => ({ getToken: () => demandProbeOAuthToken(env), getContext: getGoogleAdsCustomerContext, run: runGoogleAdsKeywordMetrics, now: () => new Date() });
 const safeMessage = (error: unknown) => (error instanceof Error ? error.message : '').replace(SENSITIVE, '[REDACTED]').slice(0, 200) || null;
 
 /** One provider request per call. No retries, no persistence. */
-export async function runDemandProbe(keywords: readonly string[], env: Env, deps: ProbeDeps = DEFAULT_DEPS) {
+export async function runDemandProbe(keywords: readonly string[], env: Env, deps: ProbeDeps = defaultDeps(env)) {
   const base = { production_db_writes: 0, data_written: false, ai_calls: 0, campaigns_changed: 0 } as const;
   const account = demandProbeAccount(env);
   if (!account.ok) return { ...account, ok: false as const, ...base };

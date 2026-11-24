@@ -8,6 +8,7 @@ import {
   demandProbeDeploymentAllowed,
   demandProbeKeywords,
   demandProbeObservations,
+  demandProbeOAuthToken,
   demandProbePayload,
   runDemandProbe,
 } from '../../lib/googleAdsDemandProbe.ts';
@@ -107,4 +108,20 @@ test('route is POST-only, deployment-gated first, same-origin, predefined set, a
   for (const forbidden of ['supabase', 'Supabase', '.insert(', '.upsert(', '.rpc(', 'GOOGLE_ADS_CLIENT_SECRET', 'GOOGLE_ADS_REFRESH_TOKEN', 'FEYA_INTERNAL_API_TOKEN', 'OPENAI_API_KEY', 'cron']) {
     assert.equal(route.includes(forbidden), false, forbidden);
   }
+});
+
+test('OAuth exchange maps only Google\'s stable error field and never echoes bodies', async () => {
+  const reply = (status: number, body: string) => (async () => new Response(body, { status })) as unknown as typeof fetch;
+  const cases: [number, string, string][] = [
+    [400, '{"error":"invalid_grant","error_description":"Bad Request"}', 'GOOGLE_ADS_OAUTH_REFRESH_REJECTED'],
+    [401, '{"error":"invalid_client","error_description":"Unauthorized"}', 'GOOGLE_ADS_OAUTH_CLIENT_REJECTED'],
+    [400, '{"error":"unauthorized_client"}', 'GOOGLE_ADS_OAUTH_CLIENT_NOT_ALLOWED'],
+    [400, 'not json', 'GOOGLE_ADS_OAUTH_REJECTED'],
+    [503, '{}', 'GOOGLE_OAUTH_UNAVAILABLE'],
+  ];
+  for (const [status, body, code] of cases) {
+    await assert.rejects(demandProbeOAuthToken(account, reply(status, body)), (e: Error & { safeCode?: string }) => e.safeCode === code && !e.message.includes('Bad Request'));
+  }
+  assert.equal(await demandProbeOAuthToken(account, reply(200, '{"access_token":"fixture-token"}')), 'fixture-token');
+  await assert.rejects(demandProbeOAuthToken({ ...account, GOOGLE_ADS_REFRESH_TOKEN: '' }, reply(200, '{}')), (e: Error & { safeCode?: string }) => e.safeCode === 'GOOGLE_ADS_OAUTH_ENV_MISSING');
 });
