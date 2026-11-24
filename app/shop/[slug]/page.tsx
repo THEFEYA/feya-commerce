@@ -11,6 +11,7 @@ import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
 import { getMedia, productTitle } from '@/lib/storefront';
 import { readCachedStorefrontProductPresentation } from '@/lib/storefrontProductPresentationServer';
 import { readCachedStorefrontProductMetadataV1 } from '@/lib/storefrontProductMetadataServer';
+import { reviewedProductSearchTitle } from '@/lib/storefrontReviewedProductSearchTitle';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
@@ -175,7 +176,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description=sourcePinnedCopy?.copy.metadata.description||metadata.description;
   return{
     robots,
-    title,
+    title: reviewedProductSearchTitle(metadata, title),
     description,
     alternates:{canonical:path},
     openGraph:{
