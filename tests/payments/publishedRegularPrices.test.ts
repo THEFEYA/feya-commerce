@@ -96,7 +96,7 @@ test('every released size charges its verified configuration base and correctly 
   assert.equal(options,629);assert.equal(sizes,4571);
 });
 
-test('bundle comparisons are truthful for single and multiple sets; the unverified spine bundle keeps its original price',()=>{
+test('bundle comparisons are truthful for single and multiple sets',()=>{
   const silverProduct=currentProduct(silver);
   const bracelet=sortedOptions(silverProduct).find(o=>o.configuration_id==='04254157-450b-43d7-a820-78696f967966')!;
   assert.equal(bracelet.public_label,'Bracelets');assert.equal(silverProduct.component_sum_display_price_amount,512.48);
@@ -107,9 +107,35 @@ test('bundle comparisons are truthful for single and multiple sets; the unverifi
   const hornPrices=new Map(sortedOptions(hornProduct).map(row=>[optionKey(row),optionPrice(row)]));
   assert.equal(hornPrices.get('7265ce35-20ca-41f2-b1c7-0892db93f805'),760.69);
   assert.equal(hornPrices.get('4957f3e1-9fed-4360-a34e-3192bddf9b06'),1201.09);
-  const spineSet='c45dfaca-600d-46ef-b6a7-556de132d0e1';
-  assert.equal(publishedRegularEurMinor(spine,spineSet),null);
-  assert.equal(optionPrice(fullSetOption(currentProduct(spine))),255.22);
+});
+
+test('the silver spine full set matches its twin and retains the three component prices', () => {
+  const product = currentProduct(spine);
+  const sibling = currentProduct('73735bd6-82e7-48fa-8b2e-235a13bbf4b0');
+  const full = fullSetOption(product)!;
+  const config = optionKey(full);
+  assert.equal(config, 'c45dfaca-600d-46ef-b6a7-556de132d0e1');
+  assert.equal(full.price_source_mode, 'owner_authorized_full_set_eur');
+  assert.equal(product.component_sum_display_price_amount, 343.70);
+  assert.equal(product.full_set_savings_amount, 23.41);
+  const components = sortedOptions(product).filter(option => optionKey(option) !== config);
+  assert.deepEqual(Object.fromEntries(components.map(option => [optionKey(option), optionPrice(option)])), {
+    'b6625b12-eb5b-49b6-942b-00570f562381': 141.04,
+    '260e1e5f-b933-4315-a216-86bfc840d83e': 96.50,
+    '8a01e45a-1278-4215-bbe9-92603659c9b4': 106.16,
+  });
+  for (const size of PAIRED_SET_SIZES) {
+    assert.equal(selectedOptionPrice(fullSetOption(sibling)!, size), 320.29);
+    const line:CartLineInput = {
+      id:spine + '-' + config, slug:product.product_slug!, configuration_id:config,
+      size, color:colorOptions(product)[0], wearer:null, made_to_measure:size === 'Custom',
+      quantity:1, client_unit_minor:25522,
+    };
+    const quote = priceCartLineForQuote(product,line);
+    assert.equal(quote.unit_minor, 32029);
+    assert.equal(quote.price_changed, true);
+    assert.equal(priceCartLine(product,{...line,client_unit_minor:32029}).price_changed, false);
+  }
 });
 
 test('the runway petal Full Set charges its approved EUR price in every fit and reprices a saved bag',()=>{
@@ -227,7 +253,7 @@ test('keeps all catalog option identities, unaffected prices, colors and product
       else{assert.equal(optionPrice(row),expected/100);selected++;}
     }
   }
-  assert.equal(selected,632);assert.equal(unchanged,224);
+  assert.equal(selected,633);assert.equal(unchanged,223);
 });
 
 test('size selection, saved bags, site-only fit and Merchant landings agree on the corset prices',()=>{
