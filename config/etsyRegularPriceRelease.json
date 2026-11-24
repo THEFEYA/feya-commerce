@@ -1,11 +1,30 @@
 {
-  "version": "2026-11-23.3",
+  "version": "2026-11-24.1",
   "fx": {
     "asOf": "2026-11-20",
     "usdPerEur": "1.0990",
     "sourceUrl": "https://www.ecb.europa.eu/stats/exchange/eurofxref/shared/pdf/2026/11/20261120.pdf"
   },
   "products": {
+    "a6239781-34bb-42a1-85ae-91a733f7df65": {
+      "etsyListingId": "4332119985",
+      "etsySizeValues": {},
+      "cardConfigurationId": "91834134-2157-4528-b306-163791377970",
+      "ownerWebsiteFullSet": {
+        "approvedOn": "2026-11-24",
+        "regularEurMinor": 28025
+      },
+      "separateConfigurationIds": [
+        "260f5b70-ed47-4b46-8b09-c38d03f127ab",
+        "44db921e-58b6-4ae5-8b5d-a18a7bbc548c"
+      ],
+      "baselineEurMinor": {
+        "91834134-2157-4528-b306-163791377970": 23129,
+        "260f5b70-ed47-4b46-8b09-c38d03f127ab": 15951,
+        "44db921e-58b6-4ae5-8b5d-a18a7bbc548c": 12545
+      },
+      "offers": {}
+    },
     "7bb70eab-b2f5-4079-96e7-d116484d1466": {
       "etsyListingId": "1883724741",
       "sourceUrl": "https://www.etsy.com/listing/1883724741/futuristic-silver-reflective-armor-set",

@@ -27,6 +27,7 @@ type ProductRelease = {
   etsyListedSizes?: string[];
   cardConfigurationId: string;
   ownerPricedPair?: {configurationId: string; regularUsdMinor: number; approvedOn: string};
+  ownerWebsiteFullSet?: {regularEurMinor: number; approvedOn: string};
   separateConfigurationIds?: string[];
   baselineEurMinor: Record<string, number>;
   offers: Record<string, ReleasedOffer>;
@@ -151,6 +152,16 @@ function prepareProduct(release: ProductRelease) {
     current.set(id, amount);
     confidence.set(id, 'owner_reviewed');
   }
+  if (release.ownerWebsiteFullSet) {
+    const id = release.cardConfigurationId;
+    if (!current.has(id) || regular.has(id) || pieces.length < 2) {
+      throw new Error('An owner-priced website set requires one distinct set and its separate pieces');
+    }
+    const amount = release.ownerWebsiteFullSet.regularEurMinor;
+    regular.set(id, amount);
+    current.set(id, amount);
+    confidence.set(id, 'owner_reviewed');
+  }
   const card = current.get(release.cardConfigurationId);
   if (!card || !regular.size) throw new Error('Missing catalog display price');
   const sizeAmounts = Array.from(sizePrices.values()).flatMap(prices => standardSizes.map(size => prices[size]));
@@ -217,7 +228,11 @@ export function applyPublishedProductPrices(product: StorefrontProduct): Storefr
     const offer = item.release.offers[id];
     const ownerPair = item.release.ownerPricedPair?.configurationId === id;
     if (ownerPair && !isSourceConfirmedPairedSet(row)) throw new Error('Owner bundle requires both outfits');
-    const regularPriceSource = ownerPair ? 'owner_authorized_bundle' : 'etsy_regular_usd';
+    let regularPriceSource = ownerPair ? 'owner_authorized_bundle' : 'etsy_regular_usd';
+    if (item.release.ownerWebsiteFullSet && item.release.cardConfigurationId === id) {
+      if (row.is_full_set !== true) throw new Error('Owner website set price requires a Full Set configuration');
+      regularPriceSource = 'owner_authorized_full_set_eur';
+    }
     const label = offer?.publicLabel;
     const sizes = item.sizePrices.get(id);
     const source = offer?.evidence;
