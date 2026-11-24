@@ -1,0 +1,10 @@
+{
+  "version": "thefeya-sale-policy-20261123-v5",
+  "sources": {
+    "terms": "d05c52b29b4864a6b3a014a221c084b9a37d511d",
+    "returns": "7c7c687985e54112e8bdfec3bd1e6aeee1351669",
+    "shipping": "35a90d492f87f59c3166eefd4a020cad20c9bc4b",
+    "privacy": "2b91f9c1cd7290e840fff91567e9cd7640ef36fb"
+  },
+  "textSha256": "644d1aafd0601b1e05f4ca7580c853c8da8393331e9321da23620c853a7b77dd"
+}

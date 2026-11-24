@@ -127,10 +127,18 @@ test('every submitted offer keeps US service inheritance and carries both quoted
     originalOffers++;
     const [low,high]=byGroup.get(group);
     const header='shipping(country:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
-    assert.equal(cells[columns.indexOf(header)],'US::::::,HK:Standard:19.00 EUR:'+low+':'+high+':10:14,HK:Express:35.00 EUR:'+low+':'+high+':6:9');
+    const countries=group==='f17cad18-1bc9-4d89-9163-d11239fb7fc0'?['HK','SG']:['HK'];
+    const expected=['US::::::',...countries.flatMap(country=>[
+      country+':Standard:19.00 EUR:'+low+':'+high+':10:14',
+      country+':Express:35.00 EUR:'+low+':'+high+':6:9',
+    ])];
+    assert.equal(cells[columns.indexOf(header)],expected.join(','));
     const services=[...xml.matchAll(/<g:shipping>([\s\S]*?)<\/g:shipping>/g)].map(match=>match[1].trim());
-    assert.equal(services.length,3);
+    assert.equal(services.length,expected.length);
     assert.equal(services[0],'<g:country>US</g:country>');
+    for(const [i,country] of countries.entries()){
+      for(const offset of [1,2])assert.ok(services[2*i+offset].includes('<g:country>'+country+'</g:country>'));
+    }
     for(const [offset,method,price] of [[1,'Standard','19.00'],[2,'Express','35.00']]){
       assert.ok(services[offset].includes('<g:service>'+method+'</g:service>'));
       assert.ok(services[offset].includes('<g:price>'+price+' EUR</g:price>'));
