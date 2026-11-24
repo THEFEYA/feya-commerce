@@ -12,7 +12,7 @@ import {coupleColorSelection} from '../../lib/bonanzaCoupleColorChoices.ts';
 import {isSourceConfirmedPairedSet,PAIRED_SET_SIZES} from '../../lib/payments/pairedSetSelection.ts';
 import {colorOptions,fullSetOption,optionKey,optionLabel,optionPrice,sortedOptions} from '../../lib/storefront.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
-import {priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
+import {priceCartLine,type CartLineInput} from '../../lib/payments/catalogLinePricing.ts';
 import {priceCartLineForQuote} from '../../lib/payments/cartColourRecovery.ts';
 import type {StorefrontConfiguration,StorefrontProduct} from '../../lib/types.ts';
 
@@ -127,7 +127,7 @@ test('the runway petal Full Set charges its approved EUR price in every fit and 
     assert.deepEqual(sortedOptions(product).find(row=>optionKey(row)===optionKey(piece)),piece);
   }
   for(const size of PAIRED_SET_SIZES){
-    const line={id:id+'-'+config,slug:product.product_slug!,configuration_id:config,size,
+    const line:CartLineInput={id:id+'-'+config,slug:product.product_slug!,configuration_id:config,size,
       color:colorOptions(product)[0],quantity:1,wearer:null,made_to_measure:size==='Custom',client_unit_minor:23129};
     assert.equal(publishedRegularEurMinor(id,config,size),28025);
     assert.equal(selectedOptionPrice(full,size),280.25);
