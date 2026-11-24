@@ -12,7 +12,7 @@ import {coupleColorSelection} from '../../lib/bonanzaCoupleColorChoices.ts';
 import {isSourceConfirmedPairedSet,PAIRED_SET_SIZES} from '../../lib/payments/pairedSetSelection.ts';
 import {colorOptions,fullSetOption,optionKey,optionLabel,optionPrice,sortedOptions} from '../../lib/storefront.ts';
 import {pdpOfferJsonLd} from '../../lib/storefrontOfferJsonLd.ts';
-import {priceCartLine} from '../../lib/payments/catalogLinePricing.ts';
+import {priceCartLine,type CartLineInput} from '../../lib/payments/catalogLinePricing.ts';
 import {priceCartLineForQuote} from '../../lib/payments/cartColourRecovery.ts';
 import type {StorefrontConfiguration,StorefrontProduct} from '../../lib/types.ts';
 
@@ -112,6 +112,34 @@ test('bundle comparisons are truthful for single and multiple sets; the unverifi
   assert.equal(optionPrice(fullSetOption(currentProduct(spine))),255.22);
 });
 
+test('the runway petal Full Set charges its approved EUR price in every fit and reprices a saved bag',()=>{
+  const id='a6239781-34bb-42a1-85ae-91a733f7df65';
+  const product=currentProduct(id);
+  const full=fullSetOption(product)!;
+  const config=optionKey(full);
+  assert.equal(config,'91834134-2157-4528-b306-163791377970');
+  assert.equal(full.price_source_mode,'owner_authorized_full_set_eur');
+  assert.equal(full.price_confidence_status,'owner_reviewed');
+  assert.equal(product.component_sum_display_price_amount,284.96);
+  assert.equal(product.full_set_savings_amount,4.71);
+  const original=sourceProduct(id);
+  for(const piece of sortedOptions(original).filter(row=>optionKey(row)!==config)){
+    assert.deepEqual(sortedOptions(product).find(row=>optionKey(row)===optionKey(piece)),piece);
+  }
+  for(const size of PAIRED_SET_SIZES){
+    const line:CartLineInput={id:id+'-'+config,slug:product.product_slug!,configuration_id:config,size,
+      color:colorOptions(product)[0],quantity:1,wearer:null,made_to_measure:size==='Custom',client_unit_minor:23129};
+    assert.equal(publishedRegularEurMinor(id,config,size),28025);
+    assert.equal(selectedOptionPrice(full,size),280.25);
+    const quote=priceCartLineForQuote(product,line);
+    assert.equal(quote.unit_minor,28025);
+    assert.equal(quote.price_changed,true);
+    assert.equal(priceCartLine(product,{...line,client_unit_minor:28025}).price_changed,false);
+  }
+  assert.equal(optionPrice(fullSetOption(currentProduct('c35b5b75-7e6e-492b-9528-6a126384086e'))),280.25);
+  assert.equal(optionPrice(fullSetOption(currentProduct('6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40'))),320.29);
+});
+
 test('Gold Matching Couple charges the owner-approved pair price for both fits and compares against the two actual solo prices',()=>{
   const productId = '057fbd51-52f5-4404-b126-e5d75b8599f4';
   const book = release.products[productId];
@@ -171,7 +199,7 @@ test('keeps all catalog option identities, unaffected prices, colors and product
       else{assert.equal(optionPrice(row),expected/100);selected++;}
     }
   }
-  assert.equal(selected,630);assert.equal(unchanged,226);
+  assert.equal(selected,631);assert.equal(unchanged,225);
 });
 
 test('size selection, saved bags, site-only fit and Merchant landings agree on the corset prices',()=>{
