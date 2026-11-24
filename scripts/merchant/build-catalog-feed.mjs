@@ -273,9 +273,9 @@ function offerDelivery(handling,countries,inheritUs=false){
     });
   });
   if(inheritUs)services.unshift({country:'US'});
-  // This attribute is not repeatable. All listed services operate Mon–Fri.
-  const businessDays=countries.length===1?countries[0]+':MTWRF':'M-F';
-  return {services,businessDays};
+  // All destinations share the shop's Monday–Friday calendar. Google accepts
+  // one unqualified range for these two non-repeatable attributes.
+  return {services,businessDays:'M-F'};
 }
 
 export function toXml(rows,deliveryByGroup){
@@ -329,6 +329,22 @@ export function toMerchantTsv(rows,deliveryByGroup){
   })].join('\n')+'\n';
 }
 
+// Reviewed against the selected item and its public photo. Other harnesses can
+// be costume sets, so the classifications belong to exact configurations.
+const clothingAccessories = 'Apparel & Accessories > Clothing Accessories';
+const suspenderCategory = {
+  google_product_category: clothingAccessories + ' > Suspenders',
+  product_type: 'Clothing Accessories > Suspenders',
+};
+const accessoryCategories = new Map([
+  ['66058dbc-f8ed-4189-ba0e-464204df96df', suspenderCategory],
+  ['9cf4b355-2c03-4c05-b5ba-2ca8c49ab572', suspenderCategory],
+  ['4b56be10-1771-4a5c-9daa-6ae70e8650f0', {
+    google_product_category: clothingAccessories,
+    product_type: 'Clothing Accessories > Chest Harnesses',
+  }],
+]);
+
 export function buildFiles(data){
   const {rows,report}=buildCatalog(data);
   // The manifests describe the dated Google/readback review. The live XML and
@@ -375,10 +391,14 @@ export function buildFiles(data){
       custom_label_0:'international_single_items_20261123'});
     deliveryByGroup.set(offer.configurationId,offerDelivery(productionDays[offer.productId],countries));
   }
+  const publishedRows = liveRows.map(row => {
+    const category = accessoryCategories.get(row.item_group_id);
+    return category ? {...row, ...category} : row;
+  });
   const columns=['canonical_product_id','etsy_tail','status','offer_count','configuration_id','price_eur','photographed_color','gender','title','url','reasons','remedies'];
   const cell=v=>{const s=Array.isArray(v)?v.join(' | '):String(v??'');assert.doesNotMatch(s,/[\t\r\n]/);return s;};
-  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(liveRows,deliveryByGroup),
-    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(liveRows,deliveryByGroup),
+  return {report,files:{'thefeya_us_free_listings_catalog_20261105.xml':toXml(publishedRows,deliveryByGroup),
+    '../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv':toMerchantTsv(publishedRows,deliveryByGroup),
     'readiness_manifest.json':JSON.stringify(report,null,2)+'\n',
     'readiness_manifest.tsv':[columns.join('\t'),...report.products.map(p=>columns.map(c=>cell(p[c])).join('\t'))].join('\n')+'\n'}};
 }

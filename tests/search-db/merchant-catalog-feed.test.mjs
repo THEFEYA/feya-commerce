@@ -61,6 +61,32 @@ test('committed XML and207-row manifests reproduce byte-for-byte without network
   for(const [name,value] of Object.entries(files))assert.equal(readFileSync(new URL('../../docs/merchant/catalog-us-20261105/'+name,import.meta.url),'utf8'),value);
 });
 
+test('reviewed clothing accessories keep their own categories across sizes', () => {
+  const {files} = buildFiles(inputs());
+  const tsv = files['../pilot-us-20261103/thefeya_us_free_listings_pilot_20261103.tsv'];
+  const [columns, ...rows] = tsv.trimEnd().split('\n').map(line => line.split('\t'));
+  const groupIndex = columns.indexOf('item_group_id');
+  const categoryIndex = columns.indexOf('google_product_category');
+  const typeIndex = columns.indexOf('product_type');
+  const accessories = 'Apparel & Accessories > Clothing Accessories';
+  const costumes = 'Apparel & Accessories > Costumes & Accessories > Costumes';
+  const cases = [
+    ['66058dbc-f8ed-4189-ba0e-464204df96df', accessories + ' > Suspenders', 'Clothing Accessories > Suspenders'],
+    ['9cf4b355-2c03-4c05-b5ba-2ca8c49ab572', accessories + ' > Suspenders', 'Clothing Accessories > Suspenders'],
+    ['4b56be10-1771-4a5c-9daa-6ae70e8650f0', accessories, 'Clothing Accessories > Chest Harnesses'],
+    ['0f849f66-1594-4689-b86c-fb4e6aca62c3', costumes, 'Costumes > Full Set'],
+    ['dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf', costumes, 'Costumes > Harness'],
+  ];
+  for (const [group, category, type] of cases) {
+    const matching = rows.filter(row => row[groupIndex] === group);
+    assert.equal(matching.length, 7);
+    for (const row of matching) {
+      assert.equal(row[categoryIndex], category);
+      assert.equal(row[typeIndex], type);
+    }
+  }
+});
+
 test('live feeds publish the regular Silver Full Set price for the seven reviewed sizes',()=>{
   const data=inputs();
   const {rows}=buildCatalog(data);
@@ -91,13 +117,17 @@ test('every submitted offer keeps US service inheritance and carries both quoted
   assert.equal(xmlItems.length,lines.length);
   let originalOffers=0;
   for(const [index,cells] of lines.entries()){
+    const xml=xmlItems[index];
+    for(const key of ['shipping_handling_business_days','shipping_transit_business_days']){
+      assert.equal(cells[columns.indexOf(key)],'M-F');
+      assert.ok(xml.includes('<g:'+key+'>M-F</g:'+key+'>'));
+    }
     const group=cells[columns.indexOf('item_group_id')];
     if(!byGroup.has(group))continue;
     originalOffers++;
     const [low,high]=byGroup.get(group);
     const header='shipping(country:service:price:min_handling_time:max_handling_time:min_transit_time:max_transit_time)';
     assert.equal(cells[columns.indexOf(header)],'US::::::,HK:Standard:19.00 EUR:'+low+':'+high+':10:14,HK:Express:35.00 EUR:'+low+':'+high+':6:9');
-    const xml=xmlItems[index];
     const services=[...xml.matchAll(/<g:shipping>([\s\S]*?)<\/g:shipping>/g)].map(match=>match[1].trim());
     assert.equal(services.length,3);
     assert.equal(services[0],'<g:country>US</g:country>');
@@ -106,10 +136,6 @@ test('every submitted offer keeps US service inheritance and carries both quoted
       assert.ok(services[offset].includes('<g:price>'+price+' EUR</g:price>'));
       assert.ok(services[offset].includes('<g:min_handling_time>'+low+'</g:min_handling_time>'));
       assert.ok(services[offset].includes('<g:max_handling_time>'+high+'</g:max_handling_time>'));
-    }
-    for(const key of ['shipping_handling_business_days','shipping_transit_business_days']){
-      assert.equal(cells[columns.indexOf(key)],'HK:MTWRF');
-      assert.ok(xml.includes('<g:'+key+'>HK:MTWRF</g:'+key+'>'));
     }
     assert.equal(cells[columns.indexOf('excluded_destination')],'Shopping_ads');
   }
