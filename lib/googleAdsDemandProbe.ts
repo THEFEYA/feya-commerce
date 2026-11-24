@@ -95,18 +95,26 @@ export function demandProbeKeywords(set: unknown): readonly string[] | null {
 }
 
 export function demandProbeAccount(env: Env):
-  | { ok: true; customerId: string; apiVersion: string }
-  | { ok: false; code: string } {
+  | { ok: true; customerId: string; apiVersion: string; loginCustomerClass: 'manager' | 'self' | 'none' }
+  | { ok: false; code: string; login_customer_class?: string; login_customer_last4?: string } {
   const customerId = String(env.GOOGLE_ADS_CUSTOMER_ID || '').replaceAll('-', '').trim();
   const login = String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID || '').replaceAll('-', '').trim();
   const apiVersion = env.GOOGLE_ADS_API_VERSION || 'v25';
   if (!ALLOWED_CUSTOMERS.has(customerId)) return { ok: false, code: 'GOOGLE_ADS_CUSTOMER_NOT_ALLOWED' };
-  if (login && login !== ALLOWED_LOGIN_CUSTOMER) return { ok: false, code: 'GOOGLE_ADS_LOGIN_CUSTOMER_NOT_ALLOWED' };
+  // Login header may be the FEYA manager or the advertiser itself (direct access); anything else is refused.
+  if (login && login !== ALLOWED_LOGIN_CUSTOMER && login !== customerId) {
+    return {
+      ok: false,
+      code: 'GOOGLE_ADS_LOGIN_CUSTOMER_NOT_ALLOWED',
+      login_customer_class: ALLOWED_CUSTOMERS.has(login) ? 'other_allowlisted_customer' : /^\d{10}$/.test(login) ? 'other_customer' : 'malformed',
+      login_customer_last4: /^\d{10}$/.test(login) ? login.slice(-4) : undefined,
+    };
+  }
   if (!/^v\d+$/.test(apiVersion)) return { ok: false, code: 'GOOGLE_ADS_API_VERSION_INVALID' };
   if (!env.GOOGLE_ADS_CLIENT_ID || !env.GOOGLE_ADS_CLIENT_SECRET || !env.GOOGLE_ADS_REFRESH_TOKEN) {
     return { ok: false, code: 'GOOGLE_ADS_OAUTH_ENV_MISSING' };
   }
-  return { ok: true, customerId, apiVersion };
+  return { ok: true, customerId, apiVersion, loginCustomerClass: !login ? 'none' : login === customerId ? 'self' : 'manager' };
 }
 
 /** Fixed reviewed profile: US (2840), English (1000), Google Search, twelve complete months. */
@@ -175,7 +183,7 @@ const safeMessage = (error: unknown) => (error instanceof Error ? error.message 
 export async function runDemandProbe(keywords: readonly string[], env: Env, deps: ProbeDeps = DEFAULT_DEPS) {
   const base = { production_db_writes: 0, data_written: false, ai_calls: 0, campaigns_changed: 0 } as const;
   const account = demandProbeAccount(env);
-  if (!account.ok) return { ok: false as const, code: account.code, ...base };
+  if (!account.ok) return { ...account, ok: false as const, ...base };
   const payload = demandProbePayload(keywords);
   try {
     const token = await deps.getToken();
@@ -191,6 +199,7 @@ export async function runDemandProbe(keywords: readonly string[], env: Env, deps
       request_id: keep(result.requestId),
       api_version: account.apiVersion,
       customer_id: account.customerId,
+      login_customer_class: account.loginCustomerClass,
       account_currency: context.currencyCode,
       account_time_zone: context.timeZone,
       request: payload,

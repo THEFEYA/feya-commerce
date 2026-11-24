@@ -47,9 +47,12 @@ test('request profile is fixed to US/en/Google Search and twelve complete months
 });
 
 test('advertiser customer only; manager as customer, foreign login or missing OAuth refuse', () => {
-  assert.deepEqual(demandProbeAccount(account), { ok: true, customerId: '2333697098', apiVersion: 'v25' });
+  assert.deepEqual(demandProbeAccount(account), { ok: true, customerId: '2333697098', apiVersion: 'v25', loginCustomerClass: 'manager' });
+  assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_LOGIN_CUSTOMER_ID: '233-369-7098' }).ok, true);
+  assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_LOGIN_CUSTOMER_ID: '' }).ok, true);
   assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_CUSTOMER_ID: '3332427758' }).ok, false);
-  assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_LOGIN_CUSTOMER_ID: '1111111111' }).ok, false);
+  assert.deepEqual(demandProbeAccount({ ...account, GOOGLE_ADS_LOGIN_CUSTOMER_ID: '1111111111' }), { ok: false, code: 'GOOGLE_ADS_LOGIN_CUSTOMER_NOT_ALLOWED', login_customer_class: 'other_customer', login_customer_last4: '1111' });
+  assert.equal((demandProbeAccount({ ...account, GOOGLE_ADS_LOGIN_CUSTOMER_ID: '1687683400' }) as { login_customer_class?: string }).login_customer_class, 'other_allowlisted_customer');
   assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_API_VERSION: 'latest' }).ok, false);
   assert.equal(demandProbeAccount({ ...account, GOOGLE_ADS_REFRESH_TOKEN: '' }).ok, false);
 });
