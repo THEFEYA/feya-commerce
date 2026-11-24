@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-24.2",
+  "version": "2026-11-24.3",
   "fx": {
     "asOf": "2026-11-20",
     "usdPerEur": "1.0990",
@@ -417,7 +417,11 @@
         "XXL": "6499139703",
         "XXXL": "6500879978"
       },
-      "separateConfigurationIds": [],
+      "separateConfigurationIds": [
+        "b6625b12-eb5b-49b6-942b-00570f562381",
+        "260e1e5f-b933-4315-a216-86bfc840d83e",
+        "8a01e45a-1278-4215-bbe9-92603659c9b4"
+      ],
       "baselineEurMinor": {
         "c45dfaca-600d-46ef-b6a7-556de132d0e1": 25522,
         "b6625b12-eb5b-49b6-942b-00570f562381": 13028,
@@ -438,6 +442,10 @@
             "XXXL"
           ]
         }
+      },
+      "ownerWebsiteFullSet": {
+        "approvedOn": "2026-11-24",
+        "regularEurMinor": 32029
       }
     },
     "13300fb8-c39d-476f-9485-75747c4e6599": {
