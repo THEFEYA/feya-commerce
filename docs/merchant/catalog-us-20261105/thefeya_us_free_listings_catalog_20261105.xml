@@ -56023,6 +56023,24 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -56067,6 +56085,24 @@
       </g:shipping>
       <g:shipping>
         <g:country>HK</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
         <g:service>Express</g:service>
         <g:price>35.00 EUR</g:price>
         <g:min_handling_time>3</g:min_handling_time>
@@ -56125,6 +56161,24 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -56169,6 +56223,24 @@
       </g:shipping>
       <g:shipping>
         <g:country>HK</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
         <g:service>Express</g:service>
         <g:price>35.00 EUR</g:price>
         <g:min_handling_time>3</g:min_handling_time>
@@ -56227,6 +56299,24 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -56278,6 +56368,24 @@
         <g:min_transit_time>6</g:min_transit_time>
         <g:max_transit_time>9</g:max_transit_time>
       </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
       <g:shipping_handling_business_days>M-F</g:shipping_handling_business_days>
       <g:shipping_transit_business_days>M-F</g:shipping_transit_business_days>
       <g:excluded_destination>Shopping_ads</g:excluded_destination>
@@ -56322,6 +56430,24 @@
       </g:shipping>
       <g:shipping>
         <g:country>HK</g:country>
+        <g:service>Express</g:service>
+        <g:price>35.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>6</g:min_transit_time>
+        <g:max_transit_time>9</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>19.00 EUR</g:price>
+        <g:min_handling_time>3</g:min_handling_time>
+        <g:max_handling_time>5</g:max_handling_time>
+        <g:min_transit_time>10</g:min_transit_time>
+        <g:max_transit_time>14</g:max_transit_time>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SG</g:country>
         <g:service>Express</g:service>
         <g:price>35.00 EUR</g:price>
         <g:min_handling_time>3</g:min_handling_time>

@@ -367,6 +367,16 @@ export function buildFiles(data){
     }
     return priced;
   });
+  // The silver bodysuit set was quoted for Singapore in every standard size.
+  // Keep the full group on the same services only while every reviewed size
+  // still exceeds the existing Singapore price floor.
+  const singaporeSet='f17cad18-1bc9-4d89-9163-d11239fb7fc0';
+  const setRows=liveRows.filter(row=>row.item_group_id===singaporeSet);
+  if(setRows.length===SIZES.length&&SIZES.every(size=>setRows.some(row=>row.size===size))&&
+      setRows.every(row=>/^\d+\.\d{2} EUR$/.test(row.sale_price||row.price)&&Number.parseFloat(row.sale_price||row.price)>=310)){
+    const productId=productByConfiguration.get(singaporeSet);
+    deliveryByGroup.set(singaporeSet,offerDelivery(productionDays[productId],['HK','SG'],true));
+  }
   // A single selected item can cross a local import threshold even when another
   // configuration on the same product page does not. Never copy a Full Set price.
   const extraOffers=json(new URL('international-offers-20261123.json',DIR));
