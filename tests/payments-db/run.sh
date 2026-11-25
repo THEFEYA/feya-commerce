@@ -13,6 +13,9 @@ run -f supabase/migrations/20261021200000_payments_provider_checkout_v1.sql
 out=$(run -t -f tests/payments-db/payments_v1.test.sql 2>&1)
 echo "$out" | grep -E "ok - |FAILED|ERROR" | sed 's/^psql:[^ ]* NOTICE:  //'
 echo "$out" | grep -q "payments_v1: all assertions passed" || { echo "::error::payments_v1 SQL tests failed"; exit 1; }
+# Guest withdrawal storage is installed into the disposable fresh payments schema.
+run -f supabase/migrations/20261123193000_guest_withdrawal_intake_v1.sql
+run -f tests/payments-db/withdrawal_v1.test.sql
 # 2) Upgrade path from the earlier Seller Online setup panel (data carry-over)
 psql -q -d postgres -c "drop database $DB" >/dev/null
 psql -q -d postgres -c "create database $DB" >/dev/null

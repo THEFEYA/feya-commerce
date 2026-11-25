@@ -5,12 +5,12 @@
  */
 export const CHECKOUT_POLICY_BUNDLE_V1={
   contract:'thefeya_checkout_policy_evidence_v1',
-  version:'thefeya-sale-policy-20261123-v5',
+  version:'thefeya-sale-policy-20261123-v6',
   sources:{
     terms:{url:'/terms',file:'app/terms/page.tsx',git_blob_sha1:'d05c52b29b4864a6b3a014a221c084b9a37d511d'},
     shipping:{url:'/shipping',file:'app/shipping-public-v13/page.tsx',git_blob_sha1:'35a90d492f87f59c3166eefd4a020cad20c9bc4b'},
-    returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'7c7c687985e54112e8bdfec3bd1e6aeee1351669'},
-    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'2b91f9c1cd7290e840fff91567e9cd7640ef36fb'},
+    returns:{url:'/returns',file:'app/returns/page.tsx',git_blob_sha1:'626ecd6da5574e8b3d9ce5e834dd07dec0d418c5'},
+    privacy:{url:'/privacy',file:'app/privacy/page.tsx',git_blob_sha1:'f98f341206b9cd78ba0bf70f81f90c73040d1f91'},
   },
 } as const;
 

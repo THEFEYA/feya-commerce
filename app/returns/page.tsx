@@ -4,8 +4,10 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {GuestWithdrawal} from '@/components/withdrawal/GuestWithdrawal';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 import {SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
+import {withdrawalEnabled} from '@/lib/withdrawal/config';
 
 const euNoticeBase='https://europa.eu/youreurope/business/images/content/eu-legal-guarantee-notice-and-garan-label/Legal-guarantee-harmonised-notice_';
 
@@ -72,6 +74,7 @@ const sections=[
 ];
 
 export default function ReturnsPage(){
+  const onlineWithdrawal = withdrawalEnabled();
   return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
@@ -79,8 +82,11 @@ export default function ReturnsPage(){
         <div className="eyebrow-gold mb-5">Store policy · Made to order</div>
         <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Returns & Exchanges</h1>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[#aaa2a0]">
-          For a fit issue, damaged parcel or change to your order, <Link href="/contact" className="text-bone underline underline-offset-4">contact the studio</Link>. To give notice of withdrawal, use the <a href="#withdrawal-notice" className="text-bone underline underline-offset-4">email and notice details below</a>. Neither requires a customer account.
+          For a fit issue, damaged parcel or change to your order, <Link href="/contact" className="text-bone underline underline-offset-4">contact the studio</Link>. You can give notice of withdrawal by <a href={onlineWithdrawal ? '#withdrawal-by-email' : '#withdrawal-notice'} className="text-bone underline underline-offset-4">email</a> without a customer account.
         </p>
+        {onlineWithdrawal && <div id="withdrawal-notice" className="scroll-mt-24">
+          <GuestWithdrawal seller={SELLER_ONLINE_PROVIDER.legalName} email={SELLER_ONLINE_PROVIDER.usOfficeEmail}/>
+        </div>}
       </div>
     </section>
 
@@ -92,7 +98,7 @@ export default function ReturnsPage(){
             {section.body.map(p=><p key={p}>{p}</p>)}
           </div>
         </article>)}
-        <article id="withdrawal-notice" className="scroll-mt-24 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+        <article id={onlineWithdrawal ? 'withdrawal-by-email' : 'withdrawal-notice'} className="scroll-mt-24 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">How to give notice of withdrawal</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>For an order sold by {SELLER_ONLINE_PROVIDER.legalName}, email <a className="break-all text-bone underline underline-offset-4" href={`mailto:${SELLER_ONLINE_PROVIDER.usOfficeEmail}?subject=TheFEYA%20withdrawal%20notice`}>{SELLER_ONLINE_PROVIDER.usOfficeEmail}</a>. Identify your order and say you wish to withdraw. You may use your own words.</p>

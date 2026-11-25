@@ -62,7 +62,7 @@ export function OrderReceiptClient() {
           <button type="button" className="underline underline-offset-4" onClick={() => downloadOrderDetails(receipt)}>Download order details (.txt)</button>
           <Link className="underline underline-offset-4" href={ORDER_HELP_PATH}
             onNavigate={()=>saveSupportOrderNumber(receipt.order_number)}>Get help with this order</Link>
-          <Link href="/returns" className="underline underline-offset-4">Returns and withdrawal</Link>
+          <Link href="/returns#withdrawal-notice" className="underline underline-offset-4">Returns and withdrawal</Link>
         </div>
       </>}
     </div>
